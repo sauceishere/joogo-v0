@@ -1,0 +1,160 @@
+sudo npm install -g expo-cli 3.0.10 20200601
+
+expo install expo-google-app-auth@^8.1.0 20200601
+https://forums.expo.io/t/undefined-is-not-object-expo-google-loginasync/26889 
+
+react native gesture handler problem on 20200601
+Need to downgrade version
+https://qiita.com/zaburo/items/81c39f73216e87f443ea
+https://qiita.com/kana-t/items/8e996b28f642be0b08b5
+expo install react-native-gesture-handler@^1.3.0 20200601
+
+expo install react-navigation-stack@^2.3.13 20200601
+
+expo install @react-native-community/masked-view@^0.1.6 20200601
+
+expo install react-native-safe-area-context@^0.7.3 20200601
+
+expo install react-native-screens@2.2.0 20200601
+
+expo install react-navigation-tabs@^2.8.12 20200601
+
+expo install react-native-reanimated@^1.7.0 20200601
+
+expo install react-native-webview@^8.1.1 20200601
+
+expo install moment@^2.24.0 20200601
+
+expo install @react-native-firebase/firestore 20200424 --> maybe no need to install
+
+expo install @react-native-firebase/storage 20200424 --> maybe no need to install
+
+expo install expo-camera@^8.2.0 20200601
+
+expo install expo-permissions@^8.1.0 20200601
+
+expo install expo-video-thumbnails@^4.1.0 20200601
+
+expo install expo-image-picker@^8.1.0 20200601
+
+expo install react-native-uuid@^1.4.9 20200425
+
+expo install react-navigation-native@^0.0.0 20200601
+
+expo install react-navigation@^4.3.8 20200601
+
+expo install firebase@^7.9.0 20200601
+
+expo install uuid@^3.4.0 20200601
+
+
+--HERE IS HOW TO INSTALL @tensorflow/tfjs-react-native https://www.npmjs.com/package/@tensorflow/tfjs-react-native ----- 20200601 ------
+expo install expo-gl@^8.1.0
+write over metro.confog.js in react native project root folder
+expo install @tensorflow/tfjs@^1.7.3
+expo install @tensorflow/tfjs-react-native@^0.2.3
+expo install @react-native-community/async-storage@^1.9.0
+expo install react-native-fs@^2.16.6 
+
+
+expo install react-native-vector-icons@^6.6.0 20200601
+
+expo install @expo/vector-icons@^10.0.0 20200601
+
+
+---> solution against error  https://github.com/tensorflow/tfjs/issues/2400
+    expo install react-native-typescript-transformer@^1.2.13 20200601
+    expo install typescript@^3.8.3 20200601
+    in root folder, created metro.config.js & tsconfig.json
+
+
+mem 4.0.0 there is a memory leak ---> tried but did not work
+https://stackoverflow.com/questions/58294518/how-to-properly-update-mem-package-within-package-lock-json-file 
+
+
+expo install expo-file-system@^8.1.0 20200601
+
+expo install @tensorflow-models/posenet@^2.2.1 20200601
+
+expo install react-native-network-info@^5.2.1 20200601
+
+expo install react-native-get-random-values 20200429 --> Mayne no need. // for uuid error https://www.npmjs.com/package/uuid#getrandomvalues-not-supported 20200429
+
+expo install expo-constants@^9.0.0 20200601
+
+expo install expo-keep-awake@^8.1.0　20200601　// https://docs.expo.io/versions/latest/sdk/keep-awake/
+
+expo install expo-sensors@^8.1.0 20200601 // https://docs.expo.io/versions/latest/sdk/accelerometer/
+
+-------------------------------------------------------------------------------------------------------
+<THIS BELOW HAS NOT DONE YET>
+
+ expo r -c 
+
+
+
+
+
+
+Install gsutil 20200207
+https://cloud.google.com/storage/docs/gsutil_install?authuser=0
+
+
+expo install expo-linear-gradient 20200211
+
+
+expo install react-native-video 20200220
+
+expo install expo-av 20200220
+
+--HERE IS HOW TO INSTALL @tensorflow/tfjs-react-native https://www.npmjs.com/package/@tensorflow/tfjs-react-native ----- 20200223 ------
+expo install react-native-unimodules
+expo install expo-gl
+write over metro.confog.js  ---> /Users/naokishibata/moveurbody/node_modules/react-native/template/metro.config.js
+expo install @tensorflow/tfjs
+expo install @tensorflow/tfjs-react-native
+expo install @react-native-community/async-storage
+expo install react-native-fs 
+---> solution against error  https://github.com/tensorflow/tfjs/issues/2400
+    expo install typescript react-native-typescript-transformer
+    in root folder, created metro.config.js & tsconfig.json
+
+
+expo install react-native-camera 20200223  --> will not use because configuration looks very difficult.
+
+
+
+expo install @tensorflow-models/posenet 20200225
+
+expo install react-native-svg 20200226
+
+
+
+expo install expo-gl 20200226
+
+expo install react-native-media-meta 20200321
+
+
+
+
+expo install react-native-video-processing 20200327
+
+expo install expo-image-manipulator 20200328
+
+expo install expo-google-sign-in 20200411
+Native Google Sign-In has been moved to Expo.GoogleSignIn ('expo-google-sign-in') Falling back to `web` behavior. `behavior` deprecated in SDK 34
+https://docs.expo.io/versions/latest/sdk/google-sign-in/
+
+
+https://support.google.com/firebase/answer/7015592?hl=ja&ref_topic=6400762
+<Android app>
+com.getfit.moveurbody
+getfit
+
+
+20200418 Exercise.js suddenly down by error on tf.ready posenet
+Error posenet.load:  [Error: The highest priority backend 'rn-webgl' has not yet been initialized. Make sure to await tf.ready() or await tf.setBackend() before calling other methods]
+Error tf.ready():  [Error: Backend name 'undefined' not found in registry
+
+20200422 Edit metro.config.js
+https://github.com/tensorflow/tfjs/tree/master/tfjs-react-native#step-3-configure-metro

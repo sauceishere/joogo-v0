@@ -1,0 +1,1 @@
+export const bodytags = ["Head", "Body", "Shoulders", "Arms", "Thighs", "Hip", "Legs"]

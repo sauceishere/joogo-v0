@@ -1,0 +1,1100 @@
+import * as React from 'react';
+import { Component, useState } from 'react';
+import { StyleSheet, SafeAreaView, Image, View, ScrollView, Text, TouchableOpacity, TextInput, Button, Dimensions, ActivityIndicator, Keyboard, TouchableWithoutFeedback, Picker, Modal } from 'react-native';
+// import HTML from 'react-native-render-html'; // npm install react-native-render-html
+import * as firebase from 'firebase';
+// import * as storage from 'firebase/storage';
+import * as ImagePicker from "expo-image-picker";
+import { Ionicons } from "@expo/vector-icons";
+// import uuid from 'react-native-uuid';
+import { v4 as uuidv4 } from 'uuid';
+import * as VideoThumbnails from 'expo-video-thumbnails';
+// import { VideoPlayer, Trimmer } from 'react-native-video-processing';
+// import { Asset } from 'expo-asset';
+// import * as ImageManipulator from 'expo-image-manipulator';
+import moment from "moment"; // for timestamp
+import { countrylist } from '../assets/masters/countrylist'; // countrylist master
+import { bodytags } from '../assets/masters/bodyTags'; // bodytags master
+import {enCheckDuplicatedNickname} from '../shared/Consts';
+
+import * as functions from 'firebase/functions';
+import { flattenDiagnosticMessageText } from 'typescript';
+
+
+ 
+
+
+export default class ProfileScreen extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      uid: firebase.auth().currentUser.uid,
+      text: null,
+      rawImage: null, // _pickImage uri
+      rawImageWidth: null,
+      rawImageHeight: null,
+      compressedImage: null, // video uri after compressed 
+      imageTn: null, // thumbsnail
+      isUploading: false,
+      allComplete: false, 
+      en: {enCheckDuplicatedNickname}['enCheckDuplicatedNickname'], 
+
+      DidGetProfileData: false,
+      isEditing: this.props.navigation.getParam('isNewUser') ?? false, // become 'true' when 'Edit' button pressed. // isNewUser from Dashboard.js
+      // profileData: null,
+      ProfileEditId: uuidv4(),
+      nname: null, // nickname input
+      // cnlist: {countrylist}, // countrylist masteres
+      nat: null, 
+      // yrlist: [], 
+      byr: null,
+      gdr: null,
+      // btlist: {bodytags},
+      bt0: null,
+      bt1: null,
+      ts: null,
+      llogin: null,
+      lupdate: null,
+      avatarRawUrl: null,
+      isSigningOut: false,
+    };
+    this._onGenderValueChange = this._onGenderValueChange.bind(this);
+    this._onCountryValueChange = this._onCountryValueChange.bind(this);
+    this._onYearValueChange = this._onYearValueChange.bind(this);
+    this._onBodytags0ValueChange = this._onBodytags0ValueChange.bind(this);
+    this._onBodytags1ValueChange = this._onBodytags1ValueChange.bind(this);
+    this._getUsers = this._getUsers.bind(this);
+  }
+
+
+
+
+  TnTargetSize = 640 * 360; // 1920 * 1080, 1280 * 720, 854 * 480
+  TnCompRate = null;
+  // ProfileEditId = uuidv4();
+
+  // profileData = [];
+  cnlist = {countrylist}
+  btlist = {bodytags}
+  yrlist = []
+  
+
+
+  // // Get User Profile from Firestore
+  _getUsers = async () => {
+    console.log('------ _getUsers()');
+    // console.log('------ this.state.uid: ', this.state.uid);
+    // console.log('firebase.auth().currentUser.uid: ', firebase.auth().currentUser.uid);
+
+    // if (firebase.auth().currentUser.uid == ''){
+    //   console.log('firebase.auth().currentUser.uid is null');
+    //   alert('firebase.auth().currentUser.uid is null');
+    // }
+
+    // firebase.firestore().collection("users").doc( firebase.auth().currentUser.uid ).get().then( (QueryUid) => { 
+      // if (QueryUid) {
+      //   console.log('QueryUid.data(): ', QueryUid.data());
+      //   // console.log('QueryUid.data().NNAME: ', QueryUid.data().NNAME);
+
+      //   if (QueryUid.data().NNAME) {
+      //     this.setState({
+      //       nname: QueryUid.data().NNAME,
+      //       nat: QueryUid.data().NAT, 
+      //       byr: QueryUid.data().BYR.toString(),
+      //       gdr: QueryUid.data().GDR,
+      //       bt0: QueryUid.data().FAVTAG["0"],
+      //       bt1: QueryUid.data().FAVTAG["1"],
+      //       ts: QueryUid.data().TS,
+      //       llogin: QueryUid.data().LLOGIN,
+      //       lupdate: QueryUid.data().UPD_AT,
+      //       avatarRawUrl: QueryUid.data().AVTRURL,
+
+      //       DidGetProfileData: true, 
+      //     });
+      //     console.log('this.state.nname, nat, byr, gdr: ', this.state.nname, this.state.nat, this.state.byr, this.state.gdr );
+
+      //   } else { // No Nickname means New User.
+      //     console.log('==== Profile.js New User coming.')
+      //     this.setState({
+      //       nname: null, //'Fill our your Nickname'
+      //       nat: null, //'Select Nationality'
+      //       byr: null, //'Select Birthyear'
+      //       gdr: null, //'Select Gender'
+      //       bt0: null, //'Select Body Part You Focus on'
+      //       bt1: null, //'Select Body Part You Focus on'
+      //       ts: Date.now()/1000,
+      //       llogin: Date.now()/1000,
+      //       lupdate: Date.now()/1000,
+      //       avatarRawUrl: '',
+
+      //       DidGetProfileData: true, 
+      //     });
+
+      //     this.setState({isEditing: true, isUploading: false, allComplete: false}); // Going to Edit mode.
+
+      //   }
+
+        // // For Editing screen if Firestore do not have record
+        // if ( !this.state.nname || this.state.nname.toString().length > 0) {
+        //   this.state.nname = 'Fill out your Nickname';
+        // } 
+        // if ( !this.state.gdr || this.state.gdr.toString().length > 0) {
+        //   this.state.gdr = 'Select Gender';
+        // } 
+        // if ( !this.state.byr || this.state.byr.toString().length > 0) {
+        //   this.state.byr = 'Select Birthyear';
+        // } 
+        // if ( !this.state.nat || this.state.nat.toString().length > 0) {
+        //   this.state.nat = 'Select Nationality';
+        // } 
+        // if ( !this.state.bt0 || this.state.bt0.toString().length > 0) {
+        //   this.state.bt0 = 'Select Body Part You Focus on';
+        // } 
+        // if ( !this.state.bt1 || this.state.bt1.toString().length > 0) {
+        //   this.state.bt1 = 'Select Body Part You Focus on';
+        // }                                 
+
+      // }
+    // }).catch(function(error) {
+    //   alert("Error getting users/{userId}:", error);
+    //   console.log("Error getting users/{userId}}:", error);
+    // });  
+
+
+
+    // getUserProfile-py
+    const _getUserProfile = (idTokenCopied) => {
+      console.log('----- Profile.js _getUserProfile.');
+      // console.log('----- _getUserProfile idTokenCopied: ', idTokenCopied);
+      fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/getUserProfile-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+        method: 'POST',
+        headers: {
+          // 'Accept': 'application/json', 
+          'Content-Type' : 'application/json' // text/html text/plain application/json
+        },
+        // mode: "no-cors", // no-cors, cors, *same-origin
+        body: JSON.stringify({
+          id_token: idTokenCopied,
+        })
+      }).then( result => result.json() )
+        .then( response => { 
+          console.log('----- Profile.js _getUserProfile response.' );
+          if (response["code"] == 'ok' || response["code"] == 'new_user' ) {
+            // console.log('----- response[code] is ok or New User');
+
+            if (response["authedUid"] == firebase.auth().currentUser.uid) {
+              console.log('Correctly received "authedUid" ');
+
+              if (response["code"] == 'ok') {
+                console.log('==== Profile.js Existing user coming.');
+                this.setState({
+                  nname: response["userProfile"].NNAME,
+                  nat: response["userProfile"].NAT, 
+                  byr: response["userProfile"].BYR.toString(),
+                  gdr: response["userProfile"].GDR,
+                  bt0: response["userProfile"].FAVTAG["0"],
+                  bt1: response["userProfile"].FAVTAG["1"],
+                  ts: response["userProfile"].TS,
+                  llogin: response["userProfile"].LLOGIN,
+                  lupdate: response["userProfile"].UPD_AT,
+                  // avatarRawUrl: response["userProfile"].AVTRURL,
+                  DidGetProfileData: true, 
+                });
+
+              } else if (response["code"] == 'new_user') {
+                console.log('==== Profile.js New User coming.');
+                this.setState({
+                  nname: null, //'Fill our your Nickname'
+                  nat: null, //'Select Nationality'
+                  byr: null, //'Select Birthyear'
+                  gdr: null, //'Select Gender'
+                  bt0: null, //'Select Body Part You Focus on'
+                  bt1: null, //'Select Body Part You Focus on'
+                  ts: Date.now()/1000,
+                  llogin: Date.now()/1000,
+                  lupdate: Date.now()/1000,
+                  // avatarRawUrl: '',
+                  DidGetProfileData: true, 
+                });
+              }
+
+            } else {
+              console.log('Received wrong "authedUid". Please log-in again.');
+              alert('Received wrong "authedUid". Please log-in again.');
+            }
+            
+          } else { // response[code] is Error
+            console.log('Received response[code] = error from functions.');
+            alert('Received response[code] = error from functions., Please log-in again.');
+          }
+      }).catch( error => {
+        console.log('Error _getUserProfile-py: ', error);
+        alert('Error response from _getUserProfile, Please log-in again.');
+      });
+    }         
+
+
+    ///////////  getUserProfile-py ////////////////////////////////////////////////// https://firebase.google.com/docs/auth/admin/verify-id-tokens?authuser=0#%E3%82%A6%E3%82%A7%E3%83%96
+    firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then( function(idToken) {
+      // Send token to your backend via HTTPS
+      // console.log('----- Got idToken. ');
+      const idTokenCopied = idToken;
+
+      _getUserProfile(idTokenCopied); // run http trigger
+      
+    }).catch(function(error) {
+      console.log('Error xxxxxxxxxxxxxxxx Could not get idToken: ', error);
+    });    
+
+
+
+  }  
+
+
+  async componentDidMount() {
+    console.log('------------- componentDidMount Profile started 80.');
+    // console.log('firebase.auth().currentUser.uid: ', firebase.auth().currentUser.uid);
+    console.log('this.state.ProfileEditId: ', this.state.ProfileEditId);
+
+    // // create year list 20200420
+    // this.yrlist = [];
+    let thisYear = new Date().getFullYear();
+    var i;
+    for (i = thisYear + 1; i > thisYear - 120; i--) { // current year - 120 yrlists
+      this.yrlist.push( i.toString() ); // convert string for parsing array & append to array
+      // console.log(i);
+    }
+    // console.log('this.yrlist: ', this.yrlist);
+
+    // console.log('this.state.cnlist: ', this.state.cnlist.countrylist[0]["Name"]);
+
+    // // Get AvatarFullUrl from Storage
+    // const storage= firebase.storage(); // https://firebase.google.com/docs/storage/web/start?hl=ja
+    // const storageRef = storage.ref(); // Create a reference to the file we want to download
+    // const starsRef2 = storageRef.child( 'avatar/' + this.profileData.avatarRawUrl); 
+    // await starsRef2.getDownloadURL().then( async (fullUrlAvatar) => {
+    //   this.profileData.avatarFullUrl = fullUrlAvatar;
+    //   console.log('this.profileData.avatarFullUrl: ', this.profileData.avatarFullUrl);
+    // }).catch(function(error) {
+    //   alert('Error getting avatar/avatarFullUrl : ', error.code);
+    //   console.log('Error getting avatar/avatarFullUrl : ', error.code);
+    // });  
+
+
+    if (this.state.DidGetProfileData == false) {
+      await this._getUsers();
+    };
+
+
+    // // Get EXE_PTSUM from Firestore 
+    // await firebase.firestore().collection("users").doc( firebase.auth().currentUser.uid ).collection("current").doc( "EXE_PTSUM" ).get().then( (QueryUid) => { 
+    //   if (QueryUid) {
+    //     // console.log('QueryUid.data().NNAME: ', QueryUid.data().NNAME);
+    //     this.profileData.EXE_PTSUM = QueryUid.data().EXE_PTSUM ;
+    //     console.log('this.profileData.EXE_PTSUM: ', this.profileData.EXE_PTSUM);
+    //   }
+    // }).catch(function(error) {
+    //   alert("Error getting users/{userId}/current/EXE_PTSUM:", error.code);
+    //   console.log("Error getting users/{userId}/current/EXE_PTSUM}:", error.code);
+    // });  
+
+
+    // // Get VIEW_PTSUM from Firestore 
+    // await firebase.firestore().collection("users").doc( firebase.auth().currentUser.uid ).collection("current").doc( "VIEW_PTSUM" ).get().then( (QueryUid) => { 
+    //   if (QueryUid) {
+    //     // console.log('QueryUid.data().NNAME: ', QueryUid.data().NNAME);
+    //     this.profileData.VIEW_PTSUM = QueryUid.data().VIEW_PTSUM ;
+    //     console.log('this.profileData.VIEW_PTSUM: ', this.profileData.VIEW_PTSUM);
+    //   }
+    // }).catch(function(error) {
+    //   alert("Error getting users/{userId}/current/VIEW_PTSUM:", error.code);
+    //   console.log("Error getting users/{userId}/current/VIEW_PTSUM}:", error.code);
+    // });  
+
+
+
+
+    // this.setState({DidGetProfileData: true }); 
+    // this.setState({profileData: JSON.parse(JSON.stringify(this.profileData))}); 
+    // console.log('this.state.profileData:, ', this.state.profileData);
+    // console.log('this.state.yrlist:, ', this.state.yrlist);
+    console.log('------------- componentDidMount Profile Completed.');
+  }
+
+
+
+  componentWillUnmount() {
+    console.log('------------- componentWillUnmount Profile.');
+
+    if (!this.state.nname) { // if nickname NOT filled out, then alert and block phasing out
+      this.props.navigation.push('Profile', {isNewUser :true}); // block phasing out and back to Edit mode by {isNewUser:true}
+      console.log('Please fill out Nickname.');
+      alert('Please fill out Nickname.');
+    }
+  }
+
+
+  _SignOut = async() => {
+    if (!this.state.nname) { // if nickname NOT filled out, then alert and block phasing out
+      this.props.navigation.push('Profile'); // block phasing out
+      console.log('Please fill out Nickname.');
+      alert('Please fill out Nickname.');
+    } else {
+
+      this.setState({ isEditing: false, isSigningOut : true,  });
+
+      // // add record on Firestore /users/{userId}/loginLogs
+      // await firebase.firestore().collection( 'users' ).doc( firebase.auth().currentUser.uid ).collection( 'loginLogs' ).doc( (Date.now()/1000).toString() + '_OUT').set({
+      //   TS: Date.now() / 1000, // unix
+      //   INOUT: 'OUT',
+      //   // IPADD: ip_add.toString(),
+      // }).then((ref)=>{
+      //   console.log('loginLogs added');
+      // }).catch((error)=>{
+      //   console.log('loginLogs error: ', error);
+      // });   
+
+ 
+      // whenLogOut-py
+      const _whenLogOut = (idTokenCopied) => {
+        console.log('----- _whenLogOut.');
+        // console.log('----- _whenLogOut idTokenCopied: ', idTokenCopied);
+        fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/whenLogOut-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+          method: 'POST',
+          headers: {
+            // 'Accept': 'application/json', 
+            'Content-Type' : 'application/json' // text/html text/plain application/json
+          },
+          // mode: "no-cors", // no-cors, cors, *same-origin
+          body: JSON.stringify({
+            id_token: idTokenCopied,
+          })
+        }).then( result => result.json() )
+          .then( response => { 
+            console.log('----- _whenLogOut response:', response );
+            if (response["code"] == 'ok') {
+              console.log('----- response[code] is ok');
+              if (response["authedUid"] == firebase.auth().currentUser.uid) {
+                // this.setState({ authedUid: response["authedUid"], userProfile: response["userProfile"] });
+                // this.setState({isSigningOut : false });
+                console.log('Correctly received "authedUid".');
+                firebase.auth().signOut(); // sign out
+                console.log('-------------------------------------- Signed out.');
+              } else {
+                console.log('Received wrong "authedUid". Please log-in again.');
+                alert('Received wrong "authedUid". Please log-in again.');
+              }
+              
+            } else { // response[code] is Error
+              console.log('Received response[code] = error from functions.');
+              alert('Received response[code] = error from functions., Please log-in again.');
+            }
+        }).catch( error => {
+          console.log('Error _whenLogOut-py: ', error);
+          alert('Error response from _whenLogOut, Please log-in again.');
+        });
+      }         
+
+
+      ///////////  whenLogOut-py ////////////////////////////////////////////////// https://firebase.google.com/docs/auth/admin/verify-id-tokens?authuser=0#%E3%82%A6%E3%82%A7%E3%83%96
+      firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then( function(idToken) {
+        // Send token to your backend via HTTPS
+        // console.log('----- Got idToken. ');
+        const idTokenCopied = idToken;
+
+        _whenLogOut(idTokenCopied); // run http trigger
+        
+      }).catch(function(error) {
+        console.log('Error xxxxxxxxxxxxxxxx Could not get idToken: ', error);
+      });      
+
+
+
+    }
+  };
+
+
+  _onNNameValueChange = async (nickname) =>  {
+    await this.setState({ nname: nickname });
+    console.log( 'this.state.nname: ', this.state.nname );
+  }
+
+
+  _onGenderValueChange = async (gender) =>  {
+    // console.log( 'gender: ', gender );
+    await this.setState({ gdr: gender });
+    console.log( 'this.state.gdr: ', this.state.gdr );
+  }
+
+
+  _onCountryValueChange = async (country) =>  {
+    // console.log( 'country: ', country );
+    await this.setState({ nat: country });
+    console.log( 'this.state.nat: ', this.state.nat );
+  }
+
+
+  _onYearValueChange = async (year) =>  {
+    // console.log( 'year: ', year );
+    await this.setState({ byr: year });
+    console.log( 'this.state.byr: ', this.state.byr );
+  }
+
+
+  _onBodytags0ValueChange = async (bt) =>  {
+    // console.log( 'bt: ', bt );
+    await this.setState({ bt0: bt });
+    console.log( 'this.state.bt0: ', this.state.bt0 );
+  }
+
+
+  _onBodytags1ValueChange = async (bt) =>  {
+    // console.log( 'bt: ', bt );
+    await this.setState({ bt1: bt });
+    console.log( 'this.state.bt1: ', this.state.bt1 );
+  }
+
+
+  _pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({ // https://docs.expo.io/versions/latest/sdk/imagepicker/#imagepickermediatypeoptions
+      mediaTypes: ImagePicker.MediaTypeOptions.Videos, 
+      allowsEditing: true,
+      aspect: [9, 16], // [3,4]
+      quality: 1,
+    });
+    if (!result.cancelled) {
+      this.setState({ rawImage: result.uri, rawImageWidth: result.width, rawImageHeight: result.height });
+      console.log('_pickImage result: ', result);
+    } else {
+      alert('Failed to pick Video. Please try again.');
+    }
+  };
+
+
+  _checkDuplicatedNickname = async () => {
+    console.log('---------- _checkDuplicatedNickname');
+    // console.log('uid, en: ', this.state.uid, this.state.en)
+
+      const _BacktoViewPage = () => { 
+        console.log('_BacktoViewPage');
+        this.setState({ allComplete: false, isEditing: false}); // remove modal and back to view pages
+        this._getUsers();
+      }
+
+      //// checkDuplicatedNickname-py
+      const _checkDuplicatedNickname = (idTokenCopied) => {
+        console.log('----- _checkDuplicatedNickname.');      
+
+        fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/checkDuplicatedNickname-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+        // const myJson= fetch('https://asia-northeast1-getfit-f3a98.cloudfunctions.net/check_duplicated_nickname', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+          method: 'POST',
+          headers: {
+            // 'Accept': 'application/json', 
+            'Content-Type' : 'application/json' // text/html text/plain application/json
+          },
+          // mode: "no-cors", // no-cors, cors, *same-origin
+          body: JSON.stringify({
+          // body: {
+            // uid: firebase.auth().currentUser.uid,
+            newNName: this.state.nname,
+            en: this.state.en, 
+            lupdate: Date.now() / 1000, // unix
+            nat: this.state.nat, 
+            byr: this.state.byr,
+            gdr: this.state.gdr,
+            bt0: this.state.bt0, 
+            bt1: this.state.bt1,
+            editId: this.state.ProfileEditId,
+            id_token: idTokenCopied,
+          })
+
+        // }).then( result => console.log('result.json():  ', result.json()) )
+        }).then( result => result.json() )
+          // .then( response => { console.log('Success:', JSON.stringify(response) ) } )
+          .then( response => { 
+            console.log('----- response:', response );
+            // console.log('----- response[code]:', response["code"] );
+
+            if (response["code"] == 'ok') {
+              console.log('----- response[code] is ok:  ' );
+              this.setState({ isUploading: false, allComplete: true}); // remove ActivityIndicator, and show Completed text
+
+              ////// set timer X seconds and then isEditing: false
+              var countSec = 0;
+              var countup = async function(){
+                console.log(countSec++);
+                _BacktoViewPage(); // move back
+              } 
+              setTimeout(countup, 3 * 1000); // milliseconds
+
+            } else if (response["code"] == 'duplicated') {  
+              console.log('----- Your Nickname is NOT Unique. Please fill out another Nickname ') ;
+              alert('Your Nickname is NOT Unique. Please fill out another Nickname');
+              this.setState({ isUploading: false});   
+
+            } else if (response["code"] == 'error') {  
+              console.log('----- response[code] is Error, ') ;
+              alert('response[code] is Error');
+              this.setState({ isUploading: false});    
+
+            } else {
+              console.log('Error fetching _checkDuplicatedNickname');
+              alert('Error fetching _checkDuplicatedNickname');
+              this.setState({ isUploading: false});
+            }
+            
+          }).catch( error => {
+            this.setState({ isUploading: false}); // remove ActivityIndicator, and show Completed text
+            console.log(' Error _checkDuplicatedNickname: ', error );
+            // console.log('response["detail"]: ', response["detail"] ); 
+            alert(' Error _checkDuplicatedNickname: ');
+          });
+        }
+
+
+        ///////////  checkDuplicatedNickname-py ////////////////////////////////////////////////// https://firebase.google.com/docs/auth/admin/verify-id-tokens?authuser=0#%E3%82%A6%E3%82%A7%E3%83%96
+        firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then( function(idToken) {
+          // Send token to your backend via HTTPS
+          console.log('----- Got idToken. ');
+          const idTokenCopied = idToken;
+
+          _checkDuplicatedNickname(idTokenCopied); // run http trigger
+          
+        }).catch(function(error) {
+          console.log('Error xxxxxxxxxxxxxxxx Could not get idToken: ', error);
+        });
+
+
+        
+
+
+  }  
+
+
+  
+  
+  _handlePost = async() => {
+    console.log('----------- _handlePost');
+    // console.log('this.state: ', this.state);
+    // console.log('this.state.text: ', typeof(this.state.text) );
+    
+    if (this.state.nname) { // if image and text exists
+
+      if (this.state.bt0 && this.state.bt1) { // if both exists
+
+        if (this.state.bt0 != this.state.bt1) { // if both are NOT the same value
+          this.setState({ isUploading: true });
+          console.log('>>>>>> isUploading: true.');
+          await this._checkDuplicatedNickname();
+
+        } else { // if both are the same value, 
+          if (this.state.bt0 == '-' && this.state.bt1 == '-') { // except both are '-'
+            this.setState({ isUploading: true });
+            console.log('>>>>>> isUploading: true.');
+            await this._checkDuplicatedNickname();
+
+          } else { // then alert to change
+          console.log('Please choose different Focus Body Tags.');
+          alert('Please choose different Focus Body Tags.');
+          }
+        }
+
+      } else{
+        this.setState({ isUploading: true });
+        console.log('>>>>>> isUploading: true.');
+        await this._checkDuplicatedNickname();     
+
+      }
+    } else {
+      if (!this.state.nname) { // if nickname NOT filled out, then alert to change
+        console.log('Please fill out Nickname.');
+        alert('Please fill out Nickname.');
+      } else {
+        console.log('unknown error _handlePost.');
+        alert('unknown error _handlePost.');
+      }
+    }
+
+    
+  };
+
+
+  _pressEdit = async() => {
+    console.log('---------- _pressEdit');
+    this.setState({isEditing: true, isUploading: false, allComplete: false});
+  };
+ 
+
+  _pressCancelEdit = async () => {
+    console.log('---------- _pressCancelEdit');
+    if (!this.state.nname) { // if nickname NOT filled out, then alert and block phasing out
+      this.props.navigation.push('Profile', {isNewUser :true}); // block phasing out and back to Edit mode by {isNewUser:true}
+      // this.setState({isEditing: true});
+      console.log('Please fill out Nickname.');
+      alert('Please fill out Nickname.');
+    } else {
+      this.setState({isEditing: false, isUploading: false, allComplete: false});
+      await this._getUsers(); // reset inputted data because inputted data should not be saved.
+    }
+  };
+
+
+
+
+  render() {
+    const { isUploading, allComplete, isEditing, DidGetProfileData, nname, gdr, byr, nat, bt0, bt1, ts, llogin, lupdate, isSigningOut } = this.state;
+    // console.log('ts: ', ts);
+
+    return (
+
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}> 
+        <SafeAreaView style={styles.container}>
+
+          <Modal visible={allComplete} animationType='fade' transparent={true}>
+            <View style={styles.modal}>
+              <Text style={styles.postedText}>
+                Your Profile is Saved!{"\n"}
+              </Text>
+            </View>
+          </Modal>
+
+
+
+
+        { DidGetProfileData ?
+          <View>
+
+            { isEditing ?
+              <View style={styles.inputContainer}>
+                <View style={{width: '100%', marginTop: Dimensions.get('window').height * 0.03, marginBottom: Dimensions.get('window').height * 0.03,}}>
+                  
+                  <Text style={styles.itemTitle}><Text style={styles.itemMandatory}> * </Text>Nickname (Max 25 charactors)</Text>
+                  <TextInput
+                    multiline={false}
+                    numberOfLines={1}
+                    maxLength={25}
+                    style={styles.itemField10}
+                    defaultValue= {nname}
+                    onChangeText={text => this._onNNameValueChange(text) }
+                    value={this.state.nname}
+                  >
+                  </TextInput>
+
+                  <Text style={styles.itemTitle}>Gender</Text>
+                  {/* <Text style={styles.itemField00}>{profileData.GDR}</Text> */}
+                  <View style={styles.pickerView}>
+                    <Picker
+                      selectedValue= {gdr}
+                      onValueChange = {(itemValue) => this._onGenderValueChange(itemValue) }
+                      style={styles.picker}
+                      itemStylestyle={styles.pickerItem}
+                      mode="dialog">
+                      <Picker.Item label={gdr} value={gdr} key={gdr}/>
+                      <Picker.Item label="Male" value="Male" key="Male"/>
+                      <Picker.Item label="Female" value="Female" key="Female"/>
+                      <Picker.Item label="Other" value="Other" key="Other"/>
+                      <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
+                    </Picker>
+                  </View>
+
+                  <Text style={styles.itemTitle}>Nationality</Text>
+                  {/* <Text style={styles.itemField00}>{profileData.NAT}</Text> */}
+                  <View style={styles.pickerView}>
+                    <Picker
+                      selectedValue= {nat}
+                      // onValueChange={country => this.setState({ nat: country }), console.log( this.state.country ) }
+                      // onValueChange = {(country) => this.setState({ nat: country })}
+                      onValueChange = {(itemValue) => this._onCountryValueChange(itemValue) }
+                      style={styles.picker}
+                      Style={styles.pickerItem}
+                      mode="dialog">
+                      <Picker.Item label={nat} value={nat}  key={nat} />
+                      {this.cnlist.countrylist.map( (obj) => 
+                        <Picker.Item label={obj["Name"]} value ={obj["Name"]} key={obj["Name"]}/>
+                      )}
+                      <Picker.Item label="Other" value="Other" key="Other"/>
+                      <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
+                    </Picker>
+                  </View>
+
+                  <Text style={styles.itemTitle}>Birth Year</Text>
+                  {/* <Text style={styles.itemField00}>{profileData.BYR}</Text>   */}
+                  <View style={styles.pickerView}>
+                    <Picker
+                      selectedValue= {byr}
+                      onValueChange = {(itemValue) => this._onYearValueChange(itemValue) }
+                      style={styles.picker}
+                      itemStyle={styles.pickerItem}
+                      mode="dialog">
+                      <Picker.Item label={byr} value={byr} key={byr}/>
+                        {this.yrlist.map( (obj) => 
+                          <Picker.Item label={obj} value ={obj} key={obj}/>
+                        )}
+                      <Picker.Item label="Other" value="Other" key="Other"/>
+                      <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
+                    </Picker>
+                  </View>
+          
+                  <Text style={styles.itemTitle}>Focused Body Tags (Max 2 tags)</Text>
+                  {/* <Text style={styles.itemField00}>{profileData.FAVTAG.map(n => n + ', ' )}</Text> */}
+                  <View style={styles.pickerView}>
+                    <Picker
+                      selectedValue= {bt0}
+                      onValueChange = {(itemValue) => this._onBodytags0ValueChange(itemValue) }
+                      style={styles.picker}
+                      itemStyle={styles.pickerItem}
+                      mode="dialog">
+                      <Picker.Item label={bt0} value={bt0} key={bt0} />
+                        {this.btlist.bodytags.map( (obj) => 
+                          <Picker.Item label={obj} value ={obj} key={obj}/>
+                        )}
+                      <Picker.Item label="Not Specified" value="Not specified" key="Not specified" />  
+                    </Picker>
+                  </View>
+                  <View style={styles.pickerViewBt1}>
+                    <Picker
+                      selectedValue= {bt1}
+                      onValueChange = {(itemValue) => this._onBodytags1ValueChange(itemValue) }
+                      style={styles.picker}
+                      itemStyle={styles.pickerItem}
+                      mode="dialog">
+                      <Picker.Item label={bt1} value={bt1} key={bt1} />
+                        {this.btlist.bodytags.map( (obj) => 
+                          <Picker.Item label={obj} value ={obj} key={obj}/>
+                        )}
+                      <Picker.Item label="Not Specified" value="Not specified." key="Not specified." />  
+                    </Picker>
+                  </View>                  
+
+
+                  {/* <TouchableOpacity onPress={this._handlePost} style={styles.postButton} >
+                    <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold',}}> Save </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity onPress={ this._pressCancelEdit }  style={styles.cancelEditButton}>
+                    <Text style={{color: 'gray', fontSize: 16, }}> Cancel </Text>
+                  </TouchableOpacity> */}
+
+
+                  { allComplete ?
+                    <View style={styles.uploadingIndicator}>
+                      {/* <Text style={styles.postedText}> */}
+                        {/* Your Profile is Saved!{"\n"} */}
+                       {/* </Text> */}
+                    </View>  
+                  :
+                    <View>
+                      { isUploading ?
+                        // <View style={styles.uploadingIndicator}>
+                        //   <ActivityIndicator size='large' color='#ffa500' />
+                        //   <Text>Uploading....</Text>
+                        // </View>
+                        <View style={styles.uploadingIndicator}>
+                            <ActivityIndicator size="large" color='#ffa500'/>
+                            <Text>Uploading....</Text>
+                        </View>
+                      :
+                        <View>
+                          <TouchableOpacity onPress={this._handlePost} style={styles.postButton} >
+                            <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold',}}> Save </Text>
+                          </TouchableOpacity>
+        
+                          <TouchableOpacity onPress={ this._pressCancelEdit }  style={styles.cancelEditButton}>
+                            <Text style={{color: 'gray', fontSize: 16, }}> Cancel </Text>
+                          </TouchableOpacity>   
+                        </View>
+                      }
+                    </View>
+                  } 
+
+
+
+                </View>
+
+
+
+              </View>
+            : 
+              <View style={styles.inputContainer}>
+
+              <TouchableOpacity onPress={ () => this._SignOut() } style={styles.signOutButton} >
+                <Text style={{color: 'gray', fontSize: 16, fontWeight: 'bold',}}> Sign Out </Text>
+              </TouchableOpacity>
+
+
+                <View style={{width: '100%', marginTop: Dimensions.get('window').height * 0.03, marginBottom: Dimensions.get('window').height * 0.03,}}>
+                
+                  {/* <Image source={{uri: profileData.avatarFullUrl }} style={} resizeMode="cover" />  */}
+                  <Text style={styles.itemTitle}>Nickname</Text>
+                  <Text style={styles.itemField00}>{nname}</Text>
+
+                  <Text style={styles.itemTitle}>Gender</Text>
+                  <Text style={styles.itemField00}>{gdr}</Text>
+
+                  <Text style={styles.itemTitle}>Nationality</Text>
+                  <Text style={styles.itemField00}>{nat}</Text>
+
+                  <Text style={styles.itemTitle}>Birth Year</Text>
+                  <Text style={styles.itemField00}>{byr}</Text>                  
+          
+                  <Text style={styles.itemTitle}>Favorite Body Tags</Text>
+                  {/* <Text style={styles.itemField00}>{profileData.FAVTAG.map(n => n + ', ' )}</Text> */}
+                  <Text style={styles.itemField00}>{bt0}</Text>
+                  <Text style={styles.itemField00}>{bt1}</Text>
+
+                  <Text style={styles.itemTitle}>Account Created</Text>
+                  <Text style={styles.itemField00}>{moment.unix(ts).fromNow()}</Text>
+
+                  <Text style={styles.itemTitle}>Last Update</Text>
+                  <Text style={styles.itemField00}>{moment.unix(lupdate).fromNow()}</Text>
+
+
+                  <TouchableOpacity onPress={this._pressEdit} style={styles.postButton} >
+                    <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold',}}> Edit </Text>
+                  </TouchableOpacity>
+
+                </View>
+              </View>        
+
+            }
+
+          </View>
+
+        :
+
+          <View style={styles.loadingIndicator}>
+            <ActivityIndicator size='large' color='orange' />
+            { isSigningOut ?
+              <View>
+                <Text> Signing Out...</Text>
+              </View>
+            :
+              <View>
+                <Text> Loading Data...</Text>
+              </View>
+            }
+          </View> 
+
+
+        }
+
+
+
+
+      
+        </SafeAreaView>
+      </TouchableWithoutFeedback>  
+    );
+  }
+}
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    marginTop: 5,
+  },
+  signOutButton: {
+    position: 'absolute',
+    right: 10,
+  },
+  itemTitle:{
+    marginTop: 7, //Dimensions.get('window').height * 0.01,
+    color: 'gray',
+    fontSize: 15,
+  },
+  itemMandatory: {
+    color: 'red',
+    fontWeight: 'bold',
+  },
+  itemField00: {
+    // borderWidth: 1, 
+    // borderColor: 'white', 
+    // borderRadius: 5, 
+    fontSize: 17,
+    height: 35,
+    color: 'dimgray',
+    textAlignVertical: 'center',
+    paddingHorizontal: 10,
+  },
+  itemField10: {
+    borderWidth: 1, 
+    borderColor: 'lightgray', 
+    borderRadius: 5, 
+    fontSize: 17,
+    height: 35,
+    color: 'dimgray',
+    textAlignVertical: 'center',
+    paddingHorizontal: 10,
+    backgroundColor: 'white',
+  },
+  loadingIndicator: {
+    // position: 'absolute',
+    // top: 20,
+    // right: 20,
+    flexGrow:1,
+    height:null,
+    width:null,    
+    alignItems: 'center',
+    justifyContent: 'center',    
+  },
+  pickerView: {
+    height: 35, 
+    // width: 200, 
+    backgroundColor: 'white',
+    borderWidth: 1, 
+    borderColor: 'lightgray', 
+    borderRadius: 5, 
+    textAlignVertical: 'top',
+    // fontSize: 18,
+    // color: 'dimgray',
+    paddingBottom: 10,
+  },
+  pickerViewBt1: {
+    height: 35, 
+    // width: 200, 
+    backgroundColor: 'white',
+    borderWidth: 1, 
+    borderColor: 'lightgray', 
+    borderRadius: 5, 
+    textAlignVertical: 'top',
+    // fontSize: 18,
+    // color: 'dimgray',
+    paddingBottom: 10,
+    marginTop: 5,
+  },  
+  picker: {
+    // height: Dimensions.get('window').height * 0.7, 
+    // width: 200, 
+    // backgroundColor: 'white',
+    // borderWidth: 1, 
+    // borderColor: 'lightgray', 
+    // borderRadius: 5, 
+    // padding: 10, 
+    // fontSize: 18,
+    color: 'dimgray',
+    // textAlign: 'center',
+    // textAlignVertical: 'bottom',
+    // paddingBottom: 10,
+    // backgroundColor: 'pink',
+    height: 35,
+  },  
+  pickerItem: {
+    // alignItems: 'center',
+    // justifyContent: 'center',     
+    // textAlignVertical: 'center',
+    // textAlign: 'center',
+    // fontSize: 18,
+    // color: 'dimgray',
+    // height: Dimensions.get('window').height * 0.7,
+    // backgroundColor: 'green',
+     
+  },
+  // pickerYear: {
+  //   height: 50, 
+  //   width: 200, 
+  //   backgroundColor: 'white',
+  //   borderWidth: 5, 
+  //   borderColor: 'lightgray', 
+  //   borderRadius: 5, 
+  //   // padding: 10, 
+  //   // textAlignVertical: 'top',
+  // },  
+
+
+  // header: {
+  //     flexDirection: "row",
+  //     justifyContent: "space-between",
+  //     paddingHorizontal: 32,
+  //     paddingVertical: 12,
+  //     borderBottomWidth: 1,
+  //     borderBottomColor: "#D8D9DB"
+  // },
+  inputContainer: {
+    marginHorizontal: Dimensions.get('window').width * 0.05,
+    flexDirection: "column",
+    justifyContent: 'flex-start'
+  },
+  videoTitleTitle: {
+    marginTop: Dimensions.get('window').height * 0.03,
+    color: 'gray',
+    fontSize: 15,
+    //fontWeight: 'bold',
+  }, 
+  // avatar: {
+  //     width: 48,
+  //     height: 48,
+  //     borderRadius: 24,
+  //     marginRight: 16
+  // },
+  pickImage: {
+    alignItems: "center",
+    marginVertical: Dimensions.get('window').height * 0.02,
+  },
+  showImage: {
+    // marginVertical: Dimensions.get('window').height * 0.05, 
+    height: Dimensions.get('window').height * 0.35,
+    alignItems: "center",
+  },
+  postButton: {
+    // flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',    
+    backgroundColor: '#ffa500',
+    // width: Dimensions.get('window').width * 0.7,
+    borderRadius: 5,
+    height: 40,
+    shadowColor: 'black', // iOS
+    shadowOffset: { width: 5, height: 5 }, // iOS
+    shadowOpacity: 0.8, // iOS
+    shadowRadius: 5, // iOS   
+    elevation: 5, // Android
+    marginTop: 40,
+  },
+  cancelEditButton: {
+    marginTop: 20,
+    justifyContent: 'center',
+    alignItems: 'center', 
+  },
+  uploadingIndicator: {
+    // position: 'absolute',
+    // top: 20,
+    // right: 20,
+    marginTop: 15,
+    flexGrow:1,
+    height:null,
+    width:null,    
+    alignItems: 'center',
+    justifyContent: 'center',    
+  },
+  postedText: {
+    color: 'white', 
+    fontSize: 20, 
+    fontWeight: 'bold', 
+    textAlign: 'center',
+  },
+  modal: {
+    // flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',  
+    marginVertical: Dimensions.get('window').height * 0.3,     
+    marginHorizontal: Dimensions.get('window').width * 0.1,
+    height: Dimensions.get('window').height * 0.4,
+    width: Dimensions.get('window').width * 0.8,
+    backgroundColor: '#ffa500', 
+    borderRadius: 10,
+    opacity: 1.0,
+    shadowColor: 'black', // iOS
+    shadowOffset: { width: 20, height: 20 }, // iOS
+    shadowOpacity: 0.8, // iOS
+    shadowRadius: 10, // iOS   
+    elevation: 10, // Android
+  },
+
+});
+
+
+
+
+
+        
