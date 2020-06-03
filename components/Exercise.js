@@ -320,6 +320,8 @@ export default class Exercise extends Component {
     // this.setState({ shouldPlay : false, flagUpdateScore: true }); // added 20200523
     this.setState({ shouldPlay : false, flagVidEnd: true, flagUpdateScore: true  });
     // this.setState({ shouldPlay : false});
+    // clearInterval(_updateScore); // did NOT work 20200603
+    // clearInterval(videoCountDown); // did NOT work 20200603
     this.props.navigation.goBack();
     // await this._saveVidViewLog(); // removed because this process is duplicated with componentWillUnmount
   }  
@@ -350,9 +352,10 @@ export default class Exercise extends Component {
 
 
   async componentWillUnmount() {
-    // if(this.rafId) {
       console.log('------------------- componentWillUnmount Exercise');
+    if(this.rafId) {  
       cancelAnimationFrame(this.rafId);
+    }  
       // this.attentionTxt = ''; // clear variable
       // this.vidState.LOOPTIMES = 0; //clear variable
       // this.vidState.everyIntSecC = 0; //clear variable
@@ -366,6 +369,9 @@ export default class Exercise extends Component {
       // if (this.state.shouldPlay === true ) {
       //   this.setState({ shouldPlay : false});
       // }
+      console.log('------------------- componentWillUnmount Exercise0');
+      // clearInterval(_updateScore); // did NOT work 20200603
+      // clearInterval(videoCountDown); // did NOT work 20200603
       console.log('------------------- componentWillUnmount Exercise1');
       await this._unsubscribeFromAccelerometer();
       console.log('------------------- componentWillUnmount Exercise2');
@@ -908,8 +914,8 @@ export default class Exercise extends Component {
 
 
 ////////// update score ////////////////////
-      // if (this.state.shouldPlay === true & this.state.flagUpdateScore === false & this.state.flagVidEnd === false)  { //
-      if (shouldPlay === true && flagUpdateScore === false && flagVidEnd === false)  { // 20200523 
+      if (this.state.shouldPlay === true & this.state.flagUpdateScore === false & this.state.flagVidEnd === false)  { //
+      // if (shouldPlay === true && flagUpdateScore === false && flagVidEnd === false)  { // 20200523 
         // console.log('this.state.shouldPlay, this.state.flagUpdateScore, this.state.flagVidEnd: ', this.state.shouldPlay, this.state.flagUpdateScore, this.state.flagVidEnd);
         // console.log('shouldPlay, flagUpdateScore, flagVidEnd: ', shouldPlay, flagUpdateScore, flagVidEnd);
         
@@ -988,6 +994,17 @@ export default class Exercise extends Component {
 
             this.vidState.numFrameVidEnd = this.vidState.renderPoseTimes; // for record to Firestore vidViewLog. 20200524
         
+          } 
+          
+          // console.log('---- 999   this.state.flagAllPosOk: ', this.state.flagAllPosOk );
+          // console.log('---- 999   this.state.flagCountdownFinished: ', this.state.flagCountdownFinished );
+          // console.log('---- 999   this.state.flagShowGoBackIcon: ', this.state.flagShowGoBackIcon );
+          // console.log('---- 999   this.state.flagUpdateScore: ', this.state.flagUpdateScore );
+          // console.log('---- 999   this.state.shouldPlay: ', this.state.shouldPlay );
+
+          if ( this.state.shouldPlay === false ) { // this will force to stop setInterval(_updateScore) when user outNTA or press gobackhome BEFORE video ends. 20200603
+            console.log('this will force to stop setInterval(_updateScore).');
+            clearInterval(_updateScore); 
           }
 
         }, 1000 ); // update score every X millisecond  
@@ -1425,6 +1442,19 @@ export default class Exercise extends Component {
                           // this._handlePlayAndPause;
                           console.log('videoCountDown ends ');
                         }
+
+                        console.log('---- 1439   this.state.flagAllPosOk: ', this.state.flagAllPosOk );
+                        console.log('---- 1439   this.state.flagCountdownFinished: ', this.state.flagCountdownFinished );
+                        console.log('---- 1439   this.state.flagShowGoBackIcon: ', this.state.flagShowGoBackIcon );
+                        console.log('---- 1439   this.state.flagUpdateScore: ', this.state.flagUpdateScore );
+                        console.log('---- 1439   this.state.shouldPlay: ', this.state.shouldPlay );
+
+                        if ( this.state.flagVidEnd === true ) { // this will force to stop setInterval(videoCountDown) when user press gobackhome DURING COUNTDOWN. 20200603
+                          console.log('this will force to stop setInterval(videoCountDown).');
+                          clearInterval(videoCountDown); 
+                        }
+                       
+
                       }.bind(this), 1000 ); // countdown interval in second  // add .bind(this) because https://stackoverflow.com/questions/31045716/react-this-setstate-is-not-a-function
                       // console.log('------------------ 0003');
 
@@ -1735,24 +1765,55 @@ export default class Exercise extends Component {
                */}
 
 
-              { flagCountdownFinished ? 
+
+              {/* { flagAllPosOk &&
+                <View>
+                  { shouldPlay ?
+                    null
+                  :
+                    <View style={styles.scoreContainer}>
+                      <Text style={styles.scoreText}>
+                        {countdownTxt}
+                      </Text>
+                    </View>
+                  }
+                </View>
+              }                 */}
+
+
+              {/* { flagAllPosOk &&
+               
+                    <View style={styles.scoreContainer}>
+                      <Text style={styles.scoreText}>
+                        {countdownTxt}
+                      </Text>
+                    </View>
+             
+              }                  */}
+
+              
+              {/* { flagCountdownFinished && shouldPlay &&
                 <View style={styles.scoreContainer}>
                   <Text style={styles.scoreText}>
                     {scoreNow} 
                   </Text>
                 </View>
-              :
-                // <View style={{ height: '100%', width: '100%' }}>
+              } */}
+
+
+              { flagAllPosOk && 
                 <View style={styles.scoreContainer}>
-                  { flagAllPosOk &&
-                    // <View style={styles.scoreContainer}>
-                      <Text style={styles.scoreText}>
-                        {countdownTxt}
-                      </Text>
-                    // </View>
+                  { flagCountdownFinished ? 
+                    <Text style={styles.scoreText}>
+                      {scoreNow} 
+                    </Text>
+                  :
+                    <Text style={styles.scoreText}>
+                      {countdownTxt}
+                    </Text>                    
                   }
                 </View>
-              }   
+              }
 
 
               { shouldPlay ?
@@ -1786,7 +1847,7 @@ export default class Exercise extends Component {
                     {/* <Text>upperLayerContainer</Text> */}
                 </View>
               }
-                {/* https://reactnativecode.com/set-padding-dynamically/https://reactnativecode.com/set-padding-dynamically/ */}
+              {/* https://reactnativecode.com/set-padding-dynamically/https://reactnativecode.com/set-padding-dynamically/ */}
                
 
               { flagAllPosOk ?  

@@ -75,6 +75,8 @@ export default class DashboardScreen extends Component {
     this._sendVidViewLog = this._sendVidViewLog.bind(this);
     this._checkVidViewLogDirectory = this._checkVidViewLogDirectory.bind(this);
     this._makeRemoteRequest = this._makeRemoteRequest.bind(this);
+    this._handleLoadMore = this._handleLoadMore.bind(this);
+    this._handleRefresh = this._handleRefresh.bind(this);
   }
 
   // allPosts = ''; 20200529
@@ -442,7 +444,7 @@ export default class DashboardScreen extends Component {
               alert('Received response[code] = error from functions., Please log-in again.');
             }
 
-            this._makeRemoteRequest(); // 20200529
+            // this._makeRemoteRequest(); // 20200529
 
 
         }).catch( error => {
@@ -469,7 +471,7 @@ export default class DashboardScreen extends Component {
 
 
 
-      // this._makeRemoteRequest(); // kick
+      this._makeRemoteRequest(); // kick
       // console.log('this.state: ', this.state);      
 
 
@@ -702,8 +704,10 @@ export default class DashboardScreen extends Component {
 
 
   renderPost = post => {
+      console.log('==================================== post.');
+      // this._makeRemoteRequest(); 
 
-      (() => {
+      // (() => {
           if (post.VIEW > 1000000) { 
             this.VIEW = parseInt(post.VIEW / 1000000) + 'M ' // million
           } else if (post.VIEW > 1000) { 
@@ -727,13 +731,12 @@ export default class DashboardScreen extends Component {
             this.oldestVidTs = post.TS;
           } 
 
-          post.TNURL = 'https://firebasestorage.googleapis.com/v0/b/joogo-v0.appspot.com/o/tn%2F' + post.VIDID + '?alt=media' // URL for Thumbsnail photo 20200528
-          
+          post.TNURL = 'https://firebasestorage.googleapis.com/v0/b/joogo-v0.appspot.com/o/tn%2F' + post.VIDID + '?alt=media' // URL for Thumbsnail photo 20200528         
 
-          console.log('------------- renderPost: ' , post.TITLE);
+          console.log('------------- renderPost: ' , post.TITLE, );
 
-          }
-          )(); 
+          // }
+          // )(); 
 
       // this._checkVidViewLogDirectory();
       // this._sendVidViewLog();
@@ -831,8 +834,8 @@ export default class DashboardScreen extends Component {
     return (
       <View style={styles.container}>
 
-        <SafeAreaView>
-
+        {/* <SafeAreaView> */}
+      
 
         { isLoading ? 
            <View style={styles.uploadingIndicator}>
@@ -840,15 +843,9 @@ export default class DashboardScreen extends Component {
             <Text>Loading....</Text>
           </View>
         :
-           <ScrollView  style={styles.scrollview}>
-           {/* <View  style={styles.scrollview}> */}
+            // <ScrollView  style={styles.scrollview}>
+          <View> 
 
-            {/* <StatusBar backgroundColor="black" barStyle="dark-content" hidden = {false} translucent = {true} /> */}
-
-            {/* <Button title="Go to Test1" onPress={goToTest1} /> */}
-            {/* <Button title="Go to Excercise" onPress={ () => this.props.navigation.push('Exercise')} /> */}
-
-            {/* <Feed/> */}
             <FlatList
               style={styles.feed}
               data={this.state.posts}
@@ -857,7 +854,7 @@ export default class DashboardScreen extends Component {
               // keyExtractor={item => item.id}
               keyExtractor={item => item.vidId}
               showsVerticalScrollIndicator={false}
-              // key={item => item.vidId} // https://stackoverflow.com/questions/45947921/react-native-cant-fix-flatlist-keys-warning
+              key={item => item.vidId} // https://stackoverflow.com/questions/45947921/react-native-cant-fix-flatlist-keys-warning
               onRefresh={this._handleRefresh}
               refreshing={this.state.refreshing}
               onEndReached={this._handleLoadMore}
@@ -865,11 +862,14 @@ export default class DashboardScreen extends Component {
             >
             </FlatList>
 
-           {/* </View> */}
-          </ScrollView>
+          </View>
+          // </ScrollView>
+
         }
 
-        </SafeAreaView>
+
+        {/* </SafeAreaView> */}
+        
 
 
 
@@ -881,7 +881,7 @@ export default class DashboardScreen extends Component {
           {/* this.setState({doneComponentDidMount: false}) */}
           <Ionicons name='ios-person' size={28} color="white" style={styles.ProfileIcon} onPress={ () => this.props.navigation.push('Profile') } />  
           <Ionicons name="ios-add-circle-outline" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Post') }/>
-          <Ionicons name='ios-aperture' size={28} color="white" style={styles.HistoryIcon} onPress={ () => this.props.navigation.push('History')}/>
+          <MaterialIcons name='history' size={28} color="white" style={styles.HistoryIcon} onPress={ () => this.props.navigation.push('History')}/>
           {/* <Ionicons name='ios-notifications-outline' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Notification') }/> */}
         {/* </LinearGradient> */}
         </View>
