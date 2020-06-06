@@ -29,7 +29,7 @@ const screens = {
         // headerTitle: () => <Header title='Search' navigation={navigation} style={styles.Header}/>,
         // headerStyle: () => <LinearGradient colors={['#ffbf00', '#ffb300', 'orange']} />, // { backgroundColor: 'orange' }, // #FF8C00
         // headerStyle: () => <GradientHeader />,
-        headerTitle: () => <Header title='Home' navigation={navigation} />,
+        headerTitle: () => <Header title='Playlist' navigation={navigation} />,
         // title: 'Homeee',
         // headerTitleAlign: 'center',
         // header: props => <GradientHeader/>,

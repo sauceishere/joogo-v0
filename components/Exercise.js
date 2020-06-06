@@ -35,7 +35,7 @@ import * as FileSystem from 'expo-file-system'; // https://docs.expo.io/versions
 import { v4 as uuidv4 } from 'uuid';
 import {vidViewLogDirName} from '../shared/Consts';
 
-import { activateKeepAwake } from 'expo-keep-awake'; //https://docs.expo.io/versions/latest/sdk/keep-awake/
+import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake'; //https://docs.expo.io/versions/latest/sdk/keep-awake/
 import { Constants, Accelerometer } from 'expo-sensors'; // https://docs.expo.io/versions/latest/sdk/accelerometer/ # https://snack.expo.io/@professorxii/expo-accelerometer-example
 
 
@@ -64,9 +64,9 @@ export default class Exercise extends Component {
       cameraType: Camera.Constants.Type.front,
       modelName: 'posenet',
       vidFullUrl: '', // get from Firebase Storage
-      vidLength: this.props.navigation.getParam('LEN'), // length of video navigated from Dashboard.js
-      isVidMetaLoaded: false,
-      isWPartLoaded: false,
+      vidLength: this.props.navigation.getParam('post')['LEN'], // length of video navigated from Dashboard.js
+      // isVidMetaLoaded: false,
+      // isWPartLoaded: false,
       isReadyToCD: false, // not used 
       // isFinScoreLoaded: false,
       // finScoreUrl: '',
@@ -93,6 +93,7 @@ export default class Exercise extends Component {
       flagAccelerometerIsAvailable: false,
       accelerometerData: { x: 0, y: 0, z: 0 },
       flagShowGoBackIcon: true, // to contrl hide and unhide goBackIcon
+      progressBarWidth: 0, // initial at zero
     }
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);  
     this._handlePlayAndPause = this._handlePlayAndPause.bind(this);
@@ -108,15 +109,15 @@ export default class Exercise extends Component {
 
   viewId = uuidv4();
 
-  inputTensorWidth = 200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
-  inputTensorHeight = 399; // 250; // 299; //200; //Dimensions.get('window').height / 3; // 200
+  inputTensorWidth = this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
+  inputTensorHeight = this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //Dimensions.get('window').height / 3; // 200
 
   textureDims = { // https://github.com/tensorflow/tfjs/blob/master/tfjs-react-native/integration_rn59/components/webcam/realtime_demo.tsx
-    width: 1800, // 1800, //960, //Dimensions.get('window').width, // 960, // 1024, //768, //512, // 540, //256, // 1080, //videoSize, 
-    height: 1200, // 1200, //960, //Dimensions.get('window').height, // 960, // 1024, //768, //512, //960, //453, // 1920, //videoSize,
+    width: this.props.navigation.getParam('const_exer')['textureDims']['width'], // 1800, //960, //Dimensions.get('window').width, // 960, // 1024, //768, //512, // 540, //256, // 1080, //videoSize, 
+    height: this.props.navigation.getParam('const_exer')['textureDims']['height'], // 1200, //960, //Dimensions.get('window').height, // 960, // 1024, //768, //512, //960, //453, // 1920, //videoSize,
   };
 
-  MIN_KEYPOINT_SCORE = 0.5;
+  MIN_KEYPOINT_SCORE = this.props.navigation.getParam('const_exer')['minKeypointScore'];
 
 
   playButtonSize = Dimensions.get('window').width * 0.4;
@@ -146,10 +147,10 @@ export default class Exercise extends Component {
 
   cntIniPos = 0; // to count how many times exercisers fit into initialPoistions to control NOT to start countdown too early. 20200516
 
-  vidMeta = ''; // to store data from Firestore
-  wpart = ''; // to store data from Firestore
-  
-
+  // vidMeta = ''; // to store data from Firestore
+  // wpart = ''; // to store data from Firestore
+  vidMeta = this.props.navigation.getParam('post')
+  wpart = this.props.navigation.getParam('wpart');
   
 
   initialPositions = {
@@ -242,7 +243,7 @@ export default class Exercise extends Component {
   attentionTxt = 'Fit your body below'; //'Move yourself inside orange below'; 
 
   // countdownTxt = '';
-  frameOutCntCriteria = 2 // if accumulate count of out times of Frame is more than X times, then shower borderColor. 
+  frameOutCntCriteria = this.props.navigation.getParam('const_exer')['frameOutCntCriteria']; // if accumulate count of out times of Frame is more than X times, then shower borderColor. 
 
   frameOutCnt = { // to check if body parts of exerciser is out of camera Frame. 
     right: 0,
@@ -271,9 +272,9 @@ export default class Exercise extends Component {
     }
 
   outCriteriaAccel = { // if accelerometerData is over this criteria, then count up cntOutAccel to detect if camera moved 
-    x: 0.1,
-    y: 0.1,
-    z: 0.1,
+    x: this.props.navigation.getParam('const_exer')['outCriteriaAccel']['x'],
+    y: this.props.navigation.getParam('const_exer')['outCriteriaAccel']['y'],
+    z: this.props.navigation.getParam('const_exer')['outCriteriaAccel']['z'],
   };
 
   prevAccelData = { // for compare this.state.accelerometerData previous vs latest to detect if camera moved
@@ -287,9 +288,9 @@ export default class Exercise extends Component {
   identifiedBPartsAll = []; // which body parts is identified on each loop, and save it array and send to Firestore vidViewLog. 
 
   outNTA = { // NoseToAnkle to control if user comes too close to camera. 20200523
-    DistMoveCriteria : 1.1, // if NoseToAnkle becomes over XX% of initial NoseToAnkle
+    DistMoveCriteria : this.props.navigation.getParam('const_exer')['outNTA']['DistMoveCriteria'], // if NoseToAnkle becomes over XX% of initial NoseToAnkle
     cnt : 0, // count how many time 
-    outTimesCriteria : 2, // judge as out if out more than X 
+    outTimesCriteria : this.props.navigation.getParam('const_exer')['outNTA']['outTimesCriteria'], // judge as out if out more than X 
     flag : false, // control only one time go into block
   }
 
@@ -352,7 +353,7 @@ export default class Exercise extends Component {
 
 
   async componentWillUnmount() {
-      console.log('------------------- componentWillUnmount Exercise');
+      console.log('------------------- componentWillUnmount Exercise started');
     if(this.rafId) {  
       cancelAnimationFrame(this.rafId);
     }  
@@ -369,28 +370,32 @@ export default class Exercise extends Component {
       // if (this.state.shouldPlay === true ) {
       //   this.setState({ shouldPlay : false});
       // }
-      console.log('------------------- componentWillUnmount Exercise0');
+      // console.log('------------------- componentWillUnmount Exercise0');
       // clearInterval(_updateScore); // did NOT work 20200603
       // clearInterval(videoCountDown); // did NOT work 20200603
-      console.log('------------------- componentWillUnmount Exercise1');
+      // console.log('------------------- componentWillUnmount Exercise1');
       await this._unsubscribeFromAccelerometer();
-      console.log('------------------- componentWillUnmount Exercise2');
-      await this._saveVidViewLog();
-      console.log('------------------- componentWillUnmount Exercise3');
+      // console.log('------------------- componentWillUnmount Exercise2');
       deactivateKeepAwake();
-      console.log('------------------- componentWillUnmount Exercise4');
+      // console.log('------------------- componentWillUnmount Exercise3');
+      await this._saveVidViewLog();
+      console.log('------------------- componentWillUnmount Exercise completed');
     
   }
 
 
   async componentDidMount() {
-    console.log('------------------- componentDidMount Exercise started 63');
+    console.log('------------------- componentDidMount Exercise started 64');
+
+    // console.log('this.props.navigation.getParam(post): ', this.props.navigation.getParam('post') );
+    // console.log('this.props.navigation.getParam(wpart): ', this.props.navigation.getParam('wpart').nose);
+    // console.log('this.props.navigation.getParam(const_exer)inputTensor Height: ', this.props.navigation.getParam('const_exer')['inputTensor']['height'] );
 
     activateKeepAwake();
 
 
-    console.log('screen h/w, height, width: ', Dimensions.get('screen').height / Dimensions.get('screen').width, Dimensions.get('screen').height, Dimensions.get('screen').width);
-    console.log('window h/w, height, width: ', Dimensions.get('window').height / Dimensions.get('window').width, Dimensions.get('window').height, Dimensions.get('window').width);
+    // console.log('screen h/w, height, width: ', Dimensions.get('screen').height / Dimensions.get('screen').width, Dimensions.get('screen').height, Dimensions.get('screen').width);
+    // console.log('window h/w, height, width: ', Dimensions.get('window').height / Dimensions.get('window').width, Dimensions.get('window').height, Dimensions.get('window').width);
 
 
     // const ratios = await Camera.getSupportedRatiosAsync();
@@ -398,7 +403,6 @@ export default class Exercise extends Component {
     // const sizes = await ?Camera.getAvailablePictureSizesAsync(ratio);
     // console.log('sizes: ', sizes);
 
-    // console.log('this.props.navigation.getParam: ', this.props.navigation.getParam);
 
     try {
 
@@ -436,10 +440,10 @@ export default class Exercise extends Component {
       console.log('--------- loading posenetModel now...');
       const posenetModel =  await posenet.load({ // https://github.com/tensorflow/tfjs-models/tree/master/posenet
         architecture: 'MobileNetV1',
-        outputStride: 16, // 16 larger is faster but no json file for 32. 
+        outputStride: this.props.navigation.getParam('const_exer')['posenetModel']['outputStride'], // 16 larger is faster but no json file for 32. 
         inputResolution: { width: this.inputTensorWidth, height: this.inputTensorHeight },
-        multiplier: 0.75, // 0.75 smaller is faster
-        quantBytes: 2 // 2 small is faster
+        multiplier: this.props.navigation.getParam('const_exer')['posenetModel']['multiplier'], // 0.75 smaller is faster
+        quantBytes: this.props.navigation.getParam('const_exer')['posenetModel']['quantBytes'] // 2 small is faster
       });
       console.log('--------- posenetModel loaded');
 
@@ -466,46 +470,46 @@ export default class Exercise extends Component {
       
 
       // load vidMeta from Firestore 20200305 
-      if (this.state.isVidMetaLoaded === false) { //. this if to prevent repeated loop.
-        // console.log('this.state.isVidMetaLoaded started: ', this.props.navigation.getParam('vidId'));
-        firebase.firestore().collection("vidMetaFinal").doc( this.props.navigation.getParam('VIDID') ).get().then( (doc) => {
-        // firebase.firestore().doc('/trainerVideo/EggSQY6V7gEZjHQ28sbV').get().then((response) => {
-          if (doc.exists) {
-            this.vidMeta = doc.data();
-            this.setState({ isVidMetaLoaded: true, });
-            // console.log('------------- this.vidMeta: ', this.vidMeta);
-            // console.log('------------- this.vidMeta.FINSCORE[1]: ', this.vidMeta["FINSCORE"] );
-            // console.log('------------- this.vidMeta.FINSCORE[1]: ', JSON.parse(this.vidMeta["FINSCORE"])["1"] );
-            console.log('---------- vidMetaFinal loaded.');
-          } else {
-            // doc.data() will be undefined in this cases
-            console.log("No such document!");
-          }
-        }).catch(function(error) {
-          console.log("Error getting document:", error);
-          alert("Error getting document:", error);
-        });  
-      } // closing if
+      // if (this.state.isVidMetaLoaded === false) { //. this if to prevent repeated loop.
+      //   // console.log('this.state.isVidMetaLoaded started: ', this.props.navigation.getParam('vidId'));
+      //   firebase.firestore().collection("vidMetaFinal").doc( this.props.navigation.getParam('VIDID') ).get().then( (doc) => {
+      //   // firebase.firestore().doc('/trainerVideo/EggSQY6V7gEZjHQ28sbV').get().then((response) => {
+      //     if (doc.exists) {
+      //       this.vidMeta = doc.data();
+      //       this.setState({ isVidMetaLoaded: true, });
+      //       // console.log('------------- this.vidMeta: ', this.vidMeta);
+      //       // console.log('------------- this.vidMeta.FINSCORE[1]: ', this.vidMeta["FINSCORE"] );
+      //       // console.log('------------- this.vidMeta.FINSCORE[1]: ', JSON.parse(this.vidMeta["FINSCORE"])["1"] );
+      //       console.log('---------- vidMetaFinal loaded.');
+      //     } else {
+      //       // doc.data() will be undefined in this cases
+      //       console.log("No such document!");
+      //     }
+      //   }).catch(function(error) {
+      //     console.log("Error getting document:", error);
+      //     alert("Error getting document:", error);
+      //   });  
+      // } // closing if
 
 
       // load WPart from Firestore 20200305 
-      if (this.state.isWPartLoaded === false) { //. this if to prevent repeated loop. 
-        firebase.firestore().collection("masters").doc("wpart").get().then( (doc) => {
-          // firebase.firestore().doc('/trainerVideo/EggSQY6V7gEZjHQ28sbV').get().then((response) => {
-          if (doc.exists) {
-            this.wpart = doc.data();
-            this.setState({ isWPartLoaded: true, });
-            // console.log('------------- this.wpart: ', this.wpart);
-            console.log('---------- wpart loaded.');
-          } else {
-            // doc.data() will be undefined in this case
-            console.log("No such document!");
-          }
-        }).catch(function(error) {
-          console.log("Error getting document:", error);
-          alert("Error getting document.");
-        });   
-      }  
+      // if (this.state.isWPartLoaded === false) { //. this if to prevent repeated loop. 
+      //   firebase.firestore().collection("masters").doc("wpart").get().then( (doc) => {
+      //     // firebase.firestore().doc('/trainerVideo/EggSQY6V7gEZjHQ28sbV').get().then((response) => {
+      //     if (doc.exists) {
+      //       this.wpart = doc.data();
+      //       this.setState({ isWPartLoaded: true, });
+      //       // console.log('------------- this.wpart: ', this.wpart);
+      //       console.log('---------- wpart loaded.');
+      //     } else {
+      //       // doc.data() will be undefined in this case
+      //       console.log("No such document!");
+      //     }
+      //   }).catch(function(error) {
+      //     console.log("Error getting document:", error);
+      //     alert("Error getting document.");
+      //   });   
+      // }  
 
 
       // get trainerVideo full URL from Firebase storage 2020315
@@ -513,7 +517,7 @@ export default class Exercise extends Component {
         const storage = firebase.storage(); // Create a storage reference from our storage service
         const storageRef = storage.ref(); // Create a reference to the file we want to download
         // console.log(' this.props.navigation.getParam(vidId): ', this.props.navigation.getParam('vidId'), this.props.navigation.getParam('vidFType') );
-        const starsRef = storageRef.child( 'finvid/' + this.props.navigation.getParam('VIDID')  ); // 'finalScoreTrainerVideo/1578303596642qvykv2h8.json' // // 'trainerVideo/flower.jpg'      
+        const starsRef = storageRef.child( 'finvid/' + this.props.navigation.getParam('post')['VIDID']  ); // 'finalScoreTrainerVideo/1578303596642qvykv2h8.json' // // 'trainerVideo/flower.jpg'      
         await starsRef.getDownloadURL().then( (url) => {
           // Insert url into an <img> tag to "download"
           this.setState({vidFullUrl : url }); // assign to this.state
@@ -800,7 +804,7 @@ export default class Exercise extends Component {
     // console.log('date: ', date);
     const ts = Date.now() / 1000; // unix //date.getTime().toString();
     // console.log('ts: ', ts);
-    const vidId = this.props.navigation.getParam('VIDID');
+    const vidId = this.props.navigation.getParam('post')['VIDID'];
     const viewId = uuidv4();
     const vidViewLogFileName = ts + '_' + vidId + '_' + viewId;
 
@@ -820,8 +824,8 @@ export default class Exercise extends Component {
     jsonContents["pt"] = this.state.mdCumTtlNow;
     jsonContents["score"] = this.state.scoreNow; 
     jsonContents["mdCumAll"] = this.mdCumAll; // this is an Array
-    jsonContents["playSum"] = this.vidState.vidPlayedSum.toFixed(2);
-    jsonContents["playPct"] = this.vidState.vidPlayedSum / this.state.vidLength;
+    jsonContents["playSum"] = this.vidState.vidPlayedSum; // .toFixed(2);
+    jsonContents["playPct"] = this.vidState.vidPlayedSum + 0.00001 / this.state.vidLength;
     jsonContents['cntOutAccel'] = this.cntOutAccel;
     jsonContents['cntPressPlayButton'] = this.vidState.cntPressPlayButton;
     jsonContents['cntPressPauseButton'] = this.vidState.cntPressPauseButton;
@@ -845,7 +849,7 @@ export default class Exercise extends Component {
     jsonContents['numFrameVidEnd'] = this.vidState.numFrameVidEnd; 
 
     jsonContents = JSON.stringify(jsonContents); // convert to string for saving file
-    // console.log('jsonContents: ', jsonContents);
+    console.log('jsonContents: ', jsonContents);
 
     // vidViewLog for Firestore
     await FileSystem.writeAsStringAsync(
@@ -871,7 +875,7 @@ export default class Exercise extends Component {
   renderPose() {
     console.log('-------- renderPose.: ', this.vidState.renderPoseTimes);
 
-    const {pose, vidLength, flagAllPosOk, noseToAnkle, flagNoseToAnkle, rightToLeft, flagRightToLeft, isVidMetaLoaded ,vidFullUrl, isWPartLoaded, shouldPlay, flagUpdateScore, flagVidEnd } = this.state;
+    const {pose, vidLength, flagAllPosOk, noseToAnkle, flagNoseToAnkle, rightToLeft, flagRightToLeft ,vidFullUrl, shouldPlay, flagUpdateScore, flagVidEnd } = this.state;
     // console.log('-------- pose: ', pose);
 
 
@@ -958,7 +962,13 @@ export default class Exercise extends Component {
             scoreNow = 100;
           }
           console.log('--- scoreNow: ', scoreNow);
-          this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(2), scoreNow: parseInt( scoreNow ) });// this is what shows as score on top right.
+
+
+          //// calcalate progressBarWidth 20200605
+          var progressBarWidth = ( this.vidState.vidPlayedSum / this.state.vidLength ) * Dimensions.get('window').width;
+
+
+          this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(2), scoreNow: parseInt( scoreNow ), progressBarWidth: progressBarWidth });// this is what shows as score on top right.
           
 
 ////////// Append mdCum moved distance Cummulative for vidViewLog  ////////////////////        
@@ -1275,16 +1285,20 @@ export default class Exercise extends Component {
                 if (this.outNTA.cnt > this.outNTA.outTimesCriteria && this.outNTA.flag == false) { // check if count of out times more than criteria
                   this.outNTA.flag = true; // to control to go in only one time.
                   this.setState({shouldPlay : false, flagShowGoBackIcon : false, flagVidEnd : true }); // to stop playing video, and hide goBackIcon
-                  console.log('xxxxxxxxxxxxxxxxxxxxxx You moved too close to Camera. Video will stop');
-                  alert('You moved too close to Camera. Video will stop.');
+                  console.log('xxxxxxxxxxxxxxxxxxxxxx You moved too close to Camera.');
+
+
+                  // console.log('xxxxxxxxxxxxxxxxxxxxxx You moved too close to Camera. Video will stop');
+                  // alert('You moved too close to Camera. Video will stop.');
                   
-                  ////// set timer X seconds and then isEditing: false
-                  var countSec = 0;
-                  var countup = async function(){
-                    console.log(countSec++);
-                    this._goBackToHome(); // move back to home
-                  } 
-                  setTimeout(countup, 5 * 1000); // run after XX millisecond
+                  // ////// set timer X seconds and then isEditing: false
+                  // var countSec = 0;
+                  // var countup = async function(){
+                  //   console.log(countSec++);
+                  //   this._goBackToHome(); // move back to home
+                  // } 
+                  // setTimeout(countup, 5 * 1000); // run after XX millisecond
+
                 }
               }
             }   
@@ -1356,7 +1370,7 @@ export default class Exercise extends Component {
 
   ////////// to check if all the positions are ready in camera  ////////////////////
 
-            if (isWPartLoaded == true && isVidMetaLoaded == true && vidFullUrl != '' && flagAllPosOk == false) { // Go into this block unitl countdown starts.
+            if (vidFullUrl != '' && flagAllPosOk == false) { // Go into this block unitl countdown starts.
 
               ///////////////////////////////////////////////////////////
               // // DUMMY TESTMODE == 1
@@ -1396,7 +1410,7 @@ export default class Exercise extends Component {
               
 
                     this.cntIniPos += 1;
-                    console.log('         <><><><>        this.cntIniPos: ', this.cntIniPos);
+                    // console.log('---------- this.cntIniPos: ', this.cntIniPos);
 
 
                         // initialPositions = {
@@ -1443,11 +1457,11 @@ export default class Exercise extends Component {
                           console.log('videoCountDown ends ');
                         }
 
-                        console.log('---- 1439   this.state.flagAllPosOk: ', this.state.flagAllPosOk );
-                        console.log('---- 1439   this.state.flagCountdownFinished: ', this.state.flagCountdownFinished );
-                        console.log('---- 1439   this.state.flagShowGoBackIcon: ', this.state.flagShowGoBackIcon );
-                        console.log('---- 1439   this.state.flagUpdateScore: ', this.state.flagUpdateScore );
-                        console.log('---- 1439   this.state.shouldPlay: ', this.state.shouldPlay );
+                        // console.log('---- 1439   this.state.flagAllPosOk: ', this.state.flagAllPosOk );
+                        // console.log('---- 1439   this.state.flagCountdownFinished: ', this.state.flagCountdownFinished );
+                        // console.log('---- 1439   this.state.flagShowGoBackIcon: ', this.state.flagShowGoBackIcon );
+                        // console.log('---- 1439   this.state.flagUpdateScore: ', this.state.flagUpdateScore );
+                        // console.log('---- 1439   this.state.shouldPlay: ', this.state.shouldPlay );
 
                         if ( this.state.flagVidEnd === true ) { // this will force to stop setInterval(videoCountDown) when user press gobackhome DURING COUNTDOWN. 20200603
                           console.log('this will force to stop setInterval(videoCountDown).');
@@ -1470,8 +1484,8 @@ export default class Exercise extends Component {
 
 
 
-            } else if (isWPartLoaded == false && isVidMetaLoaded == false) {
-              console.log('WPart, VidMeta, vidFullUrl from Firebase Not loaded yet.');
+            // } else if (isWPartLoaded == false && isVidMetaLoaded == false) {
+            //   console.log('WPart, VidMeta, vidFullUrl from Firebase Not loaded yet.');
             }   
 
 
@@ -1586,9 +1600,8 @@ export default class Exercise extends Component {
   render() {
     console.log('----------------- render --------------------');
     const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, flagVidEnd, scoreNow, vidStartAt, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon } = this.state;
-    // const {pose, flagAllPosOk, noseToAnkle, flagNoseToAnkle, rightToLeft, flagRightToLeft, isVidMetaLoaded ,vidFullUrl, isWPartLoaded  } = this.state;   
-   
-    // console.log('this.props.navigation.getParam(VIDID): ', this.props.navigation.getParam('VIDID'));
+    // const {pose, flagAllPosOk, noseToAnkle, flagNoseToAnkle, rightToLeft, flagRightToLeft ,vidFullUrl,  } = this.state;   
+
     // console.log('========== isTfReady: ' ,isTfReady);
     // console.log('this.ULBColor: ', this.ULBColor);
     // console.log('this.frameOutCnt: ', this.frameOutCnt);
@@ -1765,7 +1778,6 @@ export default class Exercise extends Component {
                */}
 
 
-
               {/* { flagAllPosOk &&
                 <View>
                   { shouldPlay ?
@@ -1835,7 +1847,6 @@ export default class Exercise extends Component {
                 </View>
               }
 
-
                  
               { flagAllPosOk && 
                 <View style={[styles.upperLayerContainer, {
@@ -1843,8 +1854,11 @@ export default class Exercise extends Component {
                   borderBottomColor: this.ULBColor.bottom,
                   borderLeftColor: this.ULBColor.left,
                   borderRightColor: this.ULBColor.right,
-                  borderWidth: 5} ]}>
-                    {/* <Text>upperLayerContainer</Text> */}
+                  borderWidth: Dimensions.get('window').height * 0.01} ]}>
+                  {/* <Text>upperLayerContainer</Text> */}
+                  {/* time progress bar */} 
+                  <View style={[styles.progressBar, {width: this.state.progressBarWidth} ]}>
+                  </View>
                 </View>
               }
               {/* https://reactnativecode.com/set-padding-dynamically/https://reactnativecode.com/set-padding-dynamically/ */}
@@ -2175,7 +2189,15 @@ const styles = StyleSheet.create({
     // borderColor: 'blue',
     // borderWidth: 3,
   },
- 
+  progressBar: {
+    flex: 1,
+    position: 'absolute',
+    left: 0,
+    height: Dimensions.get('window').height * 0.03,
+    bottom: Dimensions.get('window').height * 0.015,
+    backgroundColor: 'orange',
+  },
+
   modalLike: {
     // flexGrow: 1,
     justifyContent: 'center',

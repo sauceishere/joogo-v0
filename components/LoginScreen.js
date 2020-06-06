@@ -193,7 +193,7 @@ export default class LoginScreen extends Component {
                     })
                   }).then( result => result.json() )
                     .then( response => { 
-                      console.log('----- _whenNewUserLogsIn response:' );
+                      console.log('----- Login.js _whenNewUserLogsIn response:' );
                       if (response["code"] == 'ok') {
                         console.log('----- response[code] is ok');
                         if (response["authedUid"] == firebase.auth().currentUser.uid) {

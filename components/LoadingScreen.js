@@ -79,7 +79,7 @@ export default class LoadingScreen extends Component {
               })
             }).then( result => result.json() )
               .then( response => { 
-                console.log('----- _whenLoggedInExistingUserLogsIn response:', response );
+                console.log('----- Loading.js _whenLoggedInExistingUserLogsIn response.' );
                 if (response["code"] == 'ok') {
                   console.log('----- response[code] is ok');
                   if (response["authedUid"] == firebase.auth().currentUser.uid) {
