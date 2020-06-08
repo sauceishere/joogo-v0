@@ -5,26 +5,10 @@ import LoginScreen from './components/LoginScreen';
 import LoadingScreen from './components/LoadingScreen';
 
 import * as firebase from 'firebase';
-// import firebase from 'react-native-firebase';
 import { firebaseConfig } from './config';
 import Stack from './routes/homeStack';
 
-
-// if (!firebase.apps.length) {
 firebase.initializeApp(firebaseConfig);
-// const firebaseDefault = firebase.initializeApp(firebaseConfigDefault, 'firebaseDefault');
-// const firebaseStorageFinalTrainerVideo = firebase.initializeApp(firebaseConfigStorageFinalTrainerVideo, 'firebaseStorageFinalTrainerVideo');
-// const firebaseStorageRawTrainerVideo =  firebase.initializeApp(firebaseConfigStorageRawTrainerVideo, 'firebaseStorageRawTrainerVideo');
-// const firebaseStorageScoreTrainerVideo = firebase.initializeApp(firebaseConfigStorageScoreTrainerVideo, 'firebaseStorageScoreTrainerVideo');
-// firebase.initializeApp(firebaseConfigDefault, 'firebaseDefault');
-// firebase.initializeApp(firebaseConfigStorageFinalTrainerVideo, 'firebaseStorageFinalTrainerVideo');
-// firebase.initializeApp(firebaseConfigStorageRawTrainerVideo, 'firebaseStorageRawTrainerVideo');
-// firebase.initializeApp(firebaseConfigStorageScoreTrainerVideo, 'firebaseStorageScoreTrainerVideo');
-// }
-
-// console.log(firebase.app().name);  // "[DEFAULT]"
-// console.log(firebaseStorageFinalTrainerVideo.name);
-
 
 
 
@@ -54,8 +38,6 @@ export default class App extends React.Component {
     };
 
   }
-
-
 
 
   render() {

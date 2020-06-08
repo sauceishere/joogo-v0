@@ -1,22 +1,12 @@
-
-
 import * as React from 'react';
 import { Component, useState } from 'react';
 import { StyleSheet, SafeAreaView, Image, View, ScrollView, Text, TouchableOpacity, TextInput, Button, Dimensions, ActivityIndicator, Keyboard, TouchableWithoutFeedback, Modal } from 'react-native';
-// import HTML from 'react-native-render-html'; // npm install react-native-render-html
 import * as firebase from 'firebase';
-// import * as storage from 'firebase/storage';
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
-// import uuid from 'react-native-uuid';
 import { v4 as uuidv4 } from 'uuid';
 import * as VideoThumbnails from 'expo-video-thumbnails';
-// import { VideoPlayer, Trimmer } from 'react-native-video-processing';
-// import { Asset } from 'expo-asset';
-// import * as ImageManipulator from 'expo-image-manipulator';
 import * as FileSystem from 'expo-file-system'; // https://docs.expo.io/versions/latest/sdk/filesystem/
-
-
 
 
 export default class PostScreen extends Component {
@@ -43,16 +33,13 @@ export default class PostScreen extends Component {
   TnTargetSize = 480 * 270; // 640 * 360; // 256 * 144; // 1920 * 1080// 1280 * 720, 854 * 480
   TnCompRate = null;
   vidId = uuidv4();
-  // vidId = this.vidId.toString().replace("-", ""); // create video ID by uuid
-
-
+  
 
   componentDidMount() {
     console.log('------------- componentDidMount Post started 1.');
-    // console.log('firebase.auth().currentUser.uid: ', firebase.auth().currentUser.uid);
-    // console.log('this.state.uid: ', this.state.uid);
     console.log('this.vidId: ', this.vidId);
   }
+
 
   componentWillUnmount() {
     console.log('------------- componentWillUnmount Post.');
@@ -105,13 +92,6 @@ export default class PostScreen extends Component {
 
 
   _uploadVidMetaRawToFirestore = () => {
-    // let vidUrl = this.state.rawImage.toString().split(".");
-    // let vidExt = vidUrl[vidUrl.length - 1]; // get last element
-    // console.log('vidExt: .', vidExt);
-
-    // let tnUrl = this.state.imageTn.toString().split(".");
-    // let tnExt = tnUrl[tnUrl.length - 1]; // get last element
-    // console.log('tnExt: .', tnExt);
     
     return new Promise((resolve, reject)=>{
       firebase.firestore().collection("vidMetaRaw").doc(this.vidId).set({
@@ -268,7 +248,6 @@ export default class PostScreen extends Component {
       } 
       setTimeout(countup, 3 * 1000); // milliseconds
 
-
     } else {
       if (!this.state.text) {
         console.log('Please fill out Video title.');
@@ -388,14 +367,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  // header: {
-  //     flexDirection: "row",
-  //     justifyContent: "space-between",
-  //     paddingHorizontal: 32,
-  //     paddingVertical: 12,
-  //     borderBottomWidth: 1,
-  //     borderBottomColor: "#D8D9DB"
-  // },
   inputContainer: {
     marginHorizontal: Dimensions.get('window').width * 0.05,
     flexDirection: "column",
@@ -407,12 +378,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     //fontWeight: 'bold',
   }, 
-  // avatar: {
-  //     width: 48,
-  //     height: 48,
-  //     borderRadius: 24,
-  //     marginRight: 16
-  // },
   pickImage: {
     alignItems: "center",
     marginVertical: Dimensions.get('window').height * 0.02,

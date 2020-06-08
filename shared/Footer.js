@@ -65,22 +65,5 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 80,
   },
-  // PostIcon: {
-  //   shadowColor: "#E9446A",
-  //   shadowOffset: { width: 0, height: 10 },
-  //   shadowRadius: 10,
-  //   shadowOpacity: 0.3
-  // }
-//   headerText: {
-//     fontWeight: 'bold',
-//     fontSize: 20,
-//     color: '#333',
-//     letterSpacing: 1,
-
-//   },
-//   SearchIcon: {
-//     position: 'absolute',
-//     right: 25,
-//   },
 
 });

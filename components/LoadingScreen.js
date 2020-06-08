@@ -17,7 +17,7 @@ export default class LoadingScreen extends Component {
   }
 
   componentDidMount() {
-    console.log('------------- componentDidMount LoadingScreen started 3');
+    console.log('------------- componentDidMount LoadingScreen started');
     this.checkIfLoggedIn();
   }
 
@@ -34,34 +34,7 @@ export default class LoadingScreen extends Component {
 
         if (user) { // if user logeed in
           console.log('====== Existing User already logged in. Loading.js ');
-          // console.log('user: ', user);
-          // console.log('----- Loading.js firebase.auth().currentUser.uid: ', firebase.auth().currentUser.uid );
-
-          // // // add record on Firestore /users/{userId}/loginLogs
-          // firebase.firestore().collection( 'users' ).doc( firebase.auth().currentUser.uid ).collection( 'loginLogs' ).doc( ts + '_IN').set({
-          //   TS: Date.now() / 1000, // unix
-          //   INOUT: 'IN',
-          //   RCV_AT: firebase.firestore.FieldValue.serverTimestamp(),
-          //   // IPADD: ip_add.toString(),
-          // }).then((ref)=>{
-          //   console.log('loginLogs_loading added');
-          // }).catch((error)=>{
-          //   console.log('loginLogs_loading error: ', error);
-          // });   
-
-          // // // Get user data
-          // firebase.firestore().collection("users").doc( firebase.auth().currentUser.uid ).get().then( (QueryUid) => { 
-          //   if (QueryUid) {
-          //     // console.log('QueryUid.data(): ', QueryUid.data());
-          //     this.setState({ userProfile: QueryUid.data() });
-          //   }  
-          // }).catch(function(error) {
-          //   alert("Error getting users/{userId}:", error);
-          //   console.log("Error getting users/{userId}}:", error);
-          // });  
-
-
-
+         
 
           //// to check if user is logged with idToken. 20200521
           const _whenLoggedInExistingUserLogsIn = (idTokenCopied) => {
@@ -114,60 +87,8 @@ export default class LoadingScreen extends Component {
             console.log('Error xxxxxxxxxxxxxxxx Could not get idToken: ', error);
           });
 
-
-
-/////////// Test for Functions Error when frequently run WITHOUT verify id token 20200526 ///////////////////////////////////////////////
-
-          // to check if user is logged with idToken. 20200521
-          // const _whenLoggedInExistingUserLogsIn = () => {
-          //   console.log('----- _whenLoggedInExistingUserLogsIn.');
-          //   // console.log('----- _whenLoggedInExistingUserLogsIn idTokenCopied: ', idTokenCopied);
-          //   fetch('https://asia-northeast1-getfit-f3a98.cloudfunctions.net/whenLoggedInExistingUserLogsIn-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
-          //     method: 'POST',
-          //     headers: {
-          //       // 'Accept': 'application/json', 
-          //       'Content-Type' : 'application/json' // text/html text/plain application/json
-          //     },
-          //     // mode: "no-cors", // no-cors, cors, *same-origin
-          //     body: JSON.stringify({
-          //       id_token: firebase.auth().currentUser.uid,
-          //     })
-          //   }).then( result => result.json() )
-          //     .then( response => { 
-          //       console.log('----- _whenLoggedInExistingUserLogsIn response:', response );
-          //       if (response["code"] == 'ok') {
-          //         console.log('----- response[code] is ok');
-          //         if (response["authedUid"] == firebase.auth().currentUser.uid) {
-          //           // this.setState({ authedUid: response["authedUid"], userProfile: response["userProfile"] });
-          //           console.log('Correctly received "authedUid" and "userProfile".');
-          //         } else {
-          //           console.log('Received wrong "authedUid". Please log-in again.');
-          //           alert('Received wrong "authedUid". Please log-in again.');
-          //         }
-                  
-          //       } else { // response[code] is Error
-          //         console.log('Received response[code] = error from functions.');
-          //         alert('Received response[code] = error from functions., Please log-in again.');
-          //       }
-          //   }).catch( error => {
-          //     console.log('Error _whenLoggedInExistingUserLogsIn-py: ', error);
-          //     alert('Error response from _whenLoggedInExistingUserLogsIn, Please log-in again.');
-          //   });
-          // }
-
-
-          // _whenLoggedInExistingUserLogsIn(); // run http trigger
-
-
-///////////////////////////////////////////
-
-
-
           console.log('------------------------------ Going to Dashboard.js');  
           this.props.navigation.navigate('DashboardScreen', { authedUid: 'authhh' });
-          // this.props.navigation.navigate('DashboardScreen'); 
-
-
 
         } else { // if user NOT logged in
           console.log('== User NOT logged in, Going to Login.js');

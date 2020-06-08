@@ -2,19 +2,15 @@ import React, { Component, useState } from 'react';
 import { StyleSheet, View, StatusBar, Text} from 'react-native';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createAppContainer,  } from 'react-navigation';
-// import { createBottomTabNavigator } from 'react-navigation-tabs'; // https://swallow-incubate.com/archives/blog/20191220
-// import Home from '../screens/home';
-// import ReviewDetails from '../screens/reviewDetails';
 
 import Header from '../shared/Header';
+
 import DashboardScreen from '../components/DashboardScreen';
 import Exercise from '../components/Exercise';
-// import Feed from '../components /Feed';
-// import Footer from '../shared/Footer';
 import ProfileScreen from "../components/ProfileScreen";
 import PostScreen from "../components/PostScreen";
-// import NotificationScreen from "../components/NotificationScreen";
 import HistoryScreen from "../components/HistoryScreen";
+
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialIcons } from '@expo/vector-icons';
@@ -126,63 +122,7 @@ const screens = {
       }
     }, 
   },  
-  // Notification: {
-  //   screen: NotificationScreen,
-  //   navigationOptions: ({ navigation }) => { //https://www.youtube.com/watch?v=C3oDJdlrEKE&list=PL4cUxeGkcC9ixPU-QkScoRBVxtPPzVjrQ&index=25
-  //     return {
-  //       // headerTitle: () => <Header title='Search' navigation={navigation} style={styles.Header}/>,
-  //       // headerStyle: () =>  <LinearGradient colors={['#ffbf00', '#ffb300', 'orange']} />, // { backgroundColor: 'orange' }, // #FF8C00
-  //       headerTitle: () => <Header title='Notification' navigation={navigation} />,
-  //       // title: 'Post Video',
-  //       // headerTitleAlign: 'center',
-  //       // // header: props => <GradientHeader/>,
-  //       headerStyle: {
-  //         backgroundColor: '#ffa500',
-  //         // position: 'absolute',
-  //         // top: 0,
-  //         // left: 0,
-  //         // right: 0,
-  //       },     
-  //     }
-  //   }, 
-  // },
-  // Profile: {
-  //   screen: ProfileScreen,
-  //   navigationOptions: {
-  //       // tabBarIcon: ({ tintColor }) => <Ionicons name="ios-person" size={24} color={tintColor} />
-  //   }, 
-  // },
-  // Post: {
-  //     screen: PostScreen,
-  //     // navigationOptions: {
-  //     //     tabBarIcon: ({ tintColor }) => (
-  //     //         <Ionicons
-  //     //             name="ios-add-circle"
-  //     //             size={48}
-  //     //             color="#E9446A"
-  //     //             style={{
-  //     //                 shadowColor: "#E9446A",
-  //     //                 shadowOffset: { width: 0, height: 10 },
-  //     //                 shadowRadius: 10,
-  //     //                 shadowOpacity: 0.3
-  //     //             }}
-  //     //         />
-  //     //     )
-  //     // }
-  // },
-  // Notification: {
-  //     screen: NotificationScreen,
-  //     navigationOptions: {
-  //         // tabBarIcon: ({ tintColor }) => <Ionicons name="ios-notifications" size={24} color={tintColor} />
-  //     }
-  // },
-  // Feed: {
-  //   screen: Feed,
-  //   navigationOptions: ({ navigation }) => { //https://www.youtube.com/watch?v=C3oDJdlrEKE&list=PL4cUxeGkcC9ixPU-QkScoRBVxtPPzVjrQ&index=25
-  //     return {   
-  //     }
-  //   }
-  // }
+  
 
 }
 

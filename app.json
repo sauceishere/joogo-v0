@@ -23,6 +23,15 @@
     ],
     "ios": {
       "supportsTablet": true
+    },
+    "android": {
+      "versionCode": 2,
+      "package": "io.joogo.fit",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     }
   }
 }

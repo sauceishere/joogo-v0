@@ -3,53 +3,26 @@ import * as React from 'react';
 import { Component, useState, useEffect  } from 'react';
 import { Text, View, StyleSheet, Dimensions, StatusBar, Image, TouchableOpacity, SafeAreaView, ScrollView, Button, Platform, ActivityIndicator, Modal } from 'react-native';
 import {WebView} from 'react-native-webview';
-// import {GlobalStyles} from '../shared/GlobalStyles';
-// import { Video } from 'expo-av';
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-// import { Overlay } from 'react-native-elements';
-// import {htmlContent} from './trainerVideo/ExerciseHTML';
-// import HTML from 'react-native-render-html'; // npm install react-native-render-html
-
 import * as firebase from 'firebase';
-// import * as firestore from 'firebase/firestore';
-
 // https://js.tensorflow.org/api_react_native/latest/å https://github.com/tensorflow/tfjs/tree/master/tfjs-react-native
 import { Camera } from 'expo-camera';
 import { cameraWithTensors } from '@tensorflow/tfjs-react-native'; // https://js.tensorflow.org/api_react_native/latest/#cameraWithTensors
-// tf.tensor3D article https://morioh.com/p/a517bc403340 https://js.tensorflow.org/api/latest/#tensor3d
-
 // https://www.npmjs.com/package/@tensorflow/tfjs-react-native
 import * as tf from '@tensorflow/tfjs';
 import * as posenet from '@tensorflow-models/posenet';
-
-// import Svg, { Circle, Rect, Line} from 'react-native-svg';
 import * as Permissions from 'expo-permissions';
-// import { ExpoWebGLRenderingContext } from 'expo-gl';
-
-// import * as Font from 'expo-font';
-// import {WebviewContents} from './WebviewHTML';
-// import WebViewHtml from './WebviewHTML';
-
 // import MediaMeta from 'react-native-media-meta'; // https://github.com/mybigday/react-native-media-meta
 import * as FileSystem from 'expo-file-system'; // https://docs.expo.io/versions/latest/sdk/filesystem/
 import { v4 as uuidv4 } from 'uuid';
 import {vidViewLogDirName} from '../shared/Consts';
-
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake'; //https://docs.expo.io/versions/latest/sdk/keep-awake/
 import { Constants, Accelerometer } from 'expo-sensors'; // https://docs.expo.io/versions/latest/sdk/accelerometer/ # https://snack.expo.io/@professorxii/expo-accelerometer-example
 
 
-
 const TensorCamera = cameraWithTensors(Camera); // https://js.tensorflow.org/api_react_native/latest/#cameraWithTensors
 
-// const screenHW = Dimensions.get('screen').height / Dimensions.get('screen').width;
-// const screenHeight = Dimensions.get('screen').height;
-// const screenWidth = Dimensions.get('screen').width;
-
 const goBackIconSize = 40;
-
-// var countdownTxt = '';
-
 
 export default class Exercise extends Component {
 
@@ -75,7 +48,6 @@ export default class Exercise extends Component {
       countdownTxt: null, 
       scoreNow: 0, // score to show on top right of screen
       mdCumTtlNow: 0, 
-
       noseToAnkle: 0, // initiate as null  
       flagNoseToAnkle: false, // flag 1 when noseToAnkle is fixed , before video starts. 
       rightToLeft: 0, // initiate as null  
@@ -357,45 +329,17 @@ export default class Exercise extends Component {
     if(this.rafId) {  
       cancelAnimationFrame(this.rafId);
     }  
-      // this.attentionTxt = ''; // clear variable
-      // this.vidState.LOOPTIMES = 0; //clear variable
-      // this.vidState.everyIntSecC = 0; //clear variable
-      // this.vidState.vidStartAt = null; //clear variable
-      // this.vidState.loopStartAt = null; //clear variable
-      // this.vidState.everyIntSec = 0; //clear variable
-      // this.vidState.vidPlayedSum = 0; //clear variable
-      // this.vidState.scorePointSum = 0; //clear variable      
-      // this._sendVidViewLog(); // send saved log to Firestore 20200519
-      // deactivateKeepAwake();
-      // if (this.state.shouldPlay === true ) {
-      //   this.setState({ shouldPlay : false});
-      // }
-      // console.log('------------------- componentWillUnmount Exercise0');
-      // clearInterval(_updateScore); // did NOT work 20200603
-      // clearInterval(videoCountDown); // did NOT work 20200603
-      // console.log('------------------- componentWillUnmount Exercise1');
       await this._unsubscribeFromAccelerometer();
-      // console.log('------------------- componentWillUnmount Exercise2');
       deactivateKeepAwake();
-      // console.log('------------------- componentWillUnmount Exercise3');
       await this._saveVidViewLog();
       console.log('------------------- componentWillUnmount Exercise completed');
-    
   }
 
 
   async componentDidMount() {
     console.log('------------------- componentDidMount Exercise started 64');
 
-    // console.log('this.props.navigation.getParam(post): ', this.props.navigation.getParam('post') );
-    // console.log('this.props.navigation.getParam(wpart): ', this.props.navigation.getParam('wpart').nose);
-    // console.log('this.props.navigation.getParam(const_exer)inputTensor Height: ', this.props.navigation.getParam('const_exer')['inputTensor']['height'] );
-
     activateKeepAwake();
-
-
-    // console.log('screen h/w, height, width: ', Dimensions.get('screen').height / Dimensions.get('screen').width, Dimensions.get('screen').height, Dimensions.get('screen').width);
-    // console.log('window h/w, height, width: ', Dimensions.get('window').height / Dimensions.get('window').width, Dimensions.get('window').height, Dimensions.get('window').width);
 
 
     // const ratios = await Camera.getSupportedRatiosAsync();
@@ -448,80 +392,13 @@ export default class Exercise extends Component {
       console.log('--------- posenetModel loaded');
 
 
-      // if (posenetModel) {
-      //   this.setState({ posenetModel , isLoadingPosenet: false, isPosenetLoaded: true }); // load posenet model
-      //   console.log('--------- posenetModel loaded.');
-      // }
-
-      // try{
-      //   const posenetModel =  await posenet.load({ // https://github.com/tensorflow/tfjs-models/tree/master/posenet
-      //     architecture: 'MobileNetV1',
-      //     outputStride: 16, // 16 larger is faster but no json file for 32. 
-      //     inputResolution: { width: this.inputTensorWidth, height: this.inputTensorHeight },
-      //     multiplier: 0.75, // 0.75 smaller is faster
-      //     quantBytes: 2 // 2 small is faster
-      //   }).then( () => {
-      //     this.setState({ posenetModel , isLoadingPosenet: false, isPosenetLoaded: true }); // load posenet model
-      //     console.log('--------- posenetModel loaded.');
-      //   }).catch( err => {
-      //     console.log('posenetModel loading error: ', err);
-      //     alert('posenetModel loading error: ', err);
-      // });
-      
-
-      // load vidMeta from Firestore 20200305 
-      // if (this.state.isVidMetaLoaded === false) { //. this if to prevent repeated loop.
-      //   // console.log('this.state.isVidMetaLoaded started: ', this.props.navigation.getParam('vidId'));
-      //   firebase.firestore().collection("vidMetaFinal").doc( this.props.navigation.getParam('VIDID') ).get().then( (doc) => {
-      //   // firebase.firestore().doc('/trainerVideo/EggSQY6V7gEZjHQ28sbV').get().then((response) => {
-      //     if (doc.exists) {
-      //       this.vidMeta = doc.data();
-      //       this.setState({ isVidMetaLoaded: true, });
-      //       // console.log('------------- this.vidMeta: ', this.vidMeta);
-      //       // console.log('------------- this.vidMeta.FINSCORE[1]: ', this.vidMeta["FINSCORE"] );
-      //       // console.log('------------- this.vidMeta.FINSCORE[1]: ', JSON.parse(this.vidMeta["FINSCORE"])["1"] );
-      //       console.log('---------- vidMetaFinal loaded.');
-      //     } else {
-      //       // doc.data() will be undefined in this cases
-      //       console.log("No such document!");
-      //     }
-      //   }).catch(function(error) {
-      //     console.log("Error getting document:", error);
-      //     alert("Error getting document:", error);
-      //   });  
-      // } // closing if
-
-
-      // load WPart from Firestore 20200305 
-      // if (this.state.isWPartLoaded === false) { //. this if to prevent repeated loop. 
-      //   firebase.firestore().collection("masters").doc("wpart").get().then( (doc) => {
-      //     // firebase.firestore().doc('/trainerVideo/EggSQY6V7gEZjHQ28sbV').get().then((response) => {
-      //     if (doc.exists) {
-      //       this.wpart = doc.data();
-      //       this.setState({ isWPartLoaded: true, });
-      //       // console.log('------------- this.wpart: ', this.wpart);
-      //       console.log('---------- wpart loaded.');
-      //     } else {
-      //       // doc.data() will be undefined in this case
-      //       console.log("No such document!");
-      //     }
-      //   }).catch(function(error) {
-      //     console.log("Error getting document:", error);
-      //     alert("Error getting document.");
-      //   });   
-      // }  
-
-
       // get trainerVideo full URL from Firebase storage 2020315
       if (this.state.vidFullUrl === '') { //. this if to prevent repeated loop. 
         const storage = firebase.storage(); // Create a storage reference from our storage service
         const storageRef = storage.ref(); // Create a reference to the file we want to download
-        // console.log(' this.props.navigation.getParam(vidId): ', this.props.navigation.getParam('vidId'), this.props.navigation.getParam('vidFType') );
-        const starsRef = storageRef.child( 'finvid/' + this.props.navigation.getParam('post')['VIDID']  ); // 'finalScoreTrainerVideo/1578303596642qvykv2h8.json' // // 'trainerVideo/flower.jpg'      
+        const starsRef = storageRef.child( 'finvid/' + this.props.navigation.getParam('post')['VIDID']  );      
         await starsRef.getDownloadURL().then( (url) => {
-          // Insert url into an <img> tag to "download"
           this.setState({vidFullUrl : url }); // assign to this.state
-          // console.log('------------- LoadTrainerVideo');
           console.log('this.state.vidFullUrl: ', this.state.vidFullUrl);
         }).catch(function(error) {
           alert(error);
@@ -559,10 +436,7 @@ export default class Exercise extends Component {
       alert('posenetModel or Firestorage or FireStorage  loading error: ', err);
     }
 
-    // console.log('trainerVidUrl: ', this.state.trainerVidUrl);
-    // console.log('========== this.vidMeta.name: ', this.vidMeta.name );
-    // console.log('========== this.wpart.nose, leftWrist: ',  this.wpart.nose, this.wpart.leftWrist);
-    console.log('========== this.state.vidLength: ', this.state.vidLength);     
+    // console.log('========== this.state.vidLength: ', this.state.vidLength);     
     console.log('------------------- componentDidMount Exercise completed');
 
   } // closing componentDidMount
@@ -621,8 +495,6 @@ export default class Exercise extends Component {
 
   async _sendVidViewLog( vidViewLogFileName ){
     console.log('----------- _sendVidViewLog start' );
-    // this.cntSentVidViewLog = 0; // to count how many cntSentVidViewLog files successfully sent out
-    // this.cntSentExerViewLog = 0; // to count how many cntSentExerViewLog files successfully sent out
     
     // // Upload vidViewLog to Firestore
     try {
@@ -631,64 +503,6 @@ export default class Exercise extends Component {
         // read SINGLE local file
         FileSystem.readAsStringAsync( FileSystem.documentDirectory + this.state.vidViewLogDirName + '/' + vidViewLogFileName + '.json').then( localFileContents => {
           // console.log( 'localFileContents: ', localFileContents);
-
-          // // Send to SINGLE file to Firestore
-          // firebase.firestore().collection("users").doc( firebase.auth().currentUser.uid ).collection("vidViewed").doc( vidViewLogFileName + '.json' ).set({
-          //   ts: JSON.parse(localFileContents)["ts"],
-          //   vidId: JSON.parse(localFileContents)["vidId"],
-          //   viewId: JSON.parse(localFileContents)["viewId"],  
-          //   uid: firebase.auth().currentUser.uid ,         
-          //   sendId: uuidv4(),
-          //   startAt: JSON.parse(localFileContents)["startAt"],  
-          //   endAt: JSON.parse(localFileContents)["endAt"],  
-          //   nTa: JSON.parse(localFileContents)["nTa"],  
-          //   RCV_AT: firebase.firestore.FieldValue.serverTimestamp(), // https://cloud.google.com/firestore/docs/manage-data/add-data?hl=ja#%E3%82%A6%E3%82%A7%E3%83%96_9
-          //   mdCumAll: JSON.parse(localFileContents)["mdCumAll"], // this is an Array
-          //   pt: JSON.parse(localFileContents)["pt"], 
-          //   score: JSON.parse(localFileContents)["score"],
-          //   playSum: JSON.parse(localFileContents)["playSum"],
-          //   playPct: JSON.parse(localFileContents)["playPct"],
-          //   cntOutAccel: JSON.parse(localFileContents)["cntOutAccel"],
-          //   cntPressPlayButton: JSON.parse(localFileContents)["cntPressPlayButton"],
-          //   cntPressPauseButton: JSON.parse(localFileContents)["cntPressPauseButton"],
-          //   cntFrameOut: JSON.parse(localFileContents)["frameOutCntCum"], // this is a Dictionary, count how many times out from Frame
-          //   identifiedBparts: JSON.parse(localFileContents)["identifiedBparts"], // this is an Array
-
-          //   iTWidth: JSON.parse(localFileContents)["iTWidth"],
-          //   iTHeight: JSON.parse(localFileContents)["iTHeight"],
-          //   scHeight: JSON.parse(localFileContents)["scHeight"],
-          //   scWidth: JSON.parse(localFileContents)["scWidth"],
-          //   winHeight: JSON.parse(localFileContents)["winHeight"],
-          //   winWidth: JSON.parse(localFileContents)["winWidth"],
-          //   texDimsWidth: JSON.parse(localFileContents)["texDimsWidth"],
-          //   texDimsHeight: JSON.parse(localFileContents)["texDimsHeight"],
-          //   outNTAcnt: JSON.parse(localFileContents)["outNTAcnt"],
-          //   numFrameVidStart: JSON.parse(localFileContents)["numFrameVidStart"],
-          //   numFrameAllPosOk: JSON.parse(localFileContents)["numFrameAllPosOk"],
-          //   numFrameVidEnd: JSON.parse(localFileContents)["numFrameVidEnd"],
-
-          // }).then( () => {
-          //   // this.setState({ vidViewLogFileName: Localfile }); 
-
-          //   //Delete SINGLE file in the LOCAL directory
-          //   FileSystem.deleteAsync( FileSystem.documentDirectory + this.state.vidViewLogDirName + '/' + vidViewLogFileName + '.json').then( () => {
-          //     console.log('SINGLE Localfile Uploaded & Deleted: ', vidViewLogFileName );
-          //     deactivateKeepAwake();
-          //   }).catch( error => {
-          //     deactivateKeepAwake();
-          //     console.log('FileSystem.deleteAsync error: ', error);
-          //     // alert('FileSystem.deleteAsync error.');
-          //   })
-
-          //   // this.cntSentVidViewLog++; // count increment
-          // }).catch( (error) => {
-          //   deactivateKeepAwake();
-          //   console.error("Error uploading vidViewLog to Firestore: ", error);
-          //   // alert("Error uploading vidViewLog to Firestore.");
-          // });
-
-
-
 
 
 ////////// sendSingleVidViewLog-py ////////////////////////////
@@ -751,34 +565,27 @@ export default class Exercise extends Component {
                       // alert('FileSystem.deleteAsync error.');
                     })
                     
-      
                 } else { // response[code] is Error      
                   console.log('Received response[code] = error from functions.');
                   alert('Received response[code] = error from functions. Please log-in again.');
                 }
-                // deactivateKeepAwake();
+               
             }).catch( error => {
               console.log('Error _sendSingleVidViewLog-py: ', error);
               alert('Error response from _sendSingleVidViewLog, Please log-in again.');
-              // deactivateKeepAwake();
             });
           }         
 
 
-///////////  sendSingleVidViewLog-py ////////////////////////////////////////////////// https://firebase.google.com/docs/auth/admin/verify-id-tokens?authuser=0#%E3%82%A6%E3%82%A7%E3%83%96
+          // https://firebase.google.com/docs/auth/admin/verify-id-tokens?authuser=0#%E3%82%A6%E3%82%A7%E3%83%96
           firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then( function(idToken) {
-            // Send token to your backend via HTTPS
-            // console.log('----- Got idToken. ');
             const idTokenCopied = idToken;
 
             _sendSingleVidViewLog(idTokenCopied); // run http trigger
             
           }).catch(function(error) {
             console.log('Error xxxxxxxxxxxxxxxx Could not get idToken: ', error);
-            // deactivateKeepAwake();
           });  
-
-
 
           
         });
@@ -788,10 +595,7 @@ export default class Exercise extends Component {
       };
         
     } catch (err) {
-      // this.directories = []; // create empty array,
       console.log('_sendVidViewLog error: ', err);
-      // alert('_sendVidViewLog error: ', err);
-      // deactivateKeepAwake();
     }
   
   }
@@ -799,19 +603,12 @@ export default class Exercise extends Component {
 
   _saveVidViewLog = async () => {
     console.log('----------- _saveVidViewLog Exercise.js start' );
-    // console.log('--- this.mdCumAll 1: ', this.mdCumAll);
-    // const date = new Date();
-    // console.log('date: ', date);
+
     const ts = Date.now() / 1000; // unix //date.getTime().toString();
     // console.log('ts: ', ts);
     const vidId = this.props.navigation.getParam('post')['VIDID'];
     const viewId = uuidv4();
     const vidViewLogFileName = ts + '_' + vidId + '_' + viewId;
-
-    // console.log('this.cntOutAccel: ', this.cntOutAccel);
-    // console.log('this.vidState.cntPressPlayButton: ', this.vidState.cntPressPlayButton);
-    // console.log('this.vidState.cntPressPauseButton: ', this.vidState.cntPressPauseButton);
-    // console.log('frameOutCntCum: ', JSON.stringify(this.frameOutCntCum) );
 
     var jsonContents = {};
     jsonContents["ts"] = ts;
@@ -919,10 +716,6 @@ export default class Exercise extends Component {
 
 ////////// update score ////////////////////
       if (this.state.shouldPlay === true & this.state.flagUpdateScore === false & this.state.flagVidEnd === false)  { //
-      // if (shouldPlay === true && flagUpdateScore === false && flagVidEnd === false)  { // 20200523 
-        // console.log('this.state.shouldPlay, this.state.flagUpdateScore, this.state.flagVidEnd: ', this.state.shouldPlay, this.state.flagUpdateScore, this.state.flagVidEnd);
-        // console.log('shouldPlay, flagUpdateScore, flagVidEnd: ', shouldPlay, flagUpdateScore, flagVidEnd);
-        
 
         var _updateScore = setInterval( () => {
 
@@ -932,12 +725,6 @@ export default class Exercise extends Component {
           var finscore_now = JSON.parse(this.vidMeta["FINSCORE"])[ secFromStart.toString() ] ; // current time's finscore
           console.log('--- finscore_now: ', finscore_now);
 
-          // # 0 nose, 1 leftEye, 2 rightEye, 3 leftEar, 4 rightEar, 
-          // # 5 leftShoulder, 6 rightShoulder, 7 leftElbow, 8 rightElbow, 9 leftWrist, 10 rightWrist, 
-          // # 11 leftHip, 12 rightHip, 13 leftKnee, 14 rightKnee, 15 leftAnkle, 16 rightAnkle
-          // # bparts_list ['nose', 'l_eye', 'r_eye', 'l_ear', 'r_ear', 'l_sho', 'r_sho', 'l_elb', 'r_elb', 'l_wri', 'r_wri', 'l_hip', 'r_hip', 'l_knee', 'r_knee', 'l_ank', 'r_ank']
-
-          // console.log('--- this.wpart: ', this.wpart);
           console.log('--- noseToAnkle: ', noseToAnkle);
 
           var mdCumTtlNow = 
@@ -1006,11 +793,6 @@ export default class Exercise extends Component {
         
           } 
           
-          // console.log('---- 999   this.state.flagAllPosOk: ', this.state.flagAllPosOk );
-          // console.log('---- 999   this.state.flagCountdownFinished: ', this.state.flagCountdownFinished );
-          // console.log('---- 999   this.state.flagShowGoBackIcon: ', this.state.flagShowGoBackIcon );
-          // console.log('---- 999   this.state.flagUpdateScore: ', this.state.flagUpdateScore );
-          // console.log('---- 999   this.state.shouldPlay: ', this.state.shouldPlay );
 
           if ( this.state.shouldPlay === false ) { // this will force to stop setInterval(_updateScore) when user outNTA or press gobackhome BEFORE video ends. 20200603
             console.log('this will force to stop setInterval(_updateScore).');
@@ -1024,14 +806,8 @@ export default class Exercise extends Component {
 
       } // closing if (this.state.shouldPlay === true & this.state.flagUpdateScore === false & this.state.flagVidEnd === false)
 
-
-      // console.log('going into pose block');
-      // console.log('flagVidEnd: ', flagVidEnd);
-      // console.log('this.state.pose: ', this.state.pose);
       if ( pose != null ) {
         // console.log('-------- pose.keypoints: ', pose.keypoints)
-
-        // this.pos = {} // reset dictionary to avoid remain the previous data 20200523
 
         var identifiedBpartsEach = []; // reset at each loop 20200520
 
@@ -1283,11 +1059,11 @@ export default class Exercise extends Component {
                 console.log('---------- out NoseToAnkle');
                 this.outNTA.cnt++; // increment
                 if (this.outNTA.cnt > this.outNTA.outTimesCriteria && this.outNTA.flag == false) { // check if count of out times more than criteria
-                  this.outNTA.flag = true; // to control to go in only one time.
-                  this.setState({shouldPlay : false, flagShowGoBackIcon : false, flagVidEnd : true }); // to stop playing video, and hide goBackIcon
                   console.log('xxxxxxxxxxxxxxxxxxxxxx You moved too close to Camera.');
-
-
+                  this.outNTA.flag = true; // to control to go in only one time.
+                  
+                  
+                  // this.setState({shouldPlay : false, flagShowGoBackIcon : false, flagVidEnd : true }); // to stop playing video, and hide goBackIcon
                   // console.log('xxxxxxxxxxxxxxxxxxxxxx You moved too close to Camera. Video will stop');
                   // alert('You moved too close to Camera. Video will stop.');
                   
@@ -1411,27 +1187,6 @@ export default class Exercise extends Component {
 
                     this.cntIniPos += 1;
                     // console.log('---------- this.cntIniPos: ', this.cntIniPos);
-
-
-                        // initialPositions = {
-                        //   x9Min: this.inputTensorWidth * 0/4, 
-                        //   x9Max: this.inputTensorWidth * 1/4, 
-                        //   y9Min: this.inputTensorHeight * 1/4,
-                        //   y9Max: this.inputTensorHeight * 3/4,
-                        //   x10Min: this.inputTensorWidth * 3/4, 
-                        //   x10Max: this.inputTensorWidth * 4/4,   
-                        //   y10Min: this.inputTensorHeight * 1/4,
-                        //   y10Max: this.inputTensorHeight * 3/4,  
-                        //   xBothAnkleMin: this.inputTensorWidth * 1/4, 
-                        //   xBothAnkleMax: this.inputTensorWidth * 3/4,                           
-                        //   yBothAnkleMin: this.inputTensorHeight * 3/4, 
-                        //   yBothAnkleMax: this.inputTensorHeight * 4/4,       
-                        //   NoseToAnkleMin: this.inputTensorHeight * 2/4, // y distance between nose to ankle should be more than this  
-                        //   xRightToLeftMin: this.inputTensorWidth * 2/4, // x distance between right to left wrist should be more than this.    
-                        // };
-                      
-
-
 
                     // hide webCam, initialPosture.png & start countdown 
                     if (flagAllPosOk == false && this.cntIniPos > 2) { // flag to control going through one time 
@@ -1600,19 +1355,12 @@ export default class Exercise extends Component {
   render() {
     console.log('----------------- render --------------------');
     const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, flagVidEnd, scoreNow, vidStartAt, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon } = this.state;
-    // const {pose, flagAllPosOk, noseToAnkle, flagNoseToAnkle, rightToLeft, flagRightToLeft ,vidFullUrl,  } = this.state;   
-
-    // console.log('========== isTfReady: ' ,isTfReady);
-    // console.log('this.ULBColor: ', this.ULBColor);
-    // console.log('this.frameOutCnt: ', this.frameOutCnt);
 
     if (shouldPlay == true) { // increment only shouldPlay=true. this means not incremented whe video is paused.
       this.vidState.vidPlayedSum = this.vidState.vidPlayedSum + (Date.now()/1000 - this.vidState.loopStartAt); // add increment time
     }
     console.log( '-- Interval: ', (Date.now()/1000 - this.vidState.loopStartAt).toFixed(2)  ); // this does not have any meaning, just to show how fast code runs.
     this.vidState.loopStartAt = Date.now()/1000;
-    // this.setState({ loopStartAt: Date.now()/1000});    
-    // console.log('----- this.vidState.vidStartAt, vidPlayedSum, loopStartAt: ' , this.vidState.vidStartAt, this.vidState.vidPlayedSum.toFixed(2), this.vidState.loopStartAt);
 
 
 ////////// to check if mobile devices is fixed & no move by Accelerometer
@@ -1641,22 +1389,6 @@ export default class Exercise extends Component {
 
     return (
         <View style={styles.container}>
-
-
-          {/* Show trainerVideo when countdown is finished */}
-            {/* <View style={styles.trainerVideoContainer}> */}
-              {/* <WebView
-                ref={r => (this.webviewRef = r)}
-                source={{ uri: this.state.vidFullUrl }}
-                // javaScriptEnabled = {true}
-                // injectedJavaScript=
-                //   {`
-                //   `}
-                style={styles.trainerVideo} 
-                // onMessage={this.onMessage}
-                onNavigationStateChange={this._vidDefault}
-              /> */}
-            {/* </View> */}
           
 
           { isPosenetLoaded ?  
@@ -1705,23 +1437,17 @@ export default class Exercise extends Component {
                 <View style={{ height: '100%', width: '100%',}}>
 
                   <View style={styles.trainerVideoContainer}>
-                  {/* <View style={[ {zindex: 100 }, styles.trainerVideoContainer ]}> */}
                     <WebView
                       ref={r => (this.webviewRef = r)}
                       source={{ uri: this.state.vidFullUrl }}
-                      // style={[ {zindex: 101 }, styles.trainerVideo]}
                       style={ styles.trainerVideo } 
                       onNavigationStateChange={this._vidDefault}
                     /> 
                   </View>  
 
-                  {/* <View style={[ styles.webCamContainer, {zindex: 0, borderColor: 'blue', borderWidth: 0, height: '100%', width: '100%', display: 'none', } ]}>  */}
                   <View style={ styles.webCamContainer }> 
-                  {/* <View style={[ {zindex: 2}, styles.webCamContainer]}>  */}
                     <TensorCamera
                       // Standard Camera props
-                      // style={[ {zindex : 3}, styles.webCam ]} // remove webCam when flagAllPosOk = true
-                      // style={{zindex: 0, } }// remove webCam when flagAllPosOk = true
                       style={ styles.webCam } // remove webCam when flagAllPosOk = true
                       type={Camera.Constants.Type.front}
                       // Tensor related props
@@ -1750,67 +1476,6 @@ export default class Exercise extends Component {
                   {this.renderPose()}
                 </View>
               }   
-
-
-              {/* Show trainerVideo when countdown is finished */}
-              {/* flagAllPosOk ?
-                // <View style={styles.trainerVideoContainer}>
-                <View style={[ {zindex: 100 }, styles.trainerVideoContainer ]}>
-                  <WebView
-                    ref={r => (this.webviewRef = r)}
-                    source={{ uri: this.state.vidFullUrl }}
-                    // style={[ {zindex: 101 }, styles.trainerVideo]}
-                    style={ styles.trainerVideo } 
-                    onNavigationStateChange={this._vidDefault}
-                  /> 
-                </View>  
-              :  
-                // <View style={styles.trainerVideoContainer}>
-                <View style={[ {zindex: 400 }, styles.trainerVideoContainer ]}>
-                  <WebView
-                    ref={r => (this.webviewRef = r)}
-                    source={{ uri: this.state.vidFullUrl }}
-                    // style={[ {zindex: 400 }, styles.trainerVideo]} 
-                    style={ styles.trainerVideo } 
-                    onNavigationStateChange={this._vidDefault}
-                  /> 
-                </View>
-               */}
-
-
-              {/* { flagAllPosOk &&
-                <View>
-                  { shouldPlay ?
-                    null
-                  :
-                    <View style={styles.scoreContainer}>
-                      <Text style={styles.scoreText}>
-                        {countdownTxt}
-                      </Text>
-                    </View>
-                  }
-                </View>
-              }                 */}
-
-
-              {/* { flagAllPosOk &&
-               
-                    <View style={styles.scoreContainer}>
-                      <Text style={styles.scoreText}>
-                        {countdownTxt}
-                      </Text>
-                    </View>
-             
-              }                  */}
-
-              
-              {/* { flagCountdownFinished && shouldPlay &&
-                <View style={styles.scoreContainer}>
-                  <Text style={styles.scoreText}>
-                    {scoreNow} 
-                  </Text>
-                </View>
-              } */}
 
 
               { flagAllPosOk && 
@@ -1918,13 +1583,6 @@ export default class Exercise extends Component {
           }
 
 
-          {/* { flagShowGoBackIcon &&
-            <View style={styles.goBackIconContainer}>
-              <TouchableOpacity onPress={ this._goBackToHome }  >
-                <Ionicons name="md-arrow-back" size={goBackIconSize} color="#ffa500" style={styles.goBackIcon}/>
-              </TouchableOpacity>   
-            </View>
-          }   */}
           <View style={styles.goBackIconContainer}>
             <TouchableOpacity onPress={ this._goBackToHome }  >
               <Ionicons name="md-arrow-back" size={goBackIconSize} color="#ffa500" style={styles.goBackIcon}/>
@@ -2030,16 +1688,6 @@ const styles = StyleSheet.create({
     borderColor: 'black', // BORDER IS NECESSARY BUT DONT KNOW WHY. 20200531
     borderWidth: 0.1, // BORDER IS NECESSARY BUT DONT KNOW WHY. 20200531    
   },  
-  // webCamContainerAllPosOk:{
-  //   // display: 'none',
-  //   flex: 1,
-  //   height: '50%',
-  //   width: '50%',      
-  //   position: 'absolute', // DO NOT REMOVE THIS. WEBCAM SIZE BECOMES HALF SIZE HEIGHT OF WINDOW. 20200524
-  //   borderColor: 'green',
-  //   borderWidth: 3, 
-  //   zindex: 0,      
-  // },
   webCam: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -2056,29 +1704,6 @@ const styles = StyleSheet.create({
     // top: 0,
     // right: 10,
   }, 
-  // webCamContainerAfterCountdown: {
-  //   // height: Dimensions.get('window').height, // 200
-  //   // width: Dimensions.get('window').width, // 152   
-  //   height: '100%',
-  //   width: '100%', 
-  //   // height: 0,
-  //   // width: 0,    
-  //   position: 'absolute',
-  //   top: 0, // bottom: 0  
-  //   zIndex: 0,   
-  //   // borderColor: 'pink',
-  //   // borderWidth: 3,  
-  //   opacity: 0.5, // hide out webcam screen 20200523    
-  // },     
-  // webCamAfterCountdown: {
-  //   alignItems: 'center',
-  //   justifyContent: 'center',
-  //   width: Dimensions.get('window').width,
-  //   height: Dimensions.get('window').height,   
-  //   zIndex: 0, //201
-  //   position: 'absolute',
-  //   top: 0,
-  // },
 
   scoreContainer: {
     // backgroundColor: 'white',

@@ -2,16 +2,13 @@
 import * as React from 'react';
 import { Component, useState } from 'react';
 import { View, Text, StyleSheet, Button, FlatList, TouchableOpacity, Image, StatusBar, SafeAreaView, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
-
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import moment from "moment"; // for flatlist
-
 import {GlobalStyles} from '../shared/GlobalStyles';
 import * as firebase from 'firebase';
 import * as firestore from 'firebase/firestore';
 import * as FileSystem from 'expo-file-system'; // https://docs.expo.io/versions/latest/sdk/filesystem/
 import { v4 as uuidv4 } from 'uuid';
-
 import Constants from 'expo-constants'; // https://docs.expo.io/versions/latest/react-native/refreshcontrol/
 import {vidViewLogDirName} from '../shared/Consts';
 
@@ -54,7 +51,6 @@ export default class DashboardScreen extends Component {
     this._handleRefresh = this._handleRefresh.bind(this);
   }
 
-  // allPosts = ''; 20200529
 
   oldestVidTs = Date.now() / 1000; // Assign timestamp of the oldest video fetched by _loadDashboardFlatlist to control next video to be fetched by _loadDashboardFlatlist 20200528
 
@@ -84,11 +80,21 @@ export default class DashboardScreen extends Component {
 
       // // check if vidViewLogDirName Directory already exists, if not then create directory 20200502
       await FileSystem.getInfoAsync( this.curDir + this.state.vidViewLogDirName).then( async contents => {
-        // console.log('getInfoAsync: ', contents, contents['exists'], contents['isDirectory']);
-        if ( contents['exists'] == true & contents['isDirectory'] == true ) {
+        console.log('getInfoAsync contents[size] in MB: ', contents['size'] / 1024 / 1024 );
+        if ( contents['exists'] == true & contents['isDirectory'] == true ) { // if folder already exists.
           console.log('vidViewLogDirName already exists');
 
-        } else {
+          if ( contents['size'] > 50 * 1024 * 1024 ) { // if folder size is over 50MB, then delete files. 20200608
+            FileSystem.deleteAsync( this.curDir + this.state.vidViewLogDirName ).then( (dir) => {
+              console.log('---------- vidViewLog Folder Deleted');
+              console.log('Video View Log files can not be sent out. Please contact help center');
+              alert('Video View Log files can not be sent out. Please contact help center');
+            }).catch(error => {
+              console.log('Error deleting vidViewLog Folder: ', error);
+            });    
+          }
+
+        } else { // if folder NOT exists.
           FileSystem.makeDirectoryAsync(this.curDir + this.state.vidViewLogDirName).then( () => { // create the directory
             console.log('vidViewLogDirName Directory created');
           }).catch( error => {
@@ -229,8 +235,6 @@ export default class DashboardScreen extends Component {
             
           });
 
-          // console.log('----- this.cntSentVidViewLog: ', this.cntSentVidViewLog);
-
         } else {
           // console.log('No files in the directory.'); // Do nothing since no files to be sent to Firebase
         };
@@ -249,9 +253,6 @@ export default class DashboardScreen extends Component {
 
   async componentDidMount() {
     console.log('------------- componentDidMount Dashboard started');
-    // console.log('firebase.auth(): ', firebase.auth() );
-    // console.log('----- Dashboard.js firebase.auth().currentUser.uid: ', firebase.auth().currentUser.uid );
-
 
     if (this.state.doneComponentDidMount == false) { // if variable is null. this if to prevent repeated loop.
       // console.log('this.state.vidFullUrl started ');
@@ -286,9 +287,6 @@ export default class DashboardScreen extends Component {
               alert('Received response[code] = error from functions., Please log-in again.');
             }
 
-            // this._makeRemoteRequest(); // 20200529
-
-
         }).catch( error => {
           console.log('Error Dashboard _getUserProfile-py: ', error);
           alert('Error response from _getUserProfile, Please log-in again.');
@@ -298,8 +296,6 @@ export default class DashboardScreen extends Component {
 
       ///////////  getUserProfile-py ////////////////////////////////////////////////// https://firebase.google.com/docs/auth/admin/verify-id-tokens?authuser=0#%E3%82%A6%E3%82%A7%E3%83%96
       await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then( function(idToken) {
-        // Send token to your backend via HTTPS
-        // console.log('----- Got idToken. ');
         const idTokenCopied = idToken;
 
         _getUserProfile(idTokenCopied); // run http trigger
@@ -308,18 +304,12 @@ export default class DashboardScreen extends Component {
         console.log('Error xxxxxxxxxxxxxxxx Could not get idToken: ', error);
       });    
 
-
       this._makeRemoteRequest(); // kick     
-
     
     } // closing if
 
-
-
     this._checkVidViewLogDirectory();
     this._sendVidViewLog();    
-
-
 
     this.setState({ doneComponentDidMount: true, isLoading: false });
     console.log('------------- componentDidMount Dashboard completed');
@@ -336,17 +326,12 @@ export default class DashboardScreen extends Component {
 
   async componentWillUnmount() {
     console.log('------------- componentWillUnmount Dashboard');
-    // const posts = []; // clear variable
-    // posts = []; // added 20200529
   }
  
    
   _makeRemoteRequest = async () => {
     console.log('------------- _makeRemoteRequest');
     const { page, flagMastersLoaded } = this.state;
-    // const url = `https://randomuser.me/api/?seed=${seed}&page=${page}&results=2`;
-    // this.setState({ loading: true });
-
 
     const _loadDashboardFlatlist = (idTokenCopied) => {
       console.log('----- Dashboard _loadDashboardFlatlist.');
@@ -371,9 +356,6 @@ export default class DashboardScreen extends Component {
           if( response["code"] == 'okFirst'){
             console.log('---------------- okFirst');
             console.log('_makeRemoteRequest response.detail.vidMetas: ', response.detail.vidMetas );
-            // console.log('_makeRemoteRequest response.wpart: ', response.wpart );
-            // console.log('_makeRemoteRequest response.const_exer: ', response.const_exer );
-
             this.setState({
               posts: page === 1 ? response.detail.vidMetas  : [ ...this.state.posts, ...response.detail.vidMetas ],
               refreshing: false,
@@ -393,7 +375,7 @@ export default class DashboardScreen extends Component {
               // posts: page === 1 ? response.detail.vidMetas  : [...this.state.posts, ...response.detail.vidMetas ],
               // posts: page === 1 ? JSON.parse(JSON.stringify( response.detail.vidMetas ) ) : [...this.state.data, ...JSON.parse( JSON.stringify( response.detail.vidMetas) ) ],
               posts: page === 1 ? response.detail.vidMetas  : [ ...this.state.posts, ...response.detail.vidMetas ],
-            //   // error: response.error || null,
+              // error: response.error || null,
               // loading: false,
               refreshing: false,
               isLoading: false,
@@ -415,8 +397,6 @@ export default class DashboardScreen extends Component {
     }
 
     await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then( function(idToken) {
-      // Send token to your backend via HTTPS
-      // console.log('----- Got idToken. ');
       const idTokenCopied = idToken;
 
       _loadDashboardFlatlist(idTokenCopied);
@@ -424,7 +404,6 @@ export default class DashboardScreen extends Component {
     }).catch(function(error) {
       console.log('Error xxxxxxxxxxxxxxxx Could not get idToken _loadDashboardFlatlist: ', error);
     });  
-
 
   }; // closing _makeRemoteRequest
 
@@ -434,7 +413,6 @@ export default class DashboardScreen extends Component {
     this.oldestVidTs = Date.now() / 1000; // reset timestamp to current time
     this.setState({
         page: 1,
-        // seed: this.state.seed + 1,
         refreshing: true,
         oldestVidTs: Date.now() / 1000,
         isLoading: true,
@@ -447,7 +425,6 @@ export default class DashboardScreen extends Component {
 
 
   _handleLoadMore = async () => {
-    // console.log('------------- _handleLoadMore');
     console.log('------------- _handleLoadMore this.oldestVidTs: ', this.oldestVidTs);
     this.setState({ page: this.state.page + 1 }, () => {
       this._makeRemoteRequest();
@@ -601,16 +578,12 @@ export default class DashboardScreen extends Component {
     return (
       <View style={styles.container}>
 
-        {/* <SafeAreaView> */}
-      
-
         { isLoading ? 
            <View style={styles.uploadingIndicator}>
             <ActivityIndicator size="large" color='#ffa500'/>
             <Text>Loading....</Text>
           </View>
         :
-            // <ScrollView  style={styles.scrollview}>
           <View> 
 
             <FlatList
@@ -630,22 +603,13 @@ export default class DashboardScreen extends Component {
             </FlatList>
 
           </View>
-          // </ScrollView>
 
         }
 
-
-        {/* </SafeAreaView> */}
         
-
-
-
-        {/* <Footer/> */}
         {/* <LinearGradient colors={['#ffa500', '#ffb300', 'orange']} style={styles.footerContainer}>  */}
         <View style={styles.footerContainer}>
           {/* https://docs.expo.io/versions/latest/sdk/linear-gradient/ */}
-          {/* <MaterialIcons name='person' size={28} title='account' style={styles.ProfileIcon} onPress={goToProfile}/> */}
-          {/* this.setState({doneComponentDidMount: false}) */}
           <Ionicons name='ios-person' size={28} color="white" style={styles.ProfileIcon} onPress={ () => this.props.navigation.push('Profile') } />  
           <Ionicons name="ios-add-circle-outline" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Post') }/>
           <MaterialIcons name='history' size={28} color="white" style={styles.HistoryIcon} onPress={ () => this.props.navigation.push('History')}/>
@@ -672,10 +636,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '70%',
     top: 5,
-    // bottom: 50,//Footer.currentHeight,
-    // backgroundColor: 'gray',
-    // marginVertical: 20,
-    // paddingHorizontal: 0,
     marginBottom: 55,
   },
   footerContainer: {
@@ -725,10 +685,7 @@ const styles = StyleSheet.create({
   },
   textContents: {
       flexDirection: "column", 
-      // justifyContent: "space-between", 
-      // backgroundColor: 'blue',
       width: 160,
-      // marginLeft: 3
   },
   title: {
       marginTop: 12,
@@ -752,9 +709,6 @@ const styles = StyleSheet.create({
   },
   tags:{
       marginLeft: 6,
-      // backgroundColor: 'lightgray',
-      // borderRadius: 5,
-
   },
   views:{
     marginLeft: 4,

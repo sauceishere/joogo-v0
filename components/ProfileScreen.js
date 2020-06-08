@@ -1,27 +1,19 @@
 import * as React from 'react';
 import { Component, useState } from 'react';
 import { StyleSheet, SafeAreaView, Image, View, ScrollView, Text, TouchableOpacity, TextInput, Button, Dimensions, ActivityIndicator, Keyboard, TouchableWithoutFeedback, Picker, Modal } from 'react-native';
-// import HTML from 'react-native-render-html'; // npm install react-native-render-html
 import * as firebase from 'firebase';
-// import * as storage from 'firebase/storage';
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
-// import uuid from 'react-native-uuid';
 import { v4 as uuidv4 } from 'uuid';
 import * as VideoThumbnails from 'expo-video-thumbnails';
-// import { VideoPlayer, Trimmer } from 'react-native-video-processing';
-// import { Asset } from 'expo-asset';
-// import * as ImageManipulator from 'expo-image-manipulator';
 import moment from "moment"; // for timestamp
 import { countrylist } from '../assets/masters/countrylist'; // countrylist master
 import { bodytags } from '../assets/masters/bodyTags'; // bodytags master
 import {enCheckDuplicatedNickname} from '../shared/Consts';
 
-import * as functions from 'firebase/functions';
-import { flattenDiagnosticMessageText } from 'typescript';
+// import * as functions from 'firebase/functions';
+// import { flattenDiagnosticMessageText } from 'typescript';
 
-
- 
 
 
 export default class ProfileScreen extends Component {
@@ -83,83 +75,6 @@ export default class ProfileScreen extends Component {
   // // Get User Profile from Firestore
   _getUsers = async () => {
     console.log('------ _getUsers()');
-    // console.log('------ this.state.uid: ', this.state.uid);
-    // console.log('firebase.auth().currentUser.uid: ', firebase.auth().currentUser.uid);
-
-    // if (firebase.auth().currentUser.uid == ''){
-    //   console.log('firebase.auth().currentUser.uid is null');
-    //   alert('firebase.auth().currentUser.uid is null');
-    // }
-
-    // firebase.firestore().collection("users").doc( firebase.auth().currentUser.uid ).get().then( (QueryUid) => { 
-      // if (QueryUid) {
-      //   console.log('QueryUid.data(): ', QueryUid.data());
-      //   // console.log('QueryUid.data().NNAME: ', QueryUid.data().NNAME);
-
-      //   if (QueryUid.data().NNAME) {
-      //     this.setState({
-      //       nname: QueryUid.data().NNAME,
-      //       nat: QueryUid.data().NAT, 
-      //       byr: QueryUid.data().BYR.toString(),
-      //       gdr: QueryUid.data().GDR,
-      //       bt0: QueryUid.data().FAVTAG["0"],
-      //       bt1: QueryUid.data().FAVTAG["1"],
-      //       ts: QueryUid.data().TS,
-      //       llogin: QueryUid.data().LLOGIN,
-      //       lupdate: QueryUid.data().UPD_AT,
-      //       avatarRawUrl: QueryUid.data().AVTRURL,
-
-      //       DidGetProfileData: true, 
-      //     });
-      //     console.log('this.state.nname, nat, byr, gdr: ', this.state.nname, this.state.nat, this.state.byr, this.state.gdr );
-
-      //   } else { // No Nickname means New User.
-      //     console.log('==== Profile.js New User coming.')
-      //     this.setState({
-      //       nname: null, //'Fill our your Nickname'
-      //       nat: null, //'Select Nationality'
-      //       byr: null, //'Select Birthyear'
-      //       gdr: null, //'Select Gender'
-      //       bt0: null, //'Select Body Part You Focus on'
-      //       bt1: null, //'Select Body Part You Focus on'
-      //       ts: Date.now()/1000,
-      //       llogin: Date.now()/1000,
-      //       lupdate: Date.now()/1000,
-      //       avatarRawUrl: '',
-
-      //       DidGetProfileData: true, 
-      //     });
-
-      //     this.setState({isEditing: true, isUploading: false, allComplete: false}); // Going to Edit mode.
-
-      //   }
-
-        // // For Editing screen if Firestore do not have record
-        // if ( !this.state.nname || this.state.nname.toString().length > 0) {
-        //   this.state.nname = 'Fill out your Nickname';
-        // } 
-        // if ( !this.state.gdr || this.state.gdr.toString().length > 0) {
-        //   this.state.gdr = 'Select Gender';
-        // } 
-        // if ( !this.state.byr || this.state.byr.toString().length > 0) {
-        //   this.state.byr = 'Select Birthyear';
-        // } 
-        // if ( !this.state.nat || this.state.nat.toString().length > 0) {
-        //   this.state.nat = 'Select Nationality';
-        // } 
-        // if ( !this.state.bt0 || this.state.bt0.toString().length > 0) {
-        //   this.state.bt0 = 'Select Body Part You Focus on';
-        // } 
-        // if ( !this.state.bt1 || this.state.bt1.toString().length > 0) {
-        //   this.state.bt1 = 'Select Body Part You Focus on';
-        // }                                 
-
-      // }
-    // }).catch(function(error) {
-    //   alert("Error getting users/{userId}:", error);
-    //   console.log("Error getting users/{userId}}:", error);
-    // });  
-
 
 
     // getUserProfile-py
@@ -234,7 +149,7 @@ export default class ProfileScreen extends Component {
     }         
 
 
-    ///////////  getUserProfile-py ////////////////////////////////////////////////// https://firebase.google.com/docs/auth/admin/verify-id-tokens?authuser=0#%E3%82%A6%E3%82%A7%E3%83%96
+    // https://firebase.google.com/docs/auth/admin/verify-id-tokens?authuser=0#%E3%82%A6%E3%82%A7%E3%83%96
     firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then( function(idToken) {
       // Send token to your backend via HTTPS
       // console.log('----- Got idToken. ');
@@ -246,9 +161,7 @@ export default class ProfileScreen extends Component {
       console.log('Error xxxxxxxxxxxxxxxx Could not get idToken: ', error);
     });    
 
-
-
-  }  
+  } // closing _getUsers
 
 
   async componentDidMount() {
@@ -257,67 +170,19 @@ export default class ProfileScreen extends Component {
     console.log('this.state.ProfileEditId: ', this.state.ProfileEditId);
 
     // // create year list 20200420
-    // this.yrlist = [];
     let thisYear = new Date().getFullYear();
     var i;
     for (i = thisYear + 1; i > thisYear - 120; i--) { // current year - 120 yrlists
       this.yrlist.push( i.toString() ); // convert string for parsing array & append to array
       // console.log(i);
     }
-    // console.log('this.yrlist: ', this.yrlist);
-
-    // console.log('this.state.cnlist: ', this.state.cnlist.countrylist[0]["Name"]);
-
-    // // Get AvatarFullUrl from Storage
-    // const storage= firebase.storage(); // https://firebase.google.com/docs/storage/web/start?hl=ja
-    // const storageRef = storage.ref(); // Create a reference to the file we want to download
-    // const starsRef2 = storageRef.child( 'avatar/' + this.profileData.avatarRawUrl); 
-    // await starsRef2.getDownloadURL().then( async (fullUrlAvatar) => {
-    //   this.profileData.avatarFullUrl = fullUrlAvatar;
-    //   console.log('this.profileData.avatarFullUrl: ', this.profileData.avatarFullUrl);
-    // }).catch(function(error) {
-    //   alert('Error getting avatar/avatarFullUrl : ', error.code);
-    //   console.log('Error getting avatar/avatarFullUrl : ', error.code);
-    // });  
-
+    
 
     if (this.state.DidGetProfileData == false) {
       await this._getUsers();
     };
 
 
-    // // Get EXE_PTSUM from Firestore 
-    // await firebase.firestore().collection("users").doc( firebase.auth().currentUser.uid ).collection("current").doc( "EXE_PTSUM" ).get().then( (QueryUid) => { 
-    //   if (QueryUid) {
-    //     // console.log('QueryUid.data().NNAME: ', QueryUid.data().NNAME);
-    //     this.profileData.EXE_PTSUM = QueryUid.data().EXE_PTSUM ;
-    //     console.log('this.profileData.EXE_PTSUM: ', this.profileData.EXE_PTSUM);
-    //   }
-    // }).catch(function(error) {
-    //   alert("Error getting users/{userId}/current/EXE_PTSUM:", error.code);
-    //   console.log("Error getting users/{userId}/current/EXE_PTSUM}:", error.code);
-    // });  
-
-
-    // // Get VIEW_PTSUM from Firestore 
-    // await firebase.firestore().collection("users").doc( firebase.auth().currentUser.uid ).collection("current").doc( "VIEW_PTSUM" ).get().then( (QueryUid) => { 
-    //   if (QueryUid) {
-    //     // console.log('QueryUid.data().NNAME: ', QueryUid.data().NNAME);
-    //     this.profileData.VIEW_PTSUM = QueryUid.data().VIEW_PTSUM ;
-    //     console.log('this.profileData.VIEW_PTSUM: ', this.profileData.VIEW_PTSUM);
-    //   }
-    // }).catch(function(error) {
-    //   alert("Error getting users/{userId}/current/VIEW_PTSUM:", error.code);
-    //   console.log("Error getting users/{userId}/current/VIEW_PTSUM}:", error.code);
-    // });  
-
-
-
-
-    // this.setState({DidGetProfileData: true }); 
-    // this.setState({profileData: JSON.parse(JSON.stringify(this.profileData))}); 
-    // console.log('this.state.profileData:, ', this.state.profileData);
-    // console.log('this.state.yrlist:, ', this.state.yrlist);
     console.log('------------- componentDidMount Profile Completed.');
   }
 
@@ -343,18 +208,6 @@ export default class ProfileScreen extends Component {
 
       this.setState({ isEditing: false, isSigningOut : true,  });
 
-      // // add record on Firestore /users/{userId}/loginLogs
-      // await firebase.firestore().collection( 'users' ).doc( firebase.auth().currentUser.uid ).collection( 'loginLogs' ).doc( (Date.now()/1000).toString() + '_OUT').set({
-      //   TS: Date.now() / 1000, // unix
-      //   INOUT: 'OUT',
-      //   // IPADD: ip_add.toString(),
-      // }).then((ref)=>{
-      //   console.log('loginLogs added');
-      // }).catch((error)=>{
-      //   console.log('loginLogs error: ', error);
-      // });   
-
- 
       // whenLogOut-py
       const _whenLogOut = (idTokenCopied) => {
         console.log('----- _whenLogOut.');
@@ -396,7 +249,7 @@ export default class ProfileScreen extends Component {
       }         
 
 
-      ///////////  whenLogOut-py ////////////////////////////////////////////////// https://firebase.google.com/docs/auth/admin/verify-id-tokens?authuser=0#%E3%82%A6%E3%82%A7%E3%83%96
+      // https://firebase.google.com/docs/auth/admin/verify-id-tokens?authuser=0#%E3%82%A6%E3%82%A7%E3%83%96
       firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then( function(idToken) {
         // Send token to your backend via HTTPS
         // console.log('----- Got idToken. ');
@@ -411,7 +264,7 @@ export default class ProfileScreen extends Component {
 
 
     }
-  };
+  }; // closing SignOut
 
 
   _onNNameValueChange = async (nickname) =>  {
@@ -563,10 +416,6 @@ export default class ProfileScreen extends Component {
         }).catch(function(error) {
           console.log('Error xxxxxxxxxxxxxxxx Could not get idToken: ', error);
         });
-
-
-        
-
 
   }  
 
@@ -767,28 +616,13 @@ export default class ProfileScreen extends Component {
                   </View>                  
 
 
-                  {/* <TouchableOpacity onPress={this._handlePost} style={styles.postButton} >
-                    <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold',}}> Save </Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity onPress={ this._pressCancelEdit }  style={styles.cancelEditButton}>
-                    <Text style={{color: 'gray', fontSize: 16, }}> Cancel </Text>
-                  </TouchableOpacity> */}
-
-
                   { allComplete ?
                     <View style={styles.uploadingIndicator}>
-                      {/* <Text style={styles.postedText}> */}
-                        {/* Your Profile is Saved!{"\n"} */}
-                       {/* </Text> */}
                     </View>  
                   :
                     <View>
                       { isUploading ?
-                        // <View style={styles.uploadingIndicator}>
-                        //   <ActivityIndicator size='large' color='#ffa500' />
-                        //   <Text>Uploading....</Text>
-                        // </View>
+               
                         <View style={styles.uploadingIndicator}>
                             <ActivityIndicator size="large" color='#ffa500'/>
                             <Text>Uploading....</Text>
@@ -990,26 +824,7 @@ const styles = StyleSheet.create({
     // backgroundColor: 'green',
      
   },
-  // pickerYear: {
-  //   height: 50, 
-  //   width: 200, 
-  //   backgroundColor: 'white',
-  //   borderWidth: 5, 
-  //   borderColor: 'lightgray', 
-  //   borderRadius: 5, 
-  //   // padding: 10, 
-  //   // textAlignVertical: 'top',
-  // },  
 
-
-  // header: {
-  //     flexDirection: "row",
-  //     justifyContent: "space-between",
-  //     paddingHorizontal: 32,
-  //     paddingVertical: 12,
-  //     borderBottomWidth: 1,
-  //     borderBottomColor: "#D8D9DB"
-  // },
   inputContainer: {
     marginHorizontal: Dimensions.get('window').width * 0.05,
     flexDirection: "column",

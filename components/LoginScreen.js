@@ -1,20 +1,8 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions, ActivityIndicator, Modal } from 'react-native';
 import firebase from 'firebase';
-
 import * as Google from 'expo-google-app-auth'; // sudo expo install expo-google-app-auth https://forums.expo.io/t/undefined-is-not-object-expo-google-loginasync/26889 
-// import { convertCompilerOptionsFromJson } from 'typescript';
-// import * as GoogleSignIn from 'expo-google-sign-in'; // https://docs.expo.io/versions/latest/sdk/google-sign-in/
-// import * as AppAuth from 'expo-app-auth';
-// When configured correctly, URLSchemes should contain your REVERSED_CLIENT_ID
-// const { URLSchemes } = AppAuth;
-
 // import { NetworkInfo } from "react-native-network-info";
-
-
-
-
-// import {screen} from '../routes/homeStack';  // for navigation
 
 export default class LoginScreen extends Component {
 
@@ -22,16 +10,11 @@ export default class LoginScreen extends Component {
     super(props);
     this.state = {
         isSigningIn: false,
-        // authedUid: null, // assign uid that is verified. 20200524
-        // userProfile: null, // assign userProfile that is received. 20200524
     }
     // this._checkIfNewUser = this._checkIfNewUser.bind(this);
   }
 
-  // isNewUser = 'd'; // if true go to Profile.js, if false go to Dashboard.js 
 
-
-  
 
 
   isUserEqual = (googleUser, firebaseUser) => {
@@ -59,21 +42,6 @@ export default class LoginScreen extends Component {
 
     // const date = new Date();
     const ts = Date.now() / 1000; // unix // date.getTime().toString(); // unix time
-
-
-    // const _checkIfNewUser = (ref) => {
-    //   console.log('_checkIfNewUser1: ', ref);
-    //   this.setState({isNewUser: ref});
-
-    //   if (ref == true) {
-    //     console.log("..... this.props.navigation.navigate('ProfileScreen')");
-    //     this.props.navigation.navigate("ProfileScreen");
-    //   } else { // Existing users go to Dashboard.js
-    //     console.log("..... this.props.navigation.navigate('DashboardScreen')");
-    //     this.props.navigation.navigate("DashboardScreen"); 
-    //   }  
-    // }
-
 
     // get IP address
     // NetworkInfo.getIPAddress().then(ipAddress => {
@@ -107,74 +75,10 @@ export default class LoginScreen extends Component {
             .signInWithCredential(credential)
             .then( function(result) {
               console.log('user just signed in ');
-              // console.log('result: ', result);
-              // console.log('result.additionalUserInfo.isNewUser: ', result.additionalUserInfo.isNewUser);
-              // console.log('----- Login.js firebase.auth().currentUser.uid: ', firebase.auth().currentUser.uid );
-              // _checkIfNewUser(result.additionalUserInfo.isNewUser);
-   
               
 /////////////////// New User ///////////////////////////////              
               if (result.additionalUserInfo.isNewUser) { // new user
                 console.log('======= New User will log in. Login.js');
-
-                // // create profile on Firestore /users/{userId}/
-                // firebase.firestore().collection( 'users' ).doc( firebase.auth().currentUser.uid ).set({
-                //   TS: Date.now() / 1000, // unix
-                //   LLOGIN: Date.now() / 1000, // unix
-                //   RCV_AT: firebase.firestore.FieldValue.serverTimestamp(),
-                //   UID: firebase.auth().currentUser.uid,
-                //    // gmail: result.user.email,
-                //    // profile_picture: result.additionalUserInfo.profile.picture,
-                //    // first_name: result.additionalUserInfo.profile.given_name,
-                //    // last_name: result.additionalUserInfo.profile.family_name,                
-                // }).then((ref)=>{
-                //   console.log('Firestore /users/{userId}/ created');
-                //   // this.setState({ isNewUser : true });
-                //   // this.isNewUser = 'true';
-                // }).catch((error)=>{
-                //   console.log('Error creating Firestore /users/{userId}/: ', error);
-                //   alert('Error creating Firestore /users/{userId}/.');
-                // });
-
-                // // create profile on Firestore /users/{userId}/current/EXE_PTSUM
-                // firebase.firestore().collection( 'users' ).doc( firebase.auth().currentUser.uid ).collection( 'current' ).doc( 'EXE_PTSUM' ).set({
-                //   UPD_AT: Date.now() / 1000, // unix
-                //   LVIEWID: 'first_create',
-                //   EXE_PTSUM: 0,              
-                // }).then((ref)=>{
-                //   console.log('Firestore /users/{userId}/current/EXE_PTSUM created');
-                // }).catch((error)=>{
-                //   console.log('Error creating Firestore /users/{userId}/current/EXE_PTSUM: ', error);
-                //   alert('Error creating Firestore /users/{userId}/current/EXE_PTSUM.');
-                // });
-
-                // // create profile on Firestore /users/{userId}/current/VIEW_PTSUM
-                // firebase.firestore().collection( 'users' ).doc( firebase.auth().currentUser.uid ).collection( 'current' ).doc( 'VIEW_PTSUM' ).set({
-                //   UPD_AT: Date.now() / 1000, // unix
-                //   LVIEWID: 'first_create',
-                //   VIEW_PTSUM: 0,              
-                // }).then((ref)=>{
-                //   console.log('Firestore /users/{userId}/current/VIEW_PTSUM created');
-                // }).catch((error)=>{
-                //   console.log('Error creating Firestore /users/{userId}/current/VIEW_PTSUM: ', error);
-                //   alert('Error creating Firestore /users/{userId}/current/VIEW_PTSUM.');
-                // });                
-                
-
-                // add record on Firestore /users/{userId}/loginLogs
-                // firebase.firestore().collection( 'users' ).doc( firebase.auth().currentUser.uid ).collection( 'loginLogs' ).doc( ts + '_IN').set({
-                //   TS: Date.now() / 1000, // unix
-                //   INOUT: 'IN',
-                //   // IPADD: ip_add.toString(),
-                // }).then((ref)=>{
-                //   console.log('loginLogs_login_new added');
-                // }).catch((error)=>{
-                //   console.log('loginLogs_login_new error: ', error);
-                // });   
-
-
-
-
 
               
                 //// whenNewUserLogsIn-py
@@ -215,7 +119,7 @@ export default class LoginScreen extends Component {
                 }         
 
 
-                ///////////  whenNewUserLogsIn-py ////////////////////////////////////////////////// https://firebase.google.com/docs/auth/admin/verify-id-tokens?authuser=0#%E3%82%A6%E3%82%A7%E3%83%96
+                // https://firebase.google.com/docs/auth/admin/verify-id-tokens?authuser=0#%E3%82%A6%E3%82%A7%E3%83%96
                 firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then( function(idToken) {
                   // Send token to your backend via HTTPS
                   // console.log('----- Got idToken. ');
@@ -229,112 +133,13 @@ export default class LoginScreen extends Component {
 
   
 
-
-
-
 ///////////////// Existing user ///////////////////////////                
               } else { // existing user
                 console.log('======= Existing user will Newly log in. Login.js');
-                // console.log('----- Login.js firebase.auth().currentUser.uid: ', firebase.auth().currentUser.uid );
-                // console.log('----- Login.js firebase.auth().currentUser: ', firebase.auth().currentUser );
-              
-
-                // // Get user data
-                // firebase.firestore().collection("users").doc( firebase.auth().currentUser.uid ).get().then( (QueryUid) => { 
-                //   if (QueryUid) {
-                //     console.log('QueryUid.data(): ', QueryUid.data());
-                //     // this.setState({ userProfile: QueryUid.data() });
-                //   }  
-                // }).catch(function(error) {
-                //   alert("Error getting users/{userId}:", error);
-                //   console.log("Error getting users/{userId}}:", error);
-                // });  
-
-                // // update Log in time on Firestore /users/{userId}/
-                // firebase.firestore().collection( 'users' ).doc( firebase.auth().currentUser.uid ).update({
-                //   LLOGIN: Date.now() / 1000, // unix
-                // }).then((ref)=>{
-                //   console.log('LLOGIN updated');
-                // }).catch((error)=>{
-                //   console.log('Error LLOGIN update error: ', error);
-                // });
-
-                // // add record on Firestore /users/{userId}/loginLogs
-                // firebase.firestore().collection( 'users' ).doc( firebase.auth().currentUser.uid ).collection( 'loginLogs' ).doc( ts + '_IN').set({
-                //   TS: Date.now() / 1000, // unix
-                //   INOUT: 'IN',
-                //   // IPADD: ip_add.toString(),
-                // }).then((ref)=>{
-                //   console.log('loginLogs_login_existing added');
-                // }).catch((error)=>{
-                //   console.log('Error loginLogs_login_existing error: ', error);
-                // });                  
-
-
-
-
-
-                // whenExistingUserNewlyLogsIn-py
-                // const _whenExistingUserNewlyLogsIn = (idTokenCopied) => {
-                //   console.log('----- _whenExistingUserNewlyLogsIn.');
-                //   console.log('----- _whenExistingUserNewlyLogsIn idTokenCopied: ', idTokenCopied);
-                //   fetch('https://asia-northeast1-getfit-f3a98.cloudfunctions.net/whenExistingUserNewlyLogsIn-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
-                //     method: 'POST',
-                //     headers: {
-                //       // 'Accept': 'application/json', 
-                //       'Content-Type' : 'application/json' // text/html text/plain application/json
-                //     },
-                //     // mode: "no-cors", // no-cors, cors, *same-origin
-                //     body: JSON.stringify({
-                //       id_token: idTokenCopied,
-                //     })
-                //   }).then( result => result.json() )
-                //     .then( response => { 
-                //       console.log('----- _whenExistingUserNewlyLogsIn response:', response );
-                //       if (response["code"] == 'ok') {
-                //         console.log('----- response[code] is ok');
-                //         if (response["authedUid"] == firebase.auth().currentUser.uid) {
-                //           // this.setState({ authedUid: response["authedUid"], userProfile: response["userProfile"] });
-                //           console.log('Correctly received "authedUid"。');
-                //         } else {
-                //           console.log('Received wrong "authedUid". Please log-in again.');
-                //           alert('Received wrong "authedUid". Please log-in again.');
-                //         }
-                        
-                //       } else { // response[code] is Error
-                //         console.log('Received response[code] = error from functions.');
-                //         alert('Received response[code] = error from functions., Please log-in again.');
-                //       }
-                //   }).catch( error => {
-                //     console.log('Error _whenExistingUserNewlyLogsIn-py: ', error);
-                //     alert('Error response from _whenExistingUserNewlyLogsIn, Please log-in again.');
-                //   });
-                // }         
-
-
-                // ///////////  whenExistingUserNewlyLogsIn-py ////////////////////////////////////////////////// https://firebase.google.com/docs/auth/admin/verify-id-tokens?authuser=0#%E3%82%A6%E3%82%A7%E3%83%96
-                // firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then( function(idToken) {
-                //   // Send token to your backend via HTTPS
-                //   console.log('----- Got idToken. ');
-                //   const idTokenCopied = idToken;
-
-                //   _whenExistingUserNewlyLogsIn(idTokenCopied); // run http trigger
-                  
-                // }).catch(function(error) {
-                //   console.log('Error xxxxxxxxxxxxxxxx Could not get idToken: ', error);
-                // });
-
-
-
 
               }
 
             }).catch(function(error) { // auth error
-              // Handle Errors here.
-              // var errorCode = error.code;
-              // var errorMessage = error.message; // The email of the user's account used.
-              // var email = error.email; // The firebase.auth.AuthCredential type that was used.
-              // var credential = error.credential;
               console.log('Error _onSignInG: ', error);
 
             }); 
@@ -363,14 +168,6 @@ export default class LoginScreen extends Component {
       if (result.type === 'success') {
         this._onSignInG(result);
 
-        // console.log("..... this.props.navigation.navigate('DashboardScreen')");
-        // this.props.navigation.navigate("DashboardScreen", {
-          // username: result.user.givenName
-          // userId: result.user.userId,
-          // userId: firebase.auth().currentUser.uid,
-        // });  
-        // () => this.props.navigation.push('Exercise', post) 
-
         return result.accessToken;
 
       } else {
@@ -397,11 +194,10 @@ export default class LoginScreen extends Component {
         { isSigningIn ? 
 
           <View style={styles.LoadingState}>
-            {/* <Text>Loading out...</Text>
-            <Modal animationType="slide" transparent={false} visible={true}> */}
+
               <ActivityIndicator size="large" />
               <Text>Loading...</Text>
-            {/* </Modal> */}
+      
           </View>
 
         :
@@ -414,12 +210,6 @@ export default class LoginScreen extends Component {
                   source={require('../assets/btn_google_signin_light_normal_web2x.png')}  // 382 * 92
                 />
               </TouchableOpacity>        
-
-              {/* <TouchableOpacity onPress={() => this._signInWithFacebook()}>
-                <Image style={styles.facebook_signin} 
-                  source={require('../assets/btn_continue_with_facebook.png')}  // 988 * 160
-                />
-              </TouchableOpacity>   */}
 
           </View>
 
