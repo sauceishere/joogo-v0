@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 import { Component, useState } from 'react';
-import { View, Text, StyleSheet, Button, FlatList, TouchableOpacity, Image, StatusBar, SafeAreaView, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Button, FlatList, Dimensions, TouchableOpacity, Image, StatusBar, SafeAreaView, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import moment from "moment"; // for flatlist
 import {GlobalStyles} from '../shared/GlobalStyles';

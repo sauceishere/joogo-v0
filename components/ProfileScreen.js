@@ -730,7 +730,7 @@ const styles = StyleSheet.create({
   },
   signOutButton: {
     position: 'absolute',
-    right: 10,
+    right: 5,
   },
   itemTitle:{
     marginTop: 7, //Dimensions.get('window').height * 0.01,
