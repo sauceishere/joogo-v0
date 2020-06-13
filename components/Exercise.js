@@ -622,7 +622,7 @@ export default class Exercise extends Component {
     jsonContents["score"] = this.state.scoreNow; 
     jsonContents["mdCumAll"] = this.mdCumAll; // this is an Array
     jsonContents["playSum"] = this.vidState.vidPlayedSum; // .toFixed(2);
-    jsonContents["playPct"] = this.vidState.vidPlayedSum + 0.00001 / this.state.vidLength;
+    jsonContents["playPct"] = ( this.vidState.vidPlayedSum + 0.00001 ) / this.state.vidLength;
     jsonContents['cntOutAccel'] = this.cntOutAccel;
     jsonContents['cntPressPlayButton'] = this.vidState.cntPressPlayButton;
     jsonContents['cntPressPauseButton'] = this.vidState.cntPressPauseButton;
@@ -1554,13 +1554,13 @@ export default class Exercise extends Component {
               { flagVidEnd && 
                 <View style={styles.modalLike}>
                   <Text style={styles.modalLikeTitle}>
-                    score:
+                    Score:
                   </Text>
                   <Text style={styles.modalLikeText}>
                     {scoreNow}
                   </Text>
                   <Text style={styles.modalLikeTitle}>
-                    points you earn:
+                    Movage points:
                   </Text>
                   <Text style={styles.modalLikeText}>
                     {mdCumTtlNow}

@@ -35,7 +35,7 @@ export default class DashboardScreen extends Component {
         loading: false,
         // data: '',
         page: 1,
-        seed: 1,
+        // seed: 1,
         error: null,
         refreshing: false,
         oldestVidTs: Date.now() / 1000,
@@ -564,7 +564,7 @@ export default class DashboardScreen extends Component {
             
           </View>
       );
-  };
+  }; // closing renderpost
 
 
 
@@ -632,12 +632,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     // backgroundColor: 'white',
   },
-  scrollview: {
-    width: '100%',
-    height: '70%',
-    top: 5,
-    marginBottom: 55,
-  },
+  // scrollview: {
+  //   width: '100%',
+  //   height: '70%',
+  //   top: 5,
+  //   marginBottom: 55,
+  // },
   footerContainer: {
     width: '100%',
     height: 50,
@@ -652,12 +652,12 @@ const styles = StyleSheet.create({
     // marginTop: 50,
   },  
   feed: {
-    marginHorizontal: 8, // 16
+    marginHorizontal: 0, // 8, 16
   },
   feedItem: {
       backgroundColor: "#FFF",
       borderRadius: 5, // 10
-      padding: 8,
+      padding: 8, //8
       flexDirection: "column",
       flex: 2,
       marginVertical: 8,
