@@ -266,6 +266,8 @@ export default class Exercise extends Component {
     flag : false, // control only one time go into block
   }
 
+  coefNTA = this.props.navigation.getParam('const_exer')['coefNTA']; // 20200614
+
 
 
 
@@ -621,7 +623,12 @@ export default class Exercise extends Component {
     jsonContents["pt"] = this.state.mdCumTtlNow;
     jsonContents["score"] = this.state.scoreNow; 
     jsonContents["mdCumAll"] = this.mdCumAll; // this is an Array
-    jsonContents["playSum"] = this.vidState.vidPlayedSum; // .toFixed(2);
+
+    if ( this.vidState.vidPlayedSum > this.state.vidLength) {
+      jsonContents["playSum"] = this.state.vidLength; // force to assign video length because played time should not be longer than video length. 20200614
+    } else {
+      jsonContents["playSum"] = this.vidState.vidPlayedSum; // 
+    }  
     jsonContents["playPct"] = ( this.vidState.vidPlayedSum + 0.00001 ) / this.state.vidLength;
     jsonContents['cntOutAccel'] = this.cntOutAccel;
     jsonContents['cntPressPlayButton'] = this.vidState.cntPressPlayButton;
@@ -725,22 +732,23 @@ export default class Exercise extends Component {
           var finscore_now = JSON.parse(this.vidMeta["FINSCORE"])[ secFromStart.toString() ] ; // current time's finscore
           console.log('--- finscore_now: ', finscore_now);
 
+          var NTAForScore = noseToAnkle * this.coefNTA; // 20200614
           console.log('--- noseToAnkle: ', noseToAnkle);
 
           var mdCumTtlNow = 
-          (this.mdCum.y0 / noseToAnkle * this.wpart.nose) +
-          (this.mdCum.y5 / noseToAnkle * this.wpart.leftShoulder) +
-          (this.mdCum.y6 / noseToAnkle * this.wpart.rightShoulder) +              
-          (this.mdCum.y7 / noseToAnkle * this.wpart.leftElbow) +   
-          (this.mdCum.y8 / noseToAnkle * this.wpart.rightElbow) +   
-          (this.mdCum.y9 / noseToAnkle * this.wpart.leftWrist) +   
-          (this.mdCum.y10 / noseToAnkle * this.wpart.rightWrist) +   
-          (this.mdCum.y11 / noseToAnkle * this.wpart.leftHip) +   
-          (this.mdCum.y12 / noseToAnkle * this.wpart.rightHip) +                 
-          (this.mdCum.y13 / noseToAnkle * this.wpart.leftKnee) +   
-          (this.mdCum.y14 / noseToAnkle * this.wpart.rightKnee) +   
-          (this.mdCum.y15 / noseToAnkle * this.wpart.leftAnkle) +   
-          (this.mdCum.y16 / noseToAnkle * this.wpart.rightAnkle)  
+          (this.mdCum.y0 / NTAForScore * this.wpart.nose) +
+          (this.mdCum.y5 / NTAForScore * this.wpart.leftShoulder) +
+          (this.mdCum.y6 / NTAForScore * this.wpart.rightShoulder) +              
+          (this.mdCum.y7 / NTAForScore * this.wpart.leftElbow) +   
+          (this.mdCum.y8 / NTAForScore * this.wpart.rightElbow) +   
+          (this.mdCum.y9 / NTAForScore * this.wpart.leftWrist) +   
+          (this.mdCum.y10 / NTAForScore * this.wpart.rightWrist) +   
+          (this.mdCum.y11 / NTAForScore * this.wpart.leftHip) +   
+          (this.mdCum.y12 / NTAForScore * this.wpart.rightHip) +                 
+          (this.mdCum.y13 / NTAForScore * this.wpart.leftKnee) +   
+          (this.mdCum.y14 / NTAForScore * this.wpart.rightKnee) +   
+          (this.mdCum.y15 / NTAForScore * this.wpart.leftAnkle) +   
+          (this.mdCum.y16 / NTAForScore * this.wpart.rightAnkle)  
           console.log('--- mdCumTtlNow: ', mdCumTtlNow);          
 
           // this.vidState.scorePointSum = this.vidState.scorePointSum + 9; 

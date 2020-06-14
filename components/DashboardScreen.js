@@ -384,7 +384,7 @@ export default class DashboardScreen extends Component {
           } else if (response["code"] == 'no_more_data') {
             // this.setState({ loading: false , isLoading: false,});
             console.log('No more data by _loadDashboardFlatlist.');
-            // alert('No more video.'); 
+            alert('No more video.'); 
            
           }
 
@@ -514,12 +514,19 @@ export default class DashboardScreen extends Component {
               {/* bottom row */}    
               <View style={{ flex: 2, flexDirection: "row" }}> 
 
+                  {/* bottom left pane */}
                   <View style={styles.textContents}>
                       <Text style={styles.title}> '{post.TITLE}' </Text>
 
                       <View style={styles.textMetadata}>
+
                         <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
-                            <Ionicons name='ios-videocam' size={20} color="#73788B"/>
+                            <Ionicons name='ios-body' size={20} color="#73788B"/>
+                            <Text style={styles.points}> {this.TTLPT} movages</Text>
+                        </View>
+
+                        <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
+                            <Ionicons name='ios-time' size={20} color="#73788B"/>
                             <Text style={styles.length}> {this.LEN} </Text>
                         </View>
 
@@ -528,11 +535,6 @@ export default class DashboardScreen extends Component {
                             <Text style={styles.tags}> 
                                 {String(post.TAG).replace(',', ', ')}
                             </Text>
-                        </View>
-
-                        <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
-                            <Ionicons name='ios-body' size={20} color="#73788B"/>
-                            <Text style={styles.points}> {this.TTLPT} pts</Text>
                         </View>
 
                         <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
@@ -554,11 +556,13 @@ export default class DashboardScreen extends Component {
                   </View>
                   
 
+                  {/* bottom right pane */}
                   <View style={{ }}>
                       <TouchableOpacity onPress={ () => this.props.navigation.push('Exercise', {post, wpart, const_exer} ) } >
                           <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
                       </TouchableOpacity>
                   </View>
+
 
               </View>
             
@@ -655,12 +659,13 @@ const styles = StyleSheet.create({
     marginHorizontal: 0, // 8, 16
   },
   feedItem: {
+      width: Dimensions.get('window').width * 0.95,
       backgroundColor: "#FFF",
       borderRadius: 5, // 10
       padding: 8, //8
       flexDirection: "column",
       flex: 2,
-      marginVertical: 8,
+      marginVertical: 5,
       shadowColor: 'black', // iOS
       shadowOffset: { width: 5, height: 5 }, // iOS
       shadowOpacity: 0.3, // iOS
@@ -685,7 +690,7 @@ const styles = StyleSheet.create({
   },
   textContents: {
       flexDirection: "column", 
-      width: 160,
+      width: Dimensions.get('window').width * 0.52, //160,
   },
   title: {
       marginTop: 12,
@@ -717,10 +722,10 @@ const styles = StyleSheet.create({
 
   },
   postImage: {
-      width: 150,
-      height: 225,
+      width: Dimensions.get('window').width * 0.43 * 0.9, //150,
+      height: Dimensions.get('window').width * 0.43 * (225/150) * 0.9, //225,
       // width: 200,
-      borderRadius: 10,
+      borderRadius: 5,
       marginVertical: 5,
       right: 0,
   }

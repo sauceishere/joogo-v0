@@ -217,30 +217,40 @@ class ExerciseHistory extends Component {
         console.log('------ renderpost: ');
       
         // (() => {
-    
-            // this.PTSUM = parseFloat(post.PTSUM); // cummulative points that the users exercised. 
-            
+            post.TTLPT = parseFloat(post.TTLPT).toFixed(2); // point for this video that can be earned. Fix decimal place
+            post.SC_PCT = post.SC + '%'; // Add % for percentageBar 20200613
+
             post.VIDLEN = parseInt(post.VIDLEN); // video length in XXmXXs
             if (post.VIDLEN >= 60) {
                 post.VIDLEN_ = str_pad_left( post.VIDLEN / 60,'0',2) + 'm' + str_pad_left( post.VIDLEN - post.VIDLEN / 60 * 60,'0',2) + 's'
             } else { 
                 post.VIDLEN_ = '00m' + str_pad_left( post.VIDLEN, '0', 2) + 's' 
             }; // convert sec to min:sec
-            
-            post.TTLPT = parseFloat(post.TTLPT).toFixed(2); // point for this video that can be earned. Fix decimal place
-    
-            post.PLAYPCT = parseInt(post.PLAYPCT); // remove decimal place
 
-            post.PLAYPCT_PCT = post.PLAYPCT + '%'; // Add % for percentageBar 20200613
-            post.SC_PCT = post.SC + '%'; // Add % for percentageBar 20200613
+            post.PLAYSUM = parseInt(post.PLAYSUM); // video length in XXmXXs
+            if (post.PLAYSUM >= 60) {
+                post.PLAYSUM_ = str_pad_left( post.PLAYSUM / 60,'0',2) + 'm' + str_pad_left( post.PLAYSUM - post.PLAYSUM / 60 * 60,'0',2) + 's'
+            } else { 
+                post.PLAYSUM_ = '00m' + str_pad_left( post.PLAYSUM, '0', 2) + 's' 
+            }; // convert sec to min:sec
+
+            if (post.PLAYSUM > post.VIDLEN) {
+                post.PLAYSUM_ = post.VIDLEN_; // Copy post.VIDLEN_ if playing time id longer than video length. 20200614
+            }
+            
+            post.PLAYPCT = parseInt(post.PLAYPCT); // remove decimal place
+            if (post.PLAYPCT * 100 >= 100) {
+                post.PLAYPCT_PCT = '100%'; // force to 100 if over 100%. 20200614 // Add % for percentageBar 20200613
+            } else {
+                post.PLAYPCT_PCT = (post.PLAYPCT * 100) + '%'; // Add % for percentageBar 20200613
+            }
+            // post.PLAYPCT_PCT = post.PLAYPCT + '%'; // Add % for percentageBar 20200613
 
             if ( oldestLogTs > post.TS) { // Assign timestamp of the oldest video fetched by _loadDashboardFlatlist to control next video to be fetched by _loadDashboardFlatlist 20200528
                 this.setState({oldestLogTs : post.TS});
             } 
     
-
             post.TNURL = 'https://firebasestorage.googleapis.com/v0/b/joogo-v0.appspot.com/o/tn%2F' + post.VIDID + '?alt=media' // URL for Thumbsnail photo 20200528         
-    
     
             console.log('-- post: ' , post );
     
@@ -258,7 +268,7 @@ class ExerciseHistory extends Component {
                 </View>
     
                 {/* right pane */}   
-                <View style={{ flex: 1, flexDirection: "column" }}> 
+                <View style={{ flex: 1, flexDirection: "column", marginRight: Dimensions.get('window').width * 0.08, }}> 
     
                     <View style={styles.textContents}>
                         <Text style={styles.timestamp}>{moment.unix(post.TS).fromNow()}</Text> 
@@ -269,21 +279,21 @@ class ExerciseHistory extends Component {
                     <View style={styles.textMetadata}>
                         <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
                             <Ionicons name='ios-body' size={20} color="#73788B"/>
-                            <Text style={styles.points}> {post.SC}% / {post.TTLPT} pts</Text>
+                            <Text style={styles.points}>  {post.PT} / {post.TTLPT} movages</Text>
                         </View>
                         <View style={{flexDirection: "column",}}>
                             <View style={[styles.percentageBar, {width: post.SC_PCT} ]}></View>
-                            <View style={[styles.percentageBarBase, {width: Dimensions.get('window').width * 0.48 * 0.9} ]}></View>  
+                            <View style={[styles.percentageBarBase, {width: Dimensions.get('window').width * 0.48} ]}></View>  
                         </View>
 
                         <View style={{flexDirection: "row", marginTop: 3, marginLeft: 2,}}>
-                            <Ionicons name='ios-videocam' size={20} color="#73788B"/>
+                            <Ionicons name='ios-time' size={20} color="#73788B"/>
                             {/* <Ionicons name='logo-youtube' size={17} color="#73788B"/> */}
-                            <Text style={styles.views}> {post.PLAYPCT}% / {post.VIDLEN_}</Text>
+                            <Text style={styles.views}> {post.PLAYSUM_} / {post.VIDLEN_}</Text>
                         </View>
                         <View style={{flexDirection: "column",}}>
                             <View style={[styles.percentageBar, {width: post.PLAYPCT_PCT} ]}></View>
-                            <View style={[styles.percentageBarBase, {width: Dimensions.get('window').width * 0.48 * 0.9} ]}></View>
+                            <View style={[styles.percentageBarBase, {width: Dimensions.get('window').width * 0.48} ]}></View>
                         </View>
                     </View>  
                     
@@ -298,7 +308,6 @@ class ExerciseHistory extends Component {
     render() {
         console.log('------------- render.');
         const { isLoading, viewPtSum, playSum, viewTimes } = this.state;
-        // console.log('exerHistSummary: ', viewPtSum, playSum, viewTimes ); 
 
         return (
             <View style={styles.container}>
@@ -314,7 +323,6 @@ class ExerciseHistory extends Component {
                         <Text>Loading....</Text>
                     </View>
                 : 
-                    // <View style={{width: '100%', flex: 1, flexDirection: 'column', flexWrap: 'nowrap' }}>
                     <View style={{width: '100%', flexDirection: 'column', flexWrap: 'nowrap' }}>
 
                         <View style={{width: '100%', flex: 1, marginTop: Dimensions.get('window').height * 0.05, }}>
@@ -323,29 +331,22 @@ class ExerciseHistory extends Component {
                     
                         <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', marginTop: Dimensions.get('window').height * 0.05,}} >
                             <View style={styles.tileItem}>
-                                <Ionicons name='ios-body' size={20} style={styles.tileItemIcon}/>
-                                <Text style={styles.tileItemTitle}>Movage pts</Text>
+                                <Text style={styles.tileItemTitle}> <Ionicons name='ios-body' size={18} style={styles.tileItemIcon}/> {' '} Movages Earned</Text>
                                 <Text style={styles.tileItemField}>{viewPtSum}</Text>    
                             </View>          
 
                             <View style={styles.tileItem}>
-                                <Ionicons name='ios-videocam' size={20} style={styles.tileItemIcon}/>
-                                <Text style={styles.tileItemTitle}>Hours Worked Out</Text>
+                                <Text style={styles.tileItemTitle}> <Ionicons name='ios-time' size={18} style={styles.tileItemIcon}/> {' '} Hours Worked Out</Text> 
                                 <Text style={styles.tileItemField}>{playSum}</Text>  
                             </View>
                             
                             <View style={styles.tileItem}>
-                                <Ionicons name='ios-eye' size={20} style={styles.tileItemIcon}/>
-                                <Text style={styles.tileItemTitle}>Times Watched</Text>
+                                <Text style={styles.tileItemTitle}> <Ionicons name='logo-youtube' size={18} style={styles.tileItemIcon}/> {' '} Times Played</Text>
                                 <Text style={styles.tileItemField}>{viewTimes}</Text>  
                             </View>      
                         </View> 
 
                         <View style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.03,}}> 
-                        {/* <View style={{width: '100%', height: 200, flex: 1, backgroundColor: 'green'}}> */}
-                        {/* <View style={{width: '100%', height: 200, position: 'absolute', justifyContent: 'flex-end', backgroundColor: 'red'}}> */}
-                            {/* <SafeAreaView style={{width: '100%', height: 200, position: 'relative',  }}>  */}
-
                             <FlatList
                                 style={styles.feed}
                                 data={this.state.postsExer}
@@ -359,8 +360,6 @@ class ExerciseHistory extends Component {
                                 onEndReachedThreshold={1}
                             >
                             </FlatList>
-
-                        {/* </SafeAreaView> */}
                         </View>
 
                     </View>
@@ -369,8 +368,17 @@ class ExerciseHistory extends Component {
             </View>
         );
     }
-}
-  
+
+} // closing class ExerciseHistory
+
+
+
+
+
+
+
+
+
 
 
 class PostHistory extends Component {
@@ -378,39 +386,353 @@ class PostHistory extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            flagProgreeBarStart: false,
-            param: this.props.navigation.getParam('greeting'),
+            isLoading: true,
+            doneComponentDidMount: false,
+            // param: this.props.navigation.getParam('greeting'),
+            TTLVIDPOSTED: null,
+            TTLPT: null,
+            TTLTIMEPLAYED: null,
+            TTLPLAYTIMES: null,
+            TTLVIEWTIMES: null,
+            postPostVid: [], // assign response from loadExerHist-py
+            oldestLogTs: Date.now() / 1000,
+            page: 1,
+            // seed: 1,
+            error: null,
+            refreshing: false,
+            // isFlatlistLoaded: false,
         }
+        // this._getPostHistSummary = this._getPostHistSummary.bind(this);
+        this._requestLoadPostHist = this._requestLoadPostHist.bind(this);
+        this._handleLoadMore = this._handleLoadMore.bind(this);
+        this._handleRefresh = this._handleRefresh.bind(this);
     }
 
-    render() {
-        return (
-            <View
-            style={{
-                flex: 1,
-                justifyContent: 'center',
-                borderWidth: 5,
-                borderColor: 'yellow',
-            }}>
-            <Button
-                title="Go to Exercise"
-                onPress={() =>
-                    this.props.navigation.navigate('Stack1', {
-                        greeting: 'Hallo Exer',
+
+    async componentDidMount() {
+        console.log('------------- componentDidMount PostHistory started');
+    
+        if (this.state.doneComponentDidMount === false) { // if variable is null. this if to prevent repeated loop.
+            console.log('this.state.doneComponentDidMount === false');
+            // this.setState({isLoading: true});
+    
+            const _getPostHistSummary = (idTokenCopied) => {
+                console.log('----- History _getPostHistSummary.');
+                //   console.log('this.oldestLogTs: ', this.oldestLogTs);
+                
+                fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/getPostHistSummary-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+                    method: 'POST',
+                    headers: {
+                    // 'Accept': 'application/json', 
+                    'Content-Type' : 'application/json' // text/html text/plain application/json
+                    },
+                    // mode: "no-cors", // no-cors, cors, *same-origin
+                    body: JSON.stringify({
+                    id_token: idTokenCopied,
                     })
-                }
-            />
+                }).then( result => result.json() )
+                    .then( response => { 
+                    // console.log('------------------ _getPostHistSummary response: ', response);
+        
+                        if( response["code"] == 'ok'){
+                            console.log('---------------- ok');
+                            console.log('_getPostHistSummary response.detail: ', response.detail );
+
+                            var TTLVIDPOSTED = response.detail.TTLVIDPOSTED;
+                            var TTLPT = response.detail.TTLPT;
+                            TTLPT = parseInt(TTLPT); // convert to int
+                            var TTLTIMEPLAYED = response.detail.TTLTIMEPLAYED;
+                            TTLTIMEPLAYED = parseInt(TTLTIMEPLAYED / 60 / 60); // convert from second to hour
+                            var TTLPLAYTIMES = response.detail.TTLPLAYTIMES;
+                            var TTLVIEWTIMES = response.detail.TTLVIEWTIMES;
+
+                            this.setState({
+                                // isLoading: false,
+                                TTLVIDPOSTED: TTLVIDPOSTED,
+                                TTLPT: TTLPT,
+                                TTLTIMEPLAYED: TTLTIMEPLAYED,
+                                TTLPLAYTIMES: TTLPLAYTIMES,
+                                TTLVIEWTIMES: TTLVIEWTIMES,
+                            }); 
+                        } 
+            
+                }).catch((error) => {
+                    this.setState({ isLoading: false, });
+                    console.log('Error _getPostHistSummary: ', error);
+                    alert('Error _getPostHistSummary. Please try again later.');
+                });
+        
+            }
+        
+            await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then( function(idToken) {
+                const idTokenCopied = idToken;
+            
+                _getPostHistSummary(idTokenCopied);
+            
+            }).catch(function(error) {
+                console.log('Error xxxxxxxxxxxxxxxx Could not get idToken _getPostHistSummary : ', error);
+                alert('Error, Could not get idToken _getPostHistSummary. please try again later.')
+            });  
+    
+            await this._requestLoadPostHist(); // kick 
+            
+        }; // closing if 
+
+        this.setState({doneComponentDidMount: true, isLoading: false});
+
+        console.log('------------- componentDidMount PostHistory done');
+    } // closing componentDidMount
+
+
+
+    _requestLoadPostHist = async () => {
+        console.log('------------- _requestLoadPostHist');
+        const { page, oldestLogTs } = this.state;
+    
+        const _loadExerHist = (idTokenCopied) => {
+          console.log('----- History _loadExerHist.');
+          console.log('oldestLogTs: ', oldestLogTs);
+          
+          fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/loadExerHist-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+            method: 'POST',
+            headers: {
+              // 'Accept': 'application/json', 
+              'Content-Type' : 'application/json' // text/html text/plain application/json
+            },
+            // mode: "no-cors", // no-cors, cors, *same-origin
+            body: JSON.stringify({
+              id_token: idTokenCopied,
+              oldestLogTs: oldestLogTs,    
+            })
+          }).then( result => result.json() )
+            .then( response => { 
+              // console.log('------------------ _requestLoadPostHist response: ', response);
+    
+              if( response["code"] == 'ok'){
+                console.log('---------------- ok');
+                // console.log('_requestLoadPostHist response.detail: ', response.detail.vidViewedLogs);
+                this.setState({
+                  postPostVid: page === 1 ? response.detail.vidViewedLogs  : [ ...this.state.postPostVid, ...response.detail.vidViewedLogs ],
+                  refreshing: false,
+                  isLoading: false,
+                //   flagMastersLoaded: true, // this to identify its downloaded
+                //   isFlatlistLoaded: true,
+                }); 
+                console.log('this.state.postPostVid: ', this.state.postPostVid);
+    
+              } else if (response["code"] == 'no_more_data') {
+                // this.setState({ loading: false , isLoading: false,});
+                console.log('No more history by _loadExerHist.');
+                alert('No more history.'); 
+               
+              }
+    
+            }).catch((error) => {
+              // this.setState({ loading: false, isLoading: false, });
+              console.log('Error _loadExerHist: ', error);
+              alert('Error _loadExerHist. Please try again later.');
+            });
+    
+        }
+    
+        await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then( function(idToken) {
+          const idTokenCopied = idToken;
+    
+          _loadExerHist(idTokenCopied);
+    
+        }).catch(function(error) {
+          console.log('Error xxxxxxxxxxxxxxxx Could not get idToken _loadExerHist: ', error);
+        });  
+    
+    }; // closing _requestLoadPostHist
+    
+    
+    _handleRefresh = async () => {
+        console.log('------------- _handleRefresh');
+        // this.oldestLogTs = Date.now() / 1000; // reset timestamp to current time
+        this.setState({
+            page: 1,
+            refreshing: true,
+            oldestLogTs: Date.now() / 1000, // reset before fetch data
+            isLoading: true,
+            },
+            () => {
+            this._requestLoadPostHist();
+            }
+        );  
+    };
+    
+    
+    _handleLoadMore = async () => {
+        console.log('------------- _handleLoadMore: ', this.state.oldestLogTs);
+        this.setState({ page: this.state.page + 1 }, () => {
+            this._requestLoadPostHist();
+        });
+    };
+
+
+    renderPost = post => {
+        const { oldestLogTs } = this.state;
+        console.log('------ renderpost: ');
+      
+        // (() => {
+            post.TTLPT = parseFloat(post.TTLPT).toFixed(2); // point for this video that can be earned. Fix decimal place
+            post.SC_PCT = post.SC + '%'; // Add % for percentageBar 20200613
+
+            post.PLAYSUM = parseInt(post.PLAYSUM); // video length in XXmXXs
+            if (post.PLAYSUM >= 60) {
+                post.PLAYSUM_ = str_pad_left( post.PLAYSUM / 60,'0',2) + 'm' + str_pad_left( post.PLAYSUM - post.PLAYSUM / 60 * 60,'0',2) + 's'
+            } else { 
+                post.PLAYSUM_ = '00m' + str_pad_left( post.PLAYSUM, '0', 2) + 's' 
+            }; // convert sec to min:sec
+
+            post.VIDLEN = parseInt(post.VIDLEN); // video length in XXmXXs
+            if (post.VIDLEN >= 60) {
+                post.VIDLEN_ = str_pad_left( post.VIDLEN / 60,'0',2) + 'm' + str_pad_left( post.VIDLEN - post.VIDLEN / 60 * 60,'0',2) + 's'
+            } else { 
+                post.VIDLEN_ = '00m' + str_pad_left( post.VIDLEN, '0', 2) + 's' 
+            }; // convert sec to min:sec
+            
+            post.PLAYPCT = parseInt(post.PLAYPCT); // remove decimal place
+            if (post.PLAYPCT > 100) {
+                post.PLAYPCT = 100; // force to 100 if over 100%. 20200614
+            }
+            post.PLAYPCT_PCT = post.PLAYPCT + '%'; // Add % for percentageBar 20200613
+
+            if ( oldestLogTs > post.TS) { // Assign timestamp of the oldest video fetched by _loadDashboardFlatlist to control next video to be fetched by _loadDashboardFlatlist 20200528
+                this.setState({oldestLogTs : post.TS});
+            } 
+    
+            post.TNURL = 'https://firebasestorage.googleapis.com/v0/b/joogo-v0.appspot.com/o/tn%2F' + post.VIDID + '?alt=media' // URL for Thumbsnail photo 20200528         
+    
+            console.log('-- post: ' , post );
+    
+        // } )(); 
+    
+    
+        return (
+            <View style={styles.feedItem}>
+                
+                {/* left pane */}
+                <View style={{ flex: 1, flexDirection: "column" }}>
+                    <TouchableOpacity>
+                        <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
+                    </TouchableOpacity>
+                </View>
+    
+                {/* right pane */}   
+                <View style={{ flex: 1, flexDirection: "column", marginRight: Dimensions.get('window').width * 0.08, }}> 
+    
+                    <View style={styles.textContents}>
+                        <Text style={styles.timestamp}>{moment.unix(post.TS).fromNow()}</Text> 
+                        <Text style={styles.title}> {post.VIDNAME} </Text>
+                        <Text style={styles.name}>{post.NNAME}</Text>
+                    </View>    
+    
+                    <View style={styles.textMetadata}>
+                        <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
+                            <Ionicons name='ios-body' size={20} color="#73788B"/>
+                            <Text style={styles.points}>  {post.PT} / {post.TTLPT} movages</Text>
+                        </View>
+                        <View style={{flexDirection: "column",}}>
+                            <View style={[styles.percentageBar, {width: post.SC_PCT} ]}></View>
+                            <View style={[styles.percentageBarBase, {width: Dimensions.get('window').width * 0.48} ]}></View>  
+                        </View>
+
+                        <View style={{flexDirection: "row", marginTop: 3, marginLeft: 2,}}>
+                            <Ionicons name='ios-time' size={20} color="#73788B"/>
+                            {/* <Ionicons name='logo-youtube' size={17} color="#73788B"/> */}
+                            <Text style={styles.views}> {post.PLAYSUM_} / {post.VIDLEN_}</Text>
+                        </View>
+                        <View style={{flexDirection: "column",}}>
+                            <View style={[styles.percentageBar, {width: post.PLAYPCT_PCT} ]}></View>
+                            <View style={[styles.percentageBarBase, {width: Dimensions.get('window').width * 0.48} ]}></View>
+                        </View>
+                    </View>  
+                    
+                </View>
+                
             </View>
         );
-    }
-}
+    }; // closing renderpost    
+
+
+
+    render() {
+        console.log('------------- render.');
+        const { isLoading, TTLVIDPOSTED, TTLPT, TTLTIMEPLAYED, TTLPLAYTIMES, TTLVIEWTIMES } = this.state;
+
+        return (
+            <View style={styles.container}>
+
+                <TouchableOpacity onPress={ () => this.props.navigation.navigate('Stack1') } style={styles.PageSwitchButton} > 
+                    <Text style={{color: 'gray', fontSize: 16, fontWeight: 'bold',}}> Go to 'Work Out' History </Text>
+                </TouchableOpacity>
+
+
+                { isLoading ? 
+                    <View style={styles.loadingIndicator}>
+                        <ActivityIndicator size="large" color='#ffa500'/>
+                        <Text>Loading....</Text>
+                    </View>
+                : 
+                    <View style={{width: '100%', flexDirection: 'column', flexWrap: 'nowrap' }}>
+
+                        <View style={{width: '100%', flex: 1, marginTop: Dimensions.get('window').height * 0.05, }}>
+                            <Text style={styles.pageTitle}>Post Video History</Text>    
+                        </View>
+                    
+                        <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', marginTop: Dimensions.get('window').height * 0.05,}} >
+                            <View style={styles.tileItem}>
+                                <Text style={styles.tileItemTitle}> <Ionicons name='ios-body' size={18} style={styles.tileItemIcon}/> {' '} Movages Earned</Text>
+                                <Text style={styles.tileItemField}>{TTLPT}</Text>    
+                            </View>          
+
+                            <View style={styles.tileItem}>
+                                <Text style={styles.tileItemTitle}> <Ionicons name='ios-time' size={18} style={styles.tileItemIcon}/> {' '} Hours Viewed</Text> 
+                                <Text style={styles.tileItemField}>{TTLTIMEPLAYED}</Text>  
+                            </View>
+                            
+                            <View style={styles.tileItem}>
+                                <Text style={styles.tileItemTitle}> <Ionicons name='ios-eye' size={18} style={styles.tileItemIcon}/> {' '} Times Viewed</Text>
+                                <Text style={styles.tileItemField}>{TTLVIEWTIMES}</Text>  
+                            </View>      
+                        </View> 
+
+                        <View style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.03,}}> 
+                            <FlatList
+                                style={styles.feed}
+                                data={this.state.postPostVid}
+                                renderItem={({ item }) => this.renderPost(item)}
+                                keyExtractor={item => item.SENDID}
+                                showsVerticalScrollIndicator={false}
+                                key={item => item.SENDID} // https://stackoverflow.com/questions/45947921/react-native-cant-fix-flatlist-keys-warning
+                                onRefresh={this._handleRefresh}
+                                refreshing={this.state.refreshing}
+                                onEndReached={this._handleLoadMore}
+                                onEndReachedThreshold={1}
+                            >
+                            </FlatList>
+                        </View>
+
+                    </View>
+                } 
+
+            </View>
+        );
+    } // closing render
+
+} // closing class PostHistory
   
   
   
-// const MyNavigator = createSwitchNavigator({
-//     ExerciseHistory: ExerciseHistory,
-//     PostHistory: PostHistory,
-// });
+
+
+
+
+
+
+
 
 
 const Stack = createSwitchNavigator(
@@ -423,10 +745,17 @@ const Stack = createSwitchNavigator(
     }
 );
 
-
-
 const AppContainer = createAppContainer(Stack); 
   
+
+
+
+
+
+
+
+
+
 
 
 const styles = StyleSheet.create({
@@ -498,7 +827,7 @@ const styles = StyleSheet.create({
         padding: 8,
         flexDirection: "row",
         flex: 2,
-        marginVertical: 8,
+        marginVertical: 5,
         shadowColor: 'black', // iOS
         shadowOffset: { width: 5, height: 5 }, // iOS
         shadowOpacity: 0.3, // iOS
@@ -516,13 +845,14 @@ const styles = StyleSheet.create({
         marginTop: 0,
         fontWeight: "500",
         textAlign: 'right',
+        marginRight: 5,
     },    
     title: {
-        marginTop: 12,
+        marginTop: 8,
         fontSize: 15,
         fontWeight: 'bold',
         color: '#ffa500', //'#ffbf00' // "#838899"
-        marginBottom: 12,
+        marginBottom: 8,
     },
     // avatar: {
     //     width: 36,
@@ -546,7 +876,7 @@ const styles = StyleSheet.create({
     },    
     points:{
         // fontWeight: 'bold',
-        marginLeft: 6,
+        marginLeft: 3,
     },
     // tags:{
     //     marginLeft: 6,
@@ -573,10 +903,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffa500',
     },      
     postImage: {
-        width: Dimensions.get('window').width * 0.43, // 150,
-        height: Dimensions.get('window').width * 0.43 * (225/150), // 225,
+        width: Dimensions.get('window').width * 0.43 * 0.8, // 150,
+        height: Dimensions.get('window').width * 0.43 * (225/150) * 0.8, // 225,
         // width: 200,
-        borderRadius: 10,
+        borderRadius: 5,
         marginVertical: 5,
         right: 0,
     },    

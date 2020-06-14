@@ -30,7 +30,7 @@ export default class PostScreen extends Component {
   maxRawImageSize = 300 * 1024 * 1024; // 300 MB in byte
   maxRawImageDur = 5 * 60 * 1000; // 5 minutes in milisecond
 
-  TnTargetSize = 256 * 144; // 480 * 270; // 640 * 360; // 256 * 144; // 1920 * 1080// 1280 * 720, 854 * 480
+  TnTargetSize = 256 * 144; // 128 * 72;  // 480 * 270; // 640 * 360; // 256 * 144; // 1920 * 1080// 1280 * 720, 854 * 480
   TnCompRate = null;
   vidId = uuidv4();
   
@@ -246,7 +246,7 @@ export default class PostScreen extends Component {
         console.log(countSec++);
         _goBackToHome(); // back to dashboard
       } 
-      setTimeout(countup, 3 * 1000); // milliseconds
+      setTimeout(countup, 2 * 1000); // milliseconds
 
     } else {
       if (!this.state.text) {
