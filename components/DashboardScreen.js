@@ -11,13 +11,14 @@ import * as FileSystem from 'expo-file-system'; // https://docs.expo.io/versions
 import { v4 as uuidv4 } from 'uuid';
 import Constants from 'expo-constants'; // https://docs.expo.io/versions/latest/react-native/refreshcontrol/
 import {vidViewLogDirName} from '../shared/Consts';
-
+import { AdMobBanner } from 'expo-ads-admob'; 
 
 
 const str_pad_left = function (string,pad,length) { // convert from sec to min:sec // https://stackoverflow.com/questions/3733227/javascript-seconds-to-minutes-and-seconds
     return (new Array(length+1).join(pad)+string).slice(-length);
 };
 
+var num_post = 0; // / to control when to shoe Adds in FlatList 20200618
 
 export default class DashboardScreen extends Component {
 
@@ -38,7 +39,7 @@ export default class DashboardScreen extends Component {
         // seed: 1,
         error: null,
         refreshing: false,
-        oldestVidTs: Date.now() / 1000,
+        // oldestVidTs: Date.now() / 1000,
         flagMastersLoaded: false, // becomes true when wpart & const_exer downloaded from firebase 20200606.
         wpart: null, // will be assigned after downloaded from Firebase. 20200606
         const_exer: null, // will be assigned after downloaded from Firebase. 20200606
@@ -54,7 +55,10 @@ export default class DashboardScreen extends Component {
 
   oldestVidTs = Date.now() / 1000; // Assign timestamp of the oldest video fetched by _loadDashboardFlatlist to control next video to be fetched by _loadDashboardFlatlist 20200528
 
+  // num_post = 1; // to control when to shoe Adds in FlatList 20200618
 
+
+  
   async _checkVidViewLogDirectory(){ 
     console.log('----------- _checkVidViewLogDirectory start' );
     // // check if vidViewLog local directory exists, if not then create directory. 
@@ -355,7 +359,14 @@ export default class DashboardScreen extends Component {
 
           if( response["code"] == 'okFirst'){
             console.log('---------------- okFirst');
-            console.log('_makeRemoteRequest response.detail.vidMetas: ', response.detail.vidMetas );
+            console.log('_makeRemoteRequest response.detail.vidMetas.VIDNAME: ', response.detail.vidMetas.VIDNAME );
+            // if (this.num_post % 3 == 0) {
+            //   response.detail.vidMetas.push({type: 'ads'}); 
+            //   console.log('------- ads, nnum_post: ', this.num_post);
+            // } else {
+            //   response.detail.vidMetas.push({type: 'vids'}); 
+            // }
+            // this.num_post++; // increment
             this.setState({
               posts: page === 1 ? response.detail.vidMetas  : [ ...this.state.posts, ...response.detail.vidMetas ],
               refreshing: false,
@@ -366,10 +377,18 @@ export default class DashboardScreen extends Component {
             }); 
 
           } else if (response["code"] == 'ok') {
-            console.log('_makeRemoteRequest response.detail.vidMetas: ', response.detail.vidMetas );
+            console.log('_makeRemoteRequest response.detail.vidMetas.VIDNAME: ', response.detail.vidMetas.VIDNAME );
             // console.log('_makeRemoteRequest response.detail.vidMetas JSON.parse: ', JSON.parse(response.detail.vidMetas) ); // Error [SyntaxError: JSON Parse error: Unexpected identifier "object"]
             // console.log('_makeRemoteRequest response.detail.vidMetas JSON.stringify: ', JSON.stringify(response.detail.vidMetas));
             // console.log('_makeRemoteRequest response.detail.vidMetas JSON.parse JSON.stringify: ', JSON.parse( JSON.stringify(respsonse.detail.vidMetas) ) );
+
+            // if (this.num_post % 3 == 0) {
+            //   response.detail.vidMetas.push({type: 'ads'}); 
+            //   console.log('------- ads, num_post: ', this.num_post);
+            // } else {
+            //   response.detail.vidMetas.push({type: 'vids'}); 
+            // }
+            // this.num_post++; // increment
 
             this.setState({
               // posts: page === 1 ? response.detail.vidMetas  : [...this.state.posts, ...response.detail.vidMetas ],
@@ -384,7 +403,7 @@ export default class DashboardScreen extends Component {
           } else if (response["code"] == 'no_more_data') {
             // this.setState({ loading: false , isLoading: false,});
             console.log('No more data by _loadDashboardFlatlist.');
-            alert('No more video.'); 
+            // alert('No more video.'); 
            
           }
 
@@ -411,10 +430,11 @@ export default class DashboardScreen extends Component {
   _handleRefresh = async () => {
     console.log('------------- _handleRefresh');
     this.oldestVidTs = Date.now() / 1000; // reset timestamp to current time
+    num_post = 0; // reset
     this.setState({
         page: 1,
         refreshing: true,
-        oldestVidTs: Date.now() / 1000,
+        // oldestVidTs: Date.now() / 1000,
         isLoading: true,
       },
       () => {
@@ -435,7 +455,9 @@ export default class DashboardScreen extends Component {
 
   renderPost = post => {
       const { wpart, const_exer } = this.state;
-      console.log('==================================== post: ');
+      num_post++; // increment var num_post
+      console.log('==================================== post: ',);
+
 
       // (() => {
           if (post.VIEW > 1000000) { // view times
@@ -489,30 +511,35 @@ export default class DashboardScreen extends Component {
           // })        
         
 
-          console.log('------------- renderPost: ' , post.VIDID, post.TITLE, );
+          console.log('------------- renderPost: ' , num_post, post.TS, post.VIDID, post.TITLE, );
+          console.log('this.oldestVidTs: ', this.oldestVidTs);
 
           // } )(); 
 
-  
+          
 
 
-      return (
-          <View style={styles.feedItem}>
-              
-              {/* upper row */}
-              <View style={{ flex: 2, flexDirection: "row", left: 10}}>
-                  {/* <View style={{ }}> 
-                      <Image source={{uri: post.avatarFullUrl}} style={styles.avatar} resizeMode="cover"/>
-                  </View>  */}
+        if (num_post % 3 == 0 ) { // if num_post can be divided to zero by X. this is frequency of showing ads. 20200619 
 
-                  <View style={{flexDirection: "column"}}>
-                      <Text style={styles.name}>{post.NNAME}</Text>
-                      <Text style={styles.timestamp}>{moment.unix(post.TS).fromNow()}</Text> 
-                  </View>
-              </View>
+          return (
+            <View>
+          
+              <View style={styles.feedItem}>
+                      
+                {/* upper row */}
+                <View style={{ flex: 2, flexDirection: "row", left: 10}}>
+                    {/* <View style={{ }}> 
+                        <Image source={{uri: post.avatarFullUrl}} style={styles.avatar} resizeMode="cover"/>
+                    </View>  */}
 
-              {/* bottom row */}    
-              <View style={{ flex: 2, flexDirection: "row" }}> 
+                    <View style={{flexDirection: "column"}}>
+                        <Text style={styles.name}>{post.NNAME}</Text>
+                        <Text style={styles.timestamp}>{moment.unix(post.TS).fromNow()}</Text> 
+                    </View>
+                </View>
+
+                {/* bottom row */}    
+                <View style={{ flex: 2, flexDirection: "row" }}> 
 
                   {/* bottom left pane */}
                   <View style={styles.textContents}>
@@ -522,7 +549,7 @@ export default class DashboardScreen extends Component {
 
                         <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
                             <Ionicons name='ios-body' size={20} color="#73788B"/>
-                            <Text style={styles.points}> {this.TTLPT} movages</Text>
+                            <Text style={styles.points}> {this.TTLPT} movage</Text>
                         </View>
 
                         <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
@@ -555,7 +582,6 @@ export default class DashboardScreen extends Component {
 
                   </View>
                   
-
                   {/* bottom right pane */}
                   <View style={{ }}>
                       <TouchableOpacity onPress={ () => this.props.navigation.push('Exercise', {post, wpart, const_exer} ) } >
@@ -563,15 +589,110 @@ export default class DashboardScreen extends Component {
                       </TouchableOpacity>
                   </View>
 
+                </View>
+                    
+              </View>  
 
-              </View>
-            
-          </View>
-      );
+              <View style={styles.ads}>
+                <AdMobBanner
+                  bannerSize="mediumRectangle"
+                  adUnitID="ca-app-pub-3940256099942544/6300978111" // Banner ID ca-app-pub-9079750066587969/4230406044 // Test ID ca-app-pub-3940256099942544/6300978111
+                  servePersonalizedAds // true or false
+                  onDidFailToReceiveAdWithError={this.bannerError} />
+              </View>  
+
+            </View>          
+
+          );
+          // break;
+
+        } else {
+
+          return (
+            <View style={styles.feedItem}>
+                
+                {/* upper row */}
+                <View style={{ flex: 2, flexDirection: "row", left: 10}}>
+                    {/* <View style={{ }}> 
+                        <Image source={{uri: post.avatarFullUrl}} style={styles.avatar} resizeMode="cover"/>
+                    </View>  */}
+  
+                    <View style={{flexDirection: "column"}}>
+                        <Text style={styles.name}>{post.NNAME}</Text>
+                        <Text style={styles.timestamp}>{moment.unix(post.TS).fromNow()}</Text> 
+                    </View>
+                </View>
+  
+                {/* bottom row */}    
+                <View style={{ flex: 2, flexDirection: "row" }}> 
+  
+                    {/* bottom left pane */}
+                    <View style={styles.textContents}>
+                        <Text style={styles.title}> '{post.TITLE}' </Text>
+  
+                        <View style={styles.textMetadata}>
+  
+                          <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
+                              <Ionicons name='ios-body' size={20} color="#73788B"/>
+                              <Text style={styles.points}> {this.TTLPT} movage</Text>
+                          </View>
+  
+                          <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
+                              <Ionicons name='ios-time' size={20} color="#73788B"/>
+                              <Text style={styles.length}> {this.LEN} </Text>
+                          </View>
+  
+                          <View style={{flexDirection: "row", marginVertical: 3}}>
+                              <MaterialIcons name='center-focus-strong' size={20} color="#73788B"/> 
+                              <Text style={styles.tags}> 
+                                  {String(post.TAG).replace(',', ', ')}
+                              </Text>
+                          </View>
+  
+                          <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
+                              <Ionicons name='ios-eye' size={20} color="#73788B"/>
+                              <Text style={styles.views}> {this.VIEW} views</Text>
+                          </View>
+  
+                          {/* <View style={{flexDirection: "row", marginVertical: 2, marginLeft: 2,}}>
+                              <Ionicons name='ios-heart' size={20}/> 
+                              <Text style={styles.likes}>  {post.likes} </Text>
+                          </View> */}
+  
+                          {/* <View style={{ flexDirection: "row", position:'absolute', bottom: 5 }}>
+                              <Ionicons name="ios-heart-empty" size={28} color="#73788B" style={{ marginRight: 16 }} />
+                              <Ionicons name="ios-chatboxes" size={28} color="#73788B" />
+                          </View> */}
+                        </View>  
+  
+                    </View>
+                    
+  
+                    {/* bottom right pane */}
+                    <View style={{ }}>
+                        <TouchableOpacity onPress={ () => this.props.navigation.push('Exercise', {post, wpart, const_exer} ) } >
+                            <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
+                        </TouchableOpacity>
+                    </View>
+  
+                </View>
+                  
+            </View>
+          );
+          // break;
+
+        // default:
+        //     return null;  
+        
+        }; // closing if
+
+
   }; // closing renderpost
 
 
-
+  bannerError() {
+    console.log("Error AdMob banner");
+  }
 
 
 
@@ -589,6 +710,15 @@ export default class DashboardScreen extends Component {
           </View>
         :
           <View> 
+
+            {/* <View style={styles.ads}>
+              <AdMobBanner
+                bannerSize="mediumRectangle"
+                adUnitID="ca-app-pub-3940256099942544/6300978111" // Banner ID ca-app-pub-9079750066587969/4230406044 // Test ID ca-app-pub-3940256099942544/6300978111
+                servePersonalizedAds // true or false
+                onDidFailToReceiveAdWithError={this.bannerError} />
+            </View> */}
+
 
             <FlatList
               style={styles.feed}
@@ -647,7 +777,7 @@ const styles = StyleSheet.create({
     height: 50,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    // justifyContent: 'center',
     backgroundColor: '#ffa500',
     position: 'absolute',
     bottom: 0,
@@ -722,12 +852,26 @@ const styles = StyleSheet.create({
 
   },
   postImage: {
-      width: Dimensions.get('window').width * 0.43 * 0.9, //150,
-      height: Dimensions.get('window').width * 0.43 * (225/150) * 0.9, //225,
-      // width: 200,
-      borderRadius: 5,
-      marginVertical: 5,
-      right: 0,
+    width: Dimensions.get('window').width * 0.43 * 0.9, //150,
+    height: Dimensions.get('window').width * 0.43 * (225/150) * 0.9, //225,
+    // width: 200,
+    borderRadius: 5,
+    marginVertical: 5,
+    right: 0,
+  },
+  ads:{
+    width: Dimensions.get('window').width * 0.95,
+    backgroundColor: "#FFF",
+    borderRadius: 5, // 10
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 5,
+    shadowColor: 'black', // iOS
+    shadowOffset: { width: 5, height: 5 }, // iOS
+    shadowOpacity: 0.3, // iOS
+    shadowRadius: 2, // iOS   
+    elevation: 2, // Android
   }
 
 

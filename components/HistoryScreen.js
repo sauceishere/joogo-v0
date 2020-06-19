@@ -40,7 +40,7 @@ class ExerciseHistory extends Component {
             playSum: null,
             viewTimes: null,
             postsExer: [], // assign response from loadExerHist-py
-            oldestLogTs: Date.now() / 1000,
+            // oldestLogTs: Date.now() / 1000,
             page: 1,
             // seed: 1,
             error: null,
@@ -53,6 +53,7 @@ class ExerciseHistory extends Component {
         this._handleRefresh = this._handleRefresh.bind(this);
     }
 
+    oldestLogTs =  Date.now() / 1000;
 
     async componentDidMount() {
         console.log('------------- componentDidMount ExerciseHistory started');
@@ -128,11 +129,11 @@ class ExerciseHistory extends Component {
 
     _requestLoadExerHist = async () => {
         console.log('------------- _requestLoadExerHist');
-        const { page, oldestLogTs } = this.state;
+        const { page } = this.state;
     
         const _loadExerHist = (idTokenCopied) => {
           console.log('----- History _loadExerHist.');
-          console.log('oldestLogTs: ', oldestLogTs);
+          console.log('this.oldestLogTs: ', this.oldestLogTs);
           
           fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/loadExerHist-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
             method: 'POST',
@@ -143,7 +144,7 @@ class ExerciseHistory extends Component {
             // mode: "no-cors", // no-cors, cors, *same-origin
             body: JSON.stringify({
               id_token: idTokenCopied,
-              oldestLogTs: oldestLogTs,    
+              oldestLogTs: this.oldestLogTs,    
             })
           }).then( result => result.json() )
             .then( response => { 
@@ -159,12 +160,12 @@ class ExerciseHistory extends Component {
                 //   flagMastersLoaded: true, // this to identify its downloaded
                 //   isFlatlistLoaded: true,
                 }); 
-                console.log('this.state.postsExer: ', this.state.postsExer);
+                // console.log('this.state.postsExer: ', this.state.postsExer);
     
               } else if (response["code"] == 'no_more_data') {
                 // this.setState({ loading: false , isLoading: false,});
                 console.log('No more history by _loadExerHist.');
-                alert('No more history.'); 
+                // alert('No more history.'); 
                
               }
     
@@ -190,22 +191,22 @@ class ExerciseHistory extends Component {
     
     _handleRefresh = async () => {
         console.log('------------- _handleRefresh');
-        // this.oldestLogTs = Date.now() / 1000; // reset timestamp to current time
+        this.oldestLogTs = Date.now() / 1000; // reset timestamp to current time
         this.setState({
-            page: 1,
-            refreshing: true,
-            oldestLogTs: Date.now() / 1000, // reset before fetch data
-            isLoading: true,
+                page: 1,
+                refreshing: true,
+                // oldestLogTs: Date.now() / 1000, // reset before fetch data
+                isLoading: true,
             },
             () => {
-            this._requestLoadExerHist();
+                this._requestLoadExerHist();
             }
         );  
     };
     
     
     _handleLoadMore = async () => {
-        console.log('------------- _handleLoadMore: ', this.state.oldestLogTs);
+        console.log('------------- _handleLoadMore: ', this.oldestLogTs);
         this.setState({ page: this.state.page + 1 }, () => {
             this._requestLoadExerHist();
         });
@@ -213,7 +214,7 @@ class ExerciseHistory extends Component {
 
 
     renderPost = post => {
-        const { oldestLogTs } = this.state;
+        // const { oldestLogTs } = this.state;
         console.log('------ renderpost: ');
       
         // (() => {
@@ -246,13 +247,14 @@ class ExerciseHistory extends Component {
             }
             // post.PLAYPCT_PCT = post.PLAYPCT + '%'; // Add % for percentageBar 20200613
 
-            if ( oldestLogTs > post.TS) { // Assign timestamp of the oldest video fetched by _loadDashboardFlatlist to control next video to be fetched by _loadDashboardFlatlist 20200528
-                this.setState({oldestLogTs : post.TS});
+            if ( this.oldestLogTs > post.TS) { // Assign timestamp of the oldest video fetched by _loadDashboardFlatlist to control next video to be fetched by _loadDashboardFlatlist 20200528
+                // this.setState({oldestLogTs : post.TS});
+                this.oldestLogTs = post.TS;
             } 
     
             post.TNURL = 'https://firebasestorage.googleapis.com/v0/b/joogo-v0.appspot.com/o/tn%2F' + post.VIDID + '?alt=media' // URL for Thumbsnail photo 20200528         
     
-            console.log('-- post: ' , post );
+            console.log('-- post: ' , post.VIDNAME, post.TS );
     
         // } )(); 
     
@@ -279,7 +281,7 @@ class ExerciseHistory extends Component {
                     <View style={styles.textMetadata}>
                         <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
                             <Ionicons name='ios-body' size={20} color="#73788B"/>
-                            <Text style={styles.points}>  {post.PT} / {post.TTLPT} movages</Text>
+                            <Text style={styles.points}>  {post.PT} / {post.TTLPT} movage</Text>
                         </View>
                         <View style={{flexDirection: "column",}}>
                             <View style={[styles.percentageBar, {width: post.SC_PCT} ]}></View>
@@ -331,7 +333,7 @@ class ExerciseHistory extends Component {
                     
                         <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', marginTop: Dimensions.get('window').height * 0.05,}} >
                             <View style={styles.tileItem}>
-                                <Text style={styles.tileItemTitle}> <Ionicons name='ios-body' size={18} style={styles.tileItemIcon}/> {' '} Movages Earned</Text>
+                                <Text style={styles.tileItemTitle}> <Ionicons name='ios-body' size={18} style={styles.tileItemIcon}/> {' '} Movage Earned</Text>
                                 <Text style={styles.tileItemField}>{viewPtSum}</Text>    
                             </View>          
 
@@ -357,7 +359,7 @@ class ExerciseHistory extends Component {
                                 onRefresh={this._handleRefresh}
                                 refreshing={this.state.refreshing}
                                 onEndReached={this._handleLoadMore}
-                                onEndReachedThreshold={1}
+                                onEndReachedThreshold={0}
                             >
                             </FlatList>
                         </View>
@@ -394,8 +396,8 @@ class PostHistory extends Component {
             TTLTIMEPLAYED: null,
             TTLPLAYTIMES: null,
             TTLVIEWTIMES: null,
-            postPostVid: [], // assign response from loadExerHist-py
-            oldestLogTs: Date.now() / 1000,
+            postPostedVid: [], // assign response from loadExerHist-py
+            // oldestLogTs: Date.now() / 1000,
             page: 1,
             // seed: 1,
             error: null,
@@ -408,6 +410,8 @@ class PostHistory extends Component {
         this._handleRefresh = this._handleRefresh.bind(this);
     }
 
+
+    oldestLogTs =  Date.now() / 1000;
 
     async componentDidMount() {
         console.log('------------- componentDidMount PostHistory started');
@@ -487,13 +491,13 @@ class PostHistory extends Component {
 
     _requestLoadPostHist = async () => {
         console.log('------------- _requestLoadPostHist');
-        const { page, oldestLogTs } = this.state;
+        const { page } = this.state;
     
-        const _loadExerHist = (idTokenCopied) => {
-          console.log('----- History _loadExerHist.');
-          console.log('oldestLogTs: ', oldestLogTs);
+        const _loadPostHist = (idTokenCopied) => {
+          console.log('----- History _loadPostHist.');
+          console.log('this.oldestLogTs: ', this.oldestLogTs);
           
-          fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/loadExerHist-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+          fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/loadPostHist-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
             method: 'POST',
             headers: {
               // 'Accept': 'application/json', 
@@ -502,7 +506,7 @@ class PostHistory extends Component {
             // mode: "no-cors", // no-cors, cors, *same-origin
             body: JSON.stringify({
               id_token: idTokenCopied,
-              oldestLogTs: oldestLogTs,    
+              oldestLogTs: this.oldestLogTs,    
             })
           }).then( result => result.json() )
             .then( response => { 
@@ -512,25 +516,25 @@ class PostHistory extends Component {
                 console.log('---------------- ok');
                 // console.log('_requestLoadPostHist response.detail: ', response.detail.vidViewedLogs);
                 this.setState({
-                  postPostVid: page === 1 ? response.detail.vidViewedLogs  : [ ...this.state.postPostVid, ...response.detail.vidViewedLogs ],
+                  postPostedVid: page === 1 ? response.detail.vidPostedLogs  : [ ...this.state.postPostedVid, ...response.detail.vidPostedLogs ],
                   refreshing: false,
                   isLoading: false,
                 //   flagMastersLoaded: true, // this to identify its downloaded
                 //   isFlatlistLoaded: true,
                 }); 
-                console.log('this.state.postPostVid: ', this.state.postPostVid);
+                // console.log('this.state.postPostedVid: ', this.state.postPostedVid);
     
               } else if (response["code"] == 'no_more_data') {
                 // this.setState({ loading: false , isLoading: false,});
-                console.log('No more history by _loadExerHist.');
-                alert('No more history.'); 
+                console.log('No more history by _loadPostHist.');
+                // alert('No more history.'); 
                
               }
     
             }).catch((error) => {
               // this.setState({ loading: false, isLoading: false, });
-              console.log('Error _loadExerHist: ', error);
-              alert('Error _loadExerHist. Please try again later.');
+              console.log('Error _loadPostHist: ', error);
+              alert('Error _loadPostHist. Please try again later.');
             });
     
         }
@@ -538,10 +542,10 @@ class PostHistory extends Component {
         await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then( function(idToken) {
           const idTokenCopied = idToken;
     
-          _loadExerHist(idTokenCopied);
+          _loadPostHist(idTokenCopied);
     
         }).catch(function(error) {
-          console.log('Error xxxxxxxxxxxxxxxx Could not get idToken _loadExerHist: ', error);
+          console.log('Error xxxxxxxxxxxxxxxx Could not get idToken _loadPostHist: ', error);
         });  
     
     }; // closing _requestLoadPostHist
@@ -549,22 +553,22 @@ class PostHistory extends Component {
     
     _handleRefresh = async () => {
         console.log('------------- _handleRefresh');
-        // this.oldestLogTs = Date.now() / 1000; // reset timestamp to current time
+        this.oldestLogTs = Date.now() / 1000; // reset timestamp to current time
         this.setState({
-            page: 1,
-            refreshing: true,
-            oldestLogTs: Date.now() / 1000, // reset before fetch data
-            isLoading: true,
+                page: 1,
+                refreshing: true,
+                // oldestLogTs: Date.now() / 1000, // reset before fetch data
+                isLoading: true,
             },
             () => {
-            this._requestLoadPostHist();
+                this._requestLoadPostHist();
             }
         );  
     };
     
     
     _handleLoadMore = async () => {
-        console.log('------------- _handleLoadMore: ', this.state.oldestLogTs);
+        console.log('------------- _handleLoadMore: ', this.oldestLogTs);
         this.setState({ page: this.state.page + 1 }, () => {
             this._requestLoadPostHist();
         });
@@ -572,19 +576,29 @@ class PostHistory extends Component {
 
 
     renderPost = post => {
-        const { oldestLogTs } = this.state;
+        // const { oldestLogTs } = this.state;
         console.log('------ renderpost: ');
       
         // (() => {
-            post.TTLPT = parseFloat(post.TTLPT).toFixed(2); // point for this video that can be earned. Fix decimal place
-            post.SC_PCT = post.SC + '%'; // Add % for percentageBar 20200613
 
-            post.PLAYSUM = parseInt(post.PLAYSUM); // video length in XXmXXs
-            if (post.PLAYSUM >= 60) {
-                post.PLAYSUM_ = str_pad_left( post.PLAYSUM / 60,'0',2) + 'm' + str_pad_left( post.PLAYSUM - post.PLAYSUM / 60 * 60,'0',2) + 's'
-            } else { 
-                post.PLAYSUM_ = '00m' + str_pad_left( post.PLAYSUM, '0', 2) + 's' 
-            }; // convert sec to min:sec
+            if (post.VIEW == 0) {
+                post.AVEPT = 0;
+                if (post.VIDPT == 0) {
+                    post.VIDPT = 0;
+                } else {
+                    post.VIDPT = parseFloat(post.VIDPT).toFixed(2); // movage point per video
+                }
+                post.PT_PCT = '0%';
+            } else {
+                post.AVEPT = (post.PTSUM / post.VIEW).toFixed(2); // Average movage point per video
+                post.VIDPT = parseFloat(post.VIDPT).toFixed(2); // movage point per video
+                if ( post.AVEPT / post.VIDPT > 1) {
+                    post.PT_PCT = '100%'; // force to 100% if over 100%. 
+                } else{
+                    post.PT_PCT = ( (post.AVEPT / post.VIDPT) * 100)  + '%'; // for percentageBar
+                }
+            }
+
 
             post.VIDLEN = parseInt(post.VIDLEN); // video length in XXmXXs
             if (post.VIDLEN >= 60) {
@@ -592,20 +606,40 @@ class PostHistory extends Component {
             } else { 
                 post.VIDLEN_ = '00m' + str_pad_left( post.VIDLEN, '0', 2) + 's' 
             }; // convert sec to min:sec
-            
-            post.PLAYPCT = parseInt(post.PLAYPCT); // remove decimal place
-            if (post.PLAYPCT > 100) {
-                post.PLAYPCT = 100; // force to 100 if over 100%. 20200614
-            }
-            post.PLAYPCT_PCT = post.PLAYPCT + '%'; // Add % for percentageBar 20200613
 
-            if ( oldestLogTs > post.TS) { // Assign timestamp of the oldest video fetched by _loadDashboardFlatlist to control next video to be fetched by _loadDashboardFlatlist 20200528
-                this.setState({oldestLogTs : post.TS});
+            if (post.VIEW == 0 || post.PLAYSUM == 0 ) {
+                post.AVEPLAYTIME = 0;
+                post.AVEPLAYTIME_ = '00m00s';
+                post.PLAYTIME_PCT = '0%'; 
+            } else {   
+                post.AVEPLAYTIME = (post.PLAYSUM / post.VIEW).toFixed(2); // Average play time per video
+                post.AVEPLAYTIME = parseInt(post.AVEPLAYTIME); // video length in XXmXXs
+                if ( post.AVEPLAYTIME >= post.VIDLEN ) { // if average played time is longer than video length 20200615
+                    post.AVEPLAYTIME_ = post.VIDLEN_; // force to change
+                } else {
+                    if (post.AVEPLAYTIME >= 60) {
+                        post.AVEPLAYTIME_ = str_pad_left( post.AVEPLAYTIME / 60,'0',2) + 'm' + str_pad_left( post.AVEPLAYTIME - post.AVEPLAYTIME / 60 * 60,'0',2) + 's'
+                    } else { 
+                        post.AVEPLAYTIME_ = '00m' + str_pad_left( post.AVEPLAYTIME, '0', 2) + 's' 
+                    }; // convert sec to min:sec
+                }
+
+                if ( post.AVEPLAYTIME / post.VIDLEN > 1) {
+                    post.PLAYTIME_PCT = '100%'; // force to 100% if over 100%. 
+                } else{
+                    post.PLAYTIME_PCT = ( (post.AVEPLAYTIME / post.VIDLEN) * 100 ) + '%'; // for percentageBar
+                };
+            }
+
+
+            if ( this.oldestLogTs > post.TS) { // Assign timestamp of the oldest video fetched by _loadDashboardFlatlist to control next video to be fetched by _loadDashboardFlatlist 20200528
+                // this.setState({oldestLogTs : post.TS});
+                this.oldestLogTs =  post.TS;
             } 
     
             post.TNURL = 'https://firebasestorage.googleapis.com/v0/b/joogo-v0.appspot.com/o/tn%2F' + post.VIDID + '?alt=media' // URL for Thumbsnail photo 20200528         
     
-            console.log('-- post: ' , post );
+            console.log('-- post: ' , post.VIDNAME, post.TS );
     
         // } )(); 
     
@@ -624,30 +658,36 @@ class PostHistory extends Component {
                 <View style={{ flex: 1, flexDirection: "column", marginRight: Dimensions.get('window').width * 0.08, }}> 
     
                     <View style={styles.textContents}>
-                        <Text style={styles.timestamp}>{moment.unix(post.TS).fromNow()}</Text> 
+                        <Text style={styles.timestamp}>{moment.unix(post.ANLAT).fromNow()}</Text> 
                         <Text style={styles.title}> {post.VIDNAME} </Text>
-                        <Text style={styles.name}>{post.NNAME}</Text>
+                        {/* <Text style={styles.name}>{post.NNAME}</Text> */}
                     </View>    
     
                     <View style={styles.textMetadata}>
                         <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
                             <Ionicons name='ios-body' size={20} color="#73788B"/>
-                            <Text style={styles.points}>  {post.PT} / {post.TTLPT} movages</Text>
+                            <Text style={styles.points}>  AVE {post.AVEPT} / {post.VIDPT} movage</Text>
                         </View>
                         <View style={{flexDirection: "column",}}>
-                            <View style={[styles.percentageBar, {width: post.SC_PCT} ]}></View>
+                            <View style={[styles.percentageBar, {width: post.PT_PCT} ]}></View>
                             <View style={[styles.percentageBarBase, {width: Dimensions.get('window').width * 0.48} ]}></View>  
                         </View>
 
                         <View style={{flexDirection: "row", marginTop: 3, marginLeft: 2,}}>
                             <Ionicons name='ios-time' size={20} color="#73788B"/>
                             {/* <Ionicons name='logo-youtube' size={17} color="#73788B"/> */}
-                            <Text style={styles.views}> {post.PLAYSUM_} / {post.VIDLEN_}</Text>
+                            <Text style={styles.views}> AVE {post.AVEPLAYTIME_} / {post.VIDLEN_}</Text>
                         </View>
                         <View style={{flexDirection: "column",}}>
-                            <View style={[styles.percentageBar, {width: post.PLAYPCT_PCT} ]}></View>
+                            <View style={[styles.percentageBar, {width: post.PLAYTIME_PCT} ]}></View>
                             <View style={[styles.percentageBarBase, {width: Dimensions.get('window').width * 0.48} ]}></View>
                         </View>
+
+                        <View style={{flexDirection: "row", marginTop: 3, marginLeft: 2,}}>
+                            <Ionicons name='ios-eye' size={20} color="#73788B"/>
+                            <Text style={styles.views}> {post.VIEW}</Text>
+                        </View>
+                        
                     </View>  
                     
                 </View>
@@ -684,7 +724,7 @@ class PostHistory extends Component {
                     
                         <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', marginTop: Dimensions.get('window').height * 0.05,}} >
                             <View style={styles.tileItem}>
-                                <Text style={styles.tileItemTitle}> <Ionicons name='ios-body' size={18} style={styles.tileItemIcon}/> {' '} Movages Earned</Text>
+                                <Text style={styles.tileItemTitle}> <Ionicons name='ios-body' size={18} style={styles.tileItemIcon}/> {' '} Movage Earned</Text>
                                 <Text style={styles.tileItemField}>{TTLPT}</Text>    
                             </View>          
 
@@ -702,15 +742,15 @@ class PostHistory extends Component {
                         <View style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.03,}}> 
                             <FlatList
                                 style={styles.feed}
-                                data={this.state.postPostVid}
+                                data={this.state.postPostedVid}
                                 renderItem={({ item }) => this.renderPost(item)}
-                                keyExtractor={item => item.SENDID}
+                                keyExtractor={item => item.VIDID}
                                 showsVerticalScrollIndicator={false}
-                                key={item => item.SENDID} // https://stackoverflow.com/questions/45947921/react-native-cant-fix-flatlist-keys-warning
+                                key={item => item.VIDID} // https://stackoverflow.com/questions/45947921/react-native-cant-fix-flatlist-keys-warning
                                 onRefresh={this._handleRefresh}
                                 refreshing={this.state.refreshing}
                                 onEndReached={this._handleLoadMore}
-                                onEndReachedThreshold={1}
+                                onEndReachedThreshold={0}
                             >
                             </FlatList>
                         </View>

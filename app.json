@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "joogo-v0",
-    "slug": "joogo-v0",
+    "name": "JooGO Fit",
+    "slug": "joogo-fit",
     "platforms": [
       "ios",
       "android",
@@ -25,8 +25,11 @@
       "supportsTablet": true
     },
     "android": {
-      "versionCode": 2,
-      "package": "io.joogo.fit",
+      "versionCode": 3,
+      "package": "io.joogofit",
+      "config": {
+        "googleMobileAdsAppId":"ca-app-pub-9079750066587969~3344414378"
+      },
       "permissions": [
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
