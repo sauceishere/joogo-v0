@@ -206,7 +206,7 @@ export default class ProfileScreen extends Component {
       alert('Please fill out Nickname.');
     } else {
 
-      this.setState({ isEditing: false, isSigningOut : true,  });
+      this.setState({ isEditing: false, isSigningOut : true, DidGetProfileData: false });
 
       // whenLogOut-py
       const _whenLogOut = (idTokenCopied) => {

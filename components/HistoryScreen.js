@@ -69,12 +69,12 @@ class ExerciseHistory extends Component {
                 fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/getExerHistSummary-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
                     method: 'POST',
                     headers: {
-                    // 'Accept': 'application/json', 
-                    'Content-Type' : 'application/json' // text/html text/plain application/json
+                        // 'Accept': 'application/json', 
+                        'Content-Type' : 'application/json' // text/html text/plain application/json
                     },
-                    // mode: "no-cors", // no-cors, cors, *same-origin
-                    body: JSON.stringify({
-                    id_token: idTokenCopied,
+                        // mode: "no-cors", // no-cors, cors, *same-origin
+                        body: JSON.stringify({
+                        id_token: idTokenCopied,
                     })
                 }).then( result => result.json() )
                     .then( response => { 
@@ -87,7 +87,11 @@ class ExerciseHistory extends Component {
                             var viewPtSum = response.detail.VIEW_PTSUM;
                             viewPtSum = parseInt(viewPtSum); // convert to int
                             var playSum = response.detail.PLAYSUM;
-                            playSum = parseInt(playSum / 60 / 60); // convert from second to hour
+                            if ( playSum < 60 * 60 ) { // less than 1 hour
+                                playSum = parseFloat(playSum / 60 / 60 / 10).toFixed(2); // show like 0.1
+                            } else { // over 1 hour
+                                playSum = parseInt(playSum / 60 / 60); // convert from second to hour
+                            }
                             var viewTimes = response.detail.VIEW_TIMES;
 
                             this.setState({
@@ -163,14 +167,14 @@ class ExerciseHistory extends Component {
                 // console.log('this.state.postsExer: ', this.state.postsExer);
     
               } else if (response["code"] == 'no_more_data') {
-                // this.setState({ loading: false , isLoading: false,});
+                this.setState({ isLoading: false,});
                 console.log('No more history by _loadExerHist.');
                 // alert('No more history.'); 
                
               }
     
             }).catch((error) => {
-              // this.setState({ loading: false, isLoading: false, });
+              this.setState({ isLoading: false, });
               console.log('Error _loadExerHist: ', error);
               alert('Error _loadExerHist. Please try again later.');
             });
@@ -254,7 +258,7 @@ class ExerciseHistory extends Component {
     
             post.TNURL = 'https://firebasestorage.googleapis.com/v0/b/joogo-v0.appspot.com/o/tn%2F' + post.VIDID + '?alt=media' // URL for Thumbsnail photo 20200528         
     
-            console.log('-- post: ' , post.VIDNAME, post.TS );
+            console.log('-- post: ' , post.VIDNAME, post.TS, post.VIDID );
     
         // } )(); 
     
@@ -359,7 +363,7 @@ class ExerciseHistory extends Component {
                                 onRefresh={this._handleRefresh}
                                 refreshing={this.state.refreshing}
                                 onEndReached={this._handleLoadMore}
-                                onEndReachedThreshold={0}
+                                onEndReachedThreshold={1}
                             >
                             </FlatList>
                         </View>
@@ -482,7 +486,7 @@ class PostHistory extends Component {
             
         }; // closing if 
 
-        this.setState({doneComponentDidMount: true, isLoading: false});
+        this.setState({doneComponentDidMount: true});
 
         console.log('------------- componentDidMount PostHistory done');
     } // closing componentDidMount
@@ -510,7 +514,7 @@ class PostHistory extends Component {
             })
           }).then( result => result.json() )
             .then( response => { 
-              // console.log('------------------ _requestLoadPostHist response: ', response);
+              console.log('------------------ _requestLoadPostHist response: ', response);
     
               if( response["code"] == 'ok'){
                 console.log('---------------- ok');
@@ -525,14 +529,17 @@ class PostHistory extends Component {
                 // console.log('this.state.postPostedVid: ', this.state.postPostedVid);
     
               } else if (response["code"] == 'no_more_data') {
-                // this.setState({ loading: false , isLoading: false,});
+                this.setState({ isLoading: false,});
                 console.log('No more history by _loadPostHist.');
                 // alert('No more history.'); 
                
+              } else {
+                this.setState({ isLoading: false,});
+                console.log('else by _loadPostHist.');  
               }
     
             }).catch((error) => {
-              // this.setState({ loading: false, isLoading: false, });
+              this.setState({ isLoading: false, });
               console.log('Error _loadPostHist: ', error);
               alert('Error _loadPostHist. Please try again later.');
             });
@@ -632,18 +639,18 @@ class PostHistory extends Component {
             }
 
 
-            if ( this.oldestLogTs > post.TS) { // Assign timestamp of the oldest video fetched by _loadDashboardFlatlist to control next video to be fetched by _loadDashboardFlatlist 20200528
+            if ( this.oldestLogTs > post.POST_AT) { // Assign timestamp of the oldest video fetched by _loadDashboardFlatlist to control next video to be fetched by _loadDashboardFlatlist 20200528
                 // this.setState({oldestLogTs : post.TS});
-                this.oldestLogTs =  post.TS;
+                this.oldestLogTs = post.POST_AT;
             } 
     
             post.TNURL = 'https://firebasestorage.googleapis.com/v0/b/joogo-v0.appspot.com/o/tn%2F' + post.VIDID + '?alt=media' // URL for Thumbsnail photo 20200528         
     
-            console.log('-- post: ' , post.VIDNAME, post.TS );
+            console.log('-- post: ' , post.VIDNAME, post.POST_AT, post.VIDID );
     
         // } )(); 
     
-    
+
         return (
             <View style={styles.feedItem}>
                 
@@ -750,7 +757,7 @@ class PostHistory extends Component {
                                 onRefresh={this._handleRefresh}
                                 refreshing={this.state.refreshing}
                                 onEndReached={this._handleLoadMore}
-                                onEndReachedThreshold={0}
+                                onEndReachedThreshold={1}
                             >
                             </FlatList>
                         </View>

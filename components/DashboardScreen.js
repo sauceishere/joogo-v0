@@ -18,7 +18,8 @@ const str_pad_left = function (string,pad,length) { // convert from sec to min:s
     return (new Array(length+1).join(pad)+string).slice(-length);
 };
 
-var num_post = 0; // / to control when to shoe Adds in FlatList 20200618
+// var num_post = 0; // to control when to shoe Adds in FlatList 20200618
+var post_num = 0; // to control when to shoe Adds in FlatList 20200623
 
 export default class DashboardScreen extends Component {
 
@@ -43,6 +44,7 @@ export default class DashboardScreen extends Component {
         flagMastersLoaded: false, // becomes true when wpart & const_exer downloaded from firebase 20200606.
         wpart: null, // will be assigned after downloaded from Firebase. 20200606
         const_exer: null, // will be assigned after downloaded from Firebase. 20200606
+        adUnitID: null, // get adUnitID form Firebase 20200625
     }
     // this.allSnapShot = this.allSnapShot.bind(this);
     this._sendVidViewLog = this._sendVidViewLog.bind(this);
@@ -54,9 +56,6 @@ export default class DashboardScreen extends Component {
 
 
   oldestVidTs = Date.now() / 1000; // Assign timestamp of the oldest video fetched by _loadDashboardFlatlist to control next video to be fetched by _loadDashboardFlatlist 20200528
-
-  // num_post = 1; // to control when to shoe Adds in FlatList 20200618
-
 
   
   async _checkVidViewLogDirectory(){ 
@@ -333,6 +332,18 @@ export default class DashboardScreen extends Component {
   }
  
    
+  // shouldComponentUpdate(nextProps, nextState){ // https://github.com/facebook/react-native/issues/18396 20200621
+  //   console.log('------ shouldComponentUpdate this.state.posts.length: ', this.state.posts.length);
+  //   console.log('------ shouldComponentUpdate nextState.posts.length: ', nextState.posts.length);
+
+  //   if(this.state.posts.length === nextState.posts.length){
+  //     return false;
+  //   } else {
+  //     return true;
+  //   }
+  // }
+
+
   _makeRemoteRequest = async () => {
     console.log('------------- _makeRemoteRequest');
     const { page, flagMastersLoaded } = this.state;
@@ -358,15 +369,23 @@ export default class DashboardScreen extends Component {
           // console.log('------------------ _makeRemoteRequest response: ', response);
 
           if( response["code"] == 'okFirst'){
-            console.log('---------------- okFirst');
-            console.log('_makeRemoteRequest response.detail.vidMetas.VIDNAME: ', response.detail.vidMetas.VIDNAME );
-            // if (this.num_post % 3 == 0) {
-            //   response.detail.vidMetas.push({type: 'ads'}); 
-            //   console.log('------- ads, nnum_post: ', this.num_post);
-            // } else {
-            //   response.detail.vidMetas.push({type: 'vids'}); 
-            // }
-            // this.num_post++; // increment
+            console.log('---------------- okFirst, length: ', response.detail.vidMetas.length );
+            // console.log('_makeRemoteRequest response.detail.vidMetas: ', response.detail.vidMetas );
+
+            // to control when to display 'ad'. 20200623
+            var i;
+            for (i = 0; i < response.detail.vidMetas.length; i++) {
+              console.log('post_num: ', post_num);
+              if ( post_num % 3 == 0){
+                response.detail.vidMetas[i]['ad'] = 'yes';
+                // console.log('i: ', response.detail.vidMetas[i]);
+              } else {
+                response.detail.vidMetas[i]['ad'] = 'no';
+                // console.log('i ad: ', response.detail.vidMetas[i]); 
+              }
+              post_num++; // increment
+            }
+            
             this.setState({
               posts: page === 1 ? response.detail.vidMetas  : [ ...this.state.posts, ...response.detail.vidMetas ],
               refreshing: false,
@@ -374,25 +393,30 @@ export default class DashboardScreen extends Component {
               flagMastersLoaded: true, // this to identify its downloaded
               wpart: response.wpart,
               const_exer: response.const_exer,
+              adUnitID: response.const_exer.adUnitID,
             }); 
+            console.log('this.state.const_exer: ', this.state.const_exer );
 
           } else if (response["code"] == 'ok') {
-            console.log('_makeRemoteRequest response.detail.vidMetas.VIDNAME: ', response.detail.vidMetas.VIDNAME );
-            // console.log('_makeRemoteRequest response.detail.vidMetas JSON.parse: ', JSON.parse(response.detail.vidMetas) ); // Error [SyntaxError: JSON Parse error: Unexpected identifier "object"]
-            // console.log('_makeRemoteRequest response.detail.vidMetas JSON.stringify: ', JSON.stringify(response.detail.vidMetas));
-            // console.log('_makeRemoteRequest response.detail.vidMetas JSON.parse JSON.stringify: ', JSON.parse( JSON.stringify(respsonse.detail.vidMetas) ) );
+            console.log('---------------- ok, length: ', response.detail.vidMetas.length );
+            // console.log('_makeRemoteRequest response.detail.vidMetas: ', response.detail.vidMetas );
 
-            // if (this.num_post % 3 == 0) {
-            //   response.detail.vidMetas.push({type: 'ads'}); 
-            //   console.log('------- ads, num_post: ', this.num_post);
-            // } else {
-            //   response.detail.vidMetas.push({type: 'vids'}); 
-            // }
-            // this.num_post++; // increment
+            // to control when to display 'ad'. 20200623
+            var i;
+            for (i = 0; i < response.detail.vidMetas.length; i++) {
+              console.log('post_num: ', post_num);
+              if ( post_num % 3 == 0){
+                response.detail.vidMetas[i]['ad'] = 'yes';
+                // console.log('i: ', response.detail.vidMetas[i]);
+              } else {
+                response.detail.vidMetas[i]['ad'] = 'no'; 
+                // console.log('i ad: ', response.detail.vidMetas[i]);
+              }
+              post_num++; // increment
+            }
+
 
             this.setState({
-              // posts: page === 1 ? response.detail.vidMetas  : [...this.state.posts, ...response.detail.vidMetas ],
-              // posts: page === 1 ? JSON.parse(JSON.stringify( response.detail.vidMetas ) ) : [...this.state.data, ...JSON.parse( JSON.stringify( response.detail.vidMetas) ) ],
               posts: page === 1 ? response.detail.vidMetas  : [ ...this.state.posts, ...response.detail.vidMetas ],
               // error: response.error || null,
               // loading: false,
@@ -401,14 +425,14 @@ export default class DashboardScreen extends Component {
             });     
 
           } else if (response["code"] == 'no_more_data') {
-            // this.setState({ loading: false , isLoading: false,});
+            this.setState({ isLoading: false,});
             console.log('No more data by _loadDashboardFlatlist.');
             // alert('No more video.'); 
            
           }
 
         }).catch((error) => {
-          // this.setState({ loading: false, isLoading: false, });
+          this.setState({ isLoading: false, });
           console.log('Error _loadDashboardFlatlist: ', error);
           alert('Error _loadDashboardFlatlist. Please try again later.');
         });
@@ -430,7 +454,8 @@ export default class DashboardScreen extends Component {
   _handleRefresh = async () => {
     console.log('------------- _handleRefresh');
     this.oldestVidTs = Date.now() / 1000; // reset timestamp to current time
-    num_post = 0; // reset
+    // num_post = 0; // reset
+    post_num = 0; // reset
     this.setState({
         page: 1,
         refreshing: true,
@@ -446,6 +471,7 @@ export default class DashboardScreen extends Component {
 
   _handleLoadMore = async () => {
     console.log('------------- _handleLoadMore this.oldestVidTs: ', this.oldestVidTs);
+    // num_post = 0; // reset
     this.setState({ page: this.state.page + 1 }, () => {
       this._makeRemoteRequest();
     });
@@ -455,8 +481,8 @@ export default class DashboardScreen extends Component {
 
   renderPost = post => {
       const { wpart, const_exer } = this.state;
-      num_post++; // increment var num_post
-      console.log('==================================== post: ',);
+      // num_post++; // increment var num_post
+      console.log('====== post ===== post_num:' , post_num, ', posts.length: ', this.state.posts.length);
 
 
       // (() => {
@@ -511,15 +537,17 @@ export default class DashboardScreen extends Component {
           // })        
         
 
-          console.log('------------- renderPost: ' , num_post, post.TS, post.VIDID, post.TITLE, );
+          console.log('------------- renderPost: ' , post_num, post.TS, post.VIDID, post.TITLE, );
           console.log('this.oldestVidTs: ', this.oldestVidTs);
 
-          // } )(); 
+        // } )(); 
 
           
 
 
-        if (num_post % 3 == 0 ) { // if num_post can be divided to zero by X. this is frequency of showing ads. 20200619 
+        // if (num_post % 3 == 0 ) { // if num_post can be divided to zero by X. this is frequency of showing ads. 20200619 
+        if (post.ad == 'yes') {
+          console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>> Ads <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
 
           return (
             <View>
@@ -543,6 +571,92 @@ export default class DashboardScreen extends Component {
 
                   {/* bottom left pane */}
                   <View style={styles.textContents}>
+                    <Text style={styles.title}> '{post.TITLE}' </Text>
+
+                    <View style={styles.textMetadata}>
+
+                      <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
+                          <Ionicons name='ios-body' size={20} color="#73788B"/>
+                          <Text style={styles.points}> {this.TTLPT} movage</Text>
+                      </View>
+
+                      <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
+                          <Ionicons name='ios-time' size={20} color="#73788B"/>
+                          <Text style={styles.length}> {this.LEN} </Text>
+                      </View>
+
+                      <View style={{flexDirection: "row", marginVertical: 3}}>
+                          <MaterialIcons name='center-focus-strong' size={20} color="#73788B"/> 
+                          <Text style={styles.tags}> 
+                              {String(post.TAG).replace(',', ', ')}
+                          </Text>
+                      </View>
+
+                      <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
+                          <Ionicons name='ios-eye' size={20} color="#73788B"/>
+                          <Text style={styles.views}> {this.VIEW} views</Text>
+                      </View>
+
+                      {/* <View style={{flexDirection: "row", marginVertical: 2, marginLeft: 2,}}>
+                          <Ionicons name='ios-heart' size={20}/> 
+                          <Text style={styles.likes}>  {post.likes} </Text>
+                      </View> */}
+
+                      {/* <View style={{ flexDirection: "row", position:'absolute', bottom: 5 }}>
+                          <Ionicons name="ios-heart-empty" size={28} color="#73788B" style={{ marginRight: 16 }} />
+                          <Ionicons name="ios-chatboxes" size={28} color="#73788B" />
+                      </View> */}
+                    </View>  
+
+                  </View>
+                  
+                  {/* bottom right pane */}
+                  <View style={{ }}>
+                    <TouchableOpacity onPress={ () => this.props.navigation.push('Exercise', {post, wpart, const_exer} ) } >
+                        <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
+                    </TouchableOpacity>
+                  </View>
+
+                </View>
+                    
+              </View>  
+
+              <View style={styles.ads}>
+                <AdMobBanner
+                  bannerSize="mediumRectangle"
+                  adUnitID = {this.state.adUnitID} // Banner ID ca-app-pub-9079750066587969/4230406044 // Test ID ca-app-pub-3940256099942544/6300978111
+                  servePersonalizedAds // true or false
+                  onDidFailToReceiveAdWithError={this.bannerError} />
+              </View>  
+
+            </View>          
+
+          );
+          // break;
+
+        } else {
+          console.log('>>>>>>> NO Ads <<<<<<<<');
+
+          return (
+            <View style={styles.feedItem}>
+                
+                {/* upper row */}
+                <View style={{ flex: 2, flexDirection: "row", left: 10}}>
+                    {/* <View style={{ }}> 
+                        <Image source={{uri: post.avatarFullUrl}} style={styles.avatar} resizeMode="cover"/>
+                    </View>  */}
+  
+                    <View style={{flexDirection: "column"}}>
+                        <Text style={styles.name}>{post.NNAME}</Text>
+                        <Text style={styles.timestamp}>{moment.unix(post.TS).fromNow()}</Text> 
+                    </View>
+                </View>
+  
+                {/* bottom row */}    
+                <View style={{ flex: 2, flexDirection: "row" }}> 
+  
+                    {/* bottom left pane */}
+                    <View style={styles.textContents}>
                       <Text style={styles.title}> '{post.TITLE}' </Text>
 
                       <View style={styles.textMetadata}>
@@ -579,100 +693,15 @@ export default class DashboardScreen extends Component {
                             <Ionicons name="ios-chatboxes" size={28} color="#73788B" />
                         </View> */}
                       </View>  
-
-                  </View>
-                  
-                  {/* bottom right pane */}
-                  <View style={{ }}>
-                      <TouchableOpacity onPress={ () => this.props.navigation.push('Exercise', {post, wpart, const_exer} ) } >
-                          <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
-                      </TouchableOpacity>
-                  </View>
-
-                </View>
-                    
-              </View>  
-
-              <View style={styles.ads}>
-                <AdMobBanner
-                  bannerSize="mediumRectangle"
-                  adUnitID="ca-app-pub-3940256099942544/6300978111" // Banner ID ca-app-pub-9079750066587969/4230406044 // Test ID ca-app-pub-3940256099942544/6300978111
-                  servePersonalizedAds // true or false
-                  onDidFailToReceiveAdWithError={this.bannerError} />
-              </View>  
-
-            </View>          
-
-          );
-          // break;
-
-        } else {
-
-          return (
-            <View style={styles.feedItem}>
-                
-                {/* upper row */}
-                <View style={{ flex: 2, flexDirection: "row", left: 10}}>
-                    {/* <View style={{ }}> 
-                        <Image source={{uri: post.avatarFullUrl}} style={styles.avatar} resizeMode="cover"/>
-                    </View>  */}
-  
-                    <View style={{flexDirection: "column"}}>
-                        <Text style={styles.name}>{post.NNAME}</Text>
-                        <Text style={styles.timestamp}>{moment.unix(post.TS).fromNow()}</Text> 
-                    </View>
-                </View>
-  
-                {/* bottom row */}    
-                <View style={{ flex: 2, flexDirection: "row" }}> 
-  
-                    {/* bottom left pane */}
-                    <View style={styles.textContents}>
-                        <Text style={styles.title}> '{post.TITLE}' </Text>
-  
-                        <View style={styles.textMetadata}>
-  
-                          <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
-                              <Ionicons name='ios-body' size={20} color="#73788B"/>
-                              <Text style={styles.points}> {this.TTLPT} movage</Text>
-                          </View>
-  
-                          <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
-                              <Ionicons name='ios-time' size={20} color="#73788B"/>
-                              <Text style={styles.length}> {this.LEN} </Text>
-                          </View>
-  
-                          <View style={{flexDirection: "row", marginVertical: 3}}>
-                              <MaterialIcons name='center-focus-strong' size={20} color="#73788B"/> 
-                              <Text style={styles.tags}> 
-                                  {String(post.TAG).replace(',', ', ')}
-                              </Text>
-                          </View>
-  
-                          <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
-                              <Ionicons name='ios-eye' size={20} color="#73788B"/>
-                              <Text style={styles.views}> {this.VIEW} views</Text>
-                          </View>
-  
-                          {/* <View style={{flexDirection: "row", marginVertical: 2, marginLeft: 2,}}>
-                              <Ionicons name='ios-heart' size={20}/> 
-                              <Text style={styles.likes}>  {post.likes} </Text>
-                          </View> */}
-  
-                          {/* <View style={{ flexDirection: "row", position:'absolute', bottom: 5 }}>
-                              <Ionicons name="ios-heart-empty" size={28} color="#73788B" style={{ marginRight: 16 }} />
-                              <Ionicons name="ios-chatboxes" size={28} color="#73788B" />
-                          </View> */}
-                        </View>  
   
                     </View>
                     
   
                     {/* bottom right pane */}
                     <View style={{ }}>
-                        <TouchableOpacity onPress={ () => this.props.navigation.push('Exercise', {post, wpart, const_exer} ) } >
-                            <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
-                        </TouchableOpacity>
+                      <TouchableOpacity onPress={ () => this.props.navigation.push('Exercise', {post, wpart, const_exer} ) } >
+                          <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
+                      </TouchableOpacity>
                     </View>
   
                 </View>
@@ -695,7 +724,6 @@ export default class DashboardScreen extends Component {
   }
 
 
-
   render() {
     console.log('---------------- render');
     const { isLoading } = this.state;
@@ -704,31 +732,23 @@ export default class DashboardScreen extends Component {
       <View style={styles.container}>
 
         { isLoading ? 
-           <View style={styles.uploadingIndicator}>
+          <View style={styles.uploadingIndicator}>
             <ActivityIndicator size="large" color='#ffa500'/>
             <Text>Loading....</Text>
           </View>
         :
-          <View> 
-
-            {/* <View style={styles.ads}>
-              <AdMobBanner
-                bannerSize="mediumRectangle"
-                adUnitID="ca-app-pub-3940256099942544/6300978111" // Banner ID ca-app-pub-9079750066587969/4230406044 // Test ID ca-app-pub-3940256099942544/6300978111
-                servePersonalizedAds // true or false
-                onDidFailToReceiveAdWithError={this.bannerError} />
-            </View> */}
-
+          <SafeAreaView> 
 
             <FlatList
               style={styles.feed}
               data={this.state.posts}
               // data={this.allPosts}
               renderItem={({ item }) => this.renderPost(item)}
+              // renderItem={this.renderPost}
               // keyExtractor={item => item.id}
-              keyExtractor={item => item.vidId}
+              keyExtractor={item => item.VIDID}
               showsVerticalScrollIndicator={false}
-              key={item => item.vidId} // https://stackoverflow.com/questions/45947921/react-native-cant-fix-flatlist-keys-warning
+              // key={item =>  item.VIDID} // https://stackoverflow.com/questions/45947921/react-native-cant-fix-flatlist-keys-warning
               onRefresh={this._handleRefresh}
               refreshing={this.state.refreshing}
               onEndReached={this._handleLoadMore}
@@ -736,7 +756,7 @@ export default class DashboardScreen extends Component {
             >
             </FlatList>
 
-          </View>
+          </SafeAreaView>
 
         }
 
@@ -861,6 +881,7 @@ const styles = StyleSheet.create({
   },
   ads:{
     width: Dimensions.get('window').width * 0.95,
+    height: 270,
     backgroundColor: "#FFF",
     borderRadius: 5, // 10
     flex: 1,

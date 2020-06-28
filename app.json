@@ -7,7 +7,7 @@
       "android",
       "web"
     ],
-    "version": "1.0.0",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -25,10 +25,13 @@
       "supportsTablet": true
     },
     "android": {
-      "versionCode": 3,
+      "versionCode": 9,
       "package": "io.joogofit",
       "config": {
-        "googleMobileAdsAppId":"ca-app-pub-9079750066587969~3344414378"
+        "googleMobileAdsAppId":"ca-app-pub-9079750066587969~3344414378",
+        "googleSignIn": { "apiKey": "AIzaSyD7S2g8CqFfzE-4CiXdlqRhkMYtfJghFoI",
+                          "certificateHash": "9D57F940AA0B663D7C21A496371DB7DCEFA74921"
+        }
       },
       "permissions": [
         "CAMERA",

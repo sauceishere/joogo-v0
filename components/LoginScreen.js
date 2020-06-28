@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions, ActivityIn
 import firebase from 'firebase';
 import * as Google from 'expo-google-app-auth'; // sudo expo install expo-google-app-auth https://forums.expo.io/t/undefined-is-not-object-expo-google-loginasync/26889 
 // import { NetworkInfo } from "react-native-network-info";
+// import * as Expo from "expo"
 
 export default class LoginScreen extends Component {
 
@@ -158,27 +159,27 @@ export default class LoginScreen extends Component {
     this.setState({isSigningIn: true}); // change to ActivityIndicator
     try {
       const result = await Google.logInAsync({ // https://forums.expo.io/t/undefined-is-not-object-expo-google-loginasync/26889
-        androidClientId: '399964185668-sors0c13tg8nvaapal534ndthdmqp2vf.apps.googleusercontent.com', // This is generated from Google developer site API page. 20200203 https://docs.expo.io/versions/latest/sdk/google/ https://console.cloud.google.com/apis/credentials?clientUpdateTime=2020-02-03T00:17:44.450577Z&project=getfit-f3a98
+        androidClientId: '399964185668-v0mufm387n2vhg46rqh7rrg9q68l9g7p.apps.googleusercontent.com', // This is generated from Google developer site API page. 20200203 https://docs.expo.io/versions/latest/sdk/google/ https://console.cloud.google.com/apis/credentials?clientUpdateTime=2020-02-03T00:17:44.450577Z&project=getfit-f3a98
+        androidStandaloneAppClientId: '399964185668-sors0c13tg8nvaapal534ndthdmqp2vf.apps.googleusercontent.com', // 399964185668-fe4n3c3k61jmglaobivqrd0vri8711a2.apps.googleusercontent.com
         // https://blog.expo.io/google-sign-in-with-react-native-and-expo-9cac6c392f0e 20200601
         // behavior: 'web',
         // iosClientId: 'xxxxxxx', //enter ios client id
-        scopes: ['email'] //scopes: ['profile', 'email']
+        scopes: ['profile', 'email'], //scopes: ['profile', 'email']
+        // redirectUrl: 'https://joogo-v0.firebaseapp.com/'
       });
 
       if (result.type === 'success') {
         this._onSignInG(result);
-
         return result.accessToken;
-
       } else {
         console.log('------------------- else');
+        alert('Please try again.')
         return { cancelled: true };
       }
-    } catch (e) {
+    } catch (error) {
       // return { error: true };
-      console.log('Error _signInWithGoogleAsync: ', e);
-      return(alert('Error _signInWithGoogleAsync: ', e)); // added by shibata 20200205
-      
+      console.log('Error _signInWithGoogleAsync: ', error);
+      alert('Error _signInWithGoogleAsync: ' + error.message); // added by shibata 20200205
     }
   };
 

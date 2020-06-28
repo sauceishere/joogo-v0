@@ -653,7 +653,7 @@ export default class Exercise extends Component {
     jsonContents['numFrameVidEnd'] = this.vidState.numFrameVidEnd; 
 
     jsonContents = JSON.stringify(jsonContents); // convert to string for saving file
-    console.log('jsonContents: ', jsonContents);
+    // console.log('jsonContents: ', jsonContents);
 
     // vidViewLog for Firestore
     await FileSystem.writeAsStringAsync(
