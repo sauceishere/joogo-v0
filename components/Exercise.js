@@ -475,7 +475,7 @@ export default class Exercise extends Component {
       this.setState({ shouldPlay: false });
     }
 
-    if (this.state.shouldPlay == false) { // when video is NOT playing
+    if (this.state.shouldPlay == false) { // Go into this block when video is NOT playing
       console.log('=========================== play ================================');
       this.vidState.loopStartAt = Date.now()/1000;
       // this.setState({ loopStartAt : Date.now()/1000 });

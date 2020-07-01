@@ -10,6 +10,7 @@ import Exercise from '../components/Exercise';
 import ProfileScreen from "../components/ProfileScreen";
 import PostScreen from "../components/PostScreen";
 import HistoryScreen from "../components/HistoryScreen";
+import LeaderboardScreen from "../components/Leaderboard";
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from "@expo/vector-icons";
@@ -122,7 +123,26 @@ const screens = {
       }
     }, 
   },  
-  
+  Leaderboard: {
+    screen: LeaderboardScreen,
+    navigationOptions: ({ navigation }) => { //https://www.youtube.com/watch?v=C3oDJdlrEKE&list=PL4cUxeGkcC9ixPU-QkScoRBVxtPPzVjrQ&index=25
+      return {
+        // headerTitle: () => <Header title='Search' navigation={navigation} style={styles.Header}/>,
+        // headerStyle: () =>  <LinearGradient colors={['#ffbf00', '#ffb300', 'orange']} />, // { backgroundColor: 'orange' }, // #FF8C00
+        headerTitle: () => <Header title='Leaderboard' navigation={navigation} />,
+        // title: 'Post Video',
+        // headerTitleAlign: 'center',
+        // // header: props => <GradientHeader/>,
+        headerStyle: {
+          backgroundColor: '#ffa500',
+          // position: 'absolute',
+          // top: 0,
+          // left: 0,
+          // right: 0,
+        },     
+      }
+    }, 
+  },    
 
 }
 

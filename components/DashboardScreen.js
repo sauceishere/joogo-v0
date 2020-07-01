@@ -97,7 +97,7 @@ export default class DashboardScreen extends Component {
             });    
           }
 
-        } else { // if folder NOT exists.
+        } else { // if folder NOT exists, then create the directory
           FileSystem.makeDirectoryAsync(this.curDir + this.state.vidViewLogDirName).then( () => { // create the directory
             console.log('vidViewLogDirName Directory created');
           }).catch( error => {
@@ -134,7 +134,7 @@ export default class DashboardScreen extends Component {
           console.log('----- this.localFiles: ', this.localFiles); // how many localFiles in array
         }).catch( error => {
           console.log('FileSystem.readDirectoryAsync error: ', error);
-          alert('FileSystem.readDirectoryAsync error: ', error);
+          // alert('FileSystem.readDirectoryAsync error: ', error);
         })
 
         if (this.localFiles.length > 0){
@@ -248,7 +248,7 @@ export default class DashboardScreen extends Component {
     } catch (err) {
       // this.directories = []; // create empty array,
       console.log('_sendVidViewLog error: ', err)
-      alert('_sendVidViewLog error: ', err)
+      // alert('_sendVidViewLog error: ', err)
     }
   
   }
@@ -766,6 +766,7 @@ export default class DashboardScreen extends Component {
           {/* https://docs.expo.io/versions/latest/sdk/linear-gradient/ */}
           <Ionicons name='ios-person' size={28} color="white" style={styles.ProfileIcon} onPress={ () => this.props.navigation.push('Profile') } />  
           <Ionicons name="ios-add-circle-outline" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Post') }/>
+          <Ionicons name="md-medal" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Leaderboard') }/> 
           <MaterialIcons name='history' size={28} color="white" style={styles.HistoryIcon} onPress={ () => this.props.navigation.push('History')}/>
           {/* <Ionicons name='ios-notifications-outline' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Notification') }/> */}
         {/* </LinearGradient> */}
@@ -802,7 +803,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     justifyContent: 'space-between',
-    paddingHorizontal: 70,
+    paddingHorizontal: 50,
     // marginTop: 50,
   },  
   feed: {
