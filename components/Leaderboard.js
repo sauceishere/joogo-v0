@@ -12,7 +12,7 @@ const str_pad_left = function (string,pad,length) { // convert from sec to min:s
     return (new Array(length+1).join(pad)+string).slice(-length);
 };
 
-var post_num = 1; // this actually is rank.
+// var post_num = 1; // this actually is rank.
 
 export default class Leaderboard extends Component {
 
@@ -21,38 +21,43 @@ export default class Leaderboard extends Component {
         this.state = {
             isLoading: true,
             doneComponentDidMount: false,
-            param: this.props.navigation.getParam('greeting'),
-            viewPtSum: null,
-            playSum: null,
-            viewTimes: null,
-            postsExer: [], // assign response from loadExerHist-py
+            // param: this.props.navigation.getParam('greeting'),
+            AVE_PLAYSUM_MIN_WK: null,
+            AVE_PLAYSUM_SEC_WK: null,
+            AVE_PT_WK: null,
+            AVE_VIEW_WK: null,
+            posts: null, // assign response from loadLeaderboard-py
+            within_top: null,
             // oldestLogTs: Date.now() / 1000,
-            page: 1,
+            // page: 1,
             // seed: 1,
-            error: null,
-            refreshing: false,
+            // error: null,
+            // refreshing: false,
             // isFlatlistLoaded: false,
         }
         // this._getExerHistSummary = this._getExerHistSummary.bind(this);
-        this._requestLoadExerHist = this._requestLoadExerHist.bind(this);
-        this._handleLoadMore = this._handleLoadMore.bind(this);
-        this._handleRefresh = this._handleRefresh.bind(this);
+        // this._requestLoadExerHist = this._requestLoadExerHist.bind(this);
+        // this._handleLoadMore = this._handleLoadMore.bind(this);
+        // this._handleRefresh = this._handleRefresh.bind(this);
     }
 
-    oldestLogTs =  Date.now() / 1000;
+    // oldestLogTs =  Date.now() / 1000;
+
+    post_num = 1; // this actually is rank.
+
 
     async componentDidMount() {
-        console.log('------------- componentDidMount ExerciseHistory started');
+        console.log('------------- componentDidMount Leaderboard started');
     
         if (this.state.doneComponentDidMount === false) { // if variable is null. this if to prevent repeated loop.
             console.log('this.state.doneComponentDidMount === false');
             // this.setState({isLoading: true});
     
-            const _getExerHistSummary = (idTokenCopied) => {
-                console.log('----- History _getExerHistSummary.');
+            const _loadLeaderboard = (idTokenCopied) => {
+                console.log('----- History _loadLeaderboard.');
                 //   console.log('this.oldestLogTs: ', this.oldestLogTs);
                 
-                fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/getExerHistSummary-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+                fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/loadLeaderboard-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
                     method: 'POST',
                     headers: {
                         // 'Accept': 'application/json', 
@@ -60,7 +65,7 @@ export default class Leaderboard extends Component {
                     },
                         // mode: "no-cors", // no-cors, cors, *same-origin
                         body: JSON.stringify({
-                        id_token: idTokenCopied,
+                            id_token: idTokenCopied,
                     })
                 }).then( result => result.json() )
                     .then( response => { 
@@ -68,30 +73,32 @@ export default class Leaderboard extends Component {
         
                         if( response["code"] == 'ok'){
                             console.log('---------------- ok');
-                            console.log('_getExerHistSummary response.detail: ', response.detail );
+                            console.log('_loadLeaderboard response.detail: ', response.detail );
 
-                            var viewPtSum = response.detail.VIEW_PTSUM;
-                            viewPtSum = parseInt(viewPtSum); // convert to int
-                            var playSum = response.detail.PLAYSUM;
-                            if ( playSum < 60 * 60 ) { // less than 1 hour
-                                playSum = parseFloat(playSum / 60 / 60 / 10).toFixed(2); // show like 0.1
-                            } else { // over 1 hour
-                                playSum = parseInt(playSum / 60 / 60); // convert from second to hour
+                            // to control when to display 'ad'. 20200623
+                            var i;
+                            for (i = 0; i < response.detail.data.length; i++) {
+                                console.log('this.post_num: ', this.post_num);
+                                response.detail.data[i]['rank'] = this.post_num;  // assign rank
+                                this.post_num++; // increment
                             }
-                            var viewTimes = response.detail.VIEW_TIMES;
 
                             this.setState({
                                 // isLoading: false,
-                                viewPtSum: viewPtSum,
-                                playSum: playSum,
-                                viewTimes: viewTimes,
+                                AVE_PLAYSUM_MIN_WK: response.detail.AVE_PLAYSUM_MIN_WK,
+                                AVE_PLAYSUM_SEC_WK: response.detail.AVE_PLAYSUM_SEC_WK,
+                                AVE_PT_WK: response.detail.AVE_PT_WK,
+                                AVE_VIEW_WK: response.detail.AVE_VIEW_WK,
+                                within_top: response.detail.within_top,
+                                posts: response.detail.data,
                             }); 
+                            // console.log('this.state.posts: ', this.state.posts);
                         } 
             
                 }).catch((error) => {
                     this.setState({ isLoading: false, });
-                    console.log('Error _getExerHistSummary: ', error);
-                    alert('Error _getExerHistSummary. Please try again later.');
+                    console.log('Error _loadLeaderboard: ', error);
+                    alert('Error _loadLeaderboard. Please try again later.');
                 });
         
             }
@@ -99,161 +106,47 @@ export default class Leaderboard extends Component {
             await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then( function(idToken) {
                 const idTokenCopied = idToken;
             
-                _getExerHistSummary(idTokenCopied);
+                _loadLeaderboard(idTokenCopied);
             
             }).catch(function(error) {
-                console.log('Error xxxxxxxxxxxxxxxx Could not get idToken _getExerHistSummary : ', error);
-                alert('Error, Could not get idToken _getExerHistSummary. please try again later.')
+                console.log('Error xxxxxxxxxxxxxxxx Could not get idToken _loadLeaderboard : ', error);
+                alert('Error, Could not get idToken _loadLeaderboard. please try again later.')
             });  
     
-            await this._requestLoadExerHist(); // kick 
+            // await this._requestLoadExerHist(); // kick 
             
         }; // closing if 
 
         this.setState({doneComponentDidMount: true, isLoading: false});
 
-        console.log('------------- componentDidMount ExerciseHistory done');
+        console.log('------------- componentDidMount Leaderboard.js done');
     } // closing componentDidMount
 
-
-
-    _requestLoadExerHist = async () => {
-        console.log('------------- _requestLoadExerHist');
-        const { page } = this.state;
-    
-        const _loadExerHist = (idTokenCopied) => {
-          console.log('----- History _loadExerHist.');
-          console.log('this.oldestLogTs: ', this.oldestLogTs);
-          
-          fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/loadExerHist-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
-            method: 'POST',
-            headers: {
-              // 'Accept': 'application/json', 
-              'Content-Type' : 'application/json' // text/html text/plain application/json
-            },
-            // mode: "no-cors", // no-cors, cors, *same-origin
-            body: JSON.stringify({
-              id_token: idTokenCopied,
-              oldestLogTs: this.oldestLogTs,    
-            })
-          }).then( result => result.json() )
-            .then( response => { 
-              // console.log('------------------ _requestLoadExerHist response: ', response);
-    
-              if( response["code"] == 'ok'){
-                console.log('---------------- ok');
-                // console.log('_requestLoadExerHist response.detail: ', response.detail.vidViewedLogs);
-
-                // to control when to display 'ad'. 20200623
-                var i;
-                for (i = 0; i < response.detail.vidViewedLogs.length; i++) {
-                    console.log('post_num: ', post_num);
-                    response.detail.vidViewedLogs[i]['rank'] = post_num;  // assign rank
-                    post_num++; // increment
-                }
-
-                this.setState({
-                  postsExer: page === 1 ? response.detail.vidViewedLogs  : [ ...this.state.postsExer, ...response.detail.vidViewedLogs ],
-                  refreshing: false,
-                  isLoading: false,
-                //   flagMastersLoaded: true, // this to identify its downloaded
-                //   isFlatlistLoaded: true,
-                }); 
-                // console.log('this.state.postsExer: ', this.state.postsExer);
-    
-              } else if (response["code"] == 'no_more_data') {
-                this.setState({ isLoading: false,});
-                console.log('No more history by _loadExerHist.');
-                // alert('No more history.'); 
-               
-              }
-    
-            }).catch((error) => {
-              this.setState({ isLoading: false, });
-              console.log('Error _loadExerHist: ', error);
-              alert('Error _loadExerHist. Please try again later.');
-            });
-    
-        }
-    
-        await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then( function(idToken) {
-          const idTokenCopied = idToken;
-    
-          _loadExerHist(idTokenCopied);
-    
-        }).catch(function(error) {
-          console.log('Error xxxxxxxxxxxxxxxx Could not get idToken _loadExerHist: ', error);
-        });  
-    
-    }; // closing _requestLoadExerHist
-    
-    
-    _handleRefresh = async () => {
-        console.log('------------- _handleRefresh');
-        this.oldestLogTs = Date.now() / 1000; // reset timestamp to current time
-        this.setState({
-                page: 1,
-                refreshing: true,
-                // oldestLogTs: Date.now() / 1000, // reset before fetch data
-                isLoading: true,
-            },
-            () => {
-                this._requestLoadExerHist();
-            }
-        );  
-    };
-    
-    
-    _handleLoadMore = async () => {
-        console.log('------------- _handleLoadMore: ', this.oldestLogTs);
-        this.setState({ page: this.state.page + 1 }, () => {
-            this._requestLoadExerHist();
-        });
-    };
 
 
     renderPost = post => {
         // const { oldestLogTs } = this.state;
         console.log('------ renderpost: ');
       
+        if (post.MEDAL == 'GOLD') {
+            this.MEDAL = 'G'; // show Gold medal
+        } else {
+            this.MEDAL = '';
+        }
+
+        if (post.PTSUM == '') {
+            this.PTSUM = '0'; // force to Zero if none
+        } else if (post.PTSUM > 0) {   
+            this.PTSUM = post.PTSUM.toFixed().toString(); // omit decimal place // convert to string for rendering 
+        } else {
+            this.PTSUM = '0'; // force to Zero if none
+        }
+        // this.PTSUM = this.PTSUM.toString() // convert to string for rendering 
+
+
+
         // (() => {
-            post.TTLPT = parseFloat(post.TTLPT).toFixed(2); // point for this video that can be earned. Fix decimal place
-            post.SC_PCT = post.SC + '%'; // Add % for percentageBar 20200613
-
-            post.VIDLEN = parseInt(post.VIDLEN); // video length in XXmXXs
-            if (post.VIDLEN >= 60) {
-                post.VIDLEN_ = str_pad_left( post.VIDLEN / 60,'0',2) + 'm' + str_pad_left( post.VIDLEN - post.VIDLEN / 60 * 60,'0',2) + 's'
-            } else { 
-                post.VIDLEN_ = '00m' + str_pad_left( post.VIDLEN, '0', 2) + 's' 
-            }; // convert sec to min:sec
-
-            post.PLAYSUM = parseInt(post.PLAYSUM); // video length in XXmXXs
-            if (post.PLAYSUM >= 60) {
-                post.PLAYSUM_ = str_pad_left( post.PLAYSUM / 60,'0',2) + 'm' + str_pad_left( post.PLAYSUM - post.PLAYSUM / 60 * 60,'0',2) + 's'
-            } else { 
-                post.PLAYSUM_ = '00m' + str_pad_left( post.PLAYSUM, '0', 2) + 's' 
-            }; // convert sec to min:sec
-
-            if (post.PLAYSUM > post.VIDLEN) {
-                post.PLAYSUM_ = post.VIDLEN_; // Copy post.VIDLEN_ if playing time id longer than video length. 20200614
-            }
-            
-            post.PLAYPCT = parseInt(post.PLAYPCT); // remove decimal place
-            if (post.PLAYPCT * 100 >= 100) {
-                post.PLAYPCT_PCT = '100%'; // force to 100 if over 100%. 20200614 // Add % for percentageBar 20200613
-            } else {
-                post.PLAYPCT_PCT = (post.PLAYPCT * 100) + '%'; // Add % for percentageBar 20200613
-            }
-            // post.PLAYPCT_PCT = post.PLAYPCT + '%'; // Add % for percentageBar 20200613
-
-            if ( this.oldestLogTs > post.TS) { // Assign timestamp of the oldest video fetched by _loadDashboardFlatlist to control next video to be fetched by _loadDashboardFlatlist 20200528
-                // this.setState({oldestLogTs : post.TS});
-                this.oldestLogTs = post.TS;
-            } 
-    
-            // post.TNURL = 'https://firebasestorage.googleapis.com/v0/b/joogo-v0.appspot.com/o/tn%2F' + post.VIDID + '?alt=media' // URL for Thumbsnail photo 20200528         
-    
-            console.log('-- post: ' , post.VIDNAME, post.TS, post.VIDID );
+        console.log('-- post: ' , post.rank, post.UID, post.NNAME, typeof(post.PTSUM) ,post.PTSUM, typeof(this.PTSUM), this.PTSUM, this.MEDAL, post.USERSELF );
     
         // } )(); 
     
@@ -267,18 +160,19 @@ export default class Leaderboard extends Component {
                 </View>
 
                 {/* medal pane */}
-                <View style={{ width: Dimensions.get('window').width * 0.08, }}>
-                    <Text style={styles.medal}>G</Text> 
+                <View style={{ width: Dimensions.get('window').width * 0.10, }}>
+                    <Text style={styles.medal}>{this.MEDAL}</Text> 
                     {/* <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   */}
                 </View>                
 
-                <View style={{ width: Dimensions.get('window').width * 0.62, }}>
-                     <Text style={styles.name}>{post.NNAME}</Text>
+                <View style={{ width: Dimensions.get('window').width * 0.50, }}>
+                {/* <View style={{ width: Dimensions.get('window').width * 0.62, color: post.USERSELF == 1 ? '#ffa500': '#454D65' }}> */}
+                    <Text style={styles.name}>{post.NNAME}</Text>
                 </View>    
 
                 {/* right pane */}   
-                <View style={{ width: Dimensions.get('window').width * 0.25, }}> 
-                    <Text style={styles.point}>{moment.unix(post.TS).fromNow()}</Text> 
+                <View style={{ width: Dimensions.get('window').width * 0.20, }}> 
+                    <Text style={styles.point}>{this.PTSUM}</Text>
                 </View>
                 
             </View>
@@ -289,7 +183,7 @@ export default class Leaderboard extends Component {
 
     render() {
         console.log('------------- render.');
-        const { isLoading, viewPtSum, playSum, viewTimes } = this.state;
+        const { isLoading, AVE_PLAYSUM_MIN_WK, AVE_PLAYSUM_SEC_WK, AVE_PT_WK, AVE_VIEW_WK, within_top, } = this.state;
 
         return (
             <View style={styles.container}>
@@ -308,38 +202,45 @@ export default class Leaderboard extends Component {
                     <View style={{width: '100%', flexDirection: 'column', flexWrap: 'nowrap' }}>
 
                         <View style={{width: '100%', flex: 1, marginTop: Dimensions.get('window').height * 0.05, }}>
-                            <Text style={styles.pageTitle}>Gold Medalists' activity</Text>    
+                            <Text style={styles.pageTitle}>Gold Medalists' weekly Average</Text>    
                         </View>
                     
-                        <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', marginTop: Dimensions.get('window').height * 0.05,}} >
+                        <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', alignItems: 'center', marginTop: Dimensions.get('window').height * 0.05, paddingHorizontal: Dimensions.get('window').width * 0.02}} >
                             <View style={styles.tileItem}>
-                                <Text style={styles.tileItemTitle}> <Ionicons name='ios-body' size={18} style={styles.tileItemIcon}/> {' '} Movage Earned</Text>
-                                <Text style={styles.tileItemField}>{viewPtSum}</Text>    
+                                {/* <Text style={styles.tileItemTitle}> <Ionicons name='ios-body' size={18} style={styles.tileItemIcon}/> {' '} Movage Earned</Text> */}
+                                <Ionicons name='ios-body' size={22} style={styles.tileItemIcon}/>
+                                <Text style={styles.tileItemField}>{AVE_PT_WK}</Text>  
+                                <Text style={styles.tileItemTitle}>Movage Earned</Text>  
                             </View>          
 
                             <View style={styles.tileItem}>
-                                <Text style={styles.tileItemTitle}> <Ionicons name='ios-time' size={18} style={styles.tileItemIcon}/> {' '} Hours Worked Out</Text> 
-                                <Text style={styles.tileItemField}>{playSum}</Text>  
+                                {/* <Text style={styles.tileItemTitle}> <Ionicons name='ios-time' size={18} style={styles.tileItemIcon}/> {' '} Mins Worked Out</Text>  */}
+                                <Ionicons name='ios-time' size={22} style={styles.tileItemIcon}/> 
+                                <Text style={styles.tileItemField}>{AVE_PLAYSUM_MIN_WK}</Text>  
+                                <Text style={styles.tileItemTitle}>Mins Played</Text> 
                             </View>
                             
                             <View style={styles.tileItem}>
-                                <Text style={styles.tileItemTitle}> <Ionicons name='logo-youtube' size={18} style={styles.tileItemIcon}/> {' '} Times Played</Text>
-                                <Text style={styles.tileItemField}>{viewTimes}</Text>  
+                                {/* <Text style={styles.tileItemTitle}> <Ionicons name='logo-youtube' size={18} style={styles.tileItemIcon}/> {' '} Times Played</Text> */}
+                                <Ionicons name='logo-youtube' size={22} style={styles.tileItemIcon}/> 
+                                <Text style={styles.tileItemField}>{AVE_VIEW_WK}</Text>  
+                                <Text style={styles.tileItemTitle}>Times Played</Text>
                             </View>      
                         </View> 
 
-                        <View style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.03,}}> 
+                        <View style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.03, paddingHorizontal: Dimensions.get('window').width * 0.02}}> 
+                            <Text style={styles.pageTitle}>Leaderboard</Text> 
                             <FlatList
                                 style={styles.feed}
-                                data={this.state.postsExer}
+                                data={this.state.posts}
                                 renderItem={({ item }) => this.renderPost(item)}
-                                keyExtractor={item => item.SENDID}
+                                keyExtractor={item => item.UID}
                                 showsVerticalScrollIndicator={false}
-                                key={item => item.SENDID} // https://stackoverflow.com/questions/45947921/react-native-cant-fix-flatlist-keys-warning
-                                onRefresh={this._handleRefresh}
-                                refreshing={this.state.refreshing}
-                                onEndReached={this._handleLoadMore}
-                                onEndReachedThreshold={1}
+                                key={item => item.UID} // https://stackoverflow.com/questions/45947921/react-native-cant-fix-flatlist-keys-warning
+                                // onRefresh={this._handleRefresh}
+                                // refreshing={this.state.refreshing}
+                                // onEndReached={this._handleLoadMore}
+                                // onEndReachedThreshold={1}
                             >
                             </FlatList>
                         </View>
@@ -352,16 +253,6 @@ export default class Leaderboard extends Component {
     }
 
 } // closing class ExerciseHistory
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -397,10 +288,24 @@ const styles = StyleSheet.create({
     tileItem: {
         // borderColor: 'red',
         // borderWidth: 2,
-        width: Dimensions.get('window').width * 0.25,
-        flex: 1, 
+        width: Dimensions.get('window').width * 0.3,
+        height: Dimensions.get('window').width * 0.3,
+        // flex: 1, 
         flexDirection: 'column',
-        // justifyContent: 'center',
+        justifyContent: 'space-around',
+
+        backgroundColor: "#FFF",
+        borderRadius: 8,
+        // paddingHorizontal: 6,
+        // paddingVertical: 5,
+        // flexDirection: "row",
+        // flex: 3,
+        // marginVertical: 5,
+        shadowColor: 'black', // iOS
+        shadowOffset: { width: 5, height: 5 }, // iOS
+        shadowOpacity: 0.3, // iOS
+        shadowRadius: 2, // iOS   
+        elevation: 2, // Android
     },
     tileItemIcon:{
         textAlign: 'center',
@@ -420,11 +325,11 @@ const styles = StyleSheet.create({
         // borderRadius: 5, 
         fontWeight: 'bold',
         fontSize: 30,
-        height: 35,
+        // height: 35,
         color: 'dimgray',
         textAlignVertical: 'center',
         textAlign: 'center',
-        paddingHorizontal: 5,
+        // paddingHorizontal: 5,
         // borderColor: 'green',
         // borderWidth: 2,
     },
@@ -434,11 +339,12 @@ const styles = StyleSheet.create({
     },
     feedItem: {
         backgroundColor: "#FFF",
-        // borderRadius: 5, // 10
-        padding: 8,
+        borderRadius: 3, // 10
+        paddingHorizontal: 10,
+        paddingVertical: 10,
         flexDirection: "row",
         flex: 3,
-        // marginVertical: 5,
+        marginVertical: 2,
         shadowColor: 'black', // iOS
         shadowOffset: { width: 5, height: 5 }, // iOS
         shadowOpacity: 0.3, // iOS
@@ -452,37 +358,38 @@ const styles = StyleSheet.create({
     // },
 
     rank: {
-        marginVertical: 8,
+        // marginVertical: 2,
         fontSize: 15,
         fontWeight: 'bold',
         color: '#ffa500', //'#ffbf00' // "#838899"
+        paddingLeft: 5,
     },
     medal: {
-        marginVertical: 8,
+        // marginVertical: 2,
         fontSize: 15,
         // fontWeight: 'bold',
         // color: '#ffa500', //'#ffbf00' // "#838899"
     },    
     name: {
-        marginVertical: 8,
+        // marginVertical: 2,
         fontSize: 15,
         fontWeight: "500",
         // color: '#C4C6CE', //'#454D65' 
     },    
     point: {
-        marginVertical: 8,
+        // marginVertical: 2,
         fontSize: 15,
         color: '#454D65', //"#C4C6CE",
         // fontWeight: "500",
         textAlign: 'right',
-        marginRight: 5,
+        // paddingRight: 5,
     },    
 
         
-    textMetadata: {
-        position: 'absolute',
-        bottom: 4,
-    },
+    // textMetadata: {
+    //     position: 'absolute',
+    //     bottom: 4,
+    // },
     postImage: {
         width: Dimensions.get('window').width * 0.43 * 0.8, // 150,
         height: Dimensions.get('window').width * 0.43 * (225/150) * 0.8, // 225,
