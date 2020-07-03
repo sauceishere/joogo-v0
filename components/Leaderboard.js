@@ -128,11 +128,6 @@ export default class Leaderboard extends Component {
         // const { oldestLogTs } = this.state;
         console.log('------ renderpost: ');
       
-        if (post.MEDAL == 'GOLD') {
-            this.MEDAL = 'G'; // show Gold medal
-        } else {
-            this.MEDAL = '';
-        }
 
         if (post.PTSUM == '') {
             this.PTSUM = '0'; // force to Zero if none
@@ -146,7 +141,7 @@ export default class Leaderboard extends Component {
 
 
         // (() => {
-        console.log('-- post: ' , post.rank, post.UID, post.NNAME, typeof(post.PTSUM) ,post.PTSUM, typeof(this.PTSUM), this.PTSUM, this.MEDAL, post.USERSELF );
+        console.log('-- post: ' , post.rank, post.UID, post.NNAME, typeof(post.PTSUM) ,post.PTSUM, typeof(this.PTSUM), this.PTSUM, post.USERSELF );
     
         // } )(); 
     
@@ -161,18 +156,21 @@ export default class Leaderboard extends Component {
 
                 {/* medal pane */}
                 <View style={{ width: Dimensions.get('window').width * 0.10, }}>
-                    <Text style={styles.medal}>{this.MEDAL}</Text> 
-                    {/* <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   */}
+                    { post.MEDAL == 'GOLD' ?
+                        <Image style={{width: Dimensions.get('window').width * 0.06, height: Dimensions.get('window').width * 0.06,}} source={require('../assets/goldMedal100x100.png')} />
+                        // <Image resizeMode="contain" source={require('../assets/goldMedal100x100.png')} />
+                    :
+                        null    
+                    }
                 </View>                
 
                 <View style={{ width: Dimensions.get('window').width * 0.50, }}>
-                {/* <View style={{ width: Dimensions.get('window').width * 0.62, color: post.USERSELF == 1 ? '#ffa500': '#454D65' }}> */}
-                    <Text style={styles.name}>{post.NNAME}</Text>
+                    <Text style={styles.name, {color: post.USERSELF == 1 ? '#ffa500': '#454D65', fontWeight: post.USERSELF == 1 ? 'bold': '100%'  }}>{post.NNAME}</Text>
                 </View>    
 
                 {/* right pane */}   
                 <View style={{ width: Dimensions.get('window').width * 0.20, }}> 
-                    <Text style={styles.point}>{this.PTSUM}</Text>
+                    <Text style={styles.point}>{this.PTSUM}</Text> 
                 </View>
                 
             </View>
@@ -380,7 +378,7 @@ const styles = StyleSheet.create({
         // marginVertical: 2,
         fontSize: 15,
         color: '#454D65', //"#C4C6CE",
-        // fontWeight: "500",
+        fontWeight: "bold",
         textAlign: 'right',
         // paddingRight: 5,
     },    

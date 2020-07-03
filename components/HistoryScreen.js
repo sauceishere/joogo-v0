@@ -335,20 +335,23 @@ class ExerciseHistory extends Component {
                             <Text style={styles.pageTitle}>Work Out History</Text>    
                         </View>
                     
-                        <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', marginTop: Dimensions.get('window').height * 0.05,}} >
+                        <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', alignItems: 'center', marginTop: Dimensions.get('window').height * 0.05, paddingHorizontal: Dimensions.get('window').width * 0.02}} >
                             <View style={styles.tileItem}>
-                                <Text style={styles.tileItemTitle}> <Ionicons name='ios-body' size={18} style={styles.tileItemIcon}/> {' '} Movage Earned</Text>
+                                <Ionicons name='ios-body' size={22} style={styles.tileItemIcon}/>
                                 <Text style={styles.tileItemField}>{viewPtSum}</Text>    
+                                <Text style={styles.tileItemTitle}> Movage Earned</Text>
                             </View>          
 
                             <View style={styles.tileItem}>
-                                <Text style={styles.tileItemTitle}> <Ionicons name='ios-time' size={18} style={styles.tileItemIcon}/> {' '} Hours Worked Out</Text> 
+                                <Ionicons name='ios-time' size={22} style={styles.tileItemIcon}/>
                                 <Text style={styles.tileItemField}>{playSum}</Text>  
+                                <Text style={styles.tileItemTitle}>Hours Worked Out</Text> 
                             </View>
                             
                             <View style={styles.tileItem}>
-                                <Text style={styles.tileItemTitle}> <Ionicons name='logo-youtube' size={18} style={styles.tileItemIcon}/> {' '} Times Played</Text>
+                                <Ionicons name='logo-youtube' size={22} style={styles.tileItemIcon}/>
                                 <Text style={styles.tileItemField}>{viewTimes}</Text>  
+                                <Text style={styles.tileItemTitle}> Times Played</Text>
                             </View>      
                         </View> 
 
@@ -729,20 +732,24 @@ class PostHistory extends Component {
                             <Text style={styles.pageTitle}>Post Video History</Text>    
                         </View>
                     
-                        <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', marginTop: Dimensions.get('window').height * 0.05,}} >
+
+                        <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', alignItems: 'center', marginTop: Dimensions.get('window').height * 0.05, paddingHorizontal: Dimensions.get('window').width * 0.02}} >
                             <View style={styles.tileItem}>
-                                <Text style={styles.tileItemTitle}> <Ionicons name='ios-body' size={18} style={styles.tileItemIcon}/> {' '} Movage Earned</Text>
-                                <Text style={styles.tileItemField}>{TTLPT}</Text>    
+                                <Ionicons name='ios-body' size={22} style={styles.tileItemIcon}/>
+                                <Text style={styles.tileItemField}>{TTLPT}</Text>  
+                                <Text style={styles.tileItemTitle}> Movage Earned</Text>  
                             </View>          
 
                             <View style={styles.tileItem}>
-                                <Text style={styles.tileItemTitle}> <Ionicons name='ios-time' size={18} style={styles.tileItemIcon}/> {' '} Hours Viewed</Text> 
+                                <Ionicons name='ios-time' size={22} style={styles.tileItemIcon}/> 
                                 <Text style={styles.tileItemField}>{TTLTIMEPLAYED}</Text>  
+                                <Text style={styles.tileItemTitle}> Hours Viewed</Text> 
                             </View>
                             
                             <View style={styles.tileItem}>
-                                <Text style={styles.tileItemTitle}> <Ionicons name='ios-eye' size={18} style={styles.tileItemIcon}/> {' '} Times Viewed</Text>
+                                <Ionicons name='ios-eye' size={22} style={styles.tileItemIcon}/> 
                                 <Text style={styles.tileItemField}>{TTLVIEWTIMES}</Text>  
+                                <Text style={styles.tileItemTitle}> Times Viewed</Text>
                             </View>      
                         </View> 
 
@@ -833,10 +840,24 @@ const styles = StyleSheet.create({
     tileItem: {
         // borderColor: 'red',
         // borderWidth: 2,
-        width: Dimensions.get('window').width * 0.25,
-        flex: 1, 
+        width: Dimensions.get('window').width * 0.3,
+        height: Dimensions.get('window').width * 0.3,
+        // flex: 1, 
         flexDirection: 'column',
-        // justifyContent: 'center',
+        justifyContent: 'space-around',
+
+        backgroundColor: "#FFF",
+        borderRadius: 8,
+        // paddingHorizontal: 6,
+        // paddingVertical: 5,
+        // flexDirection: "row",
+        // flex: 3,
+        // marginVertical: 5,
+        shadowColor: 'black', // iOS
+        shadowOffset: { width: 5, height: 5 }, // iOS
+        shadowOpacity: 0.3, // iOS
+        shadowRadius: 2, // iOS   
+        elevation: 2, // Android
     },
     tileItemIcon:{
         textAlign: 'center',
@@ -856,7 +877,7 @@ const styles = StyleSheet.create({
         // borderRadius: 5, 
         fontWeight: 'bold',
         fontSize: 30,
-        height: 35,
+        // height: 35,
         color: 'dimgray',
         textAlignVertical: 'center',
         textAlign: 'center',
