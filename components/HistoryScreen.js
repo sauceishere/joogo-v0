@@ -345,7 +345,7 @@ class ExerciseHistory extends Component {
                             <View style={styles.tileItem}>
                                 <Ionicons name='ios-time' size={22} style={styles.tileItemIcon}/>
                                 <Text style={styles.tileItemField}>{playSum}</Text>  
-                                <Text style={styles.tileItemTitle}>Hours Worked Out</Text> 
+                                <Text style={styles.tileItemTitle}>Hours Played</Text> 
                             </View>
                             
                             <View style={styles.tileItem}>
@@ -831,7 +831,7 @@ const styles = StyleSheet.create({
         color: '#ffa500',
         justifyContent: 'center',
         alignItems: 'center',
-        fontSize: 23,
+        fontSize: 19,
         fontWeight: 'bold',
         textAlign: 'center',
         // borderColor: 'blue',

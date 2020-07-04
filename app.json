@@ -7,7 +7,7 @@
       "android",
       "web"
     ],
-    "version": "1.0.4",
+    "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -25,7 +25,7 @@
       "supportsTablet": true
     },
     "android": {
-      "versionCode": 12,
+      "versionCode": 11,
       "package": "io.joogofit",
       "config": {
         "googleMobileAdsAppId":"ca-app-pub-9079750066587969~3344414378",

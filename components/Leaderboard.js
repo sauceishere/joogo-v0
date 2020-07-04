@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
         color: '#ffa500',
         justifyContent: 'center',
         alignItems: 'center',
-        fontSize: 23,
+        fontSize: 19,
         fontWeight: 'bold',
         textAlign: 'center',
         // borderColor: 'blue',
