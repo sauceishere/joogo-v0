@@ -48,7 +48,8 @@
     "expo-sensors": "~8.1.0",
     "react-navigation-stack": "^2.3.13",
     "expo-ads-admob": "~8.1.0",
-    "expo-ads-facebook": "~8.1.0"
+    "expo-ads-facebook": "~8.1.0",
+    "expo-screen-orientation": "~1.0.0"
   },
   "devDependencies": {
     "babel-preset-expo": "~8.1.0",

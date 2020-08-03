@@ -363,8 +363,8 @@ class ExerciseHistory extends Component {
                                 keyExtractor={item => item.SENDID}
                                 showsVerticalScrollIndicator={false}
                                 key={item => item.SENDID} // https://stackoverflow.com/questions/45947921/react-native-cant-fix-flatlist-keys-warning
-                                onRefresh={this._handleRefresh}
-                                refreshing={this.state.refreshing}
+                                // onRefresh={this._handleRefresh}
+                                // refreshing={this.state.refreshing}
                                 onEndReached={this._handleLoadMore}
                                 onEndReachedThreshold={1}
                             >
@@ -761,8 +761,8 @@ class PostHistory extends Component {
                                 keyExtractor={item => item.VIDID}
                                 showsVerticalScrollIndicator={false}
                                 key={item => item.VIDID} // https://stackoverflow.com/questions/45947921/react-native-cant-fix-flatlist-keys-warning
-                                onRefresh={this._handleRefresh}
-                                refreshing={this.state.refreshing}
+                                // onRefresh={this._handleRefresh}
+                                // refreshing={this.state.refreshing}
                                 onEndReached={this._handleLoadMore}
                                 onEndReachedThreshold={1}
                             >
