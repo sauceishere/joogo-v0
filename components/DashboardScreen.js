@@ -45,6 +45,7 @@ export default class DashboardScreen extends Component {
         wpart: null, // will be assigned after downloaded from Firebase. 20200606
         const_exer: null, // will be assigned after downloaded from Firebase. 20200606
         adUnitID: null, // get adUnitID form Firebase 20200625
+        mets_per_part: null, //20200804
     }
     // this.allSnapShot = this.allSnapShot.bind(this);
     this._sendVidViewLog = this._sendVidViewLog.bind(this);
@@ -393,6 +394,7 @@ export default class DashboardScreen extends Component {
               flagMastersLoaded: true, // this to identify its downloaded
               wpart: response.wpart,
               const_exer: response.const_exer,
+              mets_per_part: mets_per_part, // 20200804
               adUnitID: response.const_exer.adUnitID,
             }); 
             console.log('this.state.const_exer: ', this.state.const_exer );

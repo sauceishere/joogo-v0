@@ -18,6 +18,8 @@ import {vidViewLogDirName} from '../shared/Consts';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake'; //https://docs.expo.io/versions/latest/sdk/keep-awake/
 import { Constants, Accelerometer } from 'expo-sensors'; // https://docs.expo.io/versions/latest/sdk/accelerometer/ # https://snack.expo.io/@professorxii/expo-accelerometer-example
 
+import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
+
 
 const TensorCamera = cameraWithTensors(Camera); // https://js.tensorflow.org/api_react_native/latest/#cameraWithTensors
 
@@ -122,6 +124,7 @@ export default class Exercise extends Component {
   // wpart = ''; // to store data from Firestore
   vidMeta = this.props.navigation.getParam('post')
   wpart = this.props.navigation.getParam('wpart');
+  mets_per_part = this.props.navigation.getParam('mets_per_part');
   
 
   initialPositions = {
@@ -142,7 +145,7 @@ export default class Exercise extends Component {
   };
 
 
-  pos = {
+  pos = { // coordinate at the loop
     x0 : null, // initiate as null
     y0 : null, // initiate as null    
     x1 : null, // initiate as null
@@ -176,6 +179,19 @@ export default class Exercise extends Component {
   }
 
   md = { // moved distance
+    x0 : 0, // moving distance
+    x1 : 0, // moving distance
+    x2 : 0, // moving distance
+    x9 : 0, // moving distance
+    x10 : 0, // moving distance         
+    x13 : 0, // moving distance
+    x14 : 0, // moving distance
+    x15 : 0, // moving distance
+    x16 : 0, // moving distance       
+    x5 : 0, // moving distance
+    x6 : 0, // moving distance
+    x11 : 0, // moving distance
+    x12 : 0, // moving distance     
     y0 : 0, // moving distance
     y1 : 0, // moving distance
     y2 : 0, // moving distance
@@ -191,7 +207,20 @@ export default class Exercise extends Component {
     y12 : 0, // moving distance 
   }
 
-  mdCum = { // moved distance cummulative
+  mdCum = { // ACCUMULATE moved distance 
+    x0 : 0, // accumulate moving distance
+    x7 : 0, // accumulate moving distance
+    x8 : 0, // accumulate moving distance
+    x9 : 0, // accumulate moving distance
+    x10 : 0, // accumulate moving distance         
+    x13 : 0, // accumulate moving distance
+    x14 : 0, // accumulate moving distance
+    x15 : 0, // accumulate moving distance
+    x16 : 0, // accumulate moving distance       
+    x5 : 0, // accumulate moving distance
+    x6 : 0, // accumulate moving distance
+    x11 : 0, // accumulate moving distance
+    x12 : 0, // accumulate moving distance    
     y0 : 0, // accumulate moving distance
     y7 : 0, // accumulate moving distance
     y8 : 0, // accumulate moving distance
@@ -267,26 +296,26 @@ export default class Exercise extends Component {
 
   coefNTA = this.props.navigation.getParam('const_exer')['coefNTA']; // 20200614
 
+  WEIGHT_KG = 62; // my weight is 62kg. this should be inputted before video page. 20200804
 
 
 
+  // _subscribeToAccelerometer = () => {
+  //   console.log('_subscribeToAccelerometer');
+  //   this._subscription = Accelerometer.addListener(
+  //     // setData(accelerometerData);
+  //     accelerometerData => this.setState({ accelerometerData })      
+  //   );
+  //   Accelerometer.setUpdateInterval(1 * 1000); // update very X miliseconds
 
-  _subscribeToAccelerometer = () => {
-    console.log('_subscribeToAccelerometer');
-    this._subscription = Accelerometer.addListener(
-      // setData(accelerometerData);
-      accelerometerData => this.setState({ accelerometerData })      
-    );
-    Accelerometer.setUpdateInterval(1 * 1000); // update very X miliseconds
-
-  };
+  // };
 
 
-  _unsubscribeFromAccelerometer = () => {
-    console.log('_unsubscribeFromAccelerometer');
-    this._subscription && this._subscription.remove();
-    this._subscription = null;
-  };
+  // _unsubscribeFromAccelerometer = () => {
+  //   console.log('_unsubscribeFromAccelerometer');
+  //   this._subscription && this._subscription.remove();
+  //   this._subscription = null;
+  // };
 
 
   _goBackToHome = async () => {
@@ -340,8 +369,9 @@ export default class Exercise extends Component {
   async componentDidMount() {
     console.log('------------------- componentDidMount Exercise started 64');
 
-    activateKeepAwake();
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
 
+    activateKeepAwake();
 
     // const ratios = await Camera.getSupportedRatiosAsync();
     // console.log('ratios: ', Camera.getSupportedRatiosAsync());
@@ -735,26 +765,50 @@ export default class Exercise extends Component {
           console.log('--- noseToAnkle: ', noseToAnkle);
 
           var mdCumTtlNow = 
-          (this.mdCum.y0 / NTAForScore * this.wpart.nose) +
-          (this.mdCum.y5 / NTAForScore * this.wpart.leftShoulder) +
-          (this.mdCum.y6 / NTAForScore * this.wpart.rightShoulder) +              
-          (this.mdCum.y7 / NTAForScore * this.wpart.leftElbow) +   
-          (this.mdCum.y8 / NTAForScore * this.wpart.rightElbow) +   
-          (this.mdCum.y9 / NTAForScore * this.wpart.leftWrist) +   
-          (this.mdCum.y10 / NTAForScore * this.wpart.rightWrist) +   
-          (this.mdCum.y11 / NTAForScore * this.wpart.leftHip) +   
-          (this.mdCum.y12 / NTAForScore * this.wpart.rightHip) +                 
-          (this.mdCum.y13 / NTAForScore * this.wpart.leftKnee) +   
-          (this.mdCum.y14 / NTAForScore * this.wpart.rightKnee) +   
-          (this.mdCum.y15 / NTAForScore * this.wpart.leftAnkle) +   
-          (this.mdCum.y16 / NTAForScore * this.wpart.rightAnkle)  
+          (this.mdCum.x5 / NTAForScore * this.mets_per_part.x_sho) +
+          (this.mdCum.x6 / NTAForScore * this.mets_per_part.x_sho) +              
+          (this.mdCum.x7 / NTAForScore * this.mets_per_part.x_elb) +   
+          (this.mdCum.x8 / NTAForScore * this.mets_per_part.x_elb) +   
+          (this.mdCum.x9 / NTAForScore * this.mets_per_part.x_wri) +   
+          (this.mdCum.x10 / NTAForScore * this.mets_per_part.x_wri) +   
+          (this.mdCum.x11 / NTAForScore * this.mets_per_part.x_hip) +   
+          (this.mdCum.x12 / NTAForScore * this.mets_per_part.x_hip) +                 
+          (this.mdCum.x13 / NTAForScore * this.mets_per_part.x_kne) +   
+          (this.mdCum.x14 / NTAForScore * this.mets_per_part.x_kne) +   
+          (this.mdCum.x15 / NTAForScore * this.mets_per_part.x_ank) +   
+          (this.mdCum.x16 / NTAForScore * this.mets_per_part.x_ank) +
+
+          // (this.mdCum.y0 / NTAForScore * this.mets_per_part.nose) +
+          (this.mdCum.y5 / NTAForScore * this.mets_per_part.y_sho) +
+          (this.mdCum.y6 / NTAForScore * this.mets_per_part.y_sho) +              
+          (this.mdCum.y7 / NTAForScore * this.mets_per_part.y_elb) +   
+          (this.mdCum.y8 / NTAForScore * this.mets_per_part.y_elb) +   
+          (this.mdCum.y9 / NTAForScore * this.mets_per_part.y_wri) +   
+          (this.mdCum.y10 / NTAForScore * this.mets_per_part.y_wri) +   
+          (this.mdCum.y11 / NTAForScore * this.mets_per_part.y_hip) +   
+          (this.mdCum.y12 / NTAForScore * this.mets_per_part.y_hip) +                 
+          (this.mdCum.y13 / NTAForScore * this.mets_per_part.y_kne) +   
+          (this.mdCum.y14 / NTAForScore * this.mets_per_part.y_kne) +   
+          (this.mdCum.y15 / NTAForScore * this.mets_per_part.y_ank) +   
+          (this.mdCum.y16 / NTAForScore * this.mets_per_part.y_ank) +
+          
+          (Math.pow(this.mdCum.y5, 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +
+          (Math.pow(this.mdCum.y6, 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +              
+          (Math.pow(this.mdCum.y7, 2) / NTAForScore * this.mets_per_part.y_elb_sqr) +   
+          (Math.pow(this.mdCum.y8, 2) / NTAForScore * this.mets_per_part.y_elb_sqr) +   
+          (Math.pow(this.mdCum.y9, 2) / NTAForScore * this.mets_per_part.y_wri_sqr) +   
+          (Math.pow(this.mdCum.y10, 2) / NTAForScore * this.mets_per_part.y_wri_sqr) +   
+          (Math.pow(this.mdCum.y11, 2) / NTAForScore * this.mets_per_part.y_hip_sqr) +   
+          (Math.pow(this.mdCum.y12, 2) / NTAForScore * this.mets_per_part.y_hip_sqr) +                 
+          (Math.pow(this.mdCum.y13, 2) / NTAForScore * this.mets_per_part.y_kne_sqr) +   
+          (Math.pow(this.mdCum.y14, 2) / NTAForScore * this.mets_per_part.y_kne_sqr) +   
+          (Math.pow(this.mdCum.y15, 2) / NTAForScore * this.mets_per_part.y_ank_sqr) +   
+          (Math.pow(this.mdCum.y16, 2) / NTAForScore * this.mets_per_part.y_ank_sqr)
+
           console.log('--- mdCumTtlNow: ', mdCumTtlNow);          
 
           // this.vidState.scorePointSum = this.vidState.scorePointSum + 9; 
-          var scoreNow = mdCumTtlNow / finscore_now * 100; // its like percentage 
-          if (scoreNow > 100) { // if score is over 100, then force to 100.
-            scoreNow = 100;
-          }
+          var scoreNow = mdCumTtlNow / this.vidState.vidPlayedSum * this.WEIGHT_KG * 1.05 
           console.log('--- scoreNow: ', scoreNow);
 
 
