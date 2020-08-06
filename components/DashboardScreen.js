@@ -394,10 +394,11 @@ export default class DashboardScreen extends Component {
               flagMastersLoaded: true, // this to identify its downloaded
               wpart: response.wpart,
               const_exer: response.const_exer,
-              mets_per_part: mets_per_part, // 20200804
+              mets_per_part: response.mets_per_part, // 20200804
               adUnitID: response.const_exer.adUnitID,
             }); 
             console.log('this.state.const_exer: ', this.state.const_exer );
+            console.log('this.state.mets_per_part: ', this.state.mets_per_part );
 
           } else if (response["code"] == 'ok') {
             console.log('---------------- ok, length: ', response.detail.vidMetas.length );
@@ -728,7 +729,7 @@ export default class DashboardScreen extends Component {
 
   render() {
     console.log('---------------- render');
-    const { isLoading } = this.state;
+    const { isLoading, wpart, const_exer, mets_per_part  } = this.state;
 
     return (
       <View style={styles.container}>
@@ -768,9 +769,9 @@ export default class DashboardScreen extends Component {
           {/* https://docs.expo.io/versions/latest/sdk/linear-gradient/ */}
           <Ionicons name='ios-person' size={28} color="white" style={styles.ProfileIcon} onPress={ () => this.props.navigation.push('Profile') } />  
           <Ionicons name="ios-add-circle-outline" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Post') }/>
-          <MaterialIcons name='history' size={28} color="white" style={styles.HistoryIcon} onPress={ () => this.props.navigation.push('History')}/>
+          <MaterialIcons name='history' size={28} color="white" style={styles.HistoryIcon} onPress={ () => this.props.navigation.push('History') }/>
           <Ionicons name="ios-medal" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Leaderboard') }/> 
-          {/* <Ionicons name='ios-notifications-outline' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Notification') }/> */}
+          <Ionicons name='ios-notifications-outline' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Live', { const_exer, mets_per_part} ) }/>
         {/* </LinearGradient> */}
         </View>
 

@@ -8,6 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import ProfileScreen from '../components/ProfileScreen';
 import PostScreen from '../components/PostScreen';
 import NotificationScreen from '../components/NotificationScreen';
+import LiveScreen from '../components/Live';
 
 
 const goToProfile =() => {
@@ -27,7 +28,7 @@ const GoToHistory =() => {
 
 const GoToNotification =() => {
   console.log('GoToNotification');
-  this.props.navigation.push('Notification');
+  this.props.navigation.push('Live');
 }  
 
 export default class Footer extends Component {
