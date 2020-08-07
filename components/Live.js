@@ -87,7 +87,7 @@ export default class Live extends Component {
       flagCountdownFinished: false, // true when countdown finished to controll PlayAndPauseButton
       shouldPlay: false, // not play at default
       flagUpdateScore: false, //
-      flagVidEnd: false, // Flag 1 when Video ends, then stop logging
+      // flagVidEnd: false, // Flag 1 when Video ends, then stop logging
       vidViewLogDirName: {vidViewLogDirName}['vidViewLogDirName'], // Local storage directory name to keep vidViewLog
       // ULBColorTop: 'transparent',
       // ULBColorBottom: 'transparent',
@@ -206,34 +206,34 @@ export default class Live extends Component {
     y12 : null, // initiate as null 
   }
 
-  md = { // moved distance
-    x0 : 0, // moving distance
-    x1 : 0, // moving distance
-    x2 : 0, // moving distance
-    x9 : 0, // moving distance
-    x10 : 0, // moving distance         
-    x13 : 0, // moving distance
-    x14 : 0, // moving distance
-    x15 : 0, // moving distance
-    x16 : 0, // moving distance       
-    x5 : 0, // moving distance
-    x6 : 0, // moving distance
-    x11 : 0, // moving distance
-    x12 : 0, // moving distance     
-    y0 : 0, // moving distance
-    y1 : 0, // moving distance
-    y2 : 0, // moving distance
-    y9 : 0, // moving distance
-    y10 : 0, // moving distance         
-    y13 : 0, // moving distance
-    y14 : 0, // moving distance
-    y15 : 0, // moving distance
-    y16 : 0, // moving distance       
-    y5 : 0, // moving distance
-    y6 : 0, // moving distance
-    y11 : 0, // moving distance
-    y12 : 0, // moving distance 
-  }
+  // md = { // moved distance
+  //   x0 : 0, // moving distance
+  //   x1 : 0, // moving distance
+  //   x2 : 0, // moving distance
+  //   x9 : 0, // moving distance
+  //   x10 : 0, // moving distance         
+  //   x13 : 0, // moving distance
+  //   x14 : 0, // moving distance
+  //   x15 : 0, // moving distance
+  //   x16 : 0, // moving distance       
+  //   x5 : 0, // moving distance
+  //   x6 : 0, // moving distance
+  //   x11 : 0, // moving distance
+  //   x12 : 0, // moving distance     
+  //   y0 : 0, // moving distance
+  //   y1 : 0, // moving distance
+  //   y2 : 0, // moving distance
+  //   y9 : 0, // moving distance
+  //   y10 : 0, // moving distance         
+  //   y13 : 0, // moving distance
+  //   y14 : 0, // moving distance
+  //   y15 : 0, // moving distance
+  //   y16 : 0, // moving distance       
+  //   y5 : 0, // moving distance
+  //   y6 : 0, // moving distance
+  //   y11 : 0, // moving distance
+  //   y12 : 0, // moving distance 
+  // }
 
   mdCum = { // ACCUMULATE moved distance 
     x0 : 0, // accumulate moving distance
@@ -268,7 +268,7 @@ export default class Live extends Component {
   mdCumAll = [] // to append ALL of mdCum from start to end for vidViewLog
   posAll = [] // to append ALL of this.pos from start to end 
 
-  attentionTxt = 'Fit your body below'; //'Move yourself inside orange below'; 
+  attentionTxt = 'Fit your body'; //'Move yourself inside orange below'; 
 
   // countdownTxt = '';
   frameOutCntCriteria = this.props.navigation.getParam('const_exer')['frameOutCntCriteria']; // if accumulate count of out times of Frame is more than X times, then shower borderColor. 
@@ -349,7 +349,7 @@ export default class Live extends Component {
   _goBackToHome = async () => {
     console.log('------------------------------------------------------ Go back to Home');
     // this.setState({ shouldPlay : false, flagUpdateScore: true }); // added 20200523
-    this.setState({ shouldPlay : false, flagVidEnd: true, flagUpdateScore: true  });
+    this.setState({ shouldPlay : false, flagUpdateScore: false  });
     // this.setState({ shouldPlay : false});
     // clearInterval(_updateScore); // did NOT work 20200603
     // clearInterval(videoCountDown); // did NOT work 20200603
@@ -385,16 +385,19 @@ export default class Live extends Component {
 
   async componentWillUnmount() {
       console.log('------------------- componentWillUnmount Live started');
-    if(this.rafId) {  
-      cancelAnimationFrame(this.rafId);
-    }  
 
+    if(this.rafId) {  // this is for Tensorflow
+      cancelAnimationFrame(this.rafId);
+    }
+
+    this.vidState.vidEndAt = Date.now()/1000;
 
     await this._unsubscribeFromAccelerometer();
 
     deactivateKeepAwake();
 
-    await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
+    ScreenOrientation.unlockAsync(); // back to portrait
+    // await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
 
     await this._saveVidViewLog();
 
@@ -404,11 +407,11 @@ export default class Live extends Component {
 
   async componentDidMount() {
     console.log('------------------- componentDidMount Live started');
-    console.log('------ this.mets_per_part: ', this.mets_per_part);
-    console.log('screen height: ', Dimensions.get('screen').height);
-    console.log('screen width: ', Dimensions.get('screen').width);
-    console.log('window height: ', Dimensions.get('window').height);
-    console.log('window width: ', Dimensions.get('window').width);
+    // console.log('------ this.mets_per_part: ', this.mets_per_part);
+    // console.log('screen height: ', Dimensions.get('screen').height);
+    // console.log('screen width: ', Dimensions.get('screen').width);
+    // console.log('window height: ', Dimensions.get('window').height);
+    // console.log('window width: ', Dimensions.get('window').width);
     
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE); // to landscape
 
@@ -604,7 +607,7 @@ export default class Live extends Component {
                 pt: JSON.parse(localFileContents)["pt"], 
                 score: JSON.parse(localFileContents)["score"],
                 playSum: JSON.parse(localFileContents)["playSum"],
-                playPct: JSON.parse(localFileContents)["playPct"],
+                // playPct: JSON.parse(localFileContents)["playPct"],
                 cntOutAccel: JSON.parse(localFileContents)["cntOutAccel"],
                 cntPressPlayButton: JSON.parse(localFileContents)["cntPressPlayButton"],
                 cntPressPauseButton: JSON.parse(localFileContents)["cntPressPauseButton"],
@@ -693,12 +696,9 @@ export default class Live extends Component {
     jsonContents["score"] = this.state.scoreNow; 
     jsonContents["mdCumAll"] = this.mdCumAll; // this is an Array
 
-    if ( this.vidState.vidPlayedSum > this.state.vidLength) {
-      jsonContents["playSum"] = this.state.vidLength; // force to assign video length because played time should not be longer than video length. 20200614
-    } else {
-      jsonContents["playSum"] = this.vidState.vidPlayedSum; // 
-    }  
-    jsonContents["playPct"] = ( this.vidState.vidPlayedSum + 0.00001 ) / this.state.vidLength;
+    jsonContents["playSum"] = this.vidState.vidPlayedSum; // 
+    
+    // jsonContents["playPct"] = ( this.vidState.vidPlayedSum + 0.00001 ) / this.state.vidLength;
     jsonContents['cntOutAccel'] = this.cntOutAccel;
     // jsonContents['cntPressPlayButton'] = this.vidState.cntPressPlayButton;
     // jsonContents['cntPressPauseButton'] = this.vidState.cntPressPauseButton;
@@ -748,12 +748,11 @@ export default class Live extends Component {
   renderPose() {
     console.log('-------- renderPose.: ', this.vidState.renderPoseTimes);
 
-    const {pose, vidLength, flagAllPosOk, noseToAnkle, flagNoseToAnkle, rightToLeft, flagRightToLeft ,vidFullUrl, shouldPlay, flagUpdateScore, flagVidEnd } = this.state;
+    const {pose, vidLength, flagAllPosOk, noseToAnkle, flagNoseToAnkle, rightToLeft, flagRightToLeft ,vidFullUrl, shouldPlay, flagUpdateScore } = this.state;
     // console.log('-------- pose: ', pose);
 
 
     try{
-
 
       // const _AppendIdentifiedBPartsAll = (identifiedBpartsEach) => { // this runs every posenet loop to push identifiedBPartsEach to Array. 20200520
       //   console.log('======================= _AppendIdentifiedBPartsAll 1 ========= ', Date.now()/1000);
@@ -769,7 +768,7 @@ export default class Live extends Component {
 
         console.log('======================= _playVideoAtStart ========= ', Date.now()/1000);
 
-        this.setState({ flagCountdownFinished: true, shouldPlay: true});
+        this.setState({ flagCountdownFinished: true, shouldPlay: true, flagUpdateScore: true});
         // this.webviewRef.injectJavaScript(`
         //     document.getElementsByTagName("video")[0].play();
         // `)
@@ -782,7 +781,7 @@ export default class Live extends Component {
           this.setState({ flagAccelerometerIsAvailable: true }); 
           this._subscribeToAccelerometer(); // run Accelerometer
         }).catch(error => {
-          console.log('AccelerometerIs NOT Available: ', error);
+          console.log('Accelerometer is NOT Available: ', error);
         });
 
 
@@ -791,18 +790,18 @@ export default class Live extends Component {
 
 
 ////////// update score ////////////////////
-      if (this.state.shouldPlay === true & this.state.flagUpdateScore === false & this.state.flagVidEnd === false)  { //
+      if (this.state.shouldPlay === true & this.state.flagUpdateScore === true)  { //
 
         var _updateScore = setInterval( () => {
 
           var secFromStart = parseInt( Date.now() / 1000 - this.vidState.vidStartAt);
           console.log('================================== secFromStart: ', secFromStart );
           
-          var finscore_now = JSON.parse(this.vidMeta["FINSCORE"])[ secFromStart.toString() ] ; // current time's finscore
-          console.log('--- finscore_now: ', finscore_now);
+          // var finscore_now = JSON.parse(this.vidMeta["FINSCORE"])[ secFromStart.toString() ] ; // current time's finscore
+          // console.log('--- finscore_now: ', finscore_now);
 
           var NTAForScore = noseToAnkle * this.coefNTA; // 20200614
-          console.log('--- noseToAnkle: ', noseToAnkle);
+          // console.log('--- noseToAnkle: ', noseToAnkle);
 
           var mdCumTtlNow = 
           (this.mdCum.x5 / NTAForScore * this.mets_per_part.x_sho) +
@@ -843,56 +842,29 @@ export default class Live extends Component {
           (Math.pow(this.mdCum.y13, 2) / NTAForScore * this.mets_per_part.y_kne_sqr) +   
           (Math.pow(this.mdCum.y14, 2) / NTAForScore * this.mets_per_part.y_kne_sqr) +   
           (Math.pow(this.mdCum.y15, 2) / NTAForScore * this.mets_per_part.y_ank_sqr) +   
-          (Math.pow(this.mdCum.y16, 2) / NTAForScore * this.mets_per_part.y_ank_sqr)
+          (Math.pow(this.mdCum.y16, 2) / NTAForScore * this.mets_per_part.y_ank_sqr);
 
-          console.log('--- mdCumTtlNow: ', mdCumTtlNow);          
+          console.log('--- mdCumTtlNow: ', mdCumTtlNow.toFixed(2));          
 
-          // this.vidState.scorePointSum = this.vidState.scorePointSum + 9; 
-          var scoreNow = mdCumTtlNow / this.vidState.vidPlayedSum * this.WEIGHT_KG * 1.05 
-          console.log('--- scoreNow: ', scoreNow);
+          var scoreNow = mdCumTtlNow / this.vidState.vidPlayedSum / 60 / 60 * this.WEIGHT_KG * 1.05; // Calorie caluculation
+          console.log('--- scoreNow: ', scoreNow.toFixed(2));
 
+          this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(2), scoreNow: scoreNow.toFixed(1) });// this is what shows as score on top right.
 
-          //// calcalate progressBarWidth 20200605
-          var progressBarWidth = ( this.vidState.vidPlayedSum / this.state.vidLength ) * Dimensions.get('window').width;
-
-
-          this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(2), scoreNow: parseInt( scoreNow ), progressBarWidth: progressBarWidth });// this is what shows as score on top right.
-          
-
-////////// Append mdCum moved distance Cummulative for vidViewLog  ////////////////////        
-          var mdCumNowArray = {
-          "0": this.mdCum.y0.toFixed(), // nose
-          "5": this.mdCum.y5.toFixed(), // leftShoulder
-          "6": this.mdCum.y6.toFixed(), // rightShoulder           
-          "7": this.mdCum.y7.toFixed(), // leftElbow
-          "8": this.mdCum.y8.toFixed(), // rightElbow
-          "9": this.mdCum.y9.toFixed(), // leftWrist
-          "10": this.mdCum.y10.toFixed(), // rightWrist
-          "11": this.mdCum.y11.toFixed(), // leftHip
-          "12": this.mdCum.y12.toFixed(), // rightHip            
-          "13": this.mdCum.y13.toFixed(), // leftKnee
-          "14": this.mdCum.y14.toFixed(), // rightKnee
-          "15": this.mdCum.y15.toFixed(), // leftAnkle
-          "16": this.mdCum.y16.toFixed() }; // rightAnkle
-          // console.log('--- mdCumNowArray: ', mdCumNowArray); 
-
-
-          this.mdCumAll.push( JSON.stringify({ 'sec': secFromStart, 'ts': Date.now()/1000, 'score': scoreNow.toFixed(4), 'playSum': this.vidState.vidPlayedSum.toFixed(2), 'mdCumNowArray': mdCumNowArray, 'pos': this.pos }) ); // append froms Start to End 
+          this.mdCumAll.push( JSON.stringify({ 'sec': secFromStart, 'ts': Date.now()/1000, 'score': scoreNow.toFixed(1), 'playSum': this.vidState.vidPlayedSum.toFixed(2), 'pos': this.pos }) ); // append froms Start to End 
          
 
-
 ////////// Video End  ////////////////////
-          console.log('this.vidState.vidPlayedSum , vidLength: ', this.vidState.vidPlayedSum , vidLength );
-          if ( this.vidState.vidPlayedSum > vidLength + 1 ) { // add 1 seconds on vidLength
-            console.log('=========================== Video end ========== time from vidStartAt', Date.now()/1000 - this.vidState.vidStartAt );
-            clearInterval(_updateScore); 
-            this.vidState.vidEndAt = Date.now()/1000;
-            this.setState({flagVidEnd: true, flagUpdateScore: false, showModal: true});  // deleted 
-            // this.setState({flagVidEnd: true , showModal: true});    
+          // console.log('this.vidState.vidPlayedSum , vidLength: ', this.vidState.vidPlayedSum , vidLength );
+          // if ( this.vidState.vidPlayedSum > vidLength + 1 ) { // add 1 seconds on vidLength
+          //   console.log('=========================== Video end ========== time from vidStartAt', Date.now()/1000 - this.vidState.vidStartAt );
+          //   clearInterval(_updateScore); 
+          //   this.vidState.vidEndAt = Date.now()/1000;
+          //   this.setState({flagVidEnd: true, flagUpdateScore: false, showModal: true});  // deleted     
 
-            this.vidState.numFrameVidEnd = this.vidState.renderPoseTimes; // for record to Firestore vidViewLog. 20200524
+          //   this.vidState.numFrameVidEnd = this.vidState.renderPoseTimes; // for record to Firestore vidViewLog. 20200524
         
-          } 
+          // } 
           
 
           if ( this.state.shouldPlay === false ) { // this will force to stop setInterval(_updateScore) when user outNTA or press gobackhome BEFORE video ends. 20200603
@@ -902,10 +874,10 @@ export default class Live extends Component {
 
         }, 1000 ); // update score every X millisecond  
 
-        console.log('---------------------------------------- flagUpdateScore: true'); // deleted 20200523
-        this.setState({flagUpdateScore: true}); // deleted 20200523
+        // console.log('---------------------------------------- flagUpdateScore: true'); // deleted 20200523
+        // this.setState({flagUpdateScore: true}); // deleted 20200523
 
-      } // closing if (this.state.shouldPlay === true & this.state.flagUpdateScore === false & this.state.flagVidEnd === false)
+      } // closing if (this.state.shouldPlay === true & this.state.flagUpdateScore === false )
 
       if ( pose != null ) {
         // console.log('-------- pose.keypoints: ', pose.keypoints)
@@ -948,7 +920,7 @@ export default class Live extends Component {
               // identifiedBpartsEach.push([0, Math.round(k.position.x), Math.round(k.position.y), k.score.toFixed(2) ]);
               identifiedBpartsEach.push( { 'p': '0', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
               if (this.pos.x0 != null) { // after 2nd loop
-                this.mdCum.x0 = Math.abs( this.pos.x0 - Math.round(k.position.x) )
+                this.mdCum.x0 = Math.abs( this.pos.x0 - Math.round(k.position.x) ) + this.mdCum.x0 ;
               } else { // 1st loop
                 this.pos.x0 = Math.round(k.position.x); // assign position
                 console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x0 nose');
@@ -956,7 +928,7 @@ export default class Live extends Component {
               this.pos.x0 = Math.round(k.position.x); // update present position 
 
               if (this.pos.y0 != null) { // after 2nd loop
-                this.mdCum.y0 = Math.abs( this.pos.y0 - Math.round(k.position.y) )
+                this.mdCum.y0 = Math.abs( this.pos.y0 - Math.round(k.position.y) ) + this.mdCum.y0;
               } else { // 1st loop
                 this.pos.y0 = Math.round(k.position.y); // assign position
                 console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y0 nose');
@@ -974,15 +946,15 @@ export default class Live extends Component {
             } else if (k.part == 'leftElbow') {
                 identifiedBpartsEach.push( { 'p': '7', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x7 != null) { // after 2nd loop
-                    this.mdCum.x7 = Math.abs( this.pos.x7 - Math.round(k.position.x) )
-                  } else { // 1st loop
-                    this.pos.x7 = Math.round(k.position.x); // assign position
-                    console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x7 leftElbow');
-                  }      
+                  this.mdCum.x7 = Math.abs( this.pos.x7 - Math.round(k.position.x) ) + this.mdCum.x7;
+                } else { // 1st loop
+                  this.pos.x7 = Math.round(k.position.x); // assign position
+                  console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x7 leftElbow');
+                }      
                 this.pos.x7 = Math.round(k.position.x); // update present position 
     
                 if (this.pos.y7 != null) { // after 2nd loop
-                    this.mdCum.y7 = Math.abs( this.pos.y7 - Math.round(k.position.y) )
+                    this.mdCum.y7 = Math.abs( this.pos.y7 - Math.round(k.position.y) ) + this.mdCum.y7;
                 } else { // 1st loop
                     this.pos.y7 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y7 leftElbow');
@@ -991,15 +963,15 @@ export default class Live extends Component {
             } else if (k.part == 'rightElbow') {
                 identifiedBpartsEach.push( { 'p': '8', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x8 != null) { // after 2nd loop
-                    this.mdCum.x8 = Math.abs( this.pos.x8 - Math.round(k.position.x) )
-                  } else { // 1st loop
-                    this.pos.x8 = Math.round(k.position.x); // assign position
-                    console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x8 rightElbow');
-                  }      
+                  this.mdCum.x8 = Math.abs( this.pos.x8 - Math.round(k.position.x) ) + this.mdCum.x8;
+                } else { // 1st loop
+                  this.pos.x8 = Math.round(k.position.x); // assign position
+                  console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x8 rightElbow');
+                }      
                 this.pos.x8 = Math.round(k.position.x); // update present position 
     
                 if (this.pos.y8 != null) { // after 2nd loop
-                    this.mdCum.y8 = Math.abs( this.pos.y8 - Math.round(k.position.y) )
+                    this.mdCum.y8 = Math.abs( this.pos.y8 - Math.round(k.position.y) ) + this.mdCum.y8;
                 } else { // 1st loop
                     this.pos.y8 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y8 rightElbow');
@@ -1008,15 +980,15 @@ export default class Live extends Component {
             } else if (k.part == 'leftWrist') {
                 identifiedBpartsEach.push( { 'p': '9', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x9 != null) { // after 2nd loop
-                    this.mdCum.x9 = Math.abs( this.pos.x9 - Math.round(k.position.x) )
-                  } else { // 1st loop
-                    this.pos.x9 = Math.round(k.position.x); // assign position
-                    console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x9 leftWrist');
-                  }      
+                  this.mdCum.x9 = Math.abs( this.pos.x9 - Math.round(k.position.x) ) + this.mdCum.x9;
+                } else { // 1st loop
+                  this.pos.x9 = Math.round(k.position.x); // assign position
+                  console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x9 leftWrist');
+                }      
                 this.pos.x9 = Math.round(k.position.x); // update present position 
     
                 if (this.pos.y9 != null) { // after 2nd loop
-                    this.mdCum.y9 = Math.abs( this.pos.y9 - Math.round(k.position.y) )
+                    this.mdCum.y9 = Math.abs( this.pos.y9 - Math.round(k.position.y) ) + this.mdCum.y9;
                 } else { // 1st loop
                     this.pos.y9 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y9 leftWrist');
@@ -1025,15 +997,15 @@ export default class Live extends Component {
             } else if (k.part == 'rightWrist') {
                 identifiedBpartsEach.push( { 'p': '10', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x10 != null) { // after 2nd loop
-                    this.mdCum.x10 = Math.abs( this.pos.x10 - Math.round(k.position.x) )
-                  } else { // 1st loop
-                    this.pos.x10 = Math.round(k.position.x); // assign position
-                    console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x10 rightWrist');
-                  }      
+                  this.mdCum.x10 = Math.abs( this.pos.x10 - Math.round(k.position.x) ) + this.mdCum.x10;
+                } else { // 1st loop
+                  this.pos.x10 = Math.round(k.position.x); // assign position
+                  console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x10 rightWrist');
+                }      
                 this.pos.x10 = Math.round(k.position.x); // update present position 
     
                 if (this.pos.y10 != null) { // after 2nd loop
-                    this.mdCum.y10 = Math.abs( this.pos.y10 - Math.round(k.position.y) )
+                    this.mdCum.y10 = Math.abs( this.pos.y10 - Math.round(k.position.y) ) + this.mdCum.y10;
                 } else { // 1st loop
                     this.pos.y10 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y10 rightWrist');
@@ -1042,15 +1014,15 @@ export default class Live extends Component {
             } else if (k.part == 'leftShoulder') {
                 identifiedBpartsEach.push( { 'p': '5', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x5 != null) { // after 2nd loop
-                    this.mdCum.x5 = Math.abs( this.pos.x5 - Math.round(k.position.x) )
-                  } else { // 1st loop
-                    this.pos.x5 = Math.round(k.position.x); // assign position
-                    console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x5 leftShoulder');
-                  }      
+                  this.mdCum.x5 = Math.abs( this.pos.x5 - Math.round(k.position.x) ) + this.mdCum.x5;
+                } else { // 1st loop
+                  this.pos.x5 = Math.round(k.position.x); // assign position
+                  console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x5 leftShoulder');
+                }      
                 this.pos.x5 = Math.round(k.position.x); // update present position 
     
                 if (this.pos.y5 != null) { // after 2nd loop
-                    this.mdCum.y5 = Math.abs( this.pos.y5 - Math.round(k.position.y) )
+                    this.mdCum.y5 = Math.abs( this.pos.y5 - Math.round(k.position.y) ) + this.mdCum.y5;
                 } else { // 1st loop
                     this.pos.y5 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y5 leftShoulder');
@@ -1059,15 +1031,15 @@ export default class Live extends Component {
             } else if (k.part == 'rightShoulder') {
                 identifiedBpartsEach.push( { 'p': '6', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x6 != null) { // after 2nd loop
-                    this.mdCum.x6 = Math.abs( this.pos.x6 - Math.round(k.position.x) )
-                  } else { // 1st loop
-                    this.pos.x6 = Math.round(k.position.x); // assign position
-                    console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x6 rightShoulder');
-                  }      
+                  this.mdCum.x6 = Math.abs( this.pos.x6 - Math.round(k.position.x) ) + this.mdCum.x6;
+                } else { // 1st loop
+                  this.pos.x6 = Math.round(k.position.x); // assign position
+                  console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x6 rightShoulder');
+                }      
                 this.pos.x6 = Math.round(k.position.x); // update present position 
     
                 if (this.pos.y6 != null) { // after 2nd loop
-                    this.mdCum.y6 = Math.abs( this.pos.y6 - Math.round(k.position.y) )
+                    this.mdCum.y6 = Math.abs( this.pos.y6 - Math.round(k.position.y) ) + this.mdCum.y6;
                 } else { // 1st loop
                     this.pos.y6 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y6 rightShoulder');
@@ -1076,15 +1048,15 @@ export default class Live extends Component {
             } else if (k.part == 'leftHip') {
                 identifiedBpartsEach.push( { 'p': '11', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x11 != null) { // after 2nd loop
-                    this.mdCum.x11 = Math.abs( this.pos.x11 - Math.round(k.position.x) )
-                  } else { // 1st loop
-                    this.pos.x11 = Math.round(k.position.x); // assign position
-                    console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x11 leftHip');
-                  }      
+                  this.mdCum.x11 = Math.abs( this.pos.x11 - Math.round(k.position.x) ) + this.mdCum.x11;
+                } else { // 1st loop
+                  this.pos.x11 = Math.round(k.position.x); // assign position
+                  console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x11 leftHip');
+                }      
                 this.pos.x11 = Math.round(k.position.x); // update present position 
     
                 if (this.pos.y11 != null) { // after 2nd loop
-                    this.mdCum.y11 = Math.abs( this.pos.y11 - Math.round(k.position.y) )
+                    this.mdCum.y11 = Math.abs( this.pos.y11 - Math.round(k.position.y) ) + this.mdCum.y11;
                 } else { // 1st loop
                     this.pos.y11 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y11 leftHip');
@@ -1093,15 +1065,15 @@ export default class Live extends Component {
             } else if (k.part == 'rightHip') {
                 identifiedBpartsEach.push( { 'p': '12', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x12 != null) { // after 2nd loop
-                    this.mdCum.x12 = Math.abs( this.pos.x12 - Math.round(k.position.x) )
-                  } else { // 1st loop
-                    this.pos.x12 = Math.round(k.position.x); // assign position
-                    console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x12 rightHip');
-                  }      
+                  this.mdCum.x12 = Math.abs( this.pos.x12 - Math.round(k.position.x) ) + this.mdCum.x12;
+                } else { // 1st loop
+                  this.pos.x12 = Math.round(k.position.x); // assign position
+                  console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x12 rightHip');
+                }      
                 this.pos.x12 = Math.round(k.position.x); // update present position 
     
                 if (this.pos.y12 != null) { // after 2nd loop
-                    this.mdCum.y12 = Math.abs( this.pos.y12 - Math.round(k.position.y) )
+                    this.mdCum.y12 = Math.abs( this.pos.y12 - Math.round(k.position.y) ) + this.mdCum.y12;
                 } else { // 1st loop
                     this.pos.y12 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y12 rightHip');
@@ -1110,15 +1082,15 @@ export default class Live extends Component {
             } else if (k.part == 'leftKnee') {
                 identifiedBpartsEach.push( { 'p': '13', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x13 != null) { // after 2nd loop
-                    this.mdCum.x13 = Math.abs( this.pos.x13 - Math.round(k.position.x) )
-                  } else { // 1st loop
-                    this.pos.x13 = Math.round(k.position.x); // assign position
-                    console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x13 leftKnee');
-                  }      
+                  this.mdCum.x13 = Math.abs( this.pos.x13 - Math.round(k.position.x) ) + this.mdCum.x13;
+                } else { // 1st loop
+                  this.pos.x13 = Math.round(k.position.x); // assign position
+                  console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x13 leftKnee');
+                }      
                 this.pos.x13 = Math.round(k.position.x); // update present position 
     
                 if (this.pos.y13 != null) { // after 2nd loop
-                    this.mdCum.y13 = Math.abs( this.pos.y13 - Math.round(k.position.y) )
+                    this.mdCum.y13 = Math.abs( this.pos.y13 - Math.round(k.position.y) ) + this.mdCum.y13;
                 } else { // 1st loop
                     this.pos.y13 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y13 leftKnee');
@@ -1127,15 +1099,15 @@ export default class Live extends Component {
             } else if (k.part == 'rightKnee') {
                 identifiedBpartsEach.push( { 'p': '14', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x14 != null) { // after 2nd loop
-                    this.mdCum.x14 = Math.abs( this.pos.x14 - Math.round(k.position.x) )
-                  } else { // 1st loop
-                    this.pos.x14 = Math.round(k.position.x); // assign position
-                    console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x14 rightKnee');
-                  }      
+                  this.mdCum.x14 = Math.abs( this.pos.x14 - Math.round(k.position.x) ) + this.mdCum.x14;
+                } else { // 1st loop
+                  this.pos.x14 = Math.round(k.position.x); // assign position
+                  console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x14 rightKnee');
+                }      
                 this.pos.x14 = Math.round(k.position.x); // update present position 
     
                 if (this.pos.y14 != null) { // after 2nd loop
-                    this.mdCum.y14 = Math.abs( this.pos.y14 - Math.round(k.position.y) )
+                    this.mdCum.y14 = Math.abs( this.pos.y14 - Math.round(k.position.y) ) + this.mdCum.y14;
                 } else { // 1st loop
                     this.pos.y14 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y14 rightKnee');
@@ -1144,15 +1116,15 @@ export default class Live extends Component {
             } else if (k.part == 'leftAnkle') {
                 identifiedBpartsEach.push( { 'p': '15', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x15 != null) { // after 2nd loop
-                    this.mdCum.x15 = Math.abs( this.pos.x15 - Math.round(k.position.x) )
-                  } else { // 1st loop
-                    this.pos.x15 = Math.round(k.position.x); // assign position
-                    console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x15 leftAnkle');
-                  }      
+                  this.mdCum.x15 = Math.abs( this.pos.x15 - Math.round(k.position.x) ) + this.mdCum.x15;
+                } else { // 1st loop
+                  this.pos.x15 = Math.round(k.position.x); // assign position
+                  console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x15 leftAnkle');
+                }      
                 this.pos.x15 = Math.round(k.position.x); // update present position 
     
                 if (this.pos.y15 != null) { // after 2nd loop
-                    this.mdCum.y15 = Math.abs( this.pos.y15 - Math.round(k.position.y) )
+                    this.mdCum.y15 = Math.abs( this.pos.y15 - Math.round(k.position.y) ) + this.mdCum.y15;
                 } else { // 1st loop
                     this.pos.y15 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y15 leftAnkle');
@@ -1161,15 +1133,15 @@ export default class Live extends Component {
             } else if (k.part == 'rightAnkle') {
                 identifiedBpartsEach.push( { 'p': '16', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x16 != null) { // after 2nd loop
-                    this.mdCum.x16 = Math.abs( this.pos.x16 - Math.round(k.position.x) )
-                  } else { // 1st loop
-                    this.pos.x16 = Math.round(k.position.x); // assign position
-                    console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x16 rightAnkle');
-                  }      
+                  this.mdCum.x16 = Math.abs( this.pos.x16 - Math.round(k.position.x) ) + this.mdCum.x16;
+                } else { // 1st loop
+                  this.pos.x16 = Math.round(k.position.x); // assign position
+                  console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x16 rightAnkle');
+                }      
                 this.pos.x16 = Math.round(k.position.x); // update present position 
     
                 if (this.pos.y16 != null) { // after 2nd loop
-                    this.mdCum.y16 = Math.abs( this.pos.y16 - Math.round(k.position.y) )
+                    this.mdCum.y16 = Math.abs( this.pos.y16 - Math.round(k.position.y) ) + this.mdCum.y16;
                 } else { // 1st loop
                     this.pos.y16 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y16 rightAnkle');
@@ -1183,7 +1155,7 @@ export default class Live extends Component {
 
 
 ///////// check if User moves towards Camera by noseToAnkle. 20200523 //////////// 
-          if (shouldPlay == true && flagVidEnd == false)  { // check if video is playing
+          if (shouldPlay == true )  { // check if video is playing
             if (this.pos.y0 != null && this.pos.y15 != null && this.pos.y16 != null) { // check if all necessary position data exist
               if ( ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0 > noseToAnkle * this.outNTA.DistMoveCriteria) { // check if data is out of criteria
                 console.log('---------- out NoseToAnkle');
@@ -1231,17 +1203,17 @@ export default class Live extends Component {
             // // assign noseToAnkle
             if (this.state.flagCountdownFinished == false) { // go into this block until countdown finish 
 
-              ///////////////////////////////////
-              // // TESTMODE DUMMY 
-              if (this.TESTMODE == 1) { // when test
-                if (flagNoseToAnkle == false) { 
-                  this.setState({ 
-                    noseToAnkle: 100, 
-                    flagNoseToAnkle: true,
-                  });       
-                  console.log('8888888888 TESTMODE 8888888888888 DUMMY all pos confirmed.');     
-                }
-              }
+              // ///////////////////////////////////
+              // // // TESTMODE DUMMY 
+              // if (this.TESTMODE == 1) { // when test
+              //   if (flagNoseToAnkle == false) { 
+              //     this.setState({ 
+              //       noseToAnkle: 100, 
+              //       flagNoseToAnkle: true,
+              //     });       
+              //     console.log('8888888888 TESTMODE 8888888888888 DUMMY all pos confirmed.');     
+              //   }
+              // }
               ///////////////////////////////////
 
 
@@ -1276,7 +1248,7 @@ export default class Live extends Component {
 
   ////////// to check if all the positions are ready in camera  ////////////////////
 
-            if (vidFullUrl != '' && flagAllPosOk == false) { // Go into this block unitl countdown starts.
+            if (flagAllPosOk == false) { // Go into this block unitl countdown starts.
 
               ///////////////////////////////////////////////////////////
               // // DUMMY TESTMODE == 1
@@ -1348,10 +1320,10 @@ export default class Live extends Component {
                         // console.log('---- 1439   this.state.flagUpdateScore: ', this.state.flagUpdateScore );
                         // console.log('---- 1439   this.state.shouldPlay: ', this.state.shouldPlay );
 
-                        if ( this.state.flagVidEnd === true ) { // this will force to stop setInterval(videoCountDown) when user press gobackhome DURING COUNTDOWN. 20200603
-                          console.log('this will force to stop setInterval(videoCountDown).');
-                          clearInterval(videoCountDown); 
-                        }
+                        // if ( this.state.flagVidEnd === true ) { // this will force to stop setInterval(videoCountDown) when user press gobackhome DURING COUNTDOWN. 20200603
+                        //   console.log('this will force to stop setInterval(videoCountDown).');
+                        //   clearInterval(videoCountDown); 
+                        // }
                        
 
                       }.bind(this), 1000 ); // countdown interval in second  // add .bind(this) because https://stackoverflow.com/questions/31045716/react-this-setstate-is-not-a-function
@@ -1484,7 +1456,7 @@ export default class Live extends Component {
 
   render() {
     console.log('----------------- render --------------------');
-    const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, flagVidEnd, scoreNow, vidStartAt, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon } = this.state;
+    const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, scoreNow, vidStartAt, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon } = this.state;
 
     if (shouldPlay == true) { // increment only shouldPlay=true. this means not incremented whe video is paused.
       this.vidState.vidPlayedSum = this.vidState.vidPlayedSum + (Date.now()/1000 - this.vidState.loopStartAt); // add increment time
@@ -1494,7 +1466,7 @@ export default class Live extends Component {
 
 
 ////////// to check if mobile devices is fixed & no move by Accelerometer
-    if (shouldPlay == true && flagVidEnd == false) { // this runs only when video is playing after countdown until video ends
+    if (shouldPlay == true ) { // this runs only when video is playing after countdown until video ends
       if (this.prevAccelData.x == null || this.prevAccelData.y == null || this.prevAccelData.z == null) { // only 1st loop, Do assign only, 
         this.prevAccelData.x = accelerometerData.x; // assign only
         this.prevAccelData.y = accelerometerData.y; // assign only
@@ -1596,17 +1568,11 @@ export default class Live extends Component {
               }
 
 
-
-              { flagVidEnd ?
-                // <View style={styles.modelResults}> 
-                // </View>
-                null
-              :  
-                <View style={styles.modelResults}>
-                  {this.renderPose()}
-                </View>
-              }   
-
+     
+              <View style={styles.modelResults}>
+                {this.renderPose()}
+              </View>
+            
 
               { flagAllPosOk && 
                 <View style={styles.scoreContainer}>
@@ -1623,39 +1589,37 @@ export default class Live extends Component {
               }
 
 
-              { shouldPlay ?
+              {/* { shouldPlay ?
                 <View style={ styles.playButtonContainer }>
-                  {/* <TouchableOpacity onPress={ this._handlePlayAndPause } style={{height: Dimensions.get('screen').width * 0.7, width: Dimensions.get('screen').width * 0.7}} >  
-                  </TouchableOpacity> */}
+                  <TouchableOpacity onPress={ this._handlePlayAndPause } style={{height: Dimensions.get('screen').width * 0.7, width: Dimensions.get('screen').width * 0.7}} >  
+                  </TouchableOpacity>
                 </View>
               :
                 <View style={ styles.playButtonContainer }>
                   
-                  {/* { flagCountdownFinished ?
+                  { flagCountdownFinished ?
                     <TouchableOpacity onPress={ this._handlePlayAndPause } style={{height: Dimensions.get('screen').width * 0.7, width: Dimensions.get('screen').width * 0.7}}> 
                       <Ionicons name="ios-play-circle" color="#ffa500" size={this.playButtonSize} style={styles.playButton} />
                     </TouchableOpacity>
                   :
                     <View></View>
-                  } */}
-
+                  }
                 </View>
-              }
+              } */}
 
                  
-              { flagAllPosOk && 
+              {/* { flagAllPosOk && 
                 <View style={[styles.upperLayerContainer, {
                   borderTopColor: this.ULBColor.top,
                   borderBottomColor: this.ULBColor.bottom,
                   borderLeftColor: this.ULBColor.left,
                   borderRightColor: this.ULBColor.right,
                   borderWidth: Dimensions.get('window').height * 0.01} ]}>
-                  {/* <Text>upperLayerContainer</Text> */}
-                  {/* time progress bar */} 
+  
                   <View style={[styles.progressBar, {width: this.state.progressBarWidth} ]}>
                   </View>
                 </View>
-              }
+              } */}
               {/* https://reactnativecode.com/set-padding-dynamically/https://reactnativecode.com/set-padding-dynamically/ */}
                
 
@@ -1681,7 +1645,7 @@ export default class Live extends Component {
               }
 
 
-              { flagVidEnd && 
+              {/* { flagVidEnd && 
                 <View style={styles.modalLike}>
                   <Text style={styles.modalLikeTitle}>
                     Score:
@@ -1696,7 +1660,7 @@ export default class Live extends Component {
                     {mdCumTtlNow}
                   </Text>
                 </View>   
-              }
+              } */}
 
 
             </View> // close styles.layerOneContainer,
@@ -1894,27 +1858,27 @@ const styles = StyleSheet.create({
     // borderWidth: 5,
   },
   initialPostureImage: {
-    // width: '100%',
-    height: Dimensions.get('window').width , // photo size = 392*256   
-    top: 0,
-    bottom: 0,
-    borderColor: 'yellow',
-    borderWidth: 5,
+    width: Dimensions.get('window').width * 0.8 * 256/392,
+    height: Dimensions.get('window').width * 0.8, // photo size = 392*256   
+    // top: 0,
+    bottom: Dimensions.get('window').width * 0.02,
+    // borderColor: 'yellow',
+    // borderWidth: 1,
   }, 
 
  
   attentionContainer: {
     // zIndex: 301, // removed 20200531
-    flex: 1,
-    // flexGrow:1,
+    // flex: 1,
+    flexGrow:1,
     position: 'absolute',
-    top: Dimensions.get('window').height * 0.03,
+    top: Dimensions.get('window').width * 0.07,
     // width: Dimensions.get('window').width * 0.9,
     // height: null,
     // width: null,    
-    // alignItems: 'center',
-    // justifyContent: 'center',   
-    marginHorizontal: Dimensions.get('window').width * 0.2,
+    alignItems: 'center',
+    justifyContent: 'center',   
+    // marginHorizontal: Dimensions.get('window').width * 0.2,
     backgroundColor: 'rgba(20, 20, 20, 0.5)', 
     borderRadius: 10, 
     // paddingHorizontal: 10,
@@ -1927,7 +1891,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     // backgroundColor: 'rgba(220, 220, 220, 0.7)', 
   },
-
 
   upperLayerContainer: {
     position: 'absolute',
@@ -1985,9 +1948,9 @@ const styles = StyleSheet.create({
     // position: 'absolute',
     // top: 20,
     // right: 20,
-    flexGrow:1,
-    height:null,
-    width:null,    
+    flexGrow: 1,
+    height: null,
+    width: null,    
     alignItems: 'center',
     justifyContent: 'center',    
     // zIndex: 500, // removed 20200531
@@ -2000,8 +1963,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',   
     backgroundColor: 'rgba(20, 20, 20, 0.5)', // 'rgba(220, 220, 220, 0.5)'
     position: 'absolute',
-    top: Dimensions.get('window').height * 0.02,
-    left: Dimensions.get('window').width * 0.05, 
+    top: Dimensions.get('window').width * 0.07,
+    left: Dimensions.get('window').height * 0.02, 
     // zIndex: 501, // removed 20200531
     height: goBackIconSize,
     width: goBackIconSize,
