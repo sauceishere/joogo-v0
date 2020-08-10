@@ -790,18 +790,20 @@ export default class Live extends Component {
 
 
 ////////// update score ////////////////////
-      if (this.state.shouldPlay === true & this.state.flagUpdateScore === true)  { //
+      if (this.state.shouldPlay === true & this.state.flagUpdateScore === true) { //
 
         var _updateScore = setInterval( () => {
 
           var secFromStart = parseInt( Date.now() / 1000 - this.vidState.vidStartAt);
-          console.log('================================== secFromStart: ', secFromStart );
+          console.log('================================== secFromStart: ', secFromStart, this.vidState.vidPlayedSum.toFixed(3) );
+
+          console.log('this.mdCum: ', this.mdCum); 
           
           // var finscore_now = JSON.parse(this.vidMeta["FINSCORE"])[ secFromStart.toString() ] ; // current time's finscore
           // console.log('--- finscore_now: ', finscore_now);
 
           var NTAForScore = noseToAnkle * this.coefNTA; // 20200614
-          // console.log('--- noseToAnkle: ', noseToAnkle);
+          console.log('--- noseToAnkle: ', noseToAnkle);
 
           var mdCumTtlNow = 
           (this.mdCum.x5 / NTAForScore * this.mets_per_part.x_sho) +
@@ -831,18 +833,18 @@ export default class Live extends Component {
           (this.mdCum.y15 / NTAForScore * this.mets_per_part.y_ank) +   
           (this.mdCum.y16 / NTAForScore * this.mets_per_part.y_ank) +
           
-          (Math.pow(this.mdCum.y5, 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +
-          (Math.pow(this.mdCum.y6, 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +              
-          (Math.pow(this.mdCum.y7, 2) / NTAForScore * this.mets_per_part.y_elb_sqr) +   
-          (Math.pow(this.mdCum.y8, 2) / NTAForScore * this.mets_per_part.y_elb_sqr) +   
-          (Math.pow(this.mdCum.y9, 2) / NTAForScore * this.mets_per_part.y_wri_sqr) +   
-          (Math.pow(this.mdCum.y10, 2) / NTAForScore * this.mets_per_part.y_wri_sqr) +   
-          (Math.pow(this.mdCum.y11, 2) / NTAForScore * this.mets_per_part.y_hip_sqr) +   
-          (Math.pow(this.mdCum.y12, 2) / NTAForScore * this.mets_per_part.y_hip_sqr) +                 
-          (Math.pow(this.mdCum.y13, 2) / NTAForScore * this.mets_per_part.y_kne_sqr) +   
-          (Math.pow(this.mdCum.y14, 2) / NTAForScore * this.mets_per_part.y_kne_sqr) +   
-          (Math.pow(this.mdCum.y15, 2) / NTAForScore * this.mets_per_part.y_ank_sqr) +   
-          (Math.pow(this.mdCum.y16, 2) / NTAForScore * this.mets_per_part.y_ank_sqr);
+          (Math.pow(this.mdCum.y5 / NTAForScore * this.mets_per_part.y_sho_sqr), 2) +
+          (Math.pow(this.mdCum.y6 / NTAForScore * this.mets_per_part.y_sho_sqr), 2) +              
+          (Math.pow(this.mdCum.y7 / NTAForScore * this.mets_per_part.y_elb_sqr), 2) +   
+          (Math.pow(this.mdCum.y8 / NTAForScore * this.mets_per_part.y_elb_sqr), 2) +   
+          (Math.pow(this.mdCum.y9 / NTAForScore * this.mets_per_part.y_wri_sqr), 2) +   
+          (Math.pow(this.mdCum.y10 / NTAForScore * this.mets_per_part.y_wri_sqr), 2) +   
+          (Math.pow(this.mdCum.y11 / NTAForScore * this.mets_per_part.y_hip_sqr), 2) +   
+          (Math.pow(this.mdCum.y12 / NTAForScore * this.mets_per_part.y_hip_sqr), 2) +                 
+          (Math.pow(this.mdCum.y13 / NTAForScore * this.mets_per_part.y_kne_sqr), 2) +   
+          (Math.pow(this.mdCum.y14 / NTAForScore * this.mets_per_part.y_kne_sqr), 2) +   
+          (Math.pow(this.mdCum.y15 / NTAForScore * this.mets_per_part.y_ank_sqr), 2) +   
+          (Math.pow(this.mdCum.y16 / NTAForScore * this.mets_per_part.y_ank_sqr), 2);
 
           console.log('--- mdCumTtlNow: ', mdCumTtlNow.toFixed(2));          
 
@@ -874,10 +876,11 @@ export default class Live extends Component {
 
         }, 1000 ); // update score every X millisecond  
 
-        // console.log('---------------------------------------- flagUpdateScore: true'); // deleted 20200523
-        // this.setState({flagUpdateScore: true}); // deleted 20200523
+        console.log('---------------------------------------- flagUpdateScore: true'); // deleted 20200523
+        this.setState({flagUpdateScore: false}); // deleted 20200523
 
       } // closing if (this.state.shouldPlay === true & this.state.flagUpdateScore === false )
+
 
       if ( pose != null ) {
         // console.log('-------- pose.keypoints: ', pose.keypoints)
@@ -1150,8 +1153,8 @@ export default class Live extends Component {
 
             };
 
-
           }); // closing .map
+
 
 
 ///////// check if User moves towards Camera by noseToAnkle. 20200523 //////////// 
@@ -1332,7 +1335,7 @@ export default class Live extends Component {
                     } 
 
                   } else { // if initialPositions not confirmed
-                    console.log('initialPositions NOT confirmed');
+                    console.log('xxxxxxxxxxxxxxxxxxxxxxxxxx      initialPositions NOT confirmed       xxxxxxxxxxxxxxxxxxxxxxxxxx');
                   }   
                   
                 } else { // if all positions not confirmed 
@@ -1441,7 +1444,7 @@ export default class Live extends Component {
       } 
 
 
-    }catch(err) { // closing try block
+    } catch(err) { // closing try block
       console.log('renderpose error: ', err);  
     }  
 
@@ -1629,7 +1632,7 @@ export default class Live extends Component {
                 null
               :
                 <View style={styles.initialPostureContainer}>
-                  <Image style={styles.initialPostureImage} source={require('../assets/initialPosture_392x256dotted.png')} />
+                  <Image style={styles.initialPostureImage} source={require('../assets/initialPosture_475x310dotted.png')} />
                 </View>
               }
 
@@ -1804,7 +1807,7 @@ const styles = StyleSheet.create({
     // zIndex: 201, // removed 20200531
     position: 'absolute',
     top: Dimensions.get('window').height * 0.03,
-    right: Dimensions.get('window').width * 0.03, 
+    right: Dimensions.get('window').width * 0.03 + 0.1, 
     height: Dimensions.get('window').height * 0.13, // 0.1
     width: Dimensions.get('window').width * 0.4, //0.4
     backgroundColor: 'rgba(20, 20, 20, 0.5)', // darkgray seethrough background
@@ -1815,7 +1818,7 @@ const styles = StyleSheet.create({
   scoreText:{
     // alignItems: 'center',
     // justifyContent: 'center',
-    fontSize: 70,
+    fontSize: 40,
     textAlign: 'center',
     textShadowColor: 'black',
     textShadowRadius: 10,
@@ -1858,8 +1861,8 @@ const styles = StyleSheet.create({
     // borderWidth: 5,
   },
   initialPostureImage: {
-    width: Dimensions.get('window').width * 0.8 * 256/392,
-    height: Dimensions.get('window').width * 0.8, // photo size = 392*256   
+    width: Dimensions.get('window').width * 310/475,// photo size = 475*310
+    height: Dimensions.get('window').width,    
     // top: 0,
     bottom: Dimensions.get('window').width * 0.02,
     // borderColor: 'yellow',
