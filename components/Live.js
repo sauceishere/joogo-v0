@@ -206,34 +206,34 @@ export default class Live extends Component {
     y12 : null, // initiate as null 
   }
 
-  // md = { // moved distance
-  //   x0 : 0, // moving distance
-  //   x1 : 0, // moving distance
-  //   x2 : 0, // moving distance
-  //   x9 : 0, // moving distance
-  //   x10 : 0, // moving distance         
-  //   x13 : 0, // moving distance
-  //   x14 : 0, // moving distance
-  //   x15 : 0, // moving distance
-  //   x16 : 0, // moving distance       
-  //   x5 : 0, // moving distance
-  //   x6 : 0, // moving distance
-  //   x11 : 0, // moving distance
-  //   x12 : 0, // moving distance     
-  //   y0 : 0, // moving distance
-  //   y1 : 0, // moving distance
-  //   y2 : 0, // moving distance
-  //   y9 : 0, // moving distance
-  //   y10 : 0, // moving distance         
-  //   y13 : 0, // moving distance
-  //   y14 : 0, // moving distance
-  //   y15 : 0, // moving distance
-  //   y16 : 0, // moving distance       
-  //   y5 : 0, // moving distance
-  //   y6 : 0, // moving distance
-  //   y11 : 0, // moving distance
-  //   y12 : 0, // moving distance 
-  // }
+  mdCumPrev = { // accumulate moving distance for previous loop for mdCumPrev vs mdCum. 20200811
+    x0 : 0, // 
+    x1 : 0, //
+    x2 : 0, // 
+    x9 : 0, // 
+    x10 : 0, //          
+    x13 : 0, // 
+    x14 : 0, // 
+    x15 : 0, // 
+    x16 : 0, //        
+    x5 : 0, // 
+    x6 : 0, //
+    x11 : 0, // 
+    x12 : 0, //   
+    y0 : 0, // 
+    y1 : 0, // 
+    y2 : 0, // 
+    y9 : 0, // 
+    y10 : 0, //          
+    y13 : 0, // 
+    y14 : 0, // 
+    y15 : 0, // 
+    y16 : 0, //        
+    y5 : 0, // 
+    y6 : 0, // 
+    y11 : 0, // 
+    y12 : 0, //
+  }
 
   mdCum = { // ACCUMULATE moved distance 
     x0 : 0, // accumulate moving distance
@@ -267,6 +267,7 @@ export default class Live extends Component {
   // mdCumNowArray = {} // to assign array of mdCum
   mdCumAll = [] // to append ALL of mdCum from start to end for vidViewLog
   posAll = [] // to append ALL of this.pos from start to end 
+  scorePrev = 0 // for compare with mdCumTtl 20200810 
 
   attentionTxt = 'Fit your body'; //'Move yourself inside orange below'; 
 
@@ -407,7 +408,7 @@ export default class Live extends Component {
 
   async componentDidMount() {
     console.log('------------------- componentDidMount Live started');
-    // console.log('------ this.mets_per_part: ', this.mets_per_part);
+    console.log('------ this.mets_per_part: ', this.mets_per_part);
     // console.log('screen height: ', Dimensions.get('screen').height);
     // console.log('screen width: ', Dimensions.get('screen').width);
     // console.log('window height: ', Dimensions.get('window').height);
@@ -797,63 +798,76 @@ export default class Live extends Component {
           var secFromStart = parseInt( Date.now() / 1000 - this.vidState.vidStartAt);
           console.log('================================== secFromStart: ', secFromStart, this.vidState.vidPlayedSum.toFixed(3) );
 
+          if (secFromStart == 1) { // for the 1st loop, assign as dummy to avoid 'mdCumTtlNow' mis-calculation. 20200811
+            this.mdCumPrev = this.mdCum;
+            console.log('------ for the 1st loop to copy this.mdCum.'); 
+          }
+
+          console.log('this.mdCumPrev: ', this.mdCumPrev); 
+          
           console.log('this.mdCum: ', this.mdCum); 
           
           // var finscore_now = JSON.parse(this.vidMeta["FINSCORE"])[ secFromStart.toString() ] ; // current time's finscore
           // console.log('--- finscore_now: ', finscore_now);
 
           var NTAForScore = noseToAnkle * this.coefNTA; // 20200614
-          console.log('--- noseToAnkle: ', noseToAnkle);
+          console.log('--- NTAForScore: ', NTAForScore);
 
           var mdCumTtlNow = 
-          (this.mdCum.x5 / NTAForScore * this.mets_per_part.x_sho) +
-          (this.mdCum.x6 / NTAForScore * this.mets_per_part.x_sho) +              
-          (this.mdCum.x7 / NTAForScore * this.mets_per_part.x_elb) +   
-          (this.mdCum.x8 / NTAForScore * this.mets_per_part.x_elb) +   
-          (this.mdCum.x9 / NTAForScore * this.mets_per_part.x_wri) +   
-          (this.mdCum.x10 / NTAForScore * this.mets_per_part.x_wri) +   
-          (this.mdCum.x11 / NTAForScore * this.mets_per_part.x_hip) +   
-          (this.mdCum.x12 / NTAForScore * this.mets_per_part.x_hip) +                 
-          (this.mdCum.x13 / NTAForScore * this.mets_per_part.x_kne) +   
-          (this.mdCum.x14 / NTAForScore * this.mets_per_part.x_kne) +   
-          (this.mdCum.x15 / NTAForScore * this.mets_per_part.x_ank) +   
-          (this.mdCum.x16 / NTAForScore * this.mets_per_part.x_ank) +
+            // (this.mdCum.x5 - this.mdCumPrev.x5 + 0.001) / NTAForScore * this.mets_per_part.x_sho;
 
-          // (this.mdCum.y0 / NTAForScore * this.mets_per_part.nose) +
-          (this.mdCum.y5 / NTAForScore * this.mets_per_part.y_sho) +
-          (this.mdCum.y6 / NTAForScore * this.mets_per_part.y_sho) +              
-          (this.mdCum.y7 / NTAForScore * this.mets_per_part.y_elb) +   
-          (this.mdCum.y8 / NTAForScore * this.mets_per_part.y_elb) +   
-          (this.mdCum.y9 / NTAForScore * this.mets_per_part.y_wri) +   
-          (this.mdCum.y10 / NTAForScore * this.mets_per_part.y_wri) +   
-          (this.mdCum.y11 / NTAForScore * this.mets_per_part.y_hip) +   
-          (this.mdCum.y12 / NTAForScore * this.mets_per_part.y_hip) +                 
-          (this.mdCum.y13 / NTAForScore * this.mets_per_part.y_kne) +   
-          (this.mdCum.y14 / NTAForScore * this.mets_per_part.y_kne) +   
-          (this.mdCum.y15 / NTAForScore * this.mets_per_part.y_ank) +   
-          (this.mdCum.y16 / NTAForScore * this.mets_per_part.y_ank) +
+            ( (this.mdCum.x5 - this.mdCumPrev.x5 + 0.001) / NTAForScore * this.mets_per_part.x_sho) +
+            ( (this.mdCum.x6 - this.mdCumPrev.x6 + 0.001) / NTAForScore * this.mets_per_part.x_sho) +              
+            ( (this.mdCum.x7 - this.mdCumPrev.x7 + 0.001) / NTAForScore * this.mets_per_part.x_elb) +   
+            ( (this.mdCum.x8 - this.mdCumPrev.x8 + 0.001) / NTAForScore * this.mets_per_part.x_elb) +   
+            ( (this.mdCum.x9 - this.mdCumPrev.x9 + 0.001) / NTAForScore * this.mets_per_part.x_wri) +   
+            ( (this.mdCum.x10 - this.mdCumPrev.x10 + 0.001) / NTAForScore * this.mets_per_part.x_wri) +   
+            ( (this.mdCum.x11 - this.mdCumPrev.x11 + 0.001) / NTAForScore * this.mets_per_part.x_hip) +   
+            ( (this.mdCum.x12 - this.mdCumPrev.x12 + 0.001) / NTAForScore * this.mets_per_part.x_hip) +                 
+            ( (this.mdCum.x13 - this.mdCumPrev.x13 + 0.001) / NTAForScore * this.mets_per_part.x_kne) +   
+            ( (this.mdCum.x14 - this.mdCumPrev.x14 + 0.001) / NTAForScore * this.mets_per_part.x_kne) +   
+            ( (this.mdCum.x15 - this.mdCumPrev.x15 + 0.001) / NTAForScore * this.mets_per_part.x_ank) +   
+            ( (this.mdCum.x16 - this.mdCumPrev.x16 + 0.001) / NTAForScore * this.mets_per_part.x_ank) +
+
+            // (this.mdCum.y0 / NTAForScore * this.mets_per_part.nose) +
+            ( (this.mdCum.y5 - this.mdCumPrev.y5 + 0.001) / NTAForScore * this.mets_per_part.y_sho) +
+            ( (this.mdCum.y6 - this.mdCumPrev.y6 + 0.001) / NTAForScore * this.mets_per_part.y_sho) +              
+            ( (this.mdCum.y7 - this.mdCumPrev.y7 + 0.001) / NTAForScore * this.mets_per_part.y_elb) +   
+            ( (this.mdCum.y8 - this.mdCumPrev.y8 + 0.001) / NTAForScore * this.mets_per_part.y_elb) +   
+            ( (this.mdCum.y9 - this.mdCumPrev.y9 + 0.001) / NTAForScore * this.mets_per_part.y_wri) +   
+            ( (this.mdCum.y10 - this.mdCumPrev.y10 + 0.001) / NTAForScore * this.mets_per_part.y_wri) +   
+            ( (this.mdCum.y11 - this.mdCumPrev.y11 + 0.001) / NTAForScore * this.mets_per_part.y_hip) +   
+            ( (this.mdCum.y12 - this.mdCumPrev.y12 + 0.001) / NTAForScore * this.mets_per_part.y_hip) +                 
+            ( (this.mdCum.y13 - this.mdCumPrev.y13 + 0.001) / NTAForScore * this.mets_per_part.y_kne) +   
+            ( (this.mdCum.y14 - this.mdCumPrev.y14 + 0.001) / NTAForScore * this.mets_per_part.y_kne) +   
+            ( (this.mdCum.y15 - this.mdCumPrev.y15 + 0.001) / NTAForScore * this.mets_per_part.y_ank) +   
+            ( (this.mdCum.y16 - this.mdCumPrev.y16 + 0.001) / NTAForScore * this.mets_per_part.y_ank) +
+            
+            (Math.pow((this.mdCum.y5 - this.mdCumPrev.y5 + 0.001), 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +
+            (Math.pow((this.mdCum.y6 - this.mdCumPrev.y6 + 0.001), 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +              
+            (Math.pow((this.mdCum.y7 - this.mdCumPrev.y7 + 0.001), 2) / NTAForScore * this.mets_per_part.y_elb_sqr) +   
+            (Math.pow((this.mdCum.y8 - this.mdCumPrev.y8 + 0.001), 2) / NTAForScore * this.mets_per_part.y_elb_sqr) +   
+            (Math.pow((this.mdCum.y9 - this.mdCumPrev.y9 + 0.001), 2) / NTAForScore * this.mets_per_part.y_wri_sqr) +   
+            (Math.pow((this.mdCum.y10 - this.mdCumPrev.y10 + 0.001), 2) / NTAForScore * this.mets_per_part.y_wri_sqr) +   
+            (Math.pow((this.mdCum.y11 - this.mdCumPrev.y11 + 0.001), 2) / NTAForScore * this.mets_per_part.y_hip_sqr) +   
+            (Math.pow((this.mdCum.y12 - this.mdCumPrev.y12 + 0.001), 2) / NTAForScore * this.mets_per_part.y_hip_sqr) +                 
+            (Math.pow((this.mdCum.y13 - this.mdCumPrev.y13 + 0.001), 2) / NTAForScore * this.mets_per_part.y_kne_sqr) +   
+            (Math.pow((this.mdCum.y14 - this.mdCumPrev.y14 + 0.001), 2) / NTAForScore * this.mets_per_part.y_kne_sqr) +   
+            (Math.pow((this.mdCum.y15 - this.mdCumPrev.y15 + 0.001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr) +   
+            (Math.pow((this.mdCum.y16 - this.mdCumPrev.y16 + 0.001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr);
+
+          console.log('--- mdCumTtlNow: ', mdCumTtlNow.toFixed(4));
+
+          this.mdCumPrev = this.mdCum; // duplicate to compare prev vs. current at the next loop. 20200810  
           
-          (Math.pow(this.mdCum.y5 / NTAForScore * this.mets_per_part.y_sho_sqr), 2) +
-          (Math.pow(this.mdCum.y6 / NTAForScore * this.mets_per_part.y_sho_sqr), 2) +              
-          (Math.pow(this.mdCum.y7 / NTAForScore * this.mets_per_part.y_elb_sqr), 2) +   
-          (Math.pow(this.mdCum.y8 / NTAForScore * this.mets_per_part.y_elb_sqr), 2) +   
-          (Math.pow(this.mdCum.y9 / NTAForScore * this.mets_per_part.y_wri_sqr), 2) +   
-          (Math.pow(this.mdCum.y10 / NTAForScore * this.mets_per_part.y_wri_sqr), 2) +   
-          (Math.pow(this.mdCum.y11 / NTAForScore * this.mets_per_part.y_hip_sqr), 2) +   
-          (Math.pow(this.mdCum.y12 / NTAForScore * this.mets_per_part.y_hip_sqr), 2) +                 
-          (Math.pow(this.mdCum.y13 / NTAForScore * this.mets_per_part.y_kne_sqr), 2) +   
-          (Math.pow(this.mdCum.y14 / NTAForScore * this.mets_per_part.y_kne_sqr), 2) +   
-          (Math.pow(this.mdCum.y15 / NTAForScore * this.mets_per_part.y_ank_sqr), 2) +   
-          (Math.pow(this.mdCum.y16 / NTAForScore * this.mets_per_part.y_ank_sqr), 2);
-
-          console.log('--- mdCumTtlNow: ', mdCumTtlNow.toFixed(2));          
-
-          var scoreNow = mdCumTtlNow / this.vidState.vidPlayedSum / 60 / 60 * this.WEIGHT_KG * 1.05; // Calorie caluculation
+          console.log('--- this.scorePrev: ', this.scorePrev.toFixed(2));
+          var scoreNow = this.scorePrev + ( mdCumTtlNow / ( 1 / 60 / 60 ) * this.WEIGHT_KG * 1.05 ); // Calorie caluculation
           console.log('--- scoreNow: ', scoreNow.toFixed(2));
+          this.scorePrev = scoreNow; // duplicate to compare prev vs. current at the next loop. 20200810
+          
+          this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(2), scoreNow: scoreNow.toFixed(2) });// this is what shows as score on top right.
 
-          this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(2), scoreNow: scoreNow.toFixed(1) });// this is what shows as score on top right.
-
-          this.mdCumAll.push( JSON.stringify({ 'sec': secFromStart, 'ts': Date.now()/1000, 'score': scoreNow.toFixed(1), 'playSum': this.vidState.vidPlayedSum.toFixed(2), 'pos': this.pos }) ); // append froms Start to End 
+          this.mdCumAll.push( JSON.stringify({ 'sec': secFromStart, 'ts': Date.now()/1000, 'score': scoreNow.toFixed(2), 'playSum': this.vidState.vidPlayedSum.toFixed(2), 'pos': this.pos }) ); // append froms Start to End 
          
 
 ////////// Video End  ////////////////////
@@ -1291,7 +1305,7 @@ export default class Live extends Component {
               
 
                     this.cntIniPos += 1;
-                    // console.log('---------- this.cntIniPos: ', this.cntIniPos);
+                    console.log('---------- this.cntIniPos: ', this.cntIniPos);
 
                     // hide webCam, initialPosture.png & start countdown 
                     if (flagAllPosOk == false && this.cntIniPos > 2) { // flag to control going through one time 
@@ -1807,7 +1821,7 @@ const styles = StyleSheet.create({
     // zIndex: 201, // removed 20200531
     position: 'absolute',
     top: Dimensions.get('window').height * 0.03,
-    right: Dimensions.get('window').width * 0.03 + 0.1, 
+    right: Dimensions.get('window').width * 0.03 * 10, 
     height: Dimensions.get('window').height * 0.13, // 0.1
     width: Dimensions.get('window').width * 0.4, //0.4
     backgroundColor: 'rgba(20, 20, 20, 0.5)', // darkgray seethrough background
@@ -1875,7 +1889,7 @@ const styles = StyleSheet.create({
     // flex: 1,
     flexGrow:1,
     position: 'absolute',
-    top: Dimensions.get('window').width * 0.07,
+    top: Dimensions.get('window').width * 0.07 * 0.2,
     // width: Dimensions.get('window').width * 0.9,
     // height: null,
     // width: null,    
