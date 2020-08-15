@@ -395,7 +395,6 @@ export default class Live extends Component {
   //     accelerometerData => this.setState({ accelerometerData })      
   //   );
   //   Accelerometer.setUpdateInterval(1 * 1000); // update very X miliseconds
-
   // };
 
 
@@ -466,7 +465,7 @@ export default class Live extends Component {
 
 
   async componentDidMount() {
-    console.log('------------------- componentDidMount Live started 54');
+    console.log('------------------- componentDidMount Live started 58');
     console.log('------ this.mets_per_part: ', this.mets_per_part);
     console.log('------ this.camState: ', this.camState);
     // console.log('screen height: ', Dimensions.get('screen').height);
@@ -853,12 +852,14 @@ export default class Live extends Component {
 ////////// update score ////////////////////
       if (this.state.shouldPlay === true & this.state.flagUpdateScore === true) { //
         console.log('--- this.state.shouldPlay === true & this.state.flagUpdateScore === true');
+        
 
 
         var _updateScore = setInterval( () => {
 
           var secFromStart = parseInt( Date.now() / 1000 - this.vidState.vidStartAt);
           console.log('================================== cntLoop: ', this.cntLoopUpdateScore, ' | sec: ', secFromStart, this.vidState.vidPlayedSum.toFixed(3) );
+          console.log('--- this.pos: ', this.pos);
 
           var NTAForScore = noseToAnkle * this.coefNTA; // 20200614
           console.log('--- NTAForScore: ', NTAForScore);
@@ -874,31 +875,30 @@ export default class Live extends Component {
             console.log('--- this.scorePrev: ', this.scorePrev.toFixed(3));
             console.log('--- scoreNow: ', scoreNow.toFixed(3));
             
-            // this.mdCumA = {}; // reset variable
-            this.mdCumA.x5 = this.mdCum.x5; // Assign at 1st loop
-            this.mdCumA.x6 = this.mdCum.x6; // Assign at 1st loop
-            this.mdCumA.x7 = this.mdCum.x7; // Assign at 1st loop
-            this.mdCumA.x8 = this.mdCum.x8; // Assign at 1st loop
-            this.mdCumA.x9 = this.mdCum.x9; // Assign at 1st loop
-            this.mdCumA.x10 = this.mdCum.x10; // Assign at 1st loop
-            this.mdCumA.x11 = this.mdCum.x11; // Assign at 1st loop
-            this.mdCumA.x12 = this.mdCum.x12; // Assign at 1st loop
-            this.mdCumA.x13 = this.mdCum.x13; // Assign at 1st loop
-            this.mdCumA.x14 = this.mdCum.x14; // Assign at 1st loop
-            this.mdCumA.x15 = this.mdCum.x15; // Assign at 1st loop
-            this.mdCumA.y5 = this.mdCum.y5; // Assign at 1st loop
-            this.mdCumA.y6 = this.mdCum.y6; // Assign at 1st loop
-            this.mdCumA.y7 = this.mdCum.y7; // Assign at 1st loop
-            this.mdCumA.y8 = this.mdCum.y8; // Assign at 1st loop
-            this.mdCumA.y9 = this.mdCum.y9; // Assign at 1st loop
-            this.mdCumA.y10 = this.mdCum.y10; // Assign at 1st loop
-            this.mdCumA.y11 = this.mdCum.y11; // Assign at 1st loop
-            this.mdCumA.y12 = this.mdCum.y12; // Assign at 1st loop
-            this.mdCumA.y13 = this.mdCum.y13; // Assign at 1st loop
-            this.mdCumA.y14 = this.mdCum.y14; // Assign at 1st loop
-            this.mdCumA.y15 = this.mdCum.x15; // Assign at 1st loop           
+            // this.mdCumA = this.mdCum; // update mdCumA
+            this.mdCumA.x5 = this.mdCum.x5; // update mdCum
+            this.mdCumA.x6 = this.mdCum.x6; // update mdCum
+            this.mdCumA.x7 = this.mdCum.x7; // update mdCum
+            this.mdCumA.x8 = this.mdCum.x8; // update mdCum
+            this.mdCumA.x9 = this.mdCum.x9; // update mdCum
+            this.mdCumA.x10 = this.mdCum.x10; // update mdCum
+            this.mdCumA.x11 = this.mdCum.x11; // update mdCum
+            this.mdCumA.x12 = this.mdCum.x12; // update mdCum
+            this.mdCumA.x13 = this.mdCum.x13; // update mdCum
+            this.mdCumA.x14 = this.mdCum.x14; // update mdCum
+            this.mdCumA.x15 = this.mdCum.x15; // update mdCum
+            this.mdCumA.y5 = this.mdCum.y5; // update mdCum
+            this.mdCumA.y6 = this.mdCum.y6; // update mdCum
+            this.mdCumA.y7 = this.mdCum.y7; // update mdCum
+            this.mdCumA.y8 = this.mdCum.y8; // update mdCum
+            this.mdCumA.y9 = this.mdCum.y9; // update mdCum
+            this.mdCumA.y10 = this.mdCum.y10; // update mdCum
+            this.mdCumA.y11 = this.mdCum.y11; // update mdCum
+            this.mdCumA.y12 = this.mdCum.y12; // update mdCum
+            this.mdCumA.y13 = this.mdCum.y13; // update mdCum
+            this.mdCumA.y14 = this.mdCum.y14; // update mdCum
+            this.mdCumA.y15 = this.mdCum.x15; // update mdCum           
           
-            
             console.log('0 this.mdCum.x10, y13, y15: ', this.mdCum.x10, this.mdCum.y13, this.mdCum.y15 );
             console.log('0 this.mdCumA.x10, y13, y15: ', this.mdCumA.x10, this.mdCumA.y13, this.mdCumA.y15 );
             console.log('0 this.mdCumB.x10, y13, y15: ', this.mdCumB.x10, this.mdCumB.y13, this.mdCumB.y15 );
@@ -909,146 +909,146 @@ export default class Live extends Component {
             // console.log('-- this.cntLoopUpdateScore: ', this.cntLoopUpdateScore);
 
             if (this.flag_mdCum == 1) {
-              console.log('this.flag_mdCum == 1');
-              // this.mdCumB = {}; // reset variable
-              this.mdCumB.x5 = this.mdCum.x5; // Assign at 1st loop
-              this.mdCumB.x6 = this.mdCum.x6; // Assign at 1st loop
-              this.mdCumB.x7 = this.mdCum.x7; // Assign at 1st loop
-              this.mdCumB.x8 = this.mdCum.x8; // Assign at 1st loop
-              this.mdCumB.x9 = this.mdCum.x9; // Assign at 1st loop
-              this.mdCumB.x10 = this.mdCum.x10; // Assign at 1st loop
-              this.mdCumB.x11 = this.mdCum.x11; // Assign at 1st loop
-              this.mdCumB.x12 = this.mdCum.x12; // Assign at 1st loop
-              this.mdCumB.x13 = this.mdCum.x13; // Assign at 1st loop
-              this.mdCumB.x14 = this.mdCum.x14; // Assign at 1st loop
-              this.mdCumB.x15 = this.mdCum.x15; // Assign at 1st loop
-              this.mdCumB.y5 = this.mdCum.y5; // Assign at 1st loop
-              this.mdCumB.y6 = this.mdCum.y6; // Assign at 1st loop
-              this.mdCumB.y7 = this.mdCum.y7; // Assign at 1st loop
-              this.mdCumB.y8 = this.mdCum.y8; // Assign at 1st loop
-              this.mdCumB.y9 = this.mdCum.y9; // Assign at 1st loop
-              this.mdCumB.y10 = this.mdCum.y10; // Assign at 1st loop
-              this.mdCumB.y11 = this.mdCum.y11; // Assign at 1st loop
-              this.mdCumB.y12 = this.mdCum.y12; // Assign at 1st loop
-              this.mdCumB.y13 = this.mdCum.y13; // Assign at 1st loop
-              this.mdCumB.y14 = this.mdCum.y14; // Assign at 1st loop
-              this.mdCumB.y15 = this.mdCum.x15; // Assign at 1st loop      
+              console.log('--- this.flag_mdCum == 1, Update mdCumB');
+              // this.mdCumB = this.mdCum; //update mdCumB
+              this.mdCumB.x5 = this.mdCum.x5; // update mdCum
+              this.mdCumB.x6 = this.mdCum.x6; // update mdCum
+              this.mdCumB.x7 = this.mdCum.x7; // update mdCum
+              this.mdCumB.x8 = this.mdCum.x8; // update mdCum
+              this.mdCumB.x9 = this.mdCum.x9; // update mdCum
+              this.mdCumB.x10 = this.mdCum.x10; // update mdCum
+              this.mdCumB.x11 = this.mdCum.x11; // update mdCum
+              this.mdCumB.x12 = this.mdCum.x12; // update mdCum
+              this.mdCumB.x13 = this.mdCum.x13; // update mdCum
+              this.mdCumB.x14 = this.mdCum.x14; // update mdCum
+              this.mdCumB.x15 = this.mdCum.x15; // update mdCum
+              this.mdCumB.y5 = this.mdCum.y5; // update mdCum
+              this.mdCumB.y6 = this.mdCum.y6; // update mdCum
+              this.mdCumB.y7 = this.mdCum.y7; // update mdCum
+              this.mdCumB.y8 = this.mdCum.y8; // update mdCum
+              this.mdCumB.y9 = this.mdCum.y9; // update mdCum
+              this.mdCumB.y10 = this.mdCum.y10; // update mdCum
+              this.mdCumB.y11 = this.mdCum.y11; // update mdCum
+              this.mdCumB.y12 = this.mdCum.y12; // update mdCum
+              this.mdCumB.y13 = this.mdCum.y13; // update mdCum
+              this.mdCumB.y14 = this.mdCum.y14; // update mdCum
+              this.mdCumB.y15 = this.mdCum.y15; // update mdCum      
 
               mdCumTtlNow = 
-                ( (this.mdCumB.x5 - this.mdCumA.x5 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +
-                ( (this.mdCumB.x6 - this.mdCumA.x6 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +              
-                ( (this.mdCumB.x7 - this.mdCumA.x7 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
-                ( (this.mdCumB.x8 - this.mdCumA.x8 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
-                ( (this.mdCumB.x9 - this.mdCumA.x9 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
-                ( (this.mdCumB.x10 - this.mdCumA.x10 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
-                ( (this.mdCumB.x11 - this.mdCumA.x11 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +   
-                ( (this.mdCumB.x12 - this.mdCumA.x12 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +                 
-                ( (this.mdCumB.x13 - this.mdCumA.x13 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
-                ( (this.mdCumB.x14 - this.mdCumA.x14 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
-                ( (this.mdCumB.x15 - this.mdCumA.x15 + 0.000001) / NTAForScore * this.mets_per_part.y_ank) +   
-                ( (this.mdCumB.x16 - this.mdCumA.x16 + 0.000001) / NTAForScore * this.mets_per_part.y_ank) +
+                ( (this.mdCumB.x5 - this.mdCumA.x5 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +
+                ( (this.mdCumB.x6 - this.mdCumA.x6 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +              
+                ( (this.mdCumB.x7 - this.mdCumA.x7 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
+                ( (this.mdCumB.x8 - this.mdCumA.x8 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
+                ( (this.mdCumB.x9 - this.mdCumA.x9 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
+                ( (this.mdCumB.x10 - this.mdCumA.x10 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
+                ( (this.mdCumB.x11 - this.mdCumA.x11 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +   
+                ( (this.mdCumB.x12 - this.mdCumA.x12 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +                 
+                ( (this.mdCumB.x13 - this.mdCumA.x13 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
+                ( (this.mdCumB.x14 - this.mdCumA.x14 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
+                ( (this.mdCumB.x15 - this.mdCumA.x15 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +   
+                ( (this.mdCumB.x16 - this.mdCumA.x16 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +
 
-                ( (this.mdCumB.y5 - this.mdCumA.y5 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +
-                ( (this.mdCumB.y6 - this.mdCumA.y6 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +              
-                ( (this.mdCumB.y7 - this.mdCumA.y7 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
-                ( (this.mdCumB.y8 - this.mdCumA.y8 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
-                ( (this.mdCumB.y9 - this.mdCumA.y9 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
-                ( (this.mdCumB.y10 - this.mdCumA.y10 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
-                ( (this.mdCumB.y11 - this.mdCumA.y11 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +   
-                ( (this.mdCumB.y12 - this.mdCumA.y12 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +                 
-                ( (this.mdCumB.y13 - this.mdCumA.y13 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
-                ( (this.mdCumB.y14 - this.mdCumA.y14 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
-                ( (this.mdCumB.y15 - this.mdCumA.y15 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +   
-                ( (this.mdCumB.y16 - this.mdCumA.y16 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +
+                ( (this.mdCumB.y5 - this.mdCumA.y5 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +
+                ( (this.mdCumB.y6 - this.mdCumA.y6 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +              
+                ( (this.mdCumB.y7 - this.mdCumA.y7 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
+                ( (this.mdCumB.y8 - this.mdCumA.y8 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
+                ( (this.mdCumB.y9 - this.mdCumA.y9 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
+                ( (this.mdCumB.y10 - this.mdCumA.y10 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
+                ( (this.mdCumB.y11 - this.mdCumA.y11 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +   
+                ( (this.mdCumB.y12 - this.mdCumA.y12 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +                 
+                ( (this.mdCumB.y13 - this.mdCumA.y13 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
+                ( (this.mdCumB.y14 - this.mdCumA.y14 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
+                ( (this.mdCumB.y15 - this.mdCumA.y15 + 0.000001) / NTAForScore * this.mets_per_part.y_ank) +   
+                ( (this.mdCumB.y16 - this.mdCumA.y16 + 0.000001) / NTAForScore * this.mets_per_part.y_ank) +
                 
-                (Math.pow((this.mdCumB.x5 - this.mdCumA.x5 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +
-                (Math.pow((this.mdCumB.x6 - this.mdCumA.x6 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +              
-                (Math.pow((this.mdCumB.x7 - this.mdCumA.x7 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_elb_sqr) +   
-                (Math.pow((this.mdCumB.x8 - this.mdCumA.x8 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_elb_sqr) +   
-                (Math.pow((this.mdCumB.x9 - this.mdCumA.x9 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_wri_sqr) +   
-                (Math.pow((this.mdCumB.x10 - this.mdCumA.x10 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_wri_sqr) +   
-                (Math.pow((this.mdCumB.x11 - this.mdCumA.x11 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_hip_sqr) +   
-                (Math.pow((this.mdCumB.x12 - this.mdCumA.x12 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_hip_sqr) +                 
-                (Math.pow((this.mdCumB.x13 - this.mdCumA.x13 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_kne_sqr) +   
-                (Math.pow((this.mdCumB.x14 - this.mdCumA.x14 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_kne_sqr) +   
-                (Math.pow((this.mdCumB.x15 - this.mdCumA.x15 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr) +   
-                (Math.pow((this.mdCumB.x16 - this.mdCumA.x16 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr);              
+                (Math.pow((this.mdCumB.y5 - this.mdCumA.y5 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +
+                (Math.pow((this.mdCumB.y6 - this.mdCumA.y6 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +              
+                (Math.pow((this.mdCumB.y7 - this.mdCumA.y7 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_elb_sqr) +   
+                (Math.pow((this.mdCumB.y8 - this.mdCumA.y8 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_elb_sqr) +   
+                (Math.pow((this.mdCumB.y9 - this.mdCumA.y9 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_wri_sqr) +   
+                (Math.pow((this.mdCumB.y10 - this.mdCumA.y10 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_wri_sqr) +   
+                (Math.pow((this.mdCumB.y11 - this.mdCumA.y11 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_hip_sqr) +   
+                (Math.pow((this.mdCumB.y12 - this.mdCumA.y12 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_hip_sqr) +                 
+                (Math.pow((this.mdCumB.y13 - this.mdCumA.y13 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_kne_sqr) +   
+                (Math.pow((this.mdCumB.y14 - this.mdCumA.y14 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_kne_sqr) +   
+                (Math.pow((this.mdCumB.y15 - this.mdCumA.y15 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr) +   
+                (Math.pow((this.mdCumB.y16 - this.mdCumA.y16 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr);              
               console.log('--- mdCumTtlNow: ', mdCumTtlNow.toFixed(6));
 
               this.flag_mdCum = 0; // switch flag
 
             } else {
-              console.log('this.flag_mdCum == 0');
-              // this.mdCumA = {}; // reset variable
-              this.mdCumA.x5 = this.mdCum.x5; // Assign at 1st loop
-              this.mdCumA.x6 = this.mdCum.x6; // Assign at 1st loop
-              this.mdCumA.x7 = this.mdCum.x7; // Assign at 1st loop
-              this.mdCumA.x8 = this.mdCum.x8; // Assign at 1st loop
-              this.mdCumA.x9 = this.mdCum.x9; // Assign at 1st loop
-              this.mdCumA.x10 = this.mdCum.x10; // Assign at 1st loop
-              this.mdCumA.x11 = this.mdCum.x11; // Assign at 1st loop
-              this.mdCumA.x12 = this.mdCum.x12; // Assign at 1st loop
-              this.mdCumA.x13 = this.mdCum.x13; // Assign at 1st loop
-              this.mdCumA.x14 = this.mdCum.x14; // Assign at 1st loop
-              this.mdCumA.x15 = this.mdCum.x15; // Assign at 1st loop
-              this.mdCumA.y5 = this.mdCum.y5; // Assign at 1st loop
-              this.mdCumA.y6 = this.mdCum.y6; // Assign at 1st loop
-              this.mdCumA.y7 = this.mdCum.y7; // Assign at 1st loop
-              this.mdCumA.y8 = this.mdCum.y8; // Assign at 1st loop
-              this.mdCumA.y9 = this.mdCum.y9; // Assign at 1st loop
-              this.mdCumA.y10 = this.mdCum.y10; // Assign at 1st loop
-              this.mdCumA.y11 = this.mdCum.y11; // Assign at 1st loop
-              this.mdCumA.y12 = this.mdCum.y12; // Assign at 1st loop
-              this.mdCumA.y13 = this.mdCum.y13; // Assign at 1st loop
-              this.mdCumA.y14 = this.mdCum.y14; // Assign at 1st loop
-              this.mdCumA.y15 = this.mdCum.x15; // Assign at 1st loop      
+              console.log('--- this.flag_mdCum == 0, Update mdCumB');
+              // this.mdCumA = this.mdCum; // update mdCumA
+              this.mdCumA.x5 = this.mdCum.x5; // update mdCum
+              this.mdCumA.x6 = this.mdCum.x6; // update mdCum
+              this.mdCumA.x7 = this.mdCum.x7; // update mdCum
+              this.mdCumA.x8 = this.mdCum.x8; // update mdCum
+              this.mdCumA.x9 = this.mdCum.x9; // update mdCum
+              this.mdCumA.x10 = this.mdCum.x10; // update mdCum
+              this.mdCumA.x11 = this.mdCum.x11; // update mdCum
+              this.mdCumA.x12 = this.mdCum.x12; // update mdCum
+              this.mdCumA.x13 = this.mdCum.x13; // update mdCum
+              this.mdCumA.x14 = this.mdCum.x14; // update mdCum
+              this.mdCumA.x15 = this.mdCum.x15; // update mdCum
+              this.mdCumA.y5 = this.mdCum.y5; // update mdCum
+              this.mdCumA.y6 = this.mdCum.y6; // update mdCum
+              this.mdCumA.y7 = this.mdCum.y7; // update mdCum
+              this.mdCumA.y8 = this.mdCum.y8; // update mdCum
+              this.mdCumA.y9 = this.mdCum.y9; // update mdCum
+              this.mdCumA.y10 = this.mdCum.y10; // update mdCum
+              this.mdCumA.y11 = this.mdCum.y11; // update mdCum
+              this.mdCumA.y12 = this.mdCum.y12; // update mdCum
+              this.mdCumA.y13 = this.mdCum.y13; // update mdCum
+              this.mdCumA.y14 = this.mdCum.y14; // update mdCum
+              this.mdCumA.y15 = this.mdCum.y15; // update mdCum      
 
               mdCumTtlNow = 
-                ( (this.mdCumA.x5 - this.mdCumB.x5 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +
-                ( (this.mdCumA.x6 - this.mdCumB.x6 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +              
-                ( (this.mdCumA.x7 - this.mdCumB.x7 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
-                ( (this.mdCumA.x8 - this.mdCumB.x8 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
-                ( (this.mdCumA.x9 - this.mdCumB.x9 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
-                ( (this.mdCumA.x10 - this.mdCumB.x10 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
-                ( (this.mdCumA.x11 - this.mdCumB.x11 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +   
-                ( (this.mdCumA.x12 - this.mdCumB.x12 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +                 
-                ( (this.mdCumA.x13 - this.mdCumB.x13 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
-                ( (this.mdCumA.x14 - this.mdCumB.x14 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
-                ( (this.mdCumA.x15 - this.mdCumB.x15 + 0.000001) / NTAForScore * this.mets_per_part.y_ank) +   
-                ( (this.mdCumA.x16 - this.mdCumB.x16 + 0.000001) / NTAForScore * this.mets_per_part.y_ank) +
+                ( (this.mdCumA.x5 - this.mdCumB.x5 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +
+                ( (this.mdCumA.x6 - this.mdCumB.x6 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +              
+                ( (this.mdCumA.x7 - this.mdCumB.x7 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
+                ( (this.mdCumA.x8 - this.mdCumB.x8 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
+                ( (this.mdCumA.x9 - this.mdCumB.x9 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
+                ( (this.mdCumA.x10 - this.mdCumB.x10 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
+                ( (this.mdCumA.x11 - this.mdCumB.x11 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +   
+                ( (this.mdCumA.x12 - this.mdCumB.x12 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +                 
+                ( (this.mdCumA.x13 - this.mdCumB.x13 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
+                ( (this.mdCumA.x14 - this.mdCumB.x14 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
+                ( (this.mdCumA.x15 - this.mdCumB.x15 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +   
+                ( (this.mdCumA.x16 - this.mdCumB.x16 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +
 
-                ( (this.mdCumA.y5 - this.mdCumB.y5 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +
-                ( (this.mdCumA.y6 - this.mdCumB.y6 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +              
-                ( (this.mdCumA.y7 - this.mdCumB.y7 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
-                ( (this.mdCumA.y8 - this.mdCumB.y8 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
-                ( (this.mdCumA.y9 - this.mdCumB.y9 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
-                ( (this.mdCumA.y10 - this.mdCumB.y10 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
-                ( (this.mdCumA.y11 - this.mdCumB.y11 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +   
-                ( (this.mdCumA.y12 - this.mdCumB.y12 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +                 
-                ( (this.mdCumA.y13 - this.mdCumB.y13 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
-                ( (this.mdCumA.y14 - this.mdCumB.y14 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
-                ( (this.mdCumA.y15 - this.mdCumB.y15 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +   
-                ( (this.mdCumA.y16 - this.mdCumB.y16 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +
+                ( (this.mdCumA.y5 - this.mdCumB.y5 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +
+                ( (this.mdCumA.y6 - this.mdCumB.y6 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +              
+                ( (this.mdCumA.y7 - this.mdCumB.y7 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
+                ( (this.mdCumA.y8 - this.mdCumB.y8 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
+                ( (this.mdCumA.y9 - this.mdCumB.y9 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
+                ( (this.mdCumA.y10 - this.mdCumB.y10 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
+                ( (this.mdCumA.y11 - this.mdCumB.y11 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +   
+                ( (this.mdCumA.y12 - this.mdCumB.y12 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +                 
+                ( (this.mdCumA.y13 - this.mdCumB.y13 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
+                ( (this.mdCumA.y14 - this.mdCumB.y14 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
+                ( (this.mdCumA.y15 - this.mdCumB.y15 + 0.000001) / NTAForScore * this.mets_per_part.y_ank) +   
+                ( (this.mdCumA.y16 - this.mdCumB.y16 + 0.000001) / NTAForScore * this.mets_per_part.y_ank) +
                 
-                (Math.pow((this.mdCumA.x5 - this.mdCumB.x5 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +
-                (Math.pow((this.mdCumA.x6 - this.mdCumB.x6 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +              
-                (Math.pow((this.mdCumA.x7 - this.mdCumB.x7 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_elb_sqr) +   
-                (Math.pow((this.mdCumA.x8 - this.mdCumB.x8 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_elb_sqr) +   
-                (Math.pow((this.mdCumA.x9 - this.mdCumB.x9 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_wri_sqr) +   
-                (Math.pow((this.mdCumA.x10 - this.mdCumB.x10 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_wri_sqr) +   
-                (Math.pow((this.mdCumA.x11 - this.mdCumB.x11 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_hip_sqr) +   
-                (Math.pow((this.mdCumA.x12 - this.mdCumB.x12 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_hip_sqr) +                 
-                (Math.pow((this.mdCumA.x13 - this.mdCumB.x13 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_kne_sqr) +   
-                (Math.pow((this.mdCumA.x14 - this.mdCumB.x14 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_kne_sqr) +   
-                (Math.pow((this.mdCumA.x15 - this.mdCumB.x15 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr) +   
-                (Math.pow((this.mdCumA.x16 - this.mdCumB.x16 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr);              
+                (Math.pow((this.mdCumA.y5 - this.mdCumB.y5 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +
+                (Math.pow((this.mdCumA.y6 - this.mdCumB.y6 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +              
+                (Math.pow((this.mdCumA.y7 - this.mdCumB.y7 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_elb_sqr) +   
+                (Math.pow((this.mdCumA.y8 - this.mdCumB.y8 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_elb_sqr) +   
+                (Math.pow((this.mdCumA.y9 - this.mdCumB.y9 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_wri_sqr) +   
+                (Math.pow((this.mdCumA.y10 - this.mdCumB.y10 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_wri_sqr) +   
+                (Math.pow((this.mdCumA.y11 - this.mdCumB.y11 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_hip_sqr) +   
+                (Math.pow((this.mdCumA.y12 - this.mdCumB.y12 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_hip_sqr) +                 
+                (Math.pow((this.mdCumA.y13 - this.mdCumB.y13 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_kne_sqr) +   
+                (Math.pow((this.mdCumA.y14 - this.mdCumB.y14 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_kne_sqr) +   
+                (Math.pow((this.mdCumA.y15 - this.mdCumB.y15 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr) +   
+                (Math.pow((this.mdCumA.y16 - this.mdCumB.y16 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr);              
               console.log('--- mdCumTtlNow: ', mdCumTtlNow.toFixed(6));
 
               this.flag_mdCum = 1; // switch flag
             }
 
             console.log('--- this.scorePrev: ', this.scorePrev.toFixed(3));
-            scoreNow = this.scorePrev + ( mdCumTtlNow * this.WEIGHT_KG * 1.05 ); // Calorie caluculation
+            scoreNow = this.scorePrev + ( mdCumTtlNow * (1 / 60 / 60) * this.WEIGHT_KG * 1.05 ); // Calorie caluculation
             console.log('--- scoreNow: ', scoreNow.toFixed(3));
             this.scorePrev = scoreNow; // duplicate to compare prev vs. current at the next loop. 20200810
 
@@ -1060,13 +1060,14 @@ export default class Live extends Component {
         
           }
           
-          console.log('2 this.mdCum.x10, y13, y15: ', this.mdCum.x10, this.mdCum.y13, this.mdCum.y15 );
+          // console.log('2 this.mdCum.x10, y13, y15: ', this.mdCum.x10, this.mdCum.y13, this.mdCum.y15 );
+          // console.log('2 this.mdCumA.x10, y13, y15: ', this.mdCumA.x10, this.mdCumA.y13, this.mdCumA.y15 );
+          // console.log('2 this.mdCumB.x10, y13, y15: ', this.mdCumB.x10, this.mdCumB.y13, this.mdCumB.y15 );   
 
           this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(6), scoreNow: scoreNow.toFixed(3) });// this is what shows as score on top right.
           this.mdCumAll.push( JSON.stringify({ 'sec': secFromStart, 'cntLoopUpdateScore': this.cntLoopUpdateScore, 'ts': Date.now()/1000, 'score': scoreNow.toFixed(3), 'playSum': this.vidState.vidPlayedSum.toFixed(2), 'pos': this.pos }) ); // append froms Start to End 
         
-          console.log('2 this.mdCumA.x10, y13, y15: ', this.mdCumA.x10, this.mdCumA.y13, this.mdCumA.y15 );
-          console.log('2 this.mdCumB.x10, y13, y15: ', this.mdCumB.x10, this.mdCumB.y13, this.mdCumB.y15 );          
+       
 
           if ( this.state.shouldPlay === false ) { // this will force to stop setInterval(_updateScore) when user outNTA or press gobackhome BEFORE video ends. 20200603
             console.log('this will force to stop setInterval(_updateScore).');
@@ -1088,9 +1089,9 @@ export default class Live extends Component {
       
       if ( pose != null ) {
         // console.log('-------- pose.keypoints: ', pose.keypoints)
-        console.log('4 this.mdCum.x10, y13, y15: ', this.mdCum.x10, this.mdCum.y13, this.mdCum.y15 );
-        console.log('4 this.mdCumA.x10, y13, y15: ', this.mdCumA.x10, this.mdCumA.y13, this.mdCumA.y15 );
-        console.log('4 this.mdCumB.x10, y13, y15: ', this.mdCumB.x10, this.mdCumB.y13, this.mdCumB.y15 );
+        // console.log('4 this.mdCum.x10, y13, y15: ', this.mdCum.x10, this.mdCum.y13, this.mdCum.y15 );
+        // console.log('4 this.mdCumA.x10, y13, y15: ', this.mdCumA.x10, this.mdCumA.y13, this.mdCumA.y15 );
+        // console.log('4 this.mdCumB.x10, y13, y15: ', this.mdCumB.x10, this.mdCumB.y13, this.mdCumB.y15 );
 
 
         var identifiedBpartsEach = []; // reset at each loop 20200520
@@ -1643,9 +1644,7 @@ export default class Live extends Component {
         this.frameOutCntPrev.right = this.frameOutCnt.right; // update value
         
       
-      // } else if (flagVidEnd === false) {
-        // console.log('----------------- pose is null --------------------');
-        // return null;      
+          
       } else { 
         console.log('----------------- pose is Null --------------------');
         return null;
