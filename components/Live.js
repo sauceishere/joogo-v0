@@ -114,8 +114,8 @@ export default class Live extends Component {
 
   viewId = uuidv4();
 
-  inputTensorWidth = this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
-  inputTensorHeight = this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //Dimensions.get('window').height / 3; // 200
+  inputTensorWidth = Dimensions.get('window').height; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
+  inputTensorHeight = Dimensions.get('window').width; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //Dimensions.get('window').height / 3; // 200
 
   textureDims = { // https://github.com/tensorflow/tfjs/blob/master/tfjs-react-native/integration_rn59/components/webcam/realtime_demo.tsx
     width: this.props.navigation.getParam('const_exer')['textureDims']['width'], // 1800, //960, //Dimensions.get('window').width, // 960, // 1024, //768, //512, // 540, //256, // 1080, //videoSize, 
@@ -465,7 +465,7 @@ export default class Live extends Component {
 
 
   async componentDidMount() {
-    console.log('------------------- componentDidMount Live started 58');
+    console.log('------------------- componentDidMount Live started 59');
     console.log('------ this.mets_per_part: ', this.mets_per_part);
     console.log('------ this.camState: ', this.camState);
     // console.log('screen height: ', Dimensions.get('screen').height);
@@ -1042,14 +1042,15 @@ export default class Live extends Component {
                 (Math.pow((this.mdCumA.y14 - this.mdCumB.y14 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_kne_sqr) +   
                 (Math.pow((this.mdCumA.y15 - this.mdCumB.y15 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr) +   
                 (Math.pow((this.mdCumA.y16 - this.mdCumB.y16 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr);              
-              console.log('--- mdCumTtlNow: ', mdCumTtlNow.toFixed(6));
+              console.log('--- mdCumTtlNow: ', mdCumTtlNow.toFixed(3));
 
               this.flag_mdCum = 1; // switch flag
             }
 
             console.log('--- this.scorePrev: ', this.scorePrev.toFixed(3));
             scoreNow = this.scorePrev + ( mdCumTtlNow * (1 / 60 / 60) * this.WEIGHT_KG * 1.05 ); // Calorie caluculation
-            console.log('--- scoreNow: ', scoreNow.toFixed(3));
+            console.log('---       scoreNow: ', scoreNow.toFixed(3));
+            console.log('---score this time: ', (scoreNow - this.scorePrev).toFixed(3));
             this.scorePrev = scoreNow; // duplicate to compare prev vs. current at the next loop. 20200810
 
             this.cntLoopUpdateScore++; // increment
@@ -1064,7 +1065,7 @@ export default class Live extends Component {
           // console.log('2 this.mdCumA.x10, y13, y15: ', this.mdCumA.x10, this.mdCumA.y13, this.mdCumA.y15 );
           // console.log('2 this.mdCumB.x10, y13, y15: ', this.mdCumB.x10, this.mdCumB.y13, this.mdCumB.y15 );   
 
-          this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(6), scoreNow: scoreNow.toFixed(3) });// this is what shows as score on top right.
+          this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(3), scoreNow: scoreNow.toFixed(1) });// this is what shows as score on top right.
           this.mdCumAll.push( JSON.stringify({ 'sec': secFromStart, 'cntLoopUpdateScore': this.cntLoopUpdateScore, 'ts': Date.now()/1000, 'score': scoreNow.toFixed(3), 'playSum': this.vidState.vidPlayedSum.toFixed(2), 'pos': this.pos }) ); // append froms Start to End 
         
        
@@ -1081,9 +1082,9 @@ export default class Live extends Component {
 
       } // closing if (this.state.shouldPlay === true & this.state.flagUpdateScore === true )
 
-      console.log('3 this.mdCum.x10, y13, y15: ', this.mdCum.x10, this.mdCum.y13, this.mdCum.y15 );
-      console.log('3 this.mdCumA.x10, y13, y15: ', this.mdCumA.x10, this.mdCumA.y13, this.mdCumA.y15 );
-      console.log('3 this.mdCumB.x10, y13, y15: ', this.mdCumB.x10, this.mdCumB.y13, this.mdCumB.y15 );
+      // console.log('3 this.mdCum.x10, y13, y15: ', this.mdCum.x10, this.mdCum.y13, this.mdCum.y15 );
+      // console.log('3 this.mdCumA.x10, y13, y15: ', this.mdCumA.x10, this.mdCumA.y13, this.mdCumA.y15 );
+      // console.log('3 this.mdCumB.x10, y13, y15: ', this.mdCumB.x10, this.mdCumB.y13, this.mdCumB.y15 );
     
 
       
@@ -2064,19 +2065,23 @@ const styles = StyleSheet.create({
     width: '100%', //Dimensions.get('window').width * 1,
     alignItems: 'center',
     justifyContent: 'center',
+    // left: Dimensions.get('window').width / 2 - 310 / 2,
     // borderColor: 'blue',
-    // borderWidth: 5,
+    // borderWidth: 3,
   },
   initialPostureImage: {
-    width: Dimensions.get('window').width * 310/475,// photo size = 475*310
+    position: 'absolute',
+    left: Dimensions.get('screen').height / 2 - 310 / 2, //  centering the image in consideration with android navigation bar. 20200816 
+    width: Dimensions.get('window').width * 310 / 475, // photo size = 475*310
     height: Dimensions.get('window').width,    
     // top: 0,
-    bottom: Dimensions.get('window').width * 0.02,
-    // borderColor: 'yellow',
+    bottom: Dimensions.get('window').width * 0.01,
+    // justifyContent: 'center',
+
+    // borderColor: 'green',
     // borderWidth: 1,
   }, 
 
- 
   attentionContainer: {
     // zIndex: 301, // removed 20200531
     // flex: 1,
@@ -2091,8 +2096,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',   
     // marginHorizontal: Dimensions.get('window').width * 0.2,
     backgroundColor: 'rgba(20, 20, 20, 0.5)', 
-    borderRadius: 10, 
-    // paddingHorizontal: 10,
+    borderRadius: 10,
   },
   attentionText: {
     // textShadowColor: 'black',
@@ -2100,6 +2104,8 @@ const styles = StyleSheet.create({
     fontSize: 35,
     color: '#ffa500',
     textAlign: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     // backgroundColor: 'rgba(220, 220, 220, 0.7)', 
   },
 
