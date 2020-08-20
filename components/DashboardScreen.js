@@ -512,7 +512,7 @@ export default class DashboardScreen extends Component {
             this.oldestVidTs = post.TS;
           } 
 
-          post.TNURL = 'https://firebasestorage.googleapis.com/v0/b/joogo-v0.appspot.com/o/tn%2F' + post.VIDID + '?alt=media' // URL for Thumbsnail photo 20200528         
+          // post.TNURL = 'https://firebasestorage.googleapis.com/v0/b/joogo-v0.appspot.com/o/tn%2F' + post.VIDID + '?alt=media' // URL for Thumbsnail photo 20200528         
 
           //// get thumbsnail full URL from Firebase storage 2020315 
           // const storage = firebase.storage(); // Create a storage reference from our storage service
@@ -614,11 +614,11 @@ export default class DashboardScreen extends Component {
                   </View>
                   
                   {/* bottom right pane */}
-                  <View style={{ }}>
+                  {/* <View style={{ }}>
                     <TouchableOpacity onPress={ () => this.props.navigation.push('Exercise', {post, wpart, const_exer} ) } >
                         <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
                     </TouchableOpacity>
-                  </View>
+                  </View> */}
 
                 </View>
                     
@@ -701,11 +701,11 @@ export default class DashboardScreen extends Component {
                     
   
                     {/* bottom right pane */}
-                    <View style={{ }}>
+                    {/* <View style={{ }}>
                       <TouchableOpacity onPress={ () => this.props.navigation.push('Exercise', {post, wpart, const_exer} ) } >
                           <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
                       </TouchableOpacity>
-                    </View>
+                    </View> */}
   
                 </View>
                   
