@@ -1,4 +1,5 @@
-// 9=leftwrist, 10=rightWrist, 15=leftAnkle, 16=rightAnkle
+// 10=rightWrist, 9=leftwrist, 
+// 16=rightAnkle, 15=leftAnkle, 
 
 ttlCW = 12; // total cell of width
 ttlCH = 6; // total cell of height
@@ -14,24 +15,16 @@ cNH = 1; // cell number of height
 export const slow = [
 {
 	"1": {
-		"x9": 11,
-		"y9": 0,
-		"x10": 0,
-		"y10": 0,
-		"x15": 11,
-		"y15": 5,
-		"x16": 0,
-		"y16": 5
+		"x10": 0, "y10": 0, // rightWrist
+		"x9": 11, "y9": 0, // leftWrist
+		"x16": 0, "y16": 5,	// rightAnkle	
+		"x15": 11, "y15": 5 // leftWrist
 	},
 	"2": {
-		"x9": 11,
-		"y9": 0,
-		"x10": 0,
-		"y10": 0,
-		"x15": 11,
-		"y15": 5,
-		"x16": 0,
-		"y16": 5
+		"x10": 0, "y10": 1, // rightWrist
+		"x9": 11, "y9": 1, // leftWrist
+		"x16": 0, "y16": 4,	// rightAnkle	
+		"x15": 11, "y15": 4 // leftWrist
 	}
 }
 ]

@@ -47,13 +47,17 @@ import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake'; //http
 import { Constants, Accelerometer } from 'expo-sensors'; // https://docs.expo.io/versions/latest/sdk/accelerometer/ # https://snack.expo.io/@professorxii/expo-accelerometer-example
 
 import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
-
+import Svg, { Circle, Rect,} from 'react-native-svg';
 
 
 
 const TensorCamera = cameraWithTensors(Camera); // https://js.tensorflow.org/api_react_native/latest/#cameraWithTensors
 
 const goBackIconSize = 40;
+
+const ttlCW = 12; // total cell of width
+const ttlCH = 6; // total cell of height
+
 
 export default class Live extends Component {
 
@@ -99,6 +103,17 @@ export default class Live extends Component {
       progressBarWidth: 0, // initial at zero
       // flagLoopUpdateScore: false, // to control if the first loop to updateScore. 20200812
       // mdCumPrev: null, // keep Previous mdCum to compare with the latest mdCum. 20200813
+      octopusLoc: { // Location of Octopus Image
+        // xRW: 2, yRW: 2, // 10=rightWrist, 
+        // xLW: 3, yLW: 2, // 9=leftwrist
+        // xRA: 5, yRA: 5, // 16=rightAnkle
+        // xLA: 6, yLA: 5, // 15=leftAnkle
+        xRW: 1, yRW: 1, // 10=rightWrist, 
+        xLW: 1, yLW: 1, // 9=leftwrist
+        xRA: 1, yRA: 1, // 16=rightAnkle
+        xLA: 1, yLA: 1, // 15=leftAnkle        
+      },
+
     }
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);  
     // this._handlePlayAndPause = this._handlePlayAndPause.bind(this);
@@ -443,20 +458,26 @@ export default class Live extends Component {
 
 
   async componentWillUnmount() {
-      console.log('------------------- componentWillUnmount Live started');
+    console.log('------------------- componentWillUnmount Live started');
+
+    this.setState({ shouldPlay: false });
 
     if(this.rafId) {  // this is for Tensorflow
       cancelAnimationFrame(this.rafId);
     }
 
     this.vidState.vidEndAt = Date.now()/1000;
+    console.log('------------------- componentWillUnmount Live 1');
 
-    await this._unsubscribeFromAccelerometer();
+    // await this._unsubscribeFromAccelerometer();
+    console.log('------------------- componentWillUnmount Live 2');
 
     deactivateKeepAwake();
+    console.log('------------------- componentWillUnmount Live 3');
 
     ScreenOrientation.unlockAsync(); // back to portrait
     // await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
+    console.log('------------------- componentWillUnmount Live 4');
 
     await this._saveVidViewLog();
 
@@ -465,7 +486,7 @@ export default class Live extends Component {
 
 
   async componentDidMount() {
-    console.log('------------------- componentDidMount Live started 63');
+    console.log('------------------- componentDidMount Live started 73');
     console.log('------ this.mets_per_part: ', this.mets_per_part);
     console.log('------ this.camState: ', this.camState);
     // console.log('screen height: ', Dimensions.get('screen').height);
@@ -655,7 +676,7 @@ export default class Live extends Component {
               body: JSON.stringify({
                 id_token: idTokenCopied,
                 ts: JSON.parse(localFileContents)["ts"],
-                vidId: JSON.parse(localFileContents)["vidId"],
+                // vidId: JSON.parse(localFileContents)["vidId"],
                 viewId: JSON.parse(localFileContents)["viewId"],  
                 uid: firebase.auth().currentUser.uid ,         
                 sendId: uuidv4(),
@@ -668,10 +689,10 @@ export default class Live extends Component {
                 score: JSON.parse(localFileContents)["score"],
                 playSum: JSON.parse(localFileContents)["playSum"],
                 // playPct: JSON.parse(localFileContents)["playPct"],
-                cntOutAccel: JSON.parse(localFileContents)["cntOutAccel"],
-                cntPressPlayButton: JSON.parse(localFileContents)["cntPressPlayButton"],
-                cntPressPauseButton: JSON.parse(localFileContents)["cntPressPauseButton"],
-                cntFrameOut: JSON.parse(localFileContents)["frameOutCntCum"], // this is a Dictionary, count how many times out from Frame
+                // cntOutAccel: JSON.parse(localFileContents)["cntOutAccel"],
+                // cntPressPlayButton: JSON.parse(localFileContents)["cntPressPlayButton"],
+                // cntPressPauseButton: JSON.parse(localFileContents)["cntPressPauseButton"],
+                // cntFrameOut: JSON.parse(localFileContents)["frameOutCntCum"], // this is a Dictionary, count how many times out from Frame
                 identifiedBparts: JSON.parse(localFileContents)["identifiedBparts"],　// this is an Arrays
                 iTWidth: JSON.parse(localFileContents)["iTWidth"],
                 iTHeight: JSON.parse(localFileContents)["iTHeight"],
@@ -681,10 +702,10 @@ export default class Live extends Component {
                 winWidth: JSON.parse(localFileContents)["winWidth"],
                 texDimsWidth: JSON.parse(localFileContents)["texDimsWidth"],
                 texDimsHeight: JSON.parse(localFileContents)["texDimsHeight"],
-                cntNTAout: JSON.parse(localFileContents)["outNTAcnt"],
-                numFrameVidStart: JSON.parse(localFileContents)["numFrameVidStart"],
-                numFrameAllPosOk: JSON.parse(localFileContents)["numFrameAllPosOk"],
-                numFrameVidEnd: JSON.parse(localFileContents)["numFrameVidEnd"],      
+                // cntNTAout: JSON.parse(localFileContents)["outNTAcnt"],
+                // numFrameVidStart: JSON.parse(localFileContents)["numFrameVidStart"],
+                // numFrameAllPosOk: JSON.parse(localFileContents)["numFrameAllPosOk"],
+                // numFrameVidEnd: JSON.parse(localFileContents)["numFrameVidEnd"],      
               })
             }).then( result => result.json() )
               .then( response => { 
@@ -741,13 +762,13 @@ export default class Live extends Component {
     const ts = Date.now() / 1000; // unix //date.getTime().toString();
     // console.log('ts: ', ts);
     // const vidId = this.props.navigation.getParam('post')['VIDID'];
-    // const viewId = uuidv4();
+    const viewId = uuidv4();
     const vidViewLogFileName = ts + '_' + viewId;
 
     var jsonContents = {};
     jsonContents["ts"] = ts;
     // jsonContents["vidId"] = vidId;
-    // jsonContents["viewId"] = viewId;
+    jsonContents["viewId"] = viewId;
     jsonContents["uid"] = firebase.auth().currentUser.uid;
     jsonContents["startAt"] = this.vidState.vidStartAt;
     jsonContents["endAt"] = this.vidState.vidEndAt;
@@ -759,10 +780,10 @@ export default class Live extends Component {
     jsonContents["playSum"] = this.vidState.vidPlayedSum; // 
     
     // jsonContents["playPct"] = ( this.vidState.vidPlayedSum + 0.00001 ) / this.state.vidLength;
-    jsonContents['cntOutAccel'] = this.cntOutAccel;
+    // jsonContents['cntOutAccel'] = this.cntOutAccel;
     // jsonContents['cntPressPlayButton'] = this.vidState.cntPressPlayButton;
     // jsonContents['cntPressPauseButton'] = this.vidState.cntPressPauseButton;
-    jsonContents['frameOutCntCum'] = this.frameOutCntCum; // this is a Dictionary
+    // jsonContents['frameOutCntCum'] = this.frameOutCntCum; // this is a Dictionary
     // jsonContents['frameOutCntCum'] = JSON.stringify( this.frameOutCntCumObj.push(this.frameOutCntCum) ); // this is a Dictionary
     // jsonContents['frameOutCntCum'] = this.frameOutCntCumObj.push(this.frameOutCntCum) ; // this is a Dictionary
     jsonContents['identifiedBparts'] = this.identifiedBPartsAll; // this is an Array
@@ -782,7 +803,7 @@ export default class Live extends Component {
     jsonContents['numFrameVidEnd'] = this.vidState.numFrameVidEnd; 
 
     jsonContents = JSON.stringify(jsonContents); // convert to string for saving file
-    // console.log('jsonContents: ', jsonContents);
+    console.log('jsonContents: ', jsonContents);
 
     // vidViewLog for Firestore
     await FileSystem.writeAsStringAsync(
@@ -839,7 +860,7 @@ export default class Live extends Component {
         Accelerometer.isAvailableAsync().then( () => { 
           console.log('----------- AccelerometerIsAvailable');
           this.setState({ flagAccelerometerIsAvailable: true }); 
-          this._subscribeToAccelerometer(); // run Accelerometer
+          // this._subscribeToAccelerometer(); // run Accelerometer
         }).catch(error => {
           console.log('Accelerometer is NOT Available: ', error);
         });
@@ -850,7 +871,8 @@ export default class Live extends Component {
 
 
 ////////// update score ////////////////////
-      if (this.state.shouldPlay === true & this.state.flagUpdateScore === true) { //
+      if (shouldPlay === true & flagUpdateScore === true) { 
+      // if (this.state.shouldPlay === true & this.state.flagUpdateScore === true) { 
         console.log('--- this.state.shouldPlay === true & this.state.flagUpdateScore === true');
         
 
@@ -936,57 +958,57 @@ export default class Live extends Component {
               console.log('--- this.mdCumB: ', this.mdCumB);  
 
               mdCumTtlNow = 
-                ( (this.mdCumB.x5 - this.mdCumA.x5 + 0.000001) / NTAForScore * this.mets_per_part.x_sho_dvd) +
-                ( (this.mdCumB.x6 - this.mdCumA.x6 + 0.000001) / NTAForScore * this.mets_per_part.x_sho_dvd) +              
-                ( (this.mdCumB.x7 - this.mdCumA.x7 + 0.000001) / NTAForScore * this.mets_per_part.x_elb_dvd) +   
-                ( (this.mdCumB.x8 - this.mdCumA.x8 + 0.000001) / NTAForScore * this.mets_per_part.x_elb_dvd) +   
-                ( (this.mdCumB.x9 - this.mdCumA.x9 + 0.000001) / NTAForScore * this.mets_per_part.x_wri_dvd) +   
-                ( (this.mdCumB.x10 - this.mdCumA.x10 + 0.000001) / NTAForScore * this.mets_per_part.x_wri_dvd) +   
-                ( (this.mdCumB.x11 - this.mdCumA.x11 + 0.000001) / NTAForScore * this.mets_per_part.x_hip_dvd) +   
-                ( (this.mdCumB.x12 - this.mdCumA.x12 + 0.000001) / NTAForScore * this.mets_per_part.x_hip_dvd) +                 
-                ( (this.mdCumB.x13 - this.mdCumA.x13 + 0.000001) / NTAForScore * this.mets_per_part.x_kne_dvd) +   
-                ( (this.mdCumB.x14 - this.mdCumA.x14 + 0.000001) / NTAForScore * this.mets_per_part.x_kne_dvd) +   
-                ( (this.mdCumB.x15 - this.mdCumA.x15 + 0.000001) / NTAForScore * this.mets_per_part.x_ank_dvd) +   
-                ( (this.mdCumB.x16 - this.mdCumA.x16 + 0.000001) / NTAForScore * this.mets_per_part.x_ank_dvd) +
+                // ( (this.mdCumB.x5 - this.mdCumA.x5 + 0.000001) / NTAForScore * this.mets_per_part.x_sho_dvd) +
+                // ( (this.mdCumB.x6 - this.mdCumA.x6 + 0.000001) / NTAForScore * this.mets_per_part.x_sho_dvd) +              
+                // ( (this.mdCumB.x7 - this.mdCumA.x7 + 0.000001) / NTAForScore * this.mets_per_part.x_elb_dvd) +   
+                // ( (this.mdCumB.x8 - this.mdCumA.x8 + 0.000001) / NTAForScore * this.mets_per_part.x_elb_dvd) +   
+                // ( (this.mdCumB.x9 - this.mdCumA.x9 + 0.000001) / NTAForScore * this.mets_per_part.x_wri_dvd) +   
+                // ( (this.mdCumB.x10 - this.mdCumA.x10 + 0.000001) / NTAForScore * this.mets_per_part.x_wri_dvd) +   
+                // ( (this.mdCumB.x11 - this.mdCumA.x11 + 0.000001) / NTAForScore * this.mets_per_part.x_hip_dvd) +   
+                // ( (this.mdCumB.x12 - this.mdCumA.x12 + 0.000001) / NTAForScore * this.mets_per_part.x_hip_dvd) +                 
+                // ( (this.mdCumB.x13 - this.mdCumA.x13 + 0.000001) / NTAForScore * this.mets_per_part.x_kne_dvd) +   
+                // ( (this.mdCumB.x14 - this.mdCumA.x14 + 0.000001) / NTAForScore * this.mets_per_part.x_kne_dvd) +   
+                // ( (this.mdCumB.x15 - this.mdCumA.x15 + 0.000001) / NTAForScore * this.mets_per_part.x_ank_dvd) +   
+                // ( (this.mdCumB.x16 - this.mdCumA.x16 + 0.000001) / NTAForScore * this.mets_per_part.x_ank_dvd) +
 
-                ( (this.mdCumB.y5 - this.mdCumA.y5 + 0.000001) / NTAForScore * this.mets_per_part.y_sho_dvd) +
-                ( (this.mdCumB.y6 - this.mdCumA.y6 + 0.000001) / NTAForScore * this.mets_per_part.y_sho_dvd) +              
-                ( (this.mdCumB.y7 - this.mdCumA.y7 + 0.000001) / NTAForScore * this.mets_per_part.y_elb_dvd) +   
-                ( (this.mdCumB.y8 - this.mdCumA.y8 + 0.000001) / NTAForScore * this.mets_per_part.y_elb_dvd) +   
-                ( (this.mdCumB.y9 - this.mdCumA.y9 + 0.000001) / NTAForScore * this.mets_per_part.y_wri_dvd) +   
-                ( (this.mdCumB.y10 - this.mdCumA.y10 + 0.000001) / NTAForScore * this.mets_per_part.y_wri_dvd) +   
-                ( (this.mdCumB.y11 - this.mdCumA.y11 + 0.000001) / NTAForScore * this.mets_per_part.y_hip_dvd) +   
-                ( (this.mdCumB.y12 - this.mdCumA.y12 + 0.000001) / NTAForScore * this.mets_per_part.y_hip_dvd) +                 
-                ( (this.mdCumB.y13 - this.mdCumA.y13 + 0.000001) / NTAForScore * this.mets_per_part.y_kne_dvd) +   
-                ( (this.mdCumB.y14 - this.mdCumA.y14 + 0.000001) / NTAForScore * this.mets_per_part.y_kne_dvd) +   
-                ( (this.mdCumB.y15 - this.mdCumA.y15 + 0.000001) / NTAForScore * this.mets_per_part.y_ank_dvd) +   
-                ( (this.mdCumB.y16 - this.mdCumA.y16 + 0.000001) / NTAForScore * this.mets_per_part.y_ank_dvd);
+                // ( (this.mdCumB.y5 - this.mdCumA.y5 + 0.000001) / NTAForScore * this.mets_per_part.y_sho_dvd) +
+                // ( (this.mdCumB.y6 - this.mdCumA.y6 + 0.000001) / NTAForScore * this.mets_per_part.y_sho_dvd) +              
+                // ( (this.mdCumB.y7 - this.mdCumA.y7 + 0.000001) / NTAForScore * this.mets_per_part.y_elb_dvd) +   
+                // ( (this.mdCumB.y8 - this.mdCumA.y8 + 0.000001) / NTAForScore * this.mets_per_part.y_elb_dvd) +   
+                // ( (this.mdCumB.y9 - this.mdCumA.y9 + 0.000001) / NTAForScore * this.mets_per_part.y_wri_dvd) +   
+                // ( (this.mdCumB.y10 - this.mdCumA.y10 + 0.000001) / NTAForScore * this.mets_per_part.y_wri_dvd) +   
+                // ( (this.mdCumB.y11 - this.mdCumA.y11 + 0.000001) / NTAForScore * this.mets_per_part.y_hip_dvd) +   
+                // ( (this.mdCumB.y12 - this.mdCumA.y12 + 0.000001) / NTAForScore * this.mets_per_part.y_hip_dvd) +                 
+                // ( (this.mdCumB.y13 - this.mdCumA.y13 + 0.000001) / NTAForScore * this.mets_per_part.y_kne_dvd) +   
+                // ( (this.mdCumB.y14 - this.mdCumA.y14 + 0.000001) / NTAForScore * this.mets_per_part.y_kne_dvd) +   
+                // ( (this.mdCumB.y15 - this.mdCumA.y15 + 0.000001) / NTAForScore * this.mets_per_part.y_ank_dvd) +   
+                // ( (this.mdCumB.y16 - this.mdCumA.y16 + 0.000001) / NTAForScore * this.mets_per_part.y_ank_dvd);
 
-                // ( (this.mdCumB.x5 - this.mdCumA.x5 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +
-                // ( (this.mdCumB.x6 - this.mdCumA.x6 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +              
-                // ( (this.mdCumB.x7 - this.mdCumA.x7 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
-                // ( (this.mdCumB.x8 - this.mdCumA.x8 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
-                // ( (this.mdCumB.x9 - this.mdCumA.x9 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
-                // ( (this.mdCumB.x10 - this.mdCumA.x10 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
-                // ( (this.mdCumB.x11 - this.mdCumA.x11 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +   
-                // ( (this.mdCumB.x12 - this.mdCumA.x12 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +                 
-                // ( (this.mdCumB.x13 - this.mdCumA.x13 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
-                // ( (this.mdCumB.x14 - this.mdCumA.x14 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
-                // ( (this.mdCumB.x15 - this.mdCumA.x15 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +   
-                // ( (this.mdCumB.x16 - this.mdCumA.x16 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +
+                ( (this.mdCumB.x5 - this.mdCumA.x5 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +
+                ( (this.mdCumB.x6 - this.mdCumA.x6 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +              
+                ( (this.mdCumB.x7 - this.mdCumA.x7 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
+                ( (this.mdCumB.x8 - this.mdCumA.x8 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
+                ( (this.mdCumB.x9 - this.mdCumA.x9 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
+                ( (this.mdCumB.x10 - this.mdCumA.x10 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
+                ( (this.mdCumB.x11 - this.mdCumA.x11 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +   
+                ( (this.mdCumB.x12 - this.mdCumA.x12 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +                 
+                ( (this.mdCumB.x13 - this.mdCumA.x13 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
+                ( (this.mdCumB.x14 - this.mdCumA.x14 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
+                ( (this.mdCumB.x15 - this.mdCumA.x15 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +   
+                ( (this.mdCumB.x16 - this.mdCumA.x16 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +
 
-                // ( (this.mdCumB.y5 - this.mdCumA.y5 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +
-                // ( (this.mdCumB.y6 - this.mdCumA.y6 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +              
-                // ( (this.mdCumB.y7 - this.mdCumA.y7 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
-                // ( (this.mdCumB.y8 - this.mdCumA.y8 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
-                // ( (this.mdCumB.y9 - this.mdCumA.y9 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
-                // ( (this.mdCumB.y10 - this.mdCumA.y10 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
-                // ( (this.mdCumB.y11 - this.mdCumA.y11 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +   
-                // ( (this.mdCumB.y12 - this.mdCumA.y12 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +                 
-                // ( (this.mdCumB.y13 - this.mdCumA.y13 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
-                // ( (this.mdCumB.y14 - this.mdCumA.y14 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
-                // ( (this.mdCumB.y15 - this.mdCumA.y15 + 0.000001) / NTAForScore * this.mets_per_part.y_ank) +   
-                // ( (this.mdCumB.y16 - this.mdCumA.y16 + 0.000001) / NTAForScore * this.mets_per_part.y_ank) +
+                ( (this.mdCumB.y5 - this.mdCumA.y5 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +
+                ( (this.mdCumB.y6 - this.mdCumA.y6 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +              
+                ( (this.mdCumB.y7 - this.mdCumA.y7 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
+                ( (this.mdCumB.y8 - this.mdCumA.y8 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
+                ( (this.mdCumB.y9 - this.mdCumA.y9 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
+                ( (this.mdCumB.y10 - this.mdCumA.y10 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
+                ( (this.mdCumB.y11 - this.mdCumA.y11 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +   
+                ( (this.mdCumB.y12 - this.mdCumA.y12 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +                 
+                ( (this.mdCumB.y13 - this.mdCumA.y13 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
+                ( (this.mdCumB.y14 - this.mdCumA.y14 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
+                ( (this.mdCumB.y15 - this.mdCumA.y15 + 0.000001) / NTAForScore * this.mets_per_part.y_ank) +   
+                ( (this.mdCumB.y16 - this.mdCumA.y16 + 0.000001) / NTAForScore * this.mets_per_part.y_ank);
                 
                 // (Math.pow((this.mdCumB.y5 - this.mdCumA.y5 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +
                 // (Math.pow((this.mdCumB.y6 - this.mdCumA.y6 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +              
@@ -1032,57 +1054,57 @@ export default class Live extends Component {
               console.log('--- this.mdCumA: ', this.mdCumA);  
 
               mdCumTtlNow = 
-              ( (this.mdCumB.x5 - this.mdCumA.x5 + 0.000001) / NTAForScore * this.mets_per_part.x_sho_dvd) +
-              ( (this.mdCumB.x6 - this.mdCumA.x6 + 0.000001) / NTAForScore * this.mets_per_part.x_sho_dvd) +              
-              ( (this.mdCumB.x7 - this.mdCumA.x7 + 0.000001) / NTAForScore * this.mets_per_part.x_elb_dvd) +   
-              ( (this.mdCumB.x8 - this.mdCumA.x8 + 0.000001) / NTAForScore * this.mets_per_part.x_elb_dvd) +   
-              ( (this.mdCumB.x9 - this.mdCumA.x9 + 0.000001) / NTAForScore * this.mets_per_part.x_wri_dvd) +   
-              ( (this.mdCumB.x10 - this.mdCumA.x10 + 0.000001) / NTAForScore * this.mets_per_part.x_wri_dvd) +   
-              ( (this.mdCumB.x11 - this.mdCumA.x11 + 0.000001) / NTAForScore * this.mets_per_part.x_hip_dvd) +   
-              ( (this.mdCumB.x12 - this.mdCumA.x12 + 0.000001) / NTAForScore * this.mets_per_part.x_hip_dvd) +                 
-              ( (this.mdCumB.x13 - this.mdCumA.x13 + 0.000001) / NTAForScore * this.mets_per_part.x_kne_dvd) +   
-              ( (this.mdCumB.x14 - this.mdCumA.x14 + 0.000001) / NTAForScore * this.mets_per_part.x_kne_dvd) +   
-              ( (this.mdCumB.x15 - this.mdCumA.x15 + 0.000001) / NTAForScore * this.mets_per_part.x_ank_dvd) +   
-              ( (this.mdCumB.x16 - this.mdCumA.x16 + 0.000001) / NTAForScore * this.mets_per_part.x_ank_dvd) +
+              // ( (this.mdCumB.x5 - this.mdCumA.x5 + 0.000001) / NTAForScore * this.mets_per_part.x_sho_dvd) +
+              // ( (this.mdCumB.x6 - this.mdCumA.x6 + 0.000001) / NTAForScore * this.mets_per_part.x_sho_dvd) +              
+              // ( (this.mdCumB.x7 - this.mdCumA.x7 + 0.000001) / NTAForScore * this.mets_per_part.x_elb_dvd) +   
+              // ( (this.mdCumB.x8 - this.mdCumA.x8 + 0.000001) / NTAForScore * this.mets_per_part.x_elb_dvd) +   
+              // ( (this.mdCumB.x9 - this.mdCumA.x9 + 0.000001) / NTAForScore * this.mets_per_part.x_wri_dvd) +   
+              // ( (this.mdCumB.x10 - this.mdCumA.x10 + 0.000001) / NTAForScore * this.mets_per_part.x_wri_dvd) +   
+              // ( (this.mdCumB.x11 - this.mdCumA.x11 + 0.000001) / NTAForScore * this.mets_per_part.x_hip_dvd) +   
+              // ( (this.mdCumB.x12 - this.mdCumA.x12 + 0.000001) / NTAForScore * this.mets_per_part.x_hip_dvd) +                 
+              // ( (this.mdCumB.x13 - this.mdCumA.x13 + 0.000001) / NTAForScore * this.mets_per_part.x_kne_dvd) +   
+              // ( (this.mdCumB.x14 - this.mdCumA.x14 + 0.000001) / NTAForScore * this.mets_per_part.x_kne_dvd) +   
+              // ( (this.mdCumB.x15 - this.mdCumA.x15 + 0.000001) / NTAForScore * this.mets_per_part.x_ank_dvd) +   
+              // ( (this.mdCumB.x16 - this.mdCumA.x16 + 0.000001) / NTAForScore * this.mets_per_part.x_ank_dvd) +
 
-              ( (this.mdCumB.y5 - this.mdCumA.y5 + 0.000001) / NTAForScore * this.mets_per_part.y_sho_dvd) +
-              ( (this.mdCumB.y6 - this.mdCumA.y6 + 0.000001) / NTAForScore * this.mets_per_part.y_sho_dvd) +              
-              ( (this.mdCumB.y7 - this.mdCumA.y7 + 0.000001) / NTAForScore * this.mets_per_part.y_elb_dvd) +   
-              ( (this.mdCumB.y8 - this.mdCumA.y8 + 0.000001) / NTAForScore * this.mets_per_part.y_elb_dvd) +   
-              ( (this.mdCumB.y9 - this.mdCumA.y9 + 0.000001) / NTAForScore * this.mets_per_part.y_wri_dvd) +   
-              ( (this.mdCumB.y10 - this.mdCumA.y10 + 0.000001) / NTAForScore * this.mets_per_part.y_wri_dvd) +   
-              ( (this.mdCumB.y11 - this.mdCumA.y11 + 0.000001) / NTAForScore * this.mets_per_part.y_hip_dvd) +   
-              ( (this.mdCumB.y12 - this.mdCumA.y12 + 0.000001) / NTAForScore * this.mets_per_part.y_hip_dvd) +                 
-              ( (this.mdCumB.y13 - this.mdCumA.y13 + 0.000001) / NTAForScore * this.mets_per_part.y_kne_dvd) +   
-              ( (this.mdCumB.y14 - this.mdCumA.y14 + 0.000001) / NTAForScore * this.mets_per_part.y_kne_dvd) +   
-              ( (this.mdCumB.y15 - this.mdCumA.y15 + 0.000001) / NTAForScore * this.mets_per_part.y_ank_dvd) +   
-              ( (this.mdCumB.y16 - this.mdCumA.y16 + 0.000001) / NTAForScore * this.mets_per_part.y_ank_dvd);
+              // ( (this.mdCumB.y5 - this.mdCumA.y5 + 0.000001) / NTAForScore * this.mets_per_part.y_sho_dvd) +
+              // ( (this.mdCumB.y6 - this.mdCumA.y6 + 0.000001) / NTAForScore * this.mets_per_part.y_sho_dvd) +              
+              // ( (this.mdCumB.y7 - this.mdCumA.y7 + 0.000001) / NTAForScore * this.mets_per_part.y_elb_dvd) +   
+              // ( (this.mdCumB.y8 - this.mdCumA.y8 + 0.000001) / NTAForScore * this.mets_per_part.y_elb_dvd) +   
+              // ( (this.mdCumB.y9 - this.mdCumA.y9 + 0.000001) / NTAForScore * this.mets_per_part.y_wri_dvd) +   
+              // ( (this.mdCumB.y10 - this.mdCumA.y10 + 0.000001) / NTAForScore * this.mets_per_part.y_wri_dvd) +   
+              // ( (this.mdCumB.y11 - this.mdCumA.y11 + 0.000001) / NTAForScore * this.mets_per_part.y_hip_dvd) +   
+              // ( (this.mdCumB.y12 - this.mdCumA.y12 + 0.000001) / NTAForScore * this.mets_per_part.y_hip_dvd) +                 
+              // ( (this.mdCumB.y13 - this.mdCumA.y13 + 0.000001) / NTAForScore * this.mets_per_part.y_kne_dvd) +   
+              // ( (this.mdCumB.y14 - this.mdCumA.y14 + 0.000001) / NTAForScore * this.mets_per_part.y_kne_dvd) +   
+              // ( (this.mdCumB.y15 - this.mdCumA.y15 + 0.000001) / NTAForScore * this.mets_per_part.y_ank_dvd) +   
+              // ( (this.mdCumB.y16 - this.mdCumA.y16 + 0.000001) / NTAForScore * this.mets_per_part.y_ank_dvd);
                             
-                // ( (this.mdCumA.x5 - this.mdCumB.x5 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +
-                // ( (this.mdCumA.x6 - this.mdCumB.x6 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +              
-                // ( (this.mdCumA.x7 - this.mdCumB.x7 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
-                // ( (this.mdCumA.x8 - this.mdCumB.x8 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
-                // ( (this.mdCumA.x9 - this.mdCumB.x9 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
-                // ( (this.mdCumA.x10 - this.mdCumB.x10 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
-                // ( (this.mdCumA.x11 - this.mdCumB.x11 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +   
-                // ( (this.mdCumA.x12 - this.mdCumB.x12 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +                 
-                // ( (this.mdCumA.x13 - this.mdCumB.x13 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
-                // ( (this.mdCumA.x14 - this.mdCumB.x14 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
-                // ( (this.mdCumA.x15 - this.mdCumB.x15 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +   
-                // ( (this.mdCumA.x16 - this.mdCumB.x16 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +
+                ( (this.mdCumA.x5 - this.mdCumB.x5 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +
+                ( (this.mdCumA.x6 - this.mdCumB.x6 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +              
+                ( (this.mdCumA.x7 - this.mdCumB.x7 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
+                ( (this.mdCumA.x8 - this.mdCumB.x8 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
+                ( (this.mdCumA.x9 - this.mdCumB.x9 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
+                ( (this.mdCumA.x10 - this.mdCumB.x10 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
+                ( (this.mdCumA.x11 - this.mdCumB.x11 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +   
+                ( (this.mdCumA.x12 - this.mdCumB.x12 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +                 
+                ( (this.mdCumA.x13 - this.mdCumB.x13 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
+                ( (this.mdCumA.x14 - this.mdCumB.x14 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
+                ( (this.mdCumA.x15 - this.mdCumB.x15 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +   
+                ( (this.mdCumA.x16 - this.mdCumB.x16 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +
 
-                // ( (this.mdCumA.y5 - this.mdCumB.y5 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +
-                // ( (this.mdCumA.y6 - this.mdCumB.y6 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +              
-                // ( (this.mdCumA.y7 - this.mdCumB.y7 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
-                // ( (this.mdCumA.y8 - this.mdCumB.y8 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
-                // ( (this.mdCumA.y9 - this.mdCumB.y9 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
-                // ( (this.mdCumA.y10 - this.mdCumB.y10 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
-                // ( (this.mdCumA.y11 - this.mdCumB.y11 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +   
-                // ( (this.mdCumA.y12 - this.mdCumB.y12 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +                 
-                // ( (this.mdCumA.y13 - this.mdCumB.y13 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
-                // ( (this.mdCumA.y14 - this.mdCumB.y14 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
-                // ( (this.mdCumA.y15 - this.mdCumB.y15 + 0.000001) / NTAForScore * this.mets_per_part.y_ank) +   
-                // ( (this.mdCumA.y16 - this.mdCumB.y16 + 0.000001) / NTAForScore * this.mets_per_part.y_ank) + 
+                ( (this.mdCumA.y5 - this.mdCumB.y5 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +
+                ( (this.mdCumA.y6 - this.mdCumB.y6 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +              
+                ( (this.mdCumA.y7 - this.mdCumB.y7 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
+                ( (this.mdCumA.y8 - this.mdCumB.y8 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
+                ( (this.mdCumA.y9 - this.mdCumB.y9 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
+                ( (this.mdCumA.y10 - this.mdCumB.y10 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
+                ( (this.mdCumA.y11 - this.mdCumB.y11 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +   
+                ( (this.mdCumA.y12 - this.mdCumB.y12 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +                 
+                ( (this.mdCumA.y13 - this.mdCumB.y13 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
+                ( (this.mdCumA.y14 - this.mdCumB.y14 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
+                ( (this.mdCumA.y15 - this.mdCumB.y15 + 0.000001) / NTAForScore * this.mets_per_part.y_ank) +   
+                ( (this.mdCumA.y16 - this.mdCumB.y16 + 0.000001) / NTAForScore * this.mets_per_part.y_ank); 
                 
                 // (Math.pow((this.mdCumA.y5 - this.mdCumB.y5 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +
                 // (Math.pow((this.mdCumA.y6 - this.mdCumB.y6 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +              
@@ -1118,6 +1140,15 @@ export default class Live extends Component {
           // console.log('2 this.mdCum.x10, y13, y15: ', this.mdCum.x10, this.mdCum.y13, this.mdCum.y15 );
           // console.log('2 this.mdCumA.x10, y13, y15: ', this.mdCumA.x10, this.mdCumA.y13, this.mdCumA.y15 );
           // console.log('2 this.mdCumB.x10, y13, y15: ', this.mdCumB.x10, this.mdCumB.y13, this.mdCumB.y15 );   
+
+
+
+          // this.setState({ octopusLoc: { 
+          //   xRW: 2, yRW: 2, // 10=rightWrist, 
+          //   xLW: 9, yLW: 2, // 9=leftwrist
+          //   xRA: 5, yRA: 5, // 16=rightAnkle
+          //   xLA: 6, yLA: 5, // 15=leftAnkle
+          // }, });     
 
           this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(3), scoreNow: scoreNow.toFixed(1) });// this is what shows as score on top right.
           this.mdCumAll.push( JSON.stringify({ 'sec': secFromStart, 'cntLoopUpdateScore': this.cntLoopUpdateScore, 'ts': Date.now()/1000, 'score': scoreNow.toFixed(3), 'playSum': this.vidState.vidPlayedSum.toFixed(2), 'pos': this.pos }) ); // append froms Start to End 
@@ -1721,13 +1752,14 @@ export default class Live extends Component {
 
   render() {
     console.log('----------------- render --------------------');
-    const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, scoreNow, vidStartAt, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon } = this.state;
+    const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, scoreNow, vidStartAt, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon, octopusLoc } = this.state;
 
     if (shouldPlay == true) { // increment only shouldPlay=true. this means not incremented whe video is paused.
       this.vidState.vidPlayedSum = this.vidState.vidPlayedSum + (Date.now()/1000 - this.vidState.loopStartAt); // add increment time
     }
     console.log( '-- Interval: ', (Date.now()/1000 - this.vidState.loopStartAt).toFixed(2)  ); // this does not have any meaning, just to show how fast code runs.
     this.vidState.loopStartAt = Date.now()/1000;
+
 
 
 ////////// to check if mobile devices is fixed & no move by Accelerometer
@@ -1843,7 +1875,7 @@ export default class Live extends Component {
                 <View style={styles.scoreContainer}>
                   { flagCountdownFinished ? 
                     <Text style={styles.scoreText}>
-                      {scoreNow} 
+                      {scoreNow >= 10 ? parseInt(scoreNow).toFixed(0) : scoreNow} {/* Remove decimal when scoreNow is larger than X */}
                     </Text>
                   :
                     <Text style={styles.scoreText}>
@@ -1926,6 +1958,19 @@ export default class Live extends Component {
                   </Text>
                 </View>   
               } */}
+
+
+              {/* Display octopusImage */}
+              { shouldPlay ?
+                <View style={styles.octopusContainer}>
+                  <Image style={[{top: this.camState.windowHeight * (octopusLoc.xRW) / ttlCW, left: this.camState.windowWidth * (octopusLoc.yRW) / ttlCH,}, styles.octopusImage]} source={require('../assets/rWrist.png')} />
+                  <Image style={[{top: this.camState.windowHeight * (octopusLoc.xLW) / ttlCW, left: this.camState.windowWidth * (octopusLoc.yLW) / ttlCH,}, styles.octopusImage]} source={require('../assets/lWrist.png')} />
+                  {/* <Image style={[{top: this.camState.windowHeight * (octopusLoc.xRA) / ttlCW, left: this.camState.windowWidth * (octopusLoc.yRA) / ttlCH,}, styles.octopusImage]} source={require('../assets/rAnkle.png')} />
+                  <Image style={[{top: this.camState.windowHeight * (octopusLoc.xLA) / ttlCW, left: this.camState.windowWidth * (octopusLoc.yLA) / ttlCH,}, styles.octopusImage]} source={require('../assets/lAnkle.png')} /> */}
+                </View>
+              :
+                null
+              }  
 
 
             </View> // close styles.layerOneContainer,
@@ -2068,11 +2113,11 @@ const styles = StyleSheet.create({
     // backgroundColor: 'white',
     // zIndex: 201, // removed 20200531
     position: 'absolute',
-    top: Dimensions.get('window').height * 0.03,
-    right: Dimensions.get('window').width * 0.03 * 10, 
-    height: Dimensions.get('window').height * 0.13, // 0.1
-    width: Dimensions.get('window').width * 0.4, //0.4
-    backgroundColor: 'rgba(20, 20, 20, 0.5)', // darkgray seethrough background
+    top: Dimensions.get('window').width * 0.07,
+    right: Dimensions.get('window').height * 0.12, 
+    height: Dimensions.get('window').width * 0.25, // 0.1
+    width: Dimensions.get('window').height * 0.25, //0.4
+    backgroundColor: 'rgba(20, 20, 20, 0.7)', // darkgray seethrough background
     borderRadius: 10, 
     // padding: 3,
     // opacity: 0.5,   
@@ -2080,8 +2125,8 @@ const styles = StyleSheet.create({
   scoreText:{
     // alignItems: 'center',
     // justifyContent: 'center',
-    fontSize: 40,
-    textAlign: 'center',
+    fontSize: 65,
+    textAlign: 'right',
     textShadowColor: 'black',
     textShadowRadius: 10,
     color: '#ffa500',
@@ -2131,7 +2176,6 @@ const styles = StyleSheet.create({
     // top: 0,
     bottom: Dimensions.get('window').width * 0.01,
     // justifyContent: 'center',
-
     // borderColor: 'green',
     // borderWidth: 1,
   }, 
@@ -2149,7 +2193,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',   
     // marginHorizontal: Dimensions.get('window').width * 0.2,
-    backgroundColor: 'rgba(20, 20, 20, 0.5)', 
+    backgroundColor: 'rgba(20, 20, 20, 0.7)', 
     borderRadius: 10,
   },
   attentionText: {
@@ -2162,6 +2206,25 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     // backgroundColor: 'rgba(220, 220, 220, 0.7)', 
   },
+
+  octopusContainer: {
+    // flexGrow:1,
+    flex: 0,
+    position: 'relative',
+    bottom: 0,
+    width: '100%', //Dimensions.get('window').width * 1,
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    // borderColor: 'green',
+    // borderWidth: 3,
+  },
+  octopusImage: {
+    position: 'absolute',
+    width: Dimensions.get('window').width * 1 / ttlCH,
+    height: Dimensions.get('window').width * 1 / ttlCH,
+  },
+
 
   upperLayerContainer: {
     position: 'absolute',
@@ -2232,7 +2295,7 @@ const styles = StyleSheet.create({
     // marginLeft: 10,
     alignItems: 'center',
     justifyContent: 'center',   
-    backgroundColor: 'rgba(20, 20, 20, 0.5)', // 'rgba(220, 220, 220, 0.5)'
+    backgroundColor: 'rgba(20, 20, 20, 0.7)', // 'rgba(220, 220, 220, 0.5)'
     position: 'absolute',
     top: Dimensions.get('window').width * 0.07,
     left: Dimensions.get('window').height * 0.02, 
