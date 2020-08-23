@@ -1,30 +1,3 @@
-// import * as React from 'react';
-// import { Component } from 'react';
-// import { Text, View } from 'react-native';
-
-// export default class Live extends Component {
- 
-//   componentDidMount() {
-//     console.log('------------- componentDidMount LiveScreen started.');
-//   }
-
-//   render() {
- 
-//     return (
-//       <View>
-//         <Text>
-//           Live!{"\n"}ready?{"\n"}
-//         </Text>
-//       </View>
-//     );
-
-//   }
-
-
-// }
-
-
-
 
 import * as React from 'react';
 import { Component, useState, useEffect  } from 'react';
@@ -48,6 +21,8 @@ import { Constants, Accelerometer } from 'expo-sensors'; // https://docs.expo.io
 
 import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
 import Svg, { Circle, Rect,} from 'react-native-svg';
+
+import {slow1} from '../assets/octopus';
 
 
 
@@ -104,14 +79,10 @@ export default class Live extends Component {
       // flagLoopUpdateScore: false, // to control if the first loop to updateScore. 20200812
       // mdCumPrev: null, // keep Previous mdCum to compare with the latest mdCum. 20200813
       octopusLoc: { // Location of Octopus Image
-        // xRW: 2, yRW: 2, // 10=rightWrist, 
-        // xLW: 3, yLW: 2, // 9=leftwrist
-        // xRA: 5, yRA: 5, // 16=rightAnkle
-        // xLA: 6, yLA: 5, // 15=leftAnkle
-        xRW: 1, yRW: 1, // 10=rightWrist, 
-        xLW: 1, yLW: 1, // 9=leftwrist
-        xRA: 1, yRA: 1, // 16=rightAnkle
-        xLA: 1, yLA: 1, // 15=leftAnkle        
+        xRW: 2, yRW: 2, // 10=rightWrist // Red
+        xLW: 9, yLW: 2, // 9=leftwrist // Blue
+        xRA: 5, yRA: 5, // 16=rightAnkle // Red
+        xLA: 6, yLA: 5, // 15=leftAnkle // Blue        
       },
 
     }
@@ -486,9 +457,11 @@ export default class Live extends Component {
 
 
   async componentDidMount() {
-    console.log('------------------- componentDidMount Live started 73');
+    console.log('------------------- componentDidMount Live started 76');
     console.log('------ this.mets_per_part: ', this.mets_per_part);
     console.log('------ this.camState: ', this.camState);
+    console.log( 'slow1[secFromStart]: ', typeof slow1 );
+    console.log( 'slow1[secFromStart]: ', slow1["1"] );
     // console.log('screen height: ', Dimensions.get('screen').height);
     // console.log('screen width: ', Dimensions.get('screen').width);
     // console.log('window height: ', Dimensions.get('window').height);
@@ -803,7 +776,14 @@ export default class Live extends Component {
     jsonContents['numFrameVidEnd'] = this.vidState.numFrameVidEnd; 
 
     jsonContents = JSON.stringify(jsonContents); // convert to string for saving file
-    console.log('jsonContents: ', jsonContents);
+    // console.log('jsonContents: ', jsonContents);
+    // console.log('jsonContents keys: ', Object.keys(jsonContents));
+    // console.log('jsonContents keys: ');
+    // for (var key in jsonContents) {
+    //   if (jsonContents.hasOwnProperty(key)) {
+    //       console.log(key);
+    //   }
+    // }
 
     // vidViewLog for Firestore
     await FileSystem.writeAsStringAsync(
@@ -881,7 +861,7 @@ export default class Live extends Component {
 
           var secFromStart = parseInt( Date.now() / 1000 - this.vidState.vidStartAt);
           console.log('================================== cntLoop: ', this.cntLoopUpdateScore, ' | sec: ', secFromStart, this.vidState.vidPlayedSum.toFixed(3) );
-          console.log('--- this.pos: ', this.pos);
+          // console.log('--- this.pos: ', this.pos);
 
           var NTAForScore = noseToAnkle * this.coefNTA; // 20200614
           console.log('--- NTAForScore: ', NTAForScore);
@@ -921,9 +901,9 @@ export default class Live extends Component {
             this.mdCumA.y14 = this.mdCum.y14; // update mdCum
             this.mdCumA.y15 = this.mdCum.x15; // update mdCum           
           
-            console.log('0 this.mdCum.x10, y13, y15: ', this.mdCum.x10, this.mdCum.y13, this.mdCum.y15 );
-            console.log('0 this.mdCumA.x10, y13, y15: ', this.mdCumA.x10, this.mdCumA.y13, this.mdCumA.y15 );
-            console.log('0 this.mdCumB.x10, y13, y15: ', this.mdCumB.x10, this.mdCumB.y13, this.mdCumB.y15 );
+            // console.log('0 this.mdCum.x10, y13, y15: ', this.mdCum.x10, this.mdCum.y13, this.mdCum.y15 );
+            // console.log('0 this.mdCumA.x10, y13, y15: ', this.mdCumA.x10, this.mdCumA.y13, this.mdCumA.y15 );
+            // console.log('0 this.mdCumB.x10, y13, y15: ', this.mdCumB.x10, this.mdCumB.y13, this.mdCumB.y15 );
 
             this.cntLoopUpdateScore++; // increment
 
@@ -955,7 +935,7 @@ export default class Live extends Component {
               this.mdCumB.y13 = this.mdCum.y13; // update mdCum
               this.mdCumB.y14 = this.mdCum.y14; // update mdCum
               this.mdCumB.y15 = this.mdCum.y15; // update mdCum     
-              console.log('--- this.mdCumB: ', this.mdCumB);  
+              // console.log('--- this.mdCumB: ', this.mdCumB);  
 
               mdCumTtlNow = 
                 // ( (this.mdCumB.x5 - this.mdCumA.x5 + 0.000001) / NTAForScore * this.mets_per_part.x_sho_dvd) +
@@ -1051,7 +1031,7 @@ export default class Live extends Component {
               this.mdCumA.y13 = this.mdCum.y13; // update mdCum
               this.mdCumA.y14 = this.mdCum.y14; // update mdCum
               this.mdCumA.y15 = this.mdCum.y15; // update mdCum    
-              console.log('--- this.mdCumA: ', this.mdCumA);  
+              // console.log('--- this.mdCumA: ', this.mdCumA);  
 
               mdCumTtlNow = 
               // ( (this.mdCumB.x5 - this.mdCumA.x5 + 0.000001) / NTAForScore * this.mets_per_part.x_sho_dvd) +
@@ -1131,9 +1111,9 @@ export default class Live extends Component {
 
             this.cntLoopUpdateScore++; // increment
 
-            console.log('1 this.mdCum.x10, y13, y15: ', this.mdCum.x10, this.mdCum.y13, this.mdCum.y15 );
-            console.log('1 this.mdCumA.x10, y13, y15: ', this.mdCumA.x10, this.mdCumA.y13, this.mdCumA.y15 );
-            console.log('1 this.mdCumB.x10, y13, y15: ', this.mdCumB.x10, this.mdCumB.y13, this.mdCumB.y15 );
+            // console.log('1 this.mdCum.x10, y13, y15: ', this.mdCum.x10, this.mdCum.y13, this.mdCum.y15 );
+            // console.log('1 this.mdCumA.x10, y13, y15: ', this.mdCumA.x10, this.mdCumA.y13, this.mdCumA.y15 );
+            // console.log('1 this.mdCumB.x10, y13, y15: ', this.mdCumB.x10, this.mdCumB.y13, this.mdCumB.y15 );
         
           }
           
@@ -1142,18 +1122,20 @@ export default class Live extends Component {
           // console.log('2 this.mdCumB.x10, y13, y15: ', this.mdCumB.x10, this.mdCumB.y13, this.mdCumB.y15 );   
 
 
+          // // Assign this.state.octopusLoc. 20200823
+          var octopusLocEach = {}; //initialize
+          if ( typeof slow1[secFromStart.toString()] !== "undefined") { 
+            console.log( 'slow1[secFromStart]: ', slow1[secFromStart.toString()] );
+            octopusLocEach = slow1[secFromStart.toString()]; // Assign Location
+          } else {
+            console.log( 'slow1[secFromStart]: error' ); 
+            octopusLocEach = slow1["ERR"]; // assign Location for Error
+          };
 
-          // this.setState({ octopusLoc: { 
-          //   xRW: 2, yRW: 2, // 10=rightWrist, 
-          //   xLW: 9, yLW: 2, // 9=leftwrist
-          //   xRA: 5, yRA: 5, // 16=rightAnkle
-          //   xLA: 6, yLA: 5, // 15=leftAnkle
-          // }, });     
 
-          this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(3), scoreNow: scoreNow.toFixed(1) });// this is what shows as score on top right.
+          this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(3), scoreNow: scoreNow.toFixed(1), octopusLoc: octopusLocEach });// this is what shows as score on top right.
           this.mdCumAll.push( JSON.stringify({ 'sec': secFromStart, 'cntLoopUpdateScore': this.cntLoopUpdateScore, 'ts': Date.now()/1000, 'score': scoreNow.toFixed(3), 'playSum': this.vidState.vidPlayedSum.toFixed(2), 'pos': this.pos }) ); // append froms Start to End 
-        
-       
+          
 
           if ( this.state.shouldPlay === false ) { // this will force to stop setInterval(_updateScore) when user outNTA or press gobackhome BEFORE video ends. 20200603
             console.log('this will force to stop setInterval(_updateScore).');
@@ -1875,7 +1857,7 @@ export default class Live extends Component {
                 <View style={styles.scoreContainer}>
                   { flagCountdownFinished ? 
                     <Text style={styles.scoreText}>
-                      {scoreNow >= 10 ? parseInt(scoreNow).toFixed(0) : scoreNow} {/* Remove decimal when scoreNow is larger than X */}
+                      {scoreNow >= 10 ? parseInt(scoreNow).toFixed(0) : scoreNow } {/* Remove decimal when scoreNow is larger than X */}
                     </Text>
                   :
                     <Text style={styles.scoreText}>
@@ -1931,8 +1913,14 @@ export default class Live extends Component {
               }
 
 
-              { flagAllPosOk ? 
-                null
+              { flagAllPosOk ?
+                // null
+                // TEMPORARY DISPLAY METS. 20200823
+                <View style={styles.attentionContainer}>
+                  <Text style={styles.attentionText}>
+                    { parseInt(mdCumTtlNow).toFixed(1) }
+                  </Text>
+                </View>
               :
                 <View style={styles.attentionContainer}>
                   <Text style={styles.attentionText}>
@@ -1963,10 +1951,10 @@ export default class Live extends Component {
               {/* Display octopusImage */}
               { shouldPlay ?
                 <View style={styles.octopusContainer}>
-                  <Image style={[{top: this.camState.windowHeight * (octopusLoc.xRW) / ttlCW, left: this.camState.windowWidth * (octopusLoc.yRW) / ttlCH,}, styles.octopusImage]} source={require('../assets/rWrist.png')} />
-                  <Image style={[{top: this.camState.windowHeight * (octopusLoc.xLW) / ttlCW, left: this.camState.windowWidth * (octopusLoc.yLW) / ttlCH,}, styles.octopusImage]} source={require('../assets/lWrist.png')} />
-                  {/* <Image style={[{top: this.camState.windowHeight * (octopusLoc.xRA) / ttlCW, left: this.camState.windowWidth * (octopusLoc.yRA) / ttlCH,}, styles.octopusImage]} source={require('../assets/rAnkle.png')} />
-                  <Image style={[{top: this.camState.windowHeight * (octopusLoc.xLA) / ttlCW, left: this.camState.windowWidth * (octopusLoc.yLA) / ttlCH,}, styles.octopusImage]} source={require('../assets/lAnkle.png')} /> */}
+                  <Image style={[{ left: this.camState.windowWidth * (octopusLoc.xRW) / ttlCH, top: this.camState.windowHeight * (octopusLoc.yRW) / ttlCW }, styles.octopusImage]} source={require('../assets/rWrist.png')} />
+                  <Image style={[{ left: this.camState.windowWidth * (octopusLoc.xLW) / ttlCH, top: this.camState.windowHeight * (octopusLoc.yLW) / ttlCW }, styles.octopusImage]} source={require('../assets/lWrist.png')} />
+                  <Image style={[{ left: this.camState.windowWidth * (octopusLoc.xRA) / ttlCH, top: this.camState.windowHeight * (octopusLoc.yRA) / ttlCW }, styles.octopusImage]} source={require('../assets/rAnkle.png')} />
+                  <Image style={[{ left: this.camState.windowWidth * (octopusLoc.xLA) / ttlCH, top: this.camState.windowHeight * (octopusLoc.yLA) / ttlCW }, styles.octopusImage]} source={require('../assets/lAnkle.png')} />
                 </View>
               :
                 null
@@ -2115,17 +2103,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: Dimensions.get('window').width * 0.07,
     right: Dimensions.get('window').height * 0.12, 
-    height: Dimensions.get('window').width * 0.25, // 0.1
-    width: Dimensions.get('window').height * 0.25, //0.4
+    height: Dimensions.get('window').width * 0.22, // 0.1
+    width: Dimensions.get('window').height * 0.22, //0.4
     backgroundColor: 'rgba(20, 20, 20, 0.7)', // darkgray seethrough background
-    borderRadius: 10, 
-    // padding: 3,
-    // opacity: 0.5,   
+    borderRadius: 10,  
+    justifyContent: 'center',
   },
   scoreText:{
     // alignItems: 'center',
     // justifyContent: 'center',
-    fontSize: 65,
+    fontSize: 60,
+    fontWeight: 'bold',
     textAlign: 'right',
     textShadowColor: 'black',
     textShadowRadius: 10,
@@ -2210,7 +2198,7 @@ const styles = StyleSheet.create({
   octopusContainer: {
     // flexGrow:1,
     flex: 0,
-    position: 'relative',
+    position: 'absolute',
     bottom: 0,
     width: '100%', //Dimensions.get('window').width * 1,
     height: '100%',
@@ -2221,8 +2209,8 @@ const styles = StyleSheet.create({
   },
   octopusImage: {
     position: 'absolute',
-    width: Dimensions.get('window').width * 1 / ttlCH,
-    height: Dimensions.get('window').width * 1 / ttlCH,
+    width: Dimensions.get('window').width * 1 / ttlCH * 1.5,
+    height: Dimensions.get('window').width * 1 / ttlCH * 1.5,
   },
 
 

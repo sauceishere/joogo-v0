@@ -66,17 +66,17 @@ export default class DashboardScreen extends Component {
     // console.log('this.curDir: ', this.curDir);  
 
 
-    // // Check Directories & Files in current directory. // THIS IS FOR MANUAL ACTION 
-    // FileSystem.readDirectoryAsync( this.curDir ).then( content => {
-    //   console.log('this.curDir Dirs and Files: ', content); // how many localFiles in array
-    // })
+    // Check Directories & Files in current directory. // THIS IS FOR MANUAL ACTION 
+    FileSystem.readDirectoryAsync( this.curDir + this.state.vidViewLogDirName ).then( content => {
+      console.log('check this.curDir Dirs and Files: ', content); // how many localFiles in array
+    })
 
-    // // Delete File // THIS IS FOR MANUAL ACTION AGAINST ERROR
-    // FileSystem.deleteAsync( this.curDir + this.state.vidViewLogDirName + '/' + "1589984839.296_361f78ed-35be-477e-8676-adaa2fbc3805_cf136872-0f7b-4a06-9918-febc2967efe0.json" ).then( (dir) => {
-    //   console.log('---------- File Deleted: ', dir);
-    // }).catch(error => {
-    //   console.log('error: ', error);
-    // });    
+    // Delete File // THIS IS FOR MANUAL ACTION AGAINST ERROR
+    FileSystem.deleteAsync( this.curDir + this.state.vidViewLogDirName ).then( (dir) => {
+      console.log('---------- File Deleted: ', dir);
+    }).catch(error => {
+      console.log('error: ', error);
+    });    
 
 
 
