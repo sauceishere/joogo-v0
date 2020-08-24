@@ -28,10 +28,11 @@ import {slow1} from '../assets/octopus';
 
 const TensorCamera = cameraWithTensors(Camera); // https://js.tensorflow.org/api_react_native/latest/#cameraWithTensors
 
-const goBackIconSize = 40;
+const goBackIconSize = 50; //40
 
-const ttlCW = 12; // total cell of width
-const ttlCH = 6; // total cell of height
+// const ttlCW = 12; // total cell of width
+// const ttlCH = 6; // total cell of height
+const octopusImageSizePct = 0.25; // percentage of Dimensions.get('window').width. 20200824
 
 
 export default class Live extends Component {
@@ -141,6 +142,9 @@ export default class Live extends Component {
   // vidMeta = this.props.navigation.getParam('post')
   wpart = this.props.navigation.getParam('wpart');
   mets_per_part = this.props.navigation.getParam('mets_per_part');
+  scaler_scale = this.props.navigation.getParam('scaler_scale').data;
+  scaler_mean = this.props.navigation.getParam('scaler_mean').data;
+  reg_sgd = this.props.navigation.getParam('reg_sgd').data;
   
 
   initialPositions = {
@@ -457,11 +461,14 @@ export default class Live extends Component {
 
 
   async componentDidMount() {
-    console.log('------------------- componentDidMount Live started 76');
+    console.log('------------------- componentDidMount Live started 77');
     console.log('------ this.mets_per_part: ', this.mets_per_part);
     console.log('------ this.camState: ', this.camState);
     console.log( 'slow1[secFromStart]: ', typeof slow1 );
     console.log( 'slow1[secFromStart]: ', slow1["1"] );
+    console.log('this.scaler_scale: ', this.scaler_scale );
+    console.log('this.scaler_mean: ', this.scaler_mean );
+    console.log('this.reg_sgd: ', this.reg_sgd );
     // console.log('screen height: ', Dimensions.get('screen').height);
     // console.log('screen width: ', Dimensions.get('screen').width);
     // console.log('window height: ', Dimensions.get('window').height);
@@ -964,31 +971,31 @@ export default class Live extends Component {
                 // ( (this.mdCumB.y15 - this.mdCumA.y15 + 0.000001) / NTAForScore * this.mets_per_part.y_ank_dvd) +   
                 // ( (this.mdCumB.y16 - this.mdCumA.y16 + 0.000001) / NTAForScore * this.mets_per_part.y_ank_dvd);
 
-                ( (this.mdCumB.x5 - this.mdCumA.x5 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +
-                ( (this.mdCumB.x6 - this.mdCumA.x6 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +              
-                ( (this.mdCumB.x7 - this.mdCumA.x7 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
-                ( (this.mdCumB.x8 - this.mdCumA.x8 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
-                ( (this.mdCumB.x9 - this.mdCumA.x9 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
-                ( (this.mdCumB.x10 - this.mdCumA.x10 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
-                ( (this.mdCumB.x11 - this.mdCumA.x11 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +   
-                ( (this.mdCumB.x12 - this.mdCumA.x12 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +                 
-                ( (this.mdCumB.x13 - this.mdCumA.x13 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
-                ( (this.mdCumB.x14 - this.mdCumA.x14 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
-                ( (this.mdCumB.x15 - this.mdCumA.x15 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +   
-                ( (this.mdCumB.x16 - this.mdCumA.x16 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +
+                // ( (this.mdCumB.x5 - this.mdCumA.x5 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +
+                // ( (this.mdCumB.x6 - this.mdCumA.x6 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +              
+                // ( (this.mdCumB.x7 - this.mdCumA.x7 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
+                // ( (this.mdCumB.x8 - this.mdCumA.x8 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
+                // ( (this.mdCumB.x9 - this.mdCumA.x9 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
+                // ( (this.mdCumB.x10 - this.mdCumA.x10 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
+                // ( (this.mdCumB.x11 - this.mdCumA.x11 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +   
+                // ( (this.mdCumB.x12 - this.mdCumA.x12 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +                 
+                // ( (this.mdCumB.x13 - this.mdCumA.x13 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
+                // ( (this.mdCumB.x14 - this.mdCumA.x14 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
+                // ( (this.mdCumB.x15 - this.mdCumA.x15 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +   
+                // ( (this.mdCumB.x16 - this.mdCumA.x16 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +
 
-                ( (this.mdCumB.y5 - this.mdCumA.y5 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +
-                ( (this.mdCumB.y6 - this.mdCumA.y6 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +              
-                ( (this.mdCumB.y7 - this.mdCumA.y7 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
-                ( (this.mdCumB.y8 - this.mdCumA.y8 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
-                ( (this.mdCumB.y9 - this.mdCumA.y9 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
-                ( (this.mdCumB.y10 - this.mdCumA.y10 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
-                ( (this.mdCumB.y11 - this.mdCumA.y11 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +   
-                ( (this.mdCumB.y12 - this.mdCumA.y12 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +                 
-                ( (this.mdCumB.y13 - this.mdCumA.y13 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
-                ( (this.mdCumB.y14 - this.mdCumA.y14 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
-                ( (this.mdCumB.y15 - this.mdCumA.y15 + 0.000001) / NTAForScore * this.mets_per_part.y_ank) +   
-                ( (this.mdCumB.y16 - this.mdCumA.y16 + 0.000001) / NTAForScore * this.mets_per_part.y_ank);
+                // ( (this.mdCumB.y5 - this.mdCumA.y5 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +
+                // ( (this.mdCumB.y6 - this.mdCumA.y6 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +              
+                // ( (this.mdCumB.y7 - this.mdCumA.y7 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
+                // ( (this.mdCumB.y8 - this.mdCumA.y8 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
+                // ( (this.mdCumB.y9 - this.mdCumA.y9 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
+                // ( (this.mdCumB.y10 - this.mdCumA.y10 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
+                // ( (this.mdCumB.y11 - this.mdCumA.y11 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +   
+                // ( (this.mdCumB.y12 - this.mdCumA.y12 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +                 
+                // ( (this.mdCumB.y13 - this.mdCumA.y13 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
+                // ( (this.mdCumB.y14 - this.mdCumA.y14 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
+                // ( (this.mdCumB.y15 - this.mdCumA.y15 + 0.000001) / NTAForScore * this.mets_per_part.y_ank) +   
+                // ( (this.mdCumB.y16 - this.mdCumA.y16 + 0.000001) / NTAForScore * this.mets_per_part.y_ank);
                 
                 // (Math.pow((this.mdCumB.y5 - this.mdCumA.y5 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +
                 // (Math.pow((this.mdCumB.y6 - this.mdCumA.y6 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +              
@@ -1001,8 +1008,21 @@ export default class Live extends Component {
                 // (Math.pow((this.mdCumB.y13 - this.mdCumA.y13 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_kne_sqr) +   
                 // (Math.pow((this.mdCumB.y14 - this.mdCumA.y14 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_kne_sqr) +   
                 // (Math.pow((this.mdCumB.y15 - this.mdCumA.y15 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr) +   
-                // (Math.pow((this.mdCumB.y16 - this.mdCumA.y16 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr);              
-              console.log('--- mdCumTtlNow: ', mdCumTtlNow.toFixed(6));
+                // (Math.pow((this.mdCumB.y16 - this.mdCumA.y16 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr);    
+                
+                ( ( ( ( (this.mdCumB.x5 - this.mdCumA.x5) + (this.mdCumB.x6 - this.mdCumA.x6) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_sho ) / this.scaler_scale.x_sho * this.reg_sgd.x_sho ) + 
+                ( ( ( ( (this.mdCumB.x7 - this.mdCumA.x7) + (this.mdCumB.x8 - this.mdCumA.x8) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_elb ) / this.scaler_scale.x_elb * this.reg_sgd.x_elb ) + 
+                ( ( ( ( (this.mdCumB.x9 - this.mdCumA.x9) + (this.mdCumB.x10 - this.mdCumA.x10) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_wri ) / this.scaler_scale.x_wri * this.reg_sgd.x_wri ) + 
+                ( ( ( ( (this.mdCumB.x11 - this.mdCumA.x11) + (this.mdCumB.x12 - this.mdCumA.x12) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_hip ) / this.scaler_scale.x_hip * this.reg_sgd.x_hip ) + 
+                ( ( ( ( (this.mdCumB.x13 - this.mdCumA.x13) + (this.mdCumB.x14 - this.mdCumA.x14) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_kne ) / this.scaler_scale.x_kne * this.reg_sgd.x_kne ) + 
+                ( ( ( ( (this.mdCumB.x15 - this.mdCumA.x15) + (this.mdCumB.x16 - this.mdCumA.x16) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_ank ) / this.scaler_scale.x_ank * this.reg_sgd.x_ank ) + 
+                ( ( ( ( (this.mdCumB.y5 - this.mdCumA.y5) + (this.mdCumB.y6 - this.mdCumA.y6) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_sho ) / this.scaler_scale.y_sho * this.reg_sgd.y_sho ) + 
+                ( ( ( ( (this.mdCumB.y7 - this.mdCumA.y7) + (this.mdCumB.y8 - this.mdCumA.y8) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_elb ) / this.scaler_scale.y_elb * this.reg_sgd.y_elb ) + 
+                ( ( ( ( (this.mdCumB.y9 - this.mdCumA.y9) + (this.mdCumB.y10 - this.mdCumA.y10) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_wri ) / this.scaler_scale.y_wri * this.reg_sgd.y_wri ) + 
+                ( ( ( ( (this.mdCumB.y10 - this.mdCumA.y10) + (this.mdCumB.y12 - this.mdCumA.y12) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_hip ) / this.scaler_scale.y_hip * this.reg_sgd.y_hip ) + 
+                ( ( ( ( (this.mdCumB.y13 - this.mdCumA.y13) + (this.mdCumB.y14 - this.mdCumA.y14) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_kne ) / this.scaler_scale.y_kne * this.reg_sgd.y_kne ) + 
+                ( ( ( ( (this.mdCumB.y15 - this.mdCumA.y15) + (this.mdCumB.y16 - this.mdCumA.y16) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_ank ) / this.scaler_scale.y_ank * this.reg_sgd.y_ank ) + 
+                this.reg_sgd.intercept;
 
               this.flag_mdCum = 0; // switch flag
 
@@ -1060,31 +1080,31 @@ export default class Live extends Component {
               // ( (this.mdCumB.y15 - this.mdCumA.y15 + 0.000001) / NTAForScore * this.mets_per_part.y_ank_dvd) +   
               // ( (this.mdCumB.y16 - this.mdCumA.y16 + 0.000001) / NTAForScore * this.mets_per_part.y_ank_dvd);
                             
-                ( (this.mdCumA.x5 - this.mdCumB.x5 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +
-                ( (this.mdCumA.x6 - this.mdCumB.x6 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +              
-                ( (this.mdCumA.x7 - this.mdCumB.x7 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
-                ( (this.mdCumA.x8 - this.mdCumB.x8 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
-                ( (this.mdCumA.x9 - this.mdCumB.x9 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
-                ( (this.mdCumA.x10 - this.mdCumB.x10 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
-                ( (this.mdCumA.x11 - this.mdCumB.x11 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +   
-                ( (this.mdCumA.x12 - this.mdCumB.x12 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +                 
-                ( (this.mdCumA.x13 - this.mdCumB.x13 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
-                ( (this.mdCumA.x14 - this.mdCumB.x14 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
-                ( (this.mdCumA.x15 - this.mdCumB.x15 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +   
-                ( (this.mdCumA.x16 - this.mdCumB.x16 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +
+                // ( (this.mdCumA.x5 - this.mdCumB.x5 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +
+                // ( (this.mdCumA.x6 - this.mdCumB.x6 + 0.000001) / NTAForScore * this.mets_per_part.x_sho) +              
+                // ( (this.mdCumA.x7 - this.mdCumB.x7 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
+                // ( (this.mdCumA.x8 - this.mdCumB.x8 + 0.000001) / NTAForScore * this.mets_per_part.x_elb) +   
+                // ( (this.mdCumA.x9 - this.mdCumB.x9 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
+                // ( (this.mdCumA.x10 - this.mdCumB.x10 + 0.000001) / NTAForScore * this.mets_per_part.x_wri) +   
+                // ( (this.mdCumA.x11 - this.mdCumB.x11 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +   
+                // ( (this.mdCumA.x12 - this.mdCumB.x12 + 0.000001) / NTAForScore * this.mets_per_part.x_hip) +                 
+                // ( (this.mdCumA.x13 - this.mdCumB.x13 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
+                // ( (this.mdCumA.x14 - this.mdCumB.x14 + 0.000001) / NTAForScore * this.mets_per_part.x_kne) +   
+                // ( (this.mdCumA.x15 - this.mdCumB.x15 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +   
+                // ( (this.mdCumA.x16 - this.mdCumB.x16 + 0.000001) / NTAForScore * this.mets_per_part.x_ank) +
 
-                ( (this.mdCumA.y5 - this.mdCumB.y5 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +
-                ( (this.mdCumA.y6 - this.mdCumB.y6 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +              
-                ( (this.mdCumA.y7 - this.mdCumB.y7 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
-                ( (this.mdCumA.y8 - this.mdCumB.y8 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
-                ( (this.mdCumA.y9 - this.mdCumB.y9 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
-                ( (this.mdCumA.y10 - this.mdCumB.y10 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
-                ( (this.mdCumA.y11 - this.mdCumB.y11 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +   
-                ( (this.mdCumA.y12 - this.mdCumB.y12 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +                 
-                ( (this.mdCumA.y13 - this.mdCumB.y13 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
-                ( (this.mdCumA.y14 - this.mdCumB.y14 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
-                ( (this.mdCumA.y15 - this.mdCumB.y15 + 0.000001) / NTAForScore * this.mets_per_part.y_ank) +   
-                ( (this.mdCumA.y16 - this.mdCumB.y16 + 0.000001) / NTAForScore * this.mets_per_part.y_ank); 
+                // ( (this.mdCumA.y5 - this.mdCumB.y5 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +
+                // ( (this.mdCumA.y6 - this.mdCumB.y6 + 0.000001) / NTAForScore * this.mets_per_part.y_sho) +              
+                // ( (this.mdCumA.y7 - this.mdCumB.y7 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
+                // ( (this.mdCumA.y8 - this.mdCumB.y8 + 0.000001) / NTAForScore * this.mets_per_part.y_elb) +   
+                // ( (this.mdCumA.y9 - this.mdCumB.y9 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
+                // ( (this.mdCumA.y10 - this.mdCumB.y10 + 0.000001) / NTAForScore * this.mets_per_part.y_wri) +   
+                // ( (this.mdCumA.y11 - this.mdCumB.y11 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +   
+                // ( (this.mdCumA.y12 - this.mdCumB.y12 + 0.000001) / NTAForScore * this.mets_per_part.y_hip) +                 
+                // ( (this.mdCumA.y13 - this.mdCumB.y13 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
+                // ( (this.mdCumA.y14 - this.mdCumB.y14 + 0.000001) / NTAForScore * this.mets_per_part.y_kne) +   
+                // ( (this.mdCumA.y15 - this.mdCumB.y15 + 0.000001) / NTAForScore * this.mets_per_part.y_ank) +   
+                // ( (this.mdCumA.y16 - this.mdCumB.y16 + 0.000001) / NTAForScore * this.mets_per_part.y_ank); 
                 
                 // (Math.pow((this.mdCumA.y5 - this.mdCumB.y5 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +
                 // (Math.pow((this.mdCumA.y6 - this.mdCumB.y6 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_sho_sqr) +              
@@ -1098,10 +1118,28 @@ export default class Live extends Component {
                 // (Math.pow((this.mdCumA.y14 - this.mdCumB.y14 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_kne_sqr) +   
                 // (Math.pow((this.mdCumA.y15 - this.mdCumB.y15 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr) +   
                 // (Math.pow((this.mdCumA.y16 - this.mdCumB.y16 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr);              
-              console.log('--- mdCumTtlNow: ', mdCumTtlNow.toFixed(3));
+
+                ( ( ( ( (this.mdCumA.x5 - this.mdCumB.x5) + (this.mdCumA.x6 - this.mdCumB.x6) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_sho ) / this.scaler_scale.x_sho * this.reg_sgd.x_sho ) + 
+                ( ( ( ( (this.mdCumA.x7 - this.mdCumB.x7) + (this.mdCumA.x8 - this.mdCumB.x8) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_elb ) / this.scaler_scale.x_elb * this.reg_sgd.x_elb ) + 
+                ( ( ( ( (this.mdCumA.x9 - this.mdCumB.x9) + (this.mdCumA.x10 - this.mdCumB.x10) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_wri ) / this.scaler_scale.x_wri * this.reg_sgd.x_wri ) + 
+                ( ( ( ( (this.mdCumA.x11 - this.mdCumB.x11) + (this.mdCumA.x12 - this.mdCumB.x12) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_hip ) / this.scaler_scale.x_hip * this.reg_sgd.x_hip ) + 
+                ( ( ( ( (this.mdCumA.x13 - this.mdCumB.x13) + (this.mdCumA.x14 - this.mdCumB.x14) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_kne ) / this.scaler_scale.x_kne * this.reg_sgd.x_kne ) + 
+                ( ( ( ( (this.mdCumA.x15 - this.mdCumB.x15) + (this.mdCumA.x16 - this.mdCumB.x16) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_ank ) / this.scaler_scale.x_ank * this.reg_sgd.x_ank ) + 
+                ( ( ( ( (this.mdCumA.y5 - this.mdCumB.y5) + (this.mdCumA.y6 - this.mdCumB.y6) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_sho ) / this.scaler_scale.y_sho * this.reg_sgd.y_sho ) + 
+                ( ( ( ( (this.mdCumA.y7 - this.mdCumB.y7) + (this.mdCumA.y8 - this.mdCumB.y8) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_elb ) / this.scaler_scale.y_elb * this.reg_sgd.y_elb ) + 
+                ( ( ( ( (this.mdCumA.y9 - this.mdCumB.y9) + (this.mdCumA.y10 - this.mdCumB.y10) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_wri ) / this.scaler_scale.y_wri * this.reg_sgd.y_wri ) + 
+                ( ( ( ( (this.mdCumA.y10 - this.mdCumB.y10) + (this.mdCumA.y12 - this.mdCumB.y12) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_hip ) / this.scaler_scale.y_hip * this.reg_sgd.y_hip ) + 
+                ( ( ( ( (this.mdCumA.y13 - this.mdCumB.y13) + (this.mdCumA.y14 - this.mdCumB.y14) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_kne ) / this.scaler_scale.y_kne * this.reg_sgd.y_kne ) + 
+                ( ( ( ( (this.mdCumA.y15 - this.mdCumB.y15) + (this.mdCumA.y16 - this.mdCumB.y16) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_ank ) / this.scaler_scale.y_ank * this.reg_sgd.y_ank ) + 
+                this.reg_sgd.intercept;
 
               this.flag_mdCum = 1; // switch flag
             }
+
+            // if ( mdCumTtlNow < 1.3) {
+            //   mdCumTtlNow = 1.3; // force to change METS 1.3. This is METS of 'Rest position'. 20200824 
+            // }; 
+            console.log('--- mdCumTtlNow: ', mdCumTtlNow.toFixed(6));
 
             console.log('--- this.scorePrev: ', this.scorePrev.toFixed(3));
             scoreNow = this.scorePrev + ( mdCumTtlNow * (1 / 60 / 60) * this.WEIGHT_KG * 1.05 ); // Calorie caluculation
@@ -1918,7 +1956,7 @@ export default class Live extends Component {
                 // TEMPORARY DISPLAY METS. 20200823
                 <View style={styles.attentionContainer}>
                   <Text style={styles.attentionText}>
-                    { parseInt(mdCumTtlNow).toFixed(1) }
+                    { parseFloat(mdCumTtlNow).toFixed(1) }
                   </Text>
                 </View>
               :
@@ -1951,10 +1989,10 @@ export default class Live extends Component {
               {/* Display octopusImage */}
               { shouldPlay ?
                 <View style={styles.octopusContainer}>
-                  <Image style={[{ left: this.camState.windowWidth * (octopusLoc.xRW) / ttlCH, top: this.camState.windowHeight * (octopusLoc.yRW) / ttlCW }, styles.octopusImage]} source={require('../assets/rWrist.png')} />
-                  <Image style={[{ left: this.camState.windowWidth * (octopusLoc.xLW) / ttlCH, top: this.camState.windowHeight * (octopusLoc.yLW) / ttlCW }, styles.octopusImage]} source={require('../assets/lWrist.png')} />
-                  <Image style={[{ left: this.camState.windowWidth * (octopusLoc.xRA) / ttlCH, top: this.camState.windowHeight * (octopusLoc.yRA) / ttlCW }, styles.octopusImage]} source={require('../assets/rAnkle.png')} />
-                  <Image style={[{ left: this.camState.windowWidth * (octopusLoc.xLA) / ttlCH, top: this.camState.windowHeight * (octopusLoc.yLA) / ttlCW }, styles.octopusImage]} source={require('../assets/lAnkle.png')} />
+                  <Image style={[{ left: (this.camState.windowHeight * octopusLoc.xRW) - (this.camState.windowWidth * octopusImageSizePct/2 ), top: (this.camState.windowWidth * octopusLoc.yRW) - (this.camState.windowWidth * octopusImageSizePct/2 ) }, styles.octopusImage]} source={require('../assets/rWrist.png')} />
+                  <Image style={[{ left: (this.camState.windowHeight * octopusLoc.xLW) - (this.camState.windowWidth * octopusImageSizePct/2 ), top: (this.camState.windowWidth * octopusLoc.yLW) - (this.camState.windowWidth * octopusImageSizePct/2 ) }, styles.octopusImage]} source={require('../assets/lWrist.png')} />
+                  <Image style={[{ left: (this.camState.windowHeight * octopusLoc.xRA) - (this.camState.windowWidth * octopusImageSizePct/2 ), top: (this.camState.windowWidth * octopusLoc.yRA) - (this.camState.windowWidth * octopusImageSizePct/2 ) }, styles.octopusImage]} source={require('../assets/rAnkle.png')} />
+                  <Image style={[{ left: (this.camState.windowHeight * octopusLoc.xLA) - (this.camState.windowWidth * octopusImageSizePct/2 ), top: (this.camState.windowWidth * octopusLoc.yLA) - (this.camState.windowWidth * octopusImageSizePct/2 ) }, styles.octopusImage]} source={require('../assets/lAnkle.png')} />
                 </View>
               :
                 null
@@ -2209,8 +2247,10 @@ const styles = StyleSheet.create({
   },
   octopusImage: {
     position: 'absolute',
-    width: Dimensions.get('window').width * 1 / ttlCH * 1.5,
-    height: Dimensions.get('window').width * 1 / ttlCH * 1.5,
+    // width: Dimensions.get('window').width * 1 / ttlCH * 1.5,
+    // height: Dimensions.get('window').width * 1 / ttlCH * 1.5,
+    height: Dimensions.get('window').width * octopusImageSizePct,
+    width: Dimensions.get('window').width * octopusImageSizePct,  
   },
 
 

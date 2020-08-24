@@ -46,6 +46,9 @@ export default class DashboardScreen extends Component {
         const_exer: null, // will be assigned after downloaded from Firebase. 20200606
         adUnitID: null, // get adUnitID form Firebase 20200625
         mets_per_part: null, //20200804
+        scaler_scale: null,
+        scaler_mean: null,
+        reg_sgd: null,
     }
     // this.allSnapShot = this.allSnapShot.bind(this);
     this._sendVidViewLog = this._sendVidViewLog.bind(this);
@@ -162,7 +165,7 @@ export default class DashboardScreen extends Component {
                   body: JSON.stringify({
                     id_token: idTokenCopied,
                     ts: JSON.parse(localFileContents)["ts"],
-                    vidId: JSON.parse(localFileContents)["vidId"],
+                    // vidId: JSON.parse(localFileContents)["vidId"],
                     viewId: JSON.parse(localFileContents)["viewId"],  
                     uid: firebase.auth().currentUser.uid ,         
                     sendId: uuidv4(),
@@ -174,11 +177,11 @@ export default class DashboardScreen extends Component {
                     pt: JSON.parse(localFileContents)["pt"], 
                     score: JSON.parse(localFileContents)["score"],
                     playSum: JSON.parse(localFileContents)["playSum"],
-                    playPct: JSON.parse(localFileContents)["playPct"],
-                    cntOutAccel: JSON.parse(localFileContents)["cntOutAccel"],
-                    cntPressPlayButton: JSON.parse(localFileContents)["cntPressPlayButton"],
-                    cntPressPauseButton: JSON.parse(localFileContents)["cntPressPauseButton"],
-                    cntFrameOut: JSON.parse(localFileContents)["outCountCum"], // this is a Dictionary, count how many times out from Frame
+                    // playPct: JSON.parse(localFileContents)["playPct"],
+                    // cntOutAccel: JSON.parse(localFileContents)["cntOutAccel"],
+                    // cntPressPlayButton: JSON.parse(localFileContents)["cntPressPlayButton"],
+                    // cntPressPauseButton: JSON.parse(localFileContents)["cntPressPauseButton"],
+                    // cntFrameOut: JSON.parse(localFileContents)["outCountCum"], // this is a Dictionary, count how many times out from Frame
                     identifiedBparts: JSON.parse(localFileContents)["identifiedBparts"],　// this is an Arrays
                     iTWidth: JSON.parse(localFileContents)["iTWidth"],
                     iTHeight: JSON.parse(localFileContents)["iTHeight"],
@@ -188,10 +191,10 @@ export default class DashboardScreen extends Component {
                     winWidth: JSON.parse(localFileContents)["winWidth"],
                     texDimsWidth: JSON.parse(localFileContents)["texDimsWidth"],
                     texDimsHeight: JSON.parse(localFileContents)["texDimsHeight"],
-                    cntNTAout: JSON.parse(localFileContents)["outNTAcnt"],
-                    numFrameVidStart: JSON.parse(localFileContents)["numFrameVidStart"],
-                    numFrameAllPosOk: JSON.parse(localFileContents)["numFrameAllPosOk"],
-                    numFrameVidEnd: JSON.parse(localFileContents)["numFrameVidEnd"], 
+                    // cntNTAout: JSON.parse(localFileContents)["outNTAcnt"],
+                    // numFrameVidStart: JSON.parse(localFileContents)["numFrameVidStart"],
+                    // numFrameAllPosOk: JSON.parse(localFileContents)["numFrameAllPosOk"],
+                    // numFrameVidEnd: JSON.parse(localFileContents)["numFrameVidEnd"], 
                   })
                 }).then( result => result.json() )
                   .then( response => { 
@@ -395,10 +398,16 @@ export default class DashboardScreen extends Component {
               wpart: response.wpart,
               const_exer: response.const_exer,
               mets_per_part: response.mets_per_part, // 20200804
+              scaler_scale: response.scaler_scale, // 20200824
+              scaler_mean: response.scaler_mean, // 20200824
+              reg_sgd: response.reg_sgd, // 20200824
               adUnitID: response.const_exer.adUnitID,
             }); 
-            console.log('this.state.const_exer: ', this.state.const_exer );
-            console.log('this.state.mets_per_part: ', this.state.mets_per_part );
+            // console.log('this.state.const_exer: ', this.state.const_exer );
+            // console.log('this.state.mets_per_part: ', this.state.mets_per_part );
+            // console.log('this.state.scaler_scale: ', this.state.scaler_scale );
+            // console.log('this.state.scaler_mean: ', this.state.scaler_mean );
+            // console.log('this.state.reg_sgd: ', this.state.reg_sgd );
 
           } else if (response["code"] == 'ok') {
             console.log('---------------- ok, length: ', response.detail.vidMetas.length );
@@ -627,7 +636,7 @@ export default class DashboardScreen extends Component {
               <View style={styles.ads}>
                 <AdMobBanner
                   bannerSize="mediumRectangle"
-                  adUnitID = {this.state.adUnitID} // Banner ID ca-app-pub-9079750066587969/4230406044 // Test ID ca-app-pub-3940256099942544/6300978111
+                  adUnitID = 'ca-app-pub-3940256099942544/6300978111' // {this.state.adUnitID} // Banner ID ca-app-pub-9079750066587969/4230406044 // Test ID ca-app-pub-3940256099942544/6300978111
                   servePersonalizedAds // true or false
                   onDidFailToReceiveAdWithError={this.bannerError} />
               </View>  
@@ -729,7 +738,7 @@ export default class DashboardScreen extends Component {
 
   render() {
     console.log('---------------- render');
-    const { isLoading, wpart, const_exer, mets_per_part  } = this.state;
+    const { isLoading, wpart, const_exer, mets_per_part, scaler_scale, scaler_mean, reg_sgd } = this.state;
 
     return (
       <View style={styles.container}>
@@ -771,7 +780,7 @@ export default class DashboardScreen extends Component {
           <Ionicons name="ios-add-circle-outline" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Post') }/>
           <MaterialIcons name='history' size={28} color="white" style={styles.HistoryIcon} onPress={ () => this.props.navigation.push('History') }/>
           <Ionicons name="ios-medal" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Leaderboard') }/> 
-          <Ionicons name='ios-notifications-outline' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Live', { const_exer, mets_per_part} ) }/>
+          <Ionicons name='ios-notifications-outline' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Live', { const_exer, mets_per_part, scaler_scale, scaler_mean, reg_sgd } ) }/>
         {/* </LinearGradient> */}
         </View>
 
