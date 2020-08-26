@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 import { Component, useState } from 'react';
-import { View, Text, StyleSheet, Button, FlatList, Dimensions, TouchableOpacity, Image, StatusBar, SafeAreaView, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Button, FlatList, Dimensions, TouchableOpacity, Image, StatusBar, SafeAreaView, ScrollView, RefreshControl, ActivityIndicator, Modal, Keyboard, TouchableWithoutFeedback, Picker,TextInput  } from 'react-native';
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import moment from "moment"; // for flatlist
 import {GlobalStyles} from '../shared/GlobalStyles';
@@ -20,6 +20,9 @@ const str_pad_left = function (string,pad,length) { // convert from sec to min:s
 
 // var num_post = 0; // to control when to shoe Adds in FlatList 20200618
 var post_num = 0; // to control when to shoe Adds in FlatList 20200623
+
+export const LB_PER_KG = 2.205; // pounds / kilograms
+
 
 export default class DashboardScreen extends Component {
 
@@ -49,6 +52,9 @@ export default class DashboardScreen extends Component {
         scaler_scale: null,
         scaler_mean: null,
         reg_sgd: null,
+        wval: null, // weight value
+        wunit: null, // weight unit
+        fillingNow: true, // control modal        
     }
     // this.allSnapShot = this.allSnapShot.bind(this);
     this._sendVidViewLog = this._sendVidViewLog.bind(this);
@@ -491,6 +497,42 @@ export default class DashboardScreen extends Component {
 
 
 
+
+  _onWValChange = async (weightVal) =>  {
+    await this.setState({ wval: weightVal });
+    console.log( 'this.state.wval: ', this.state.wval );
+  }
+
+  _onWUnitValueChange = async (unit) =>  {
+    // console.log( 'year: ', year );
+    await this.setState({ wunit: unit });
+    console.log( 'this.state.wunit: ', this.state.wunit );
+  }
+
+  _handlePost = async() => {
+    console.log('----------- _handlePost'); 
+    console.log('wval, wunit: ', this.state.wval, this.state.wunit, );   
+    if (this.state.wval) { // if weight exists
+      if (this.state.wunit == 'kg' & this.state.wval < 200) {
+        console.log('modal will be hided');
+        this.setState({ fillingNow: false}); // control modal
+      } else if ( this.state.wunit == 'lb' & this.state.wval < 200 * LB_PER_KG) {
+        console.log('modal will be hided');
+        this.setState({ fillingNow: false}); // control modal
+      } else { // if too heavy or not number.
+        alert('Your weight may be wrong. ¥n Please fill out weight again');
+      }
+    } else {
+      if (!this.state.wval) { // if weight NOT filled out, 
+        console.log('Please fill out weight.');
+        alert('Please fill out weight.');
+      }
+    }
+  };
+
+
+
+
   renderPost = post => {
       const { wpart, const_exer } = this.state;
       // num_post++; // increment var num_post
@@ -738,10 +780,65 @@ export default class DashboardScreen extends Component {
 
   render() {
     console.log('---------------- render');
-    const { isLoading, wpart, const_exer, mets_per_part, scaler_scale, scaler_mean, reg_sgd } = this.state;
+    const { isLoading, wpart, const_exer, mets_per_part, scaler_scale, scaler_mean, reg_sgd, wval, wunit, fillingNow } = this.state;
 
     return (
       <View style={styles.container}>
+
+
+        <Modal visible={fillingNow} animationType='fade' transparent={true}>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}> 
+            <SafeAreaView style={styles.container}>
+
+              <View style={styles.modal}>
+
+                <Text style={styles.postedText}>
+                  Please input your weight{"\n"}{"\n"}
+                </Text>
+
+                <Text style={styles.itemTitle}>Weight</Text>
+                <TextInput
+                  multiline={false}
+                  numberOfLines={1}
+                  maxLength={5}
+                  style={styles.itemField10}
+                  defaultValue= {wval}
+                  onChangeText={text => this._onWValChange(text) }
+                  value={this.state.wval}
+                  keyboardType='numeric'
+                >
+                </TextInput>  
+
+                <Text style={styles.itemTitle}>Weight Unit</Text>
+                <View style={styles.pickerView}>
+                  <Picker
+                    selectedValue= {wunit}
+                    onValueChange = {(itemValue) => this._onWUnitValueChange(itemValue) }
+                    style={styles.picker}
+                    itemStyle={styles.pickerItem}
+                    mode="dialog">
+                    <Picker.Item label="" value="" key="null"/>
+                    <Picker.Item label="kg" value="kg" key="kg"/>
+                    <Picker.Item label="lb" value="lb" key="lb" />
+                  </Picker>
+                </View>
+
+                <TouchableOpacity onPress={this._handlePost} style={styles.postButton} >
+                  <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold',}}> GO </Text>
+                </TouchableOpacity>
+
+                <Text style={styles.postedTextNote}>
+                  This weight data is for calorie calculation purpose only.{"\n"}
+                  We will not keep your weight data.
+                </Text>
+
+              </View>
+
+            </SafeAreaView>
+          </TouchableWithoutFeedback>  
+        </Modal>
+
+
 
         { isLoading ? 
           <View style={styles.uploadingIndicator}>
@@ -906,7 +1003,107 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3, // iOS
     shadowRadius: 2, // iOS   
     elevation: 2, // Android
-  }
+  },
 
+
+
+  modal: {
+    // flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',  
+    marginVertical: Dimensions.get('window').height * 0.025,     
+    marginHorizontal: Dimensions.get('window').width * 0.05,
+    height: Dimensions.get('window').height * 0.95,
+    width: Dimensions.get('window').width * 0.9,
+    backgroundColor: 'black', //'#ffa500', 
+    borderRadius: 10,
+    opacity: 0.8,
+    shadowColor: 'black', // iOS
+    shadowOffset: { width: 20, height: 20 }, // iOS
+    shadowOpacity: 0.8, // iOS
+    shadowRadius: 10, // iOS   
+    elevation: 10, // Android
+  },  
+  postedText: {
+    color: '#ffa500', 
+    fontSize: 20, 
+    fontWeight: 'bold', 
+    textAlign: 'center',
+    width: '80%',
+  },
+  postedTextNote: {
+    color: '#ffa500', 
+    fontSize: 12, 
+    textAlign: 'left',
+    width: '70%',
+    marginTop: '3%',
+  },    
+  itemTitle:{
+    marginTop: 7, //Dimensions.get('window').height * 0.01,
+    color: '#ffa500',
+    fontSize: 15,
+    width: '80%',
+  },
+  itemMandatory: {
+    color: 'red',
+    fontWeight: 'bold',
+  },
+  itemField10: {
+    borderWidth: 1, 
+    borderColor: 'lightgray', 
+    borderRadius: 5, 
+    fontSize: 17,
+    height: 35,
+    color: 'dimgray',
+    textAlignVertical: 'center',
+    paddingHorizontal: 10,
+    backgroundColor: 'white',
+    width: '80%',
+    marginBottom: '3%',
+  },
+  pickerView: {
+    height: 35, 
+    // width: 200, 
+    backgroundColor: 'white',
+    borderWidth: 1, 
+    borderColor: 'lightgray', 
+    borderRadius: 5, 
+    textAlignVertical: 'top',
+    // fontSize: 18,
+    // color: 'dimgray',
+    padding: 2,
+    width: '80%',
+  },
+  picker: {
+    // height: Dimensions.get('window').height * 0.7, 
+    // width: 200, 
+    backgroundColor: 'lightgray',
+    borderWidth: 1, 
+    borderColor: 'lightgray', 
+    borderRadius: 5, 
+    // padding: 10, 
+    // fontSize: 18,
+    color: 'dimgray',
+    // textAlign: 'center',
+    // textAlignVertical: 'bottom',
+    // paddingBottom: 10,
+    // backgroundColor: 'pink',
+    height: 30,
+  },
+  postButton: {
+    // flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',    
+    backgroundColor: '#ffa500',
+    width: '80%',
+    borderRadius: 5,
+    height: 40,
+    shadowColor: 'black', // iOS
+    shadowOffset: { width: 5, height: 5 }, // iOS
+    shadowOpacity: 0.8, // iOS
+    shadowRadius: 5, // iOS   
+    elevation: 5, // Android
+    marginTop: 40,
+  },  
 
 });

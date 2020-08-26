@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 import { Component, useState, useEffect  } from 'react';
-import { Text, View, StyleSheet, Dimensions, StatusBar, Image, TouchableOpacity, SafeAreaView, ScrollView, Button, Platform, ActivityIndicator, Modal } from 'react-native';
+import { Text, View, StyleSheet, Dimensions, StatusBar, Image, TouchableOpacity, SafeAreaView, ScrollView, Button, Platform, ActivityIndicator, } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import * as firebase from 'firebase';
@@ -23,6 +23,7 @@ import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.ex
 import Svg, { Circle, Rect,} from 'react-native-svg';
 
 import {slow1} from '../assets/octopus';
+// import {LB_PER_KG} from '..DashboardScreen';
 
 
 
@@ -33,6 +34,7 @@ const goBackIconSize = 50; //40
 // const ttlCW = 12; // total cell of width
 // const ttlCH = 6; // total cell of height
 const octopusImageSizePct = 0.25; // percentage of Dimensions.get('window').width. 20200824
+
 
 
 export default class Live extends Component {
@@ -85,7 +87,6 @@ export default class Live extends Component {
         xRA: 5, yRA: 5, // 16=rightAnkle // Red
         xLA: 6, yLA: 5, // 15=leftAnkle // Blue        
       },
-
     }
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);  
     // this._handlePlayAndPause = this._handlePlayAndPause.bind(this);
@@ -1136,9 +1137,10 @@ export default class Live extends Component {
               this.flag_mdCum = 1; // switch flag
             }
 
-            // if ( mdCumTtlNow < 1.3) {
-            //   mdCumTtlNow = 1.3; // force to change METS 1.3. This is METS of 'Rest position'. 20200824 
-            // }; 
+            if ( mdCumTtlNow < 1.3) {
+              mdCumTtlNow = 1.3; // force to change METS 1.3. This is METS of 'Rest position'. 20200824 
+              console.log('--- mdCumTtlNow FORCED');
+            }; 
             console.log('--- mdCumTtlNow: ', mdCumTtlNow.toFixed(6));
 
             console.log('--- this.scorePrev: ', this.scorePrev.toFixed(3));
@@ -2142,7 +2144,7 @@ const styles = StyleSheet.create({
     top: Dimensions.get('window').width * 0.07,
     right: Dimensions.get('window').height * 0.12, 
     height: Dimensions.get('window').width * 0.22, // 0.1
-    width: Dimensions.get('window').height * 0.22, //0.4
+    width: Dimensions.get('window').height * 0.21, //0.4
     backgroundColor: 'rgba(20, 20, 20, 0.7)', // darkgray seethrough background
     borderRadius: 10,  
     justifyContent: 'center',
