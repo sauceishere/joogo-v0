@@ -21,7 +21,7 @@ const str_pad_left = function (string,pad,length) { // convert from sec to min:s
 // var num_post = 0; // to control when to shoe Adds in FlatList 20200618
 var post_num = 0; // to control when to shoe Adds in FlatList 20200623
 
-export const LB_PER_KG = 2.205; // pounds / kilograms
+// export const LB_PER_KG = 2.205; // pounds / kilograms
 
 
 export default class DashboardScreen extends Component {
@@ -52,9 +52,9 @@ export default class DashboardScreen extends Component {
         scaler_scale: null,
         scaler_mean: null,
         reg_sgd: null,
-        wval: null, // weight value
-        wunit: null, // weight unit
-        fillingNow: true, // control modal        
+        // wval: null, // weight value
+        // wunit: null, // weight unit
+        // fillingNow: true, // control modal        
     }
     // this.allSnapShot = this.allSnapShot.bind(this);
     this._sendVidViewLog = this._sendVidViewLog.bind(this);
@@ -498,37 +498,37 @@ export default class DashboardScreen extends Component {
 
 
 
-  _onWValChange = async (weightVal) =>  {
-    await this.setState({ wval: weightVal });
-    console.log( 'this.state.wval: ', this.state.wval );
-  }
+  // _onWValChange = async (weightVal) =>  {
+  //   await this.setState({ wval: weightVal });
+  //   console.log( 'this.state.wval: ', this.state.wval );
+  // }
 
-  _onWUnitValueChange = async (unit) =>  {
-    // console.log( 'year: ', year );
-    await this.setState({ wunit: unit });
-    console.log( 'this.state.wunit: ', this.state.wunit );
-  }
+  // _onWUnitValueChange = async (unit) =>  {
+  //   // console.log( 'year: ', year );
+  //   await this.setState({ wunit: unit });
+  //   console.log( 'this.state.wunit: ', this.state.wunit );
+  // }
 
-  _handlePost = async() => {
-    console.log('----------- _handlePost'); 
-    console.log('wval, wunit: ', this.state.wval, this.state.wunit, );   
-    if (this.state.wval) { // if weight exists
-      if (this.state.wunit == 'kg' & this.state.wval < 200) {
-        console.log('modal will be hided');
-        this.setState({ fillingNow: false}); // control modal
-      } else if ( this.state.wunit == 'lb' & this.state.wval < 200 * LB_PER_KG) {
-        console.log('modal will be hided');
-        this.setState({ fillingNow: false}); // control modal
-      } else { // if too heavy or not number.
-        alert('Your weight may be wrong. ¥n Please fill out weight again');
-      }
-    } else {
-      if (!this.state.wval) { // if weight NOT filled out, 
-        console.log('Please fill out weight.');
-        alert('Please fill out weight.');
-      }
-    }
-  };
+  // _handlePost = async() => {
+  //   console.log('----------- _handlePost'); 
+  //   console.log('wval, wunit: ', this.state.wval, this.state.wunit, );   
+  //   if (this.state.wval) { // if weight exists
+  //     if (this.state.wunit == 'kg' & this.state.wval < 200) {
+  //       console.log('modal will be hided');
+  //       this.setState({ fillingNow: false}); // control modal
+  //     } else if ( this.state.wunit == 'lb' & this.state.wval < 200 * LB_PER_KG) {
+  //       console.log('modal will be hided');
+  //       this.setState({ fillingNow: false}); // control modal
+  //     } else { // if too heavy or not number.
+  //       alert('Your weight may be wrong. ¥n Please fill out weight again');
+  //     }
+  //   } else {
+  //     if (!this.state.wval) { // if weight NOT filled out, 
+  //       console.log('Please fill out weight.');
+  //       alert('Please fill out weight.');
+  //     }
+  //   }
+  // };
 
 
 
@@ -780,13 +780,13 @@ export default class DashboardScreen extends Component {
 
   render() {
     console.log('---------------- render');
-    const { isLoading, wpart, const_exer, mets_per_part, scaler_scale, scaler_mean, reg_sgd, wval, wunit, fillingNow } = this.state;
+    const { isLoading, wpart, const_exer, mets_per_part, scaler_scale, scaler_mean, reg_sgd, } = this.state;
 
     return (
       <View style={styles.container}>
 
 
-        <Modal visible={fillingNow} animationType='fade' transparent={true}>
+        {/* <Modal visible={fillingNow} animationType='fade' transparent={true}>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}> 
             <SafeAreaView style={styles.container}>
 
@@ -836,7 +836,7 @@ export default class DashboardScreen extends Component {
 
             </SafeAreaView>
           </TouchableWithoutFeedback>  
-        </Modal>
+        </Modal> */}
 
 
 

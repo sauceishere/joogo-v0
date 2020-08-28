@@ -14,7 +14,7 @@ import {enCheckDuplicatedNickname} from '../shared/Consts';
 // import * as functions from 'firebase/functions';
 // import { flattenDiagnosticMessageText } from 'typescript';
 
-
+export const LB_PER_KG = 2.205; // pounds devided by kilograms
 
 export default class ProfileScreen extends Component {
   constructor(props) {
@@ -49,7 +49,16 @@ export default class ProfileScreen extends Component {
       lupdate: null,
       avatarRawUrl: null,
       isSigningOut: false,
+      wval: null, 
+      wunit: null, 
+      hval: null, 
+      hunit: null, 
+      isNewUser: this.props.navigation.getParam('isNewUser') ?? false,
     };
+    this._onWValChange = this._onWValChange.bind(this);
+    this._onWUnitValueChange = this._onWUnitValueChange.bind(this);
+    this._onHValChange = this._onHValChange.bind(this);
+    this._onHUnitValueChange = this._onHUnitValueChange.bind(this);    
     this._onGenderValueChange = this._onGenderValueChange.bind(this);
     this._onCountryValueChange = this._onCountryValueChange.bind(this);
     this._onYearValueChange = this._onYearValueChange.bind(this);
@@ -104,6 +113,10 @@ export default class ProfileScreen extends Component {
                 console.log('==== Profile.js Existing user coming.');
                 this.setState({
                   nname: response["userProfile"].NNAME,
+                  wval: response["userProfile"].WVAL, 
+                  wunit: response["userProfile"].WUNIT, 
+                  hval: response["userProfile"].HVAL, 
+                  hunit: response["userProfile"].HUNIT, 
                   nat: response["userProfile"].NAT, 
                   byr: response["userProfile"].BYR.toString(),
                   gdr: response["userProfile"].GDR,
@@ -120,6 +133,10 @@ export default class ProfileScreen extends Component {
                 console.log('==== Profile.js New User coming.');
                 this.setState({
                   nname: null, //'Fill our your Nickname'
+                  wval: null, 
+                  wunit: null,  
+                  hval: null,  
+                  hunit: null,                   
                   nat: null, //'Select Nationality'
                   byr: null, //'Select Birthyear'
                   gdr: null, //'Select Gender'
@@ -177,11 +194,9 @@ export default class ProfileScreen extends Component {
       // console.log(i);
     }
     
-
     if (this.state.DidGetProfileData == false) {
       await this._getUsers();
     };
-
 
     console.log('------------- componentDidMount Profile Completed.');
   }
@@ -272,6 +287,25 @@ export default class ProfileScreen extends Component {
     console.log( 'this.state.nname: ', this.state.nname );
   }
 
+  _onWValChange = async (weightVal) =>  {
+    await this.setState({ wval: weightVal });
+    console.log( 'this.state.wval: ', this.state.wval );
+  }
+
+  _onWUnitValueChange = async (unit) =>  {
+    await this.setState({ wunit: unit });
+    console.log( 'this.state.wunit: ', this.state.wunit );
+  }
+
+  _onHValChange = async (heightVal) =>  {
+    await this.setState({ hval: heightVal });
+    console.log( 'this.state.hval: ', this.state.hval );
+  }
+
+  _onHUnitValueChange = async (unit) =>  {
+    await this.setState({ hunit: unit });
+    console.log( 'this.state.hunit: ', this.state.hunit );
+  }
 
   _onGenderValueChange = async (gender) =>  {
     // console.log( 'gender: ', gender );
@@ -279,13 +313,11 @@ export default class ProfileScreen extends Component {
     console.log( 'this.state.gdr: ', this.state.gdr );
   }
 
-
   _onCountryValueChange = async (country) =>  {
     // console.log( 'country: ', country );
     await this.setState({ nat: country });
     console.log( 'this.state.nat: ', this.state.nat );
   }
-
 
   _onYearValueChange = async (year) =>  {
     // console.log( 'year: ', year );
@@ -293,13 +325,11 @@ export default class ProfileScreen extends Component {
     console.log( 'this.state.byr: ', this.state.byr );
   }
 
-
   _onBodytags0ValueChange = async (bt) =>  {
     // console.log( 'bt: ', bt );
     await this.setState({ bt0: bt });
     console.log( 'this.state.bt0: ', this.state.bt0 );
   }
-
 
   _onBodytags1ValueChange = async (bt) =>  {
     // console.log( 'bt: ', bt );
@@ -350,13 +380,17 @@ export default class ProfileScreen extends Component {
           // body: {
             // uid: firebase.auth().currentUser.uid,
             newNName: this.state.nname,
-            en: this.state.en, 
-            lupdate: Date.now() / 1000, // unix
+            wval: this.state.wval, 
+            wunit: this.state.wunit,  
+            hval: this.state.hval,  
+            hunit: this.state.hunit, 
             nat: this.state.nat, 
             byr: this.state.byr,
             gdr: this.state.gdr,
             bt0: this.state.bt0, 
-            bt1: this.state.bt1,
+            bt1: this.state.bt1,                         
+            en: this.state.en, 
+            lupdate: Date.now() / 1000, // unix
             editId: this.state.ProfileEditId,
             id_token: idTokenCopied,
           })
@@ -427,44 +461,55 @@ export default class ProfileScreen extends Component {
     // console.log('this.state: ', this.state);
     // console.log('this.state.text: ', typeof(this.state.text) );
     
-    if (this.state.nname) { // if image and text exists
+    if (this.state.nname && this.state.wval && this.state.wunit) { // if nname, wval, wunit exists
 
-      if (this.state.bt0 && this.state.bt1) { // if both exists
-
-        if (this.state.bt0 != this.state.bt1) { // if both are NOT the same value
-          this.setState({ isUploading: true });
-          console.log('>>>>>> isUploading: true.');
-          await this._checkDuplicatedNickname();
-
-        } else { // if both are the same value, 
-          if (this.state.bt0 == '-' && this.state.bt1 == '-') { // except both are '-'
-            this.setState({ isUploading: true });
-            console.log('>>>>>> isUploading: true.');
-            await this._checkDuplicatedNickname();
-
-          } else { // then alert to change
-          console.log('Please choose different Focus Body Tags.');
-          alert('Please choose different Focus Body Tags.');
-          }
+        if (this.state.wunit == 'kg' & this.state.wval < 200) {
+            console.log('weight is within limit in kg');
+        } else if ( this.state.wunit == 'lb' & this.state.wval < 200 * LB_PER_KG) {
+            console.log('weight is within limit in lb');
+        } else { // if too heavy or not number.
+            console.log('Your weight may be wrong. ¥n Please fill out weight again');
+            alert('Your weight may be wrong. ¥n Please fill out weight again');
         }
 
-      } else{
-        this.setState({ isUploading: true });
-        console.log('>>>>>> isUploading: true.');
-        await this._checkDuplicatedNickname();     
+        if (this.state.bt0 && this.state.bt1) { // if both exists
 
-      }
+            if (this.state.bt0 != this.state.bt1) { // if both are NOT the same value
+                this.setState({ isUploading: true });
+                console.log('>>>>>> isUploading: true.');
+                await this._checkDuplicatedNickname();
+
+            } else { // if both are the same value, 
+                if (this.state.bt0 == '-' && this.state.bt1 == '-') { // except both are '-'
+                    this.setState({ isUploading: true });
+                    console.log('>>>>>> isUploading: true.');
+                    await this._checkDuplicatedNickname();
+
+                } else { // then alert to change
+                    console.log('Please choose different Focus Body Tags.');
+                    alert('Please choose different Focus Body Tags.');
+                }
+            }
+
+        } else{
+            this.setState({ isUploading: true });
+            console.log('>>>>>> isUploading: true.');
+            await this._checkDuplicatedNickname();     
+        }
+
     } else {
-      if (!this.state.nname) { // if nickname NOT filled out, then alert to change
-        console.log('Please fill out Nickname.');
-        alert('Please fill out Nickname.');
-      } else {
-        console.log('unknown error _handlePost.');
-        alert('unknown error _handlePost.');
-      }
+        if (!this.state.nname) { // if nickname NOT filled out, then alert to change
+            console.log('Please fill out Nickname.');
+            alert('Please fill out Nickname.');
+        } else if (!this.state.wval || !this.state.wunit) { // if weight NOT filled out, 
+            console.log('Please fill out weight and unit.');
+            alert('Please fill out weight and unit.');       
+        } else {
+            console.log('unknown error _handlePost.');
+            alert('unknown error _handlePost.');
+        }
     }
 
-    
   };
 
 
@@ -491,13 +536,14 @@ export default class ProfileScreen extends Component {
 
 
   render() {
-    const { isUploading, allComplete, isEditing, DidGetProfileData, nname, gdr, byr, nat, bt0, bt1, ts, llogin, lupdate, isSigningOut } = this.state;
+    const { isUploading, allComplete, isEditing, DidGetProfileData, nname, gdr, byr, nat, bt0, bt1, ts, llogin, lupdate, isSigningOut, wval, wunit, hval, hunit, isNewUser } = this.state;
     // console.log('ts: ', ts);
 
     return (
 
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}> 
-        <SafeAreaView style={styles.container}>
+        {/* <SafeAreaView style={styles.container}> */}
+        <ScrollView style={styles.container}>
 
           <Modal visible={allComplete} animationType='fade' transparent={true}>
             <View style={styles.modal}>
@@ -515,109 +561,168 @@ export default class ProfileScreen extends Component {
 
             { isEditing ?
               <View style={styles.inputContainer}>
-                <View style={{width: '100%', marginTop: Dimensions.get('window').height * 0.03, marginBottom: Dimensions.get('window').height * 0.03,}}>
+                <View style={{width: '100%', marginTop: Dimensions.get('window').height * 0.07, marginBottom: Dimensions.get('window').height * 0.03,}}>
                   
-                  <Text style={styles.itemTitle}><Text style={styles.itemMandatory}> * </Text>Nickname (Max 25 charactors)</Text>
-                  <TextInput
-                    multiline={false}
-                    numberOfLines={1}
-                    maxLength={25}
-                    style={styles.itemField10}
-                    defaultValue= {nname}
-                    onChangeText={text => this._onNNameValueChange(text) }
-                    value={this.state.nname}
-                  >
-                  </TextInput>
+                    {isNewUser ?? 
+                      <Text style={styles.newUserAnnouncement}>Please fill out nickname, weight, weight unit. /n Please do NOT use your REAL name.</Text>
+                    }
 
-                  <Text style={styles.itemTitle}>Gender</Text>
-                  {/* <Text style={styles.itemField00}>{profileData.GDR}</Text> */}
-                  <View style={styles.pickerView}>
-                    <Picker
-                      selectedValue= {gdr}
-                      onValueChange = {(itemValue) => this._onGenderValueChange(itemValue) }
-                      style={styles.picker}
-                      itemStylestyle={styles.pickerItem}
-                      mode="dialog">
-                      <Picker.Item label={gdr} value={gdr} key={gdr}/>
-                      <Picker.Item label="Male" value="Male" key="Male"/>
-                      <Picker.Item label="Female" value="Female" key="Female"/>
-                      <Picker.Item label="Other" value="Other" key="Other"/>
-                      <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
-                    </Picker>
-                  </View>
+                    <Text style={styles.itemTitle10}><Text style={styles.itemMandatory}>* </Text>Nickname (Max 25 charactors)</Text>
+                    <TextInput
+                      multiline={false}
+                      numberOfLines={1}
+                      maxLength={25}
+                      style={styles.itemField10}
+                      defaultValue={nname}
+                      onChangeText={text => this._onNNameValueChange(text) }
+                      value={this.state.nname}
+                    >
+                    </TextInput>
 
-                  <Text style={styles.itemTitle}>Nationality</Text>
-                  {/* <Text style={styles.itemField00}>{profileData.NAT}</Text> */}
-                  <View style={styles.pickerView}>
+                    <Text style={styles.itemTitle10}><Text style={styles.itemMandatory}>* </Text>Weight {wval}</Text>
+                    <TextInput
+                      multiline={false}
+                      numberOfLines={1}
+                      maxLength={5}
+                      style={styles.itemField10}
+                      defaultValue={wval}
+                      onChangeText={text => this._onWValChange(text) }
+                      value={this.state.wval}
+                      keyboardType='numeric'
+                    >
+                    </TextInput>  
+           
+                    <Text style={styles.itemTitle}><Text style={styles.itemMandatory}>* </Text>Weight Unit</Text>
+                    <View style={styles.pickerView}>
                     <Picker
-                      selectedValue= {nat}
-                      // onValueChange={country => this.setState({ nat: country }), console.log( this.state.country ) }
-                      // onValueChange = {(country) => this.setState({ nat: country })}
-                      onValueChange = {(itemValue) => this._onCountryValueChange(itemValue) }
-                      style={styles.picker}
-                      Style={styles.pickerItem}
-                      mode="dialog">
-                      <Picker.Item label={nat} value={nat}  key={nat} />
-                      {this.cnlist.countrylist.map( (obj) => 
-                        <Picker.Item label={obj["Name"]} value ={obj["Name"]} key={obj["Name"]}/>
-                      )}
-                      <Picker.Item label="Other" value="Other" key="Other"/>
-                      <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
-                    </Picker>
-                  </View>
-
-                  <Text style={styles.itemTitle}>Birth Year</Text>
-                  {/* <Text style={styles.itemField00}>{profileData.BYR}</Text>   */}
-                  <View style={styles.pickerView}>
-                    <Picker
-                      selectedValue= {byr}
-                      onValueChange = {(itemValue) => this._onYearValueChange(itemValue) }
+                      selectedValue= {wunit}
+                      onValueChange = {(itemValue) => this._onWUnitValueChange(itemValue) }
                       style={styles.picker}
                       itemStyle={styles.pickerItem}
                       mode="dialog">
-                      <Picker.Item label={byr} value={byr} key={byr}/>
-                        {this.yrlist.map( (obj) => 
-                          <Picker.Item label={obj} value ={obj} key={obj}/>
-                        )}
-                      <Picker.Item label="Other" value="Other" key="Other"/>
-                      <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
+                      <Picker.Item label={wunit} value={wunit} key={wunit}/>
+                      <Picker.Item label="kg" value="kg" key="kg"/>
+                      <Picker.Item label="lb" value="lb" key="lb" />
                     </Picker>
-                  </View>
-          
-                  <Text style={styles.itemTitle}>Focused Body Tags (Max 2 tags)</Text>
-                  {/* <Text style={styles.itemField00}>{profileData.FAVTAG.map(n => n + ', ' )}</Text> */}
-                  <View style={styles.pickerView}>
+                    </View>
+
+                    <Text style={styles.itemTitle10}>Height {hval}</Text>
+                    <TextInput
+                      multiline={false}
+                      numberOfLines={1}
+                      maxLength={5}
+                      style={styles.itemField10}
+                      defaultValue= {hval}
+                      onChangeText={text => this._onHValChange(text) }
+                      value={this.state.hval}
+                      keyboardType='numeric'
+                    >
+                    </TextInput>   
+
+                    <Text style={styles.itemTitle}>Height Unit</Text>
+                    <View style={styles.pickerView}>
                     <Picker
-                      selectedValue= {bt0}
-                      onValueChange = {(itemValue) => this._onBodytags0ValueChange(itemValue) }
-                      style={styles.picker}
-                      itemStyle={styles.pickerItem}
-                      mode="dialog">
-                      <Picker.Item label={bt0} value={bt0} key={bt0} />
-                        {this.btlist.bodytags.map( (obj) => 
-                          <Picker.Item label={obj} value ={obj} key={obj}/>
-                        )}
-                      <Picker.Item label="Not Specified" value="Not specified" key="Not specified" />  
+                        selectedValue= {hunit}
+                        onValueChange = {(itemValue) => this._onHUnitValueChange(itemValue) }
+                        style={styles.picker}
+                        itemStyle={styles.pickerItem}
+                        mode="dialog">
+                        <Picker.Item label={hunit} value={hunit} key={hunit}/>
+                        <Picker.Item label="cm" value="cm" key="cm"/>
+                        <Picker.Item label="ft" value="ft" key="ft" />
                     </Picker>
-                  </View>
-                  <View style={styles.pickerViewBt1}>
-                    <Picker
-                      selectedValue= {bt1}
-                      onValueChange = {(itemValue) => this._onBodytags1ValueChange(itemValue) }
-                      style={styles.picker}
-                      itemStyle={styles.pickerItem}
-                      mode="dialog">
-                      <Picker.Item label={bt1} value={bt1} key={bt1} />
-                        {this.btlist.bodytags.map( (obj) => 
-                          <Picker.Item label={obj} value ={obj} key={obj}/>
+                    </View>
+            
+                    <Text style={styles.itemTitle10}>Gender</Text>
+                    {/* <Text style={styles.itemField00}>{profileData.GDR}</Text> */}
+                    <View style={styles.pickerView}>
+                      <Picker
+                        selectedValue= {gdr}
+                        onValueChange = {(itemValue) => this._onGenderValueChange(itemValue) }
+                        style={styles.picker}
+                        itemStylestyle={styles.pickerItem}
+                        mode="dialog">
+                        <Picker.Item label={gdr} value={gdr} key={gdr}/>
+                        <Picker.Item label="Male" value="Male" key="Male"/>
+                        <Picker.Item label="Female" value="Female" key="Female"/>
+                        <Picker.Item label="Other" value="Other" key="Other"/>
+                        <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
+                      </Picker>
+                    </View>
+      
+                    <Text style={styles.itemTitle10}>Nationality</Text>
+                    {/* <Text style={styles.itemField00}>{profileData.NAT}</Text> */}
+                    <View style={styles.pickerView}>
+                      <Picker
+                        selectedValue= {nat}
+                        // onValueChange={country => this.setState({ nat: country }), console.log( this.state.country ) }
+                        // onValueChange = {(country) => this.setState({ nat: country })}
+                        onValueChange = {(itemValue) => this._onCountryValueChange(itemValue) }
+                        style={styles.picker}
+                        Style={styles.pickerItem}
+                        mode="dialog">
+                        <Picker.Item label={nat} value={nat}  key={nat} />
+                        {this.cnlist.countrylist.map( (obj) => 
+                          <Picker.Item label={obj["Name"]} value ={obj["Name"]} key={obj["Name"]}/>
                         )}
-                      <Picker.Item label="Not Specified" value="Not specified." key="Not specified." />  
-                    </Picker>
-                  </View>                  
+                        <Picker.Item label="Other" value="Other" key="Other"/>
+                        <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
+                      </Picker>
+                    </View>
+  
+                    <Text style={styles.itemTitle10}>Birth Year</Text>
+                    {/* <Text style={styles.itemField00}>{profileData.BYR}</Text>   */}
+                    <View style={styles.pickerView}>
+                      <Picker
+                        selectedValue= {byr}
+                        onValueChange = {(itemValue) => this._onYearValueChange(itemValue) }
+                        style={styles.picker}
+                        itemStyle={styles.pickerItem}
+                        mode="dialog">
+                        <Picker.Item label={byr} value={byr} key={byr}/>
+                          {this.yrlist.map( (obj) => 
+                            <Picker.Item label={obj} value ={obj} key={obj}/>
+                          )}
+                        <Picker.Item label="Other" value="Other" key="Other"/>
+                        <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
+                      </Picker>
+                    </View>
+
+                    <Text style={styles.itemTitle10}>Focus Body Parts (Max 2 tags)</Text>
+                    {/* <Text style={styles.itemField00}>{profileData.FAVTAG.map(n => n + ', ' )}</Text> */}
+                    <View style={styles.pickerView}>
+                      <Picker
+                        selectedValue= {bt0}
+                        onValueChange = {(itemValue) => this._onBodytags0ValueChange(itemValue) }
+                        style={styles.picker}
+                        itemStyle={styles.pickerItem}
+                        mode="dialog">
+                        <Picker.Item label={bt0} value={bt0} key={bt0} />
+                          {this.btlist.bodytags.map( (obj) => 
+                            <Picker.Item label={obj} value ={obj} key={obj}/>
+                          )}
+                        <Picker.Item label="Not Specified" value="Not specified" key="Not specified" />  
+                      </Picker>
+                    </View>
+                    <View style={styles.pickerViewBt1}>
+                      <Picker
+                        selectedValue= {bt1}
+                        onValueChange = {(itemValue) => this._onBodytags1ValueChange(itemValue) }
+                        style={styles.picker}
+                        itemStyle={styles.pickerItem}
+                        mode="dialog">
+                        <Picker.Item label={bt1} value={bt1} key={bt1} />
+                          {this.btlist.bodytags.map( (obj) => 
+                            <Picker.Item label={obj} value ={obj} key={obj}/>
+                          )}
+                        <Picker.Item label="Not Specified" value="Not specified." key="Not specified." />  
+                      </Picker>
+                    </View>                  
+              
 
 
                   { allComplete ?
-                    <View style={styles.uploadingIndicator}>
+                    <View>
                     </View>  
                   :
                     <View>
@@ -641,8 +746,6 @@ export default class ProfileScreen extends Component {
                     </View>
                   } 
 
-
-
                 </View>
 
 
@@ -652,36 +755,59 @@ export default class ProfileScreen extends Component {
               <View style={styles.inputContainer}>
 
               <TouchableOpacity onPress={ () => this._SignOut() } style={styles.signOutButton} >
-                <Text style={{color: 'gray', fontSize: 16, fontWeight: 'bold',}}> Sign Out </Text>
+                <Text style={{color: '#ffa500', fontSize: 16, fontWeight: 'bold',}}> Sign Out </Text>
               </TouchableOpacity>
 
 
-                <View style={{width: '100%', marginTop: Dimensions.get('window').height * 0.03, marginBottom: Dimensions.get('window').height * 0.03,}}>
+                <View style={{width: '100%', marginTop: Dimensions.get('window').height * 0.07, marginBottom: Dimensions.get('window').height * 0.03,}}>
                 
                   {/* <Image source={{uri: profileData.avatarFullUrl }} style={} resizeMode="cover" />  */}
+
+                  
                   <Text style={styles.itemTitle}>Nickname</Text>
                   <Text style={styles.itemField00}>{nname}</Text>
 
-                  <Text style={styles.itemTitle}>Gender</Text>
-                  <Text style={styles.itemField00}>{gdr}</Text>
+                  <View style={styles.tableRow}>
+                    <Text style={styles.itemTitle}>Weight</Text>
+                    <Text style={styles.itemField00}>{wval} {wunit}</Text>
+                  </View>
 
-                  <Text style={styles.itemTitle}>Nationality</Text>
-                  <Text style={styles.itemField00}>{nat}</Text>
+                  <View style={styles.tableRow}>
+                    <Text style={styles.itemTitle}>Height</Text>
+                    <Text style={styles.itemField00}>{hval} {hunit}</Text>
+                  </View>
 
-                  <Text style={styles.itemTitle}>Birth Year</Text>
-                  <Text style={styles.itemField00}>{byr}</Text>                  
-          
-                  <Text style={styles.itemTitle}>Favorite Body Tags</Text>
-                  {/* <Text style={styles.itemField00}>{profileData.FAVTAG.map(n => n + ', ' )}</Text> */}
-                  <Text style={styles.itemField00}>{bt0}</Text>
-                  <Text style={styles.itemField00}>{bt1}</Text>
+                  <View style={styles.tableRow}>
+                    <Text style={styles.itemTitle}>Gender</Text>
+                    <Text style={styles.itemField00}>{gdr}</Text>
+                  </View>
 
-                  <Text style={styles.itemTitle}>Account Created</Text>
-                  <Text style={styles.itemField00}>{moment.unix(ts).fromNow()}</Text>
+                  <View style={styles.tableRow}>
+                    <Text style={styles.itemTitle}>Nationality</Text>
+                    <Text style={styles.itemField00}>{nat}</Text>
+                  </View>
 
-                  <Text style={styles.itemTitle}>Last Update</Text>
-                  <Text style={styles.itemField00}>{moment.unix(lupdate).fromNow()}</Text>
+                  <View style={styles.tableRow}>
+                    <Text style={styles.itemTitle}>Birth Year</Text>
+                    <Text style={styles.itemField00}>{byr}</Text>                  
+                  </View>
 
+                  <View style={styles.tableRow}>
+                    <Text style={styles.itemTitle}>Focus Body Parts</Text>
+                    {/* <Text style={styles.itemField00}>{profileData.FAVTAG.map(n => n + ', ' )}</Text> */}
+                    <Text style={styles.itemField00}>{bt0}</Text>
+                    <Text style={styles.itemField00}>{bt1}</Text>
+                  </View>
+
+                  <View style={styles.tableRow}>
+                    <Text style={styles.itemTitle}>Account Created</Text>
+                    <Text style={styles.itemField00}>{moment.unix(ts).fromNow()}</Text>
+                  </View>
+
+                  <View style={styles.tableRow}>
+                    <Text style={styles.itemTitle}>Last Update</Text>
+                    <Text style={styles.itemField00}>{moment.unix(lupdate).fromNow()}</Text>
+                  </View>
 
                   <TouchableOpacity onPress={this._pressEdit} style={styles.postButton} >
                     <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold',}}> Edit </Text>
@@ -715,8 +841,8 @@ export default class ProfileScreen extends Component {
 
 
 
-      
-        </SafeAreaView>
+        </ScrollView>
+        {/* </SafeAreaView> */}
       </TouchableWithoutFeedback>  
     );
   }
@@ -730,13 +856,36 @@ const styles = StyleSheet.create({
   },
   signOutButton: {
     position: 'absolute',
-    right: 5,
+    right: 1,
+  },
+  newUserAnnouncement:{
+    color: '#ffa500',
+    fontSize: 18,
+  },
+  inputContainer: {
+    // marginVertical: Dimensions.get('window').height * 0.05,
+    marginHorizontal: Dimensions.get('window').width * 0.05,
+    flexDirection: "column",
+    // justifyContent: 'flex-start'
+  },  
+  tableRow: {
+    flex: 1, 
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 5,
   },
   itemTitle:{
     marginTop: 7, //Dimensions.get('window').height * 0.01,
     color: 'gray',
     fontSize: 15,
+    width: '30%',
   },
+  itemTitle10:{
+    marginTop: 7, //Dimensions.get('window').height * 0.01,
+    color: 'gray',
+    fontSize: 15,
+    // width: '30%',
+  },  
   itemMandatory: {
     color: 'red',
     fontWeight: 'bold',
@@ -749,7 +898,8 @@ const styles = StyleSheet.create({
     height: 35,
     color: 'dimgray',
     textAlignVertical: 'center',
-    paddingHorizontal: 10,
+    // paddingLeft: 30,
+    textAlign: 'right',
   },
   itemField10: {
     borderWidth: 1, 
@@ -759,8 +909,13 @@ const styles = StyleSheet.create({
     height: 35,
     color: 'dimgray',
     textAlignVertical: 'center',
-    paddingHorizontal: 10,
+    paddingLeft: 10,
     backgroundColor: 'white',
+    // textAlign: 'right',
+    width: '70%',
+    // position: 'absolute',
+    // right: 0, // align to right
+    marginLeft: '30%',
   },
   loadingIndicator: {
     // position: 'absolute',
@@ -783,6 +938,11 @@ const styles = StyleSheet.create({
     // fontSize: 18,
     // color: 'dimgray',
     paddingBottom: 10,
+    // paddingLeft: 30,
+    width: '70%',
+    // position: 'absolute',
+    // right: 0, // align to right
+    marginLeft: '30%',
   },
   pickerViewBt1: {
     height: 35, 
@@ -796,6 +956,11 @@ const styles = StyleSheet.create({
     // color: 'dimgray',
     paddingBottom: 10,
     marginTop: 5,
+    // paddingLeft: 30,
+    width: '70%',
+    // position: 'absolute',
+    // right: 0, // align to right
+    marginLeft: '30%',
   },  
   picker: {
     // height: Dimensions.get('window').height * 0.7, 
@@ -825,11 +990,6 @@ const styles = StyleSheet.create({
      
   },
 
-  inputContainer: {
-    marginHorizontal: Dimensions.get('window').width * 0.05,
-    flexDirection: "column",
-    justifyContent: 'flex-start'
-  },
   videoTitleTitle: {
     marginTop: Dimensions.get('window').height * 0.03,
     color: 'gray',
@@ -907,9 +1067,3 @@ const styles = StyleSheet.create({
   },
 
 });
-
-
-
-
-
-        
