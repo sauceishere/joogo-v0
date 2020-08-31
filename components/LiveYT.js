@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import { Component, useState, useEffect  } from 'react';
 import { Text, View, StyleSheet, Dimensions, StatusBar, Image, TouchableOpacity, SafeAreaView, ScrollView, Button, Platform, ActivityIndicator, } from 'react-native';
@@ -48,8 +47,8 @@ export default class Live extends Component {
       isPosenetLoaded: false, 
       cameraType: Camera.Constants.Type.front,
       modelName: 'posenet',
-      // vidFullUrl: '', // get from Firebase Storage
-      // vidLength: this.props.navigation.getParam('post')['LEN'], // length of video navigated from Dashboard.js
+      vidFullUrl: 'https://www.youtube.com/embed/sDhqARXot8Y?&autoplay=1', // &mute=0&showinfo=1&controls=0&fullscreen=1//'https://www.youtube.com/watch?v=sDhqARXot8Y', // // get from Firebase Storage
+      vidLength: 10,//this.props.navigation.getParam('post')['LEN'], // length of video navigated from Dashboard.js
       // isVidMetaLoaded: false,
       // isWPartLoaded: false,
       isReadyToCD: false, // not used 
@@ -68,7 +67,7 @@ export default class Live extends Component {
       flagCountdownFinished: false, // true when countdown finished to controll PlayAndPauseButton
       shouldPlay: false, // not play at default
       flagUpdateScore: false, //
-      // flagVidEnd: false, // Flag 1 when Video ends, then stop logging
+      flagVidEnd: false, // Flag 1 when Video ends, then stop logging
       vidViewLogDirName: {vidViewLogDirName}['vidViewLogDirName'], // Local storage directory name to keep vidViewLog
       // ULBColorTop: 'transparent',
       // ULBColorBottom: 'transparent',
@@ -80,12 +79,12 @@ export default class Live extends Component {
       progressBarWidth: 0, // initial at zero
       // flagLoopUpdateScore: false, // to control if the first loop to updateScore. 20200812
       // mdCumPrev: null, // keep Previous mdCum to compare with the latest mdCum. 20200813
-      octopusLoc: { // Location of Octopus Image
-        xRW: 2, yRW: 2, // 10=rightWrist // Red
-        xLW: 9, yLW: 2, // 9=leftwrist // Blue
-        xRA: 5, yRA: 5, // 16=rightAnkle // Red
-        xLA: 6, yLA: 5, // 15=leftAnkle // Blue        
-      },
+    //   octopusLoc: { // Location of Octopus Image
+    //     xRW: 2, yRW: 2, // 10=rightWrist // Red
+    //     xLW: 9, yLW: 2, // 9=leftwrist // Blue
+    //     xRA: 5, yRA: 5, // 16=rightAnkle // Red
+    //     xLA: 6, yLA: 5, // 15=leftAnkle // Blue        
+    //   },
     }
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);  
     // this._handlePlayAndPause = this._handlePlayAndPause.bind(this);
@@ -374,7 +373,7 @@ export default class Live extends Component {
 
   coefNTA = this.props.navigation.getParam('const_exer')['coefNTA']; // 20200614
 
-  WEIGHT_KG = 62; // my weight is 62kg. this should be inputted before video page. 20200804
+//   WEIGHT_KG = 62; // my weight is 62kg. this should be inputted before video page. 20200804
 
 
 
@@ -433,7 +432,7 @@ export default class Live extends Component {
 
 
   async componentWillUnmount() {
-    console.log('------------------- componentWillUnmount Live started');
+    console.log('------------------- componentWillUnmount LiveYT started');
 
     this.setState({ shouldPlay: false });
 
@@ -456,12 +455,12 @@ export default class Live extends Component {
 
     await this._saveVidViewLog();
 
-    console.log('------------------- componentWillUnmount Live completed');
+    console.log('------------------- componentWillUnmount LiveYT completed');
   }
 
 
   async componentDidMount() {
-    console.log('------------------- componentDidMount Live started 77');
+    console.log('------------------- componentDidMount LiveYT started');
     console.log('------ this.mets_per_part: ', this.mets_per_part);
     console.log('------ this.camState: ', this.camState);
     console.log( 'slow1[secFromStart]: ', typeof slow1 );
@@ -573,7 +572,7 @@ export default class Live extends Component {
     }
 
     // console.log('========== this.state.vidLength: ', this.state.vidLength);     
-    console.log('------------------- componentDidMount Live completed');
+    console.log('------------------- componentDidMount LiveYT completed');
 
   } // closing componentDidMount
 
@@ -588,10 +587,6 @@ export default class Live extends Component {
     // document.getElementsByTagName("video")[0].style.objectFit = 'fill'; // fill to widnow screen 
     // document.getElementsByTagName("video")[0].style.height = '100%';
     // document.getElementsByTagName("video")[0].style.width = '100%'; 
-    // // document.body.style.border = '5px solid red';
-    // // document.getElementsByTagName("video")[0].onended = (event) => {
-    // //   window.alert('1）動画が終了した、または 2）それ以上データがない' + 'ため、動画が停止しました。');
-    // // };
     // `);
     console.log('_vidDefault this.state.shouldPlay: ', this.state.shouldPlay);
   }      
@@ -837,9 +832,9 @@ export default class Live extends Component {
         console.log('======================= _playVideoAtStart ========= ', Date.now()/1000);
 
         this.setState({ flagCountdownFinished: true, shouldPlay: true, flagUpdateScore: true});
-        // this.webviewRef.injectJavaScript(`
-        //     document.getElementsByTagName("video")[0].play();
-        // `)
+        this.webviewRef.injectJavaScript(`
+            document.getElementsByTagName("video")[0].play();
+        `)
 
         this.vidState.numFrameVidStart = this.vidState.renderPoseTimes; // for record to Firestore vidViewLog. 20200524
            
@@ -1162,19 +1157,37 @@ export default class Live extends Component {
 
 
           // // Assign this.state.octopusLoc. 20200823
-          var octopusLocEach = {}; //initialize
-          if ( typeof slow1[secFromStart.toString()] !== "undefined") { 
-            console.log( 'slow1[secFromStart]: ', slow1[secFromStart.toString()] );
-            octopusLocEach = slow1[secFromStart.toString()]; // Assign Location
-          } else {
-            console.log( 'slow1[secFromStart]: error' ); 
-            octopusLocEach = slow1["ERR"]; // assign Location for Error
-          };
+        //   var octopusLocEach = {}; //initialize
+        //   if ( typeof slow1[secFromStart.toString()] !== "undefined") { 
+        //     console.log( 'slow1[secFromStart]: ', slow1[secFromStart.toString()] );
+        //     octopusLocEach = slow1[secFromStart.toString()]; // Assign Location
+        //   } else {
+        //     console.log( 'slow1[secFromStart]: error' ); 
+        //     octopusLocEach = slow1["ERR"]; // assign Location for Error
+        //   };
 
-
-          this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(3), scoreNow: scoreNow.toFixed(1), octopusLoc: octopusLocEach });// this is what shows as score on top right.
+          this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(3), scoreNow: scoreNow.toFixed(1) });// this is what shows as score on top right.
+        //   this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(3), scoreNow: scoreNow.toFixed(1), octopusLoc: octopusLocEach });// this is what shows as score on top right.
           this.mdCumAll.push( JSON.stringify({ 'sec': secFromStart, 'cntLoopUpdateScore': this.cntLoopUpdateScore, 'ts': Date.now()/1000, 'score': scoreNow.toFixed(3), 'playSum': this.vidState.vidPlayedSum.toFixed(2), 'pos': this.pos }) ); // append froms Start to End 
           
+
+
+////////// Video End  ////////////////////
+            console.log('this.vidState.vidPlayedSum , vidLength: ', this.vidState.vidPlayedSum , vidLength );
+            if ( this.vidState.vidPlayedSum > vidLength + 1 ) { // add 1 seconds on vidLength
+            console.log('=========================== Video end ========== time from vidStartAt', Date.now()/1000 - this.vidState.vidStartAt );
+            clearInterval(_updateScore); 
+            this.vidState.vidEndAt = Date.now()/1000;
+            this.setState({flagVidEnd: true, flagUpdateScore: false, showModal: true});  // deleted 
+            // this.setState({flagVidEnd: true , showModal: true});    
+
+            this.vidState.numFrameVidEnd = this.vidState.renderPoseTimes; // for record to Firestore vidViewLog. 20200524
+
+
+            } 
+
+
+
 
           if ( this.state.shouldPlay === false ) { // this will force to stop setInterval(_updateScore) when user outNTA or press gobackhome BEFORE video ends. 20200603
             console.log('this will force to stop setInterval(_updateScore).');
@@ -1773,7 +1786,7 @@ export default class Live extends Component {
 
   render() {
     console.log('----------------- render --------------------');
-    const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, scoreNow, vidStartAt, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon, octopusLoc } = this.state;
+    const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, flagVidEnd, scoreNow, vidStartAt, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon } = this.state;
 
     if (shouldPlay == true) { // increment only shouldPlay=true. this means not incremented whe video is paused.
       this.vidState.vidPlayedSum = this.vidState.vidPlayedSum + (Date.now()/1000 - this.vidState.loopStartAt); // add increment time
@@ -1839,16 +1852,18 @@ export default class Live extends Component {
                     />
                   </View>
 
-                  {/* <View style={styles.trainerVideoContainer}> */}
+                  <View style={styles.trainerVideoContainer}>
                   {/* <View style={[ {zindex: 400 }, styles.trainerVideoContainer ]}> */}
-                    {/* <WebView
-                      ref={r => (this.webviewRef = r)}
-                      source={{ uri: this.state.vidFullUrl }}
-                      // style={[ {zindex: 400 }, styles.trainerVideo]} 
-                      style={ styles.trainerVideo } 
-                      onNavigationStateChange={this._vidDefault}
+                    <WebView
+                        ref={r => (this.webviewRef = r)}
+                        source={{ uri: this.state.vidFullUrl }}
+                        // source={{html: '<iframe width="{this.camState.windowHeight}" height="{this.camState.windowWidth}" src="https://www.youtube.com/embed/sDhqARXot8Y?&autoplay=1"frameborder="0" allowfullscreen></iframe>'}}
+                        // source={{html: '<video width="320" height="240" autoplay><source src="https://www.youtube.com/embed/sDhqARXot8Y?&autoplay=1" type="video/mp4"></video>' }}
+                        // style={[ {zindex: 400 }, styles.trainerVideo]} 
+                        style={ styles.trainerVideo } 
+                        onNavigationStateChange={this._vidDefault}
                     /> 
-                  </View>  */}
+                  </View> 
 
                 </View>
 
@@ -1856,14 +1871,16 @@ export default class Live extends Component {
 
                 <View style={{ height: '100%', width: '100%',}}>
 
-                  {/* <View style={styles.trainerVideoContainer}>
+                  <View style={styles.trainerVideoContainer}>
                     <WebView
-                      ref={r => (this.webviewRef = r)}
-                      source={{ uri: this.state.vidFullUrl }}
-                      style={ styles.trainerVideo } 
-                      onNavigationStateChange={this._vidDefault}
+                        ref={r => (this.webviewRef = r)}
+                          source={{ uri: this.state.vidFullUrl }}
+                        // source={{html: '<iframe width="{this.camState.windowHeight}" height="{this.camState.windowWidth}" src="https://www.youtube.com/embed/sDhqARXot8Y?&autoplay=1"frameborder="0" allowfullscreen></iframe>'}}
+                        // source={{html: '<video width="320" height="240" autoplay><source src="https://www.youtube.com/embed/sDhqARXot8Y?&autoplay=1" type="video/mp4"></video>' }}
+                        style={ styles.trainerVideo } 
+                        onNavigationStateChange={this._vidDefault}
                     /> 
-                  </View>   */}
+                  </View>  
 
                   <View style={ styles.webCamContainer }> 
                     <TensorCamera
@@ -1969,26 +1986,26 @@ export default class Live extends Component {
               }
 
 
-              {/* { flagVidEnd && 
+              { flagVidEnd && 
                 <View style={styles.modalLike}>
                   <Text style={styles.modalLikeTitle}>
-                    Score:
+                    Calories burned:
                   </Text>
                   <Text style={styles.modalLikeText}>
                     {scoreNow}
                   </Text>
-                  <Text style={styles.modalLikeTitle}>
-                    Movage points:
+                  {/* <Text style={styles.modalLikeTitle}>
+                    METS:
                   </Text>
                   <Text style={styles.modalLikeText}>
-                    {mdCumTtlNow}
-                  </Text>
+                    {mdCumTtlNow} {this.vidState.vidPlayedSum}
+                  </Text> */}
                 </View>   
-              } */}
+              }
 
 
               {/* Display octopusImage */}
-              { shouldPlay ?
+              {/* { shouldPlay ?
                 <View style={styles.octopusContainer}>
                   <Image style={[{ left: (this.camState.windowHeight * octopusLoc.xRW) - (this.camState.windowWidth * octopusImageSizePct/2 ), top: (this.camState.windowWidth * octopusLoc.yRW) - (this.camState.windowWidth * octopusImageSizePct/2 ) }, styles.octopusImage]} source={require('../assets/rWrist.png')} />
                   <Image style={[{ left: (this.camState.windowHeight * octopusLoc.xLW) - (this.camState.windowWidth * octopusImageSizePct/2 ), top: (this.camState.windowWidth * octopusLoc.yLW) - (this.camState.windowWidth * octopusImageSizePct/2 ) }, styles.octopusImage]} source={require('../assets/lWrist.png')} />
@@ -1997,7 +2014,7 @@ export default class Live extends Component {
                 </View>
               :
                 null
-              }  
+              }   */}
 
 
             </View> // close styles.layerOneContainer,
@@ -2063,7 +2080,7 @@ const styles = StyleSheet.create({
     flexGrow: 1, // added 20200530
     // height: '100%',
     // width: '100%' ,
-    height: Dimensions.get('window').height,
+    height: Dimensions.get('window').width,
     // width: Dimensions.get('window').width,
     // height: 800, 
     // width: 300,
@@ -2082,8 +2099,8 @@ const styles = StyleSheet.create({
     // position: 'relative',
     // height: '100%',
     // width: '100%',
-    height: Dimensions.get('window').height, 
-    // width: Dimensions.get('window').width,    
+    height: Dimensions.get('window').width, 
+    width: Dimensions.get('window').height,    
     alignItems: 'center',
     justifyContent: 'center',  
     // zindex: 300,     
@@ -2234,25 +2251,25 @@ const styles = StyleSheet.create({
     // backgroundColor: 'rgba(220, 220, 220, 0.7)', 
   },
 
-  octopusContainer: {
-    // flexGrow:1,
-    flex: 0,
-    position: 'absolute',
-    bottom: 0,
-    width: '100%', //Dimensions.get('window').width * 1,
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    // borderColor: 'green',
-    // borderWidth: 3,
-  },
-  octopusImage: {
-    position: 'absolute',
-    // width: Dimensions.get('window').width * 1 / ttlCH * 1.5,
-    // height: Dimensions.get('window').width * 1 / ttlCH * 1.5,
-    height: Dimensions.get('window').width * octopusImageSizePct,
-    width: Dimensions.get('window').width * octopusImageSizePct,  
-  },
+//   octopusContainer: {
+//     // flexGrow:1,
+//     flex: 0,
+//     position: 'absolute',
+//     bottom: 0,
+//     width: '100%', //Dimensions.get('window').width * 1,
+//     height: '100%',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     // borderColor: 'green',
+//     // borderWidth: 3,
+//   },
+//   octopusImage: {
+//     position: 'absolute',
+//     // width: Dimensions.get('window').width * 1 / ttlCH * 1.5,
+//     // height: Dimensions.get('window').width * 1 / ttlCH * 1.5,
+//     height: Dimensions.get('window').width * octopusImageSizePct,
+//     width: Dimensions.get('window').width * octopusImageSizePct,  
+//   },
 
 
   upperLayerContainer: {
@@ -2279,10 +2296,10 @@ const styles = StyleSheet.create({
     // flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',  
-    marginVertical: Dimensions.get('window').height * 0.3,     
-    marginHorizontal: Dimensions.get('window').width * 0.1,
-    height: Dimensions.get('window').height * 0.4,
-    width: Dimensions.get('window').width * 0.8,
+    marginVertical: Dimensions.get('window').width * 0.3,     
+    marginHorizontal: Dimensions.get('window').height * 0.3,
+    height: Dimensions.get('window').width * 0.4,
+    width: Dimensions.get('window').height * 0.4,
     backgroundColor: '#ffa500', 
     borderRadius: 10,
     opacity: 1.0,

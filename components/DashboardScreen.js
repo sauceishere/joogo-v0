@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Constants from 'expo-constants'; // https://docs.expo.io/versions/latest/react-native/refreshcontrol/
 import {vidViewLogDirName} from '../shared/Consts';
 import { AdMobBanner } from 'expo-ads-admob'; 
+import ThreeAxisSensor from 'expo-sensors/build/ThreeAxisSensor';
 
 
 const str_pad_left = function (string,pad,length) { // convert from sec to min:sec // https://stackoverflow.com/questions/3733227/javascript-seconds-to-minutes-and-seconds
@@ -21,7 +22,7 @@ const str_pad_left = function (string,pad,length) { // convert from sec to min:s
 // var num_post = 0; // to control when to shoe Adds in FlatList 20200618
 var post_num = 0; // to control when to shoe Adds in FlatList 20200623
 
-// export const LB_PER_KG = 2.205; // pounds / kilograms
+export const LB_PER_KG = 2.205; // pounds / kilograms
 
 
 export default class DashboardScreen extends Component {
@@ -294,7 +295,11 @@ export default class DashboardScreen extends Component {
               console.log('==== Dashboard.js New User and going to Profile.js for FIRST fill out');
               this.props.navigation.push('Profile', {isNewUser: true}); // navigate to Profile.js Edit mode by {isNewUser: true} for this.state.isEditing:true. 20200526
             } else if ( response["code"] == 'ok' ) {
-              null
+              console.log('response.userProfile: ', response.userProfile);
+              this.setState({
+                wval: response.userProfile.WVAL,
+                wunit: response.userProfile.WUNIT,
+              });
             } else { // response[code] is Error
               console.log('Received response[code] = error from functions.');
               alert('Received response[code] = error from functions., Please log-in again.');
@@ -362,7 +367,7 @@ export default class DashboardScreen extends Component {
       console.log('----- Dashboard _loadDashboardFlatlist.');
       console.log('this.oldestVidTs: ', this.oldestVidTs);
       
-      fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/loadDashboardFlatlist-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+      fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/loadDashboardFlatlistYT-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
         method: 'POST',
         headers: {
           // 'Accept': 'application/json', 
@@ -371,12 +376,12 @@ export default class DashboardScreen extends Component {
         // mode: "no-cors", // no-cors, cors, *same-origin
         body: JSON.stringify({
           id_token: idTokenCopied,
-          oldestVidTs: this.oldestVidTs,    
+          // oldestVidTs: this.oldestVidTs,    
           flagMastersLoaded: flagMastersLoaded,
         })
       }).then( result => result.json() )
         .then( response => { 
-          // console.log('------------------ _makeRemoteRequest response: ', response);
+          console.log('------------------ _makeRemoteRequest response: ', response);
 
           if( response["code"] == 'okFirst'){
             console.log('---------------- okFirst, length: ', response.detail.vidMetas.length );
@@ -403,7 +408,7 @@ export default class DashboardScreen extends Component {
               flagMastersLoaded: true, // this to identify its downloaded
               wpart: response.wpart,
               const_exer: response.const_exer,
-              mets_per_part: response.mets_per_part, // 20200804
+              // mets_per_part: response.mets_per_part, // 20200804
               scaler_scale: response.scaler_scale, // 20200824
               scaler_mean: response.scaler_mean, // 20200824
               reg_sgd: response.reg_sgd, // 20200824
@@ -534,21 +539,21 @@ export default class DashboardScreen extends Component {
 
 
   renderPost = post => {
-      const { wpart, const_exer } = this.state;
+      const { wpart, const_exer, wval, wunit } = this.state;
       // num_post++; // increment var num_post
       console.log('====== post ===== post_num:' , post_num, ', posts.length: ', this.state.posts.length);
 
 
       // (() => {
-          if (post.VIEW > 1000000) { // view times
-            this.VIEW = parseInt(post.VIEW / 1000000) + 'M ' // million
-          } else if (post.VIEW > 1000) { 
-            this.VIEW = parseInt(post.VIEW / 1000) + 'K '// thousand
-          } else { 
-            this.VIEW = parseInt(post.VIEW)
-          }; 
+          // if (post.VIEW > 1000000) { // view times
+          //   this.VIEW = parseInt(post.VIEW / 1000000) + 'M ' // million
+          // } else if (post.VIEW > 1000) { 
+          //   this.VIEW = parseInt(post.VIEW / 1000) + 'K '// thousand
+          // } else { 
+          //   this.VIEW = parseInt(post.VIEW)
+          // }; 
 
-          this.PTSUM = parseFloat(post.PTSUM); // cummulative points that the users exercised. 
+          // this.PTSUM = parseFloat(post.PTSUM); // cummulative points that the users exercised. 
           
           post.LEN = parseInt(post.LEN); // video length in XXmXXs
           if (post.LEN >= 60) {
@@ -557,7 +562,13 @@ export default class DashboardScreen extends Component {
             this.LEN = '00m' + str_pad_left( post.LEN, '0', 2) + 's' 
           }; // convert sec to min:sec
           
-          this.TTLPT = parseFloat(post.TTLPT).toFixed(2); // point for this video that can be earned. Fix decimal place
+          if (wunit == 'kg') {
+            this.CAL = parseFloat(post.METS_COMPUTED) * wval * (post.LEN / 60 / 60); 
+          } else { // wunit = 'lb'
+            this.CAL = parseFloat(post.METS_COMPUTED) * (wval/LB_PER_KG) * (post.LEN / 60 / 60); 
+          }
+
+          this.INTENSITY = this.CAL / post.LEN;
 
           if ( this.oldestVidTs > post.TS) { // Assign timestamp of the oldest video fetched by _loadDashboardFlatlist to control next video to be fetched by _loadDashboardFlatlist 20200528
             this.oldestVidTs = post.TS;
@@ -591,7 +602,7 @@ export default class DashboardScreen extends Component {
           // })        
         
 
-          console.log('------------- renderPost: ' , post_num, post.TS, post.VIDID, post.TITLE, );
+          console.log('------------- renderPost: ' , post_num, post.TS, post.ID, post.URL, post.METS_COMPUTED, post.LEN, );
           console.log('this.oldestVidTs: ', this.oldestVidTs);
 
         // } )(); 
@@ -630,8 +641,8 @@ export default class DashboardScreen extends Component {
                     <View style={styles.textMetadata}>
 
                       <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
-                          <Ionicons name='ios-body' size={20} color="#73788B"/>
-                          <Text style={styles.points}> {this.TTLPT} movage</Text>
+                          <Ionicons name='ios-flame' size={20} color="#73788B"/>
+                          <Text style={styles.points}> {this.CAL} cal</Text>
                       </View>
 
                       <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
@@ -639,17 +650,22 @@ export default class DashboardScreen extends Component {
                           <Text style={styles.length}> {this.LEN} </Text>
                       </View>
 
-                      <View style={{flexDirection: "row", marginVertical: 3}}>
+                      <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
+                          <Ionicons name='ios-body' size={20} color="#73788B"/>
+                          <Text style={styles.length}> {this.INTENSITY} intensity </Text>
+                      </View>
+
+                      {/* <View style={{flexDirection: "row", marginVertical: 3}}>
                           <MaterialIcons name='center-focus-strong' size={20} color="#73788B"/> 
                           <Text style={styles.tags}> 
                               {String(post.TAG).replace(',', ', ')}
                           </Text>
-                      </View>
+                      </View> */}
 
-                      <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
+                      {/* <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
                           <Ionicons name='ios-eye' size={20} color="#73788B"/>
                           <Text style={styles.views}> {this.VIEW} views</Text>
-                      </View>
+                      </View> */}
 
                       {/* <View style={{flexDirection: "row", marginVertical: 2, marginLeft: 2,}}>
                           <Ionicons name='ios-heart' size={20}/> 
@@ -716,8 +732,8 @@ export default class DashboardScreen extends Component {
                       <View style={styles.textMetadata}>
 
                         <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
-                            <Ionicons name='ios-body' size={20} color="#73788B"/>
-                            <Text style={styles.points}> {this.TTLPT} movage</Text>
+                            <Ionicons name='ios-flame' size={20} color="#73788B"/>
+                            <Text style={styles.points}> {this.CAL} cal</Text>
                         </View>
 
                         <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
@@ -725,17 +741,22 @@ export default class DashboardScreen extends Component {
                             <Text style={styles.length}> {this.LEN} </Text>
                         </View>
 
-                        <View style={{flexDirection: "row", marginVertical: 3}}>
+                        <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
+                            <Ionicons name='ios-body' size={20} color="#73788B"/>
+                            <Text style={styles.length}> {this.INTENSITY} intensity </Text>
+                        </View>
+
+                        {/* <View style={{flexDirection: "row", marginVertical: 3}}>
                             <MaterialIcons name='center-focus-strong' size={20} color="#73788B"/> 
                             <Text style={styles.tags}> 
                                 {String(post.TAG).replace(',', ', ')}
                             </Text>
-                        </View>
+                        </View> */}
 
-                        <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
+                        {/* <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
                             <Ionicons name='ios-eye' size={20} color="#73788B"/>
                             <Text style={styles.views}> {this.VIEW} views</Text>
-                        </View>
+                        </View> */}
 
                         {/* <View style={{flexDirection: "row", marginVertical: 2, marginLeft: 2,}}>
                             <Ionicons name='ios-heart' size={20}/> 
@@ -874,10 +895,11 @@ export default class DashboardScreen extends Component {
         <View style={styles.footerContainer}>
           {/* https://docs.expo.io/versions/latest/sdk/linear-gradient/ */}
           <Ionicons name='ios-person' size={28} color="white" style={styles.ProfileIcon} onPress={ () => this.props.navigation.push('Profile') } />  
-          <Ionicons name="ios-add-circle-outline" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Post') }/>
+          {/* <Ionicons name="ios-add-circle-outline" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Post') }/> */}
           <MaterialIcons name='history' size={28} color="white" style={styles.HistoryIcon} onPress={ () => this.props.navigation.push('History') }/>
-          <Ionicons name="ios-medal" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Leaderboard') }/> 
-          <Ionicons name='ios-notifications-outline' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Live', { const_exer, mets_per_part, scaler_scale, scaler_mean, reg_sgd } ) }/>
+          {/* <Ionicons name="ios-medal" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Leaderboard') }/>  */}
+          <Ionicons name='ios-flame' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Live', { const_exer, mets_per_part, scaler_scale, scaler_mean, reg_sgd } ) }/>
+          <Ionicons name='logo-youtube' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('LiveYT', { const_exer, mets_per_part, scaler_scale, scaler_mean, reg_sgd } ) }/>
         {/* </LinearGradient> */}
         </View>
 

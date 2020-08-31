@@ -53,7 +53,7 @@ export default class ProfileScreen extends Component {
       wunit: null, 
       hval: null, 
       hunit: null, 
-      isNewUser: this.props.navigation.getParam('isNewUser') ?? false,
+      isNewUser: null, //this.props.navigation.getParam('isNewUser') ?? false,
     };
     this._onWValChange = this._onWValChange.bind(this);
     this._onWUnitValueChange = this._onWUnitValueChange.bind(this);
@@ -112,21 +112,22 @@ export default class ProfileScreen extends Component {
               if (response["code"] == 'ok') {
                 console.log('==== Profile.js Existing user coming.');
                 this.setState({
-                  nname: response["userProfile"].NNAME,
-                  wval: response["userProfile"].WVAL, 
-                  wunit: response["userProfile"].WUNIT, 
-                  hval: response["userProfile"].HVAL, 
-                  hunit: response["userProfile"].HUNIT, 
-                  nat: response["userProfile"].NAT, 
+                  nname: response["userProfile"].NNAME.toString(),
+                  wval: response["userProfile"].WVAL.toString(), 
+                  wunit: response["userProfile"].WUNIT.toString(), 
+                  hval: response["userProfile"].HVAL.toString(), 
+                  hunit: response["userProfile"].HUNIT.toString(), 
+                  nat: response["userProfile"].NAT.toString(), 
                   byr: response["userProfile"].BYR.toString(),
-                  gdr: response["userProfile"].GDR,
-                  bt0: response["userProfile"].FAVTAG["0"],
-                  bt1: response["userProfile"].FAVTAG["1"],
+                  gdr: response["userProfile"].GDR.toString(),
+                  bt0: response["userProfile"].FAVTAG["0"].toString(),
+                  bt1: response["userProfile"].FAVTAG["1"].toString(),
                   ts: response["userProfile"].TS,
                   llogin: response["userProfile"].LLOGIN,
                   lupdate: response["userProfile"].UPD_AT,
                   // avatarRawUrl: response["userProfile"].AVTRURL,
                   DidGetProfileData: true, 
+                  isNewUser: false,
                 });
 
               } else if (response["code"] == 'new_user') {
@@ -147,6 +148,7 @@ export default class ProfileScreen extends Component {
                   lupdate: Date.now()/1000,
                   // avatarRawUrl: '',
                   DidGetProfileData: true, 
+                  isNewUser: true,
                 });
               }
 
@@ -216,9 +218,10 @@ export default class ProfileScreen extends Component {
 
   _SignOut = async() => {
     if (!this.state.nname) { // if nickname NOT filled out, then alert and block phasing out
-      this.props.navigation.push('Profile'); // block phasing out
-      console.log('Please fill out Nickname.');
-      alert('Please fill out Nickname.');
+      // this.props.navigation.push('Profile'); // block phasing out
+      // console.log('Please fill out Nickname.');
+      // alert('Please fill out Nickname.');
+      console.log('nothing');
     } else {
 
       this.setState({ isEditing: false, isSigningOut : true, DidGetProfileData: false });
@@ -283,57 +286,57 @@ export default class ProfileScreen extends Component {
 
 
   _onNNameValueChange = async (nickname) =>  {
-    await this.setState({ nname: nickname });
+    await this.setState({ nname: nickname.toString() });
     console.log( 'this.state.nname: ', this.state.nname );
   }
 
   _onWValChange = async (weightVal) =>  {
-    await this.setState({ wval: weightVal });
+    await this.setState({ wval: weightVal.toString() });
     console.log( 'this.state.wval: ', this.state.wval );
   }
 
   _onWUnitValueChange = async (unit) =>  {
-    await this.setState({ wunit: unit });
+    await this.setState({ wunit: unit.toString() });
     console.log( 'this.state.wunit: ', this.state.wunit );
   }
 
   _onHValChange = async (heightVal) =>  {
-    await this.setState({ hval: heightVal });
+    await this.setState({ hval: heightVal.toString() });
     console.log( 'this.state.hval: ', this.state.hval );
   }
 
   _onHUnitValueChange = async (unit) =>  {
-    await this.setState({ hunit: unit });
+    await this.setState({ hunit: unit.toString() });
     console.log( 'this.state.hunit: ', this.state.hunit );
   }
 
   _onGenderValueChange = async (gender) =>  {
     // console.log( 'gender: ', gender );
-    await this.setState({ gdr: gender });
+    await this.setState({ gdr: gender.toString() });
     console.log( 'this.state.gdr: ', this.state.gdr );
   }
 
   _onCountryValueChange = async (country) =>  {
     // console.log( 'country: ', country );
-    await this.setState({ nat: country });
+    await this.setState({ nat: country.toString() });
     console.log( 'this.state.nat: ', this.state.nat );
   }
 
   _onYearValueChange = async (year) =>  {
     // console.log( 'year: ', year );
-    await this.setState({ byr: year });
+    await this.setState({ byr: year.toString() });
     console.log( 'this.state.byr: ', this.state.byr );
   }
 
   _onBodytags0ValueChange = async (bt) =>  {
     // console.log( 'bt: ', bt );
-    await this.setState({ bt0: bt });
+    await this.setState({ bt0: bt.toString() });
     console.log( 'this.state.bt0: ', this.state.bt0 );
   }
 
   _onBodytags1ValueChange = async (bt) =>  {
     // console.log( 'bt: ', bt );
-    await this.setState({ bt1: bt });
+    await this.setState({ bt1: bt.toString() });
     console.log( 'this.state.bt1: ', this.state.bt1 );
   }
 
@@ -380,18 +383,18 @@ export default class ProfileScreen extends Component {
           // body: {
             // uid: firebase.auth().currentUser.uid,
             newNName: this.state.nname,
-            wval: this.state.wval, 
-            wunit: this.state.wunit,  
+            wval: this.state.wval,
+            wunit: this.state.wunit,
             hval: this.state.hval,  
-            hunit: this.state.hunit, 
-            nat: this.state.nat, 
+            hunit: this.state.hunit,
+            nat: this.state.nat,
             byr: this.state.byr,
             gdr: this.state.gdr,
             bt0: this.state.bt0, 
-            bt1: this.state.bt1,                         
+            bt1: this.state.bt1,                      
             en: this.state.en, 
             lupdate: Date.now() / 1000, // unix
-            editId: this.state.ProfileEditId,
+            editId: this.state.ProfileEditId.toString(),
             id_token: idTokenCopied,
           })
 
@@ -555,17 +558,22 @@ export default class ProfileScreen extends Component {
 
 
 
-
         { DidGetProfileData ?
           <View>
 
+            {isNewUser ?
+              <View style={styles.newUserAnnouncementContainer}>
+                <Text style={styles.newUserAnnouncement}>Please fill out Nickname, Weight, Weight Unit. {"\n"}Please do NOT use your REAL name.</Text>
+              </View>
+            : 
+              null
+            }
+
             { isEditing ?
               <View style={styles.inputContainer}>
-                <View style={{width: '100%', marginTop: Dimensions.get('window').height * 0.07, marginBottom: Dimensions.get('window').height * 0.03,}}>
+                <View style={{width: '100%', marginTop: Dimensions.get('window').height * 0.02, marginBottom: Dimensions.get('window').height * 0.03,}}>
                   
-                    {isNewUser ?? 
-                      <Text style={styles.newUserAnnouncement}>Please fill out nickname, weight, weight unit. /n Please do NOT use your REAL name.</Text>
-                    }
+
 
                     <Text style={styles.itemTitle10}><Text style={styles.itemMandatory}>* </Text>Nickname (Max 25 charactors)</Text>
                     <TextInput
@@ -579,11 +587,11 @@ export default class ProfileScreen extends Component {
                     >
                     </TextInput>
 
-                    <Text style={styles.itemTitle10}><Text style={styles.itemMandatory}>* </Text>Weight {wval}</Text>
+                    <Text style={styles.itemTitle10}><Text style={styles.itemMandatory}>* </Text>Weight</Text>
                     <TextInput
                       multiline={false}
                       numberOfLines={1}
-                      maxLength={5}
+                      maxLength={10}
                       style={styles.itemField10}
                       defaultValue={wval}
                       onChangeText={text => this._onWValChange(text) }
@@ -606,11 +614,11 @@ export default class ProfileScreen extends Component {
                     </Picker>
                     </View>
 
-                    <Text style={styles.itemTitle10}>Height {hval}</Text>
+                    <Text style={styles.itemTitle10}>Height</Text>
                     <TextInput
                       multiline={false}
                       numberOfLines={1}
-                      maxLength={5}
+                      maxLength={10}
                       style={styles.itemField10}
                       defaultValue= {hval}
                       onChangeText={text => this._onHValChange(text) }
@@ -739,7 +747,7 @@ export default class ProfileScreen extends Component {
                           </TouchableOpacity>
         
                           <TouchableOpacity onPress={ this._pressCancelEdit }  style={styles.cancelEditButton}>
-                            <Text style={{color: 'gray', fontSize: 16, }}> Cancel </Text>
+                            <Text style={{color: 'gray', fontSize: 16, paddingBottom: 20}}> Cancel </Text>
                           </TouchableOpacity>   
                         </View>
                       }
@@ -759,7 +767,7 @@ export default class ProfileScreen extends Component {
               </TouchableOpacity>
 
 
-                <View style={{width: '100%', marginTop: Dimensions.get('window').height * 0.07, marginBottom: Dimensions.get('window').height * 0.03,}}>
+                <View style={{width: '100%', marginTop: Dimensions.get('window').height * 0.05, marginBottom: Dimensions.get('window').height * 0.03,}}>
                 
                   {/* <Image source={{uri: profileData.avatarFullUrl }} style={} resizeMode="cover" />  */}
 
@@ -858,9 +866,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 1,
   },
+  newUserAnnouncementContainer:{   
+    // width: '90%',
+    // backgroundColor: 'green',
+  },
   newUserAnnouncement:{
     color: '#ffa500',
-    fontSize: 18,
+    fontSize: 15,
+    marginTop: 5,
+    justifyContent: 'center',
+    alignItems: 'center',  
+    textAlign: 'center'
   },
   inputContainer: {
     // marginVertical: Dimensions.get('window').height * 0.05,
@@ -918,8 +934,8 @@ const styles = StyleSheet.create({
     marginLeft: '30%',
   },
   loadingIndicator: {
-    // position: 'absolute',
-    // top: 20,
+    position: 'absolute',
+    top: '50%',
     // right: 20,
     flexGrow:1,
     height:null,
@@ -1030,12 +1046,14 @@ const styles = StyleSheet.create({
     marginTop: 20,
     justifyContent: 'center',
     alignItems: 'center', 
+    // paddingBottom: 20, // to increase tapping area
+    marginBottom: 20,
   },
   uploadingIndicator: {
     // position: 'absolute',
     // top: 20,
     // right: 20,
-    marginTop: 15,
+    // marginTop: 15,
     flexGrow:1,
     height:null,
     width:null,    
