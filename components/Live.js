@@ -1947,7 +1947,7 @@ export default class Live extends Component {
                 null
               :
                 <View style={styles.initialPostureContainer}>
-                  <Image style={styles.initialPostureImage} source={require('../assets/initialPosture_475x310dotted.png')} />
+                  <Image style={styles.initialPostureImage} source={require('../assets/initialPosture_310x310dotted.png')} />
                 </View>
               }
 
@@ -2198,7 +2198,7 @@ const styles = StyleSheet.create({
   initialPostureImage: {
     position: 'absolute',
     left: Dimensions.get('screen').height / 2 - 310 / 2, //  centering the image in consideration with android navigation bar. 20200816 
-    width: Dimensions.get('window').width * 310 / 475, // photo size = 475*310
+    width: Dimensions.get('window').width, // photo size = 475*310
     height: Dimensions.get('window').width,    
     // top: 0,
     bottom: Dimensions.get('window').width * 0.01,

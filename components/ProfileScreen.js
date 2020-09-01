@@ -773,7 +773,13 @@ export default class ProfileScreen extends Component {
 
                   
                   <Text style={styles.itemTitle}>Nickname</Text>
-                  <Text style={styles.itemField00}>{nname}</Text>
+                  <Text style={styles.itemField00}>
+                    { ((nname).length > 50) ? 
+                        (((nname).substring(0, 50-3)) + '...') 
+                    : 
+                      nname 
+                    }
+                  </Text>
 
                   <View style={styles.tableRow}>
                     <Text style={styles.itemTitle}>Weight</Text>
@@ -792,7 +798,13 @@ export default class ProfileScreen extends Component {
 
                   <View style={styles.tableRow}>
                     <Text style={styles.itemTitle}>Nationality</Text>
-                    <Text style={styles.itemField00}>{nat}</Text>
+                    <Text style={styles.itemField00}>
+                      { ((nat).length > 25) ? 
+                        (((nat).substring(0, 25-3)) + '...') 
+                      : 
+                        nat 
+                      }
+                    </Text>
                   </View>
 
                   <View style={styles.tableRow}>

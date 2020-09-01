@@ -1543,7 +1543,7 @@ export default class Exercise extends Component {
                 null
               :
                 <View style={styles.initialPostureContainer}>
-                  <Image style={styles.initialPostureImage} source={require('../assets/initialPosture_392x256dotted.png')} />
+                  <Image style={styles.initialPostureImage} source={require('../assets/initialPosture_310x310dotted.png')} />
                 </View>
               }
 
@@ -1778,7 +1778,7 @@ const styles = StyleSheet.create({
     // width: Dimensions.get('window').width * 1,
     width: '100%',
     // bottom: navigatorBarHeight,
-    height: Dimensions.get('window').width * 392/256 , // photo size = 392*256   
+    height: Dimensions.get('window').width , // photo size = 392*256   
     bottom: 0,
     // borderColor: 'yellow',
     // borderWidth: 5,
