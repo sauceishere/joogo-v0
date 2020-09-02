@@ -141,7 +141,7 @@ export default class Live extends Component {
 
   // vidMeta = this.props.navigation.getParam('post')
   wpart = this.props.navigation.getParam('wpart');
-  mets_per_part = this.props.navigation.getParam('mets_per_part');
+  // mets_per_part = this.props.navigation.getParam('mets_per_part');
   scaler_scale = this.props.navigation.getParam('scaler_scale').data;
   scaler_mean = this.props.navigation.getParam('scaler_mean').data;
   reg_sgd = this.props.navigation.getParam('reg_sgd').data;
@@ -462,7 +462,7 @@ export default class Live extends Component {
 
   async componentDidMount() {
     console.log('------------------- componentDidMount Live started 77');
-    console.log('------ this.mets_per_part: ', this.mets_per_part);
+    // console.log('------ this.mets_per_part: ', this.mets_per_part);
     console.log('------ this.camState: ', this.camState);
     console.log( 'slow1[secFromStart]: ', typeof slow1 );
     console.log( 'slow1[secFromStart]: ', slow1["1"] );
@@ -2197,7 +2197,7 @@ const styles = StyleSheet.create({
   },
   initialPostureImage: {
     position: 'absolute',
-    left: Dimensions.get('screen').height / 2 - 310 / 2, //  centering the image in consideration with android navigation bar. 20200816 
+    left: Dimensions.get('window').height / 2 - 310 / 2, //  centering the image in consideration with android navigation bar. 20200816 
     width: Dimensions.get('window').width, // photo size = 475*310
     height: Dimensions.get('window').width,    
     // top: 0,

@@ -2214,7 +2214,7 @@ const styles = StyleSheet.create({
   },
   initialPostureImage: {
     position: 'absolute',
-    left: Dimensions.get('screen').height / 2 - 310 / 2, //  centering the image in consideration with android navigation bar. 20200816 
+    left: Dimensions.get('window').height / 2 - 310 / 2, //  centering the image in consideration with android navigation bar. 20200816 
     width: Dimensions.get('window').width, // photo size = 310*310
     height: Dimensions.get('window').width,    
     // top: 0,

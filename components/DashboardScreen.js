@@ -49,7 +49,7 @@ export default class DashboardScreen extends Component {
         wpart: null, // will be assigned after downloaded from Firebase. 20200606
         const_exer: null, // will be assigned after downloaded from Firebase. 20200606
         adUnitID: null, // get adUnitID form Firebase 20200625
-        mets_per_part: null, //20200804
+        // mets_per_part: null, //20200804
         scaler_scale: null,
         scaler_mean: null,
         reg_sgd: null,
@@ -66,7 +66,8 @@ export default class DashboardScreen extends Component {
   }
 
 
-  oldestVidTs = Date.now() / 1000; // Assign timestamp of the oldest video fetched by _loadDashboardFlatlist to control next video to be fetched by _loadDashboardFlatlist 20200528
+  // oldestVidTs = Date.now() / 1000; // Assign timestamp of the oldest video fetched by _loadDashboardFlatlist to control next video to be fetched by _loadDashboardFlatlist 20200528
+  largestMETS = 0; // Initially want to get larger than 0 METS_COMPUTED
 
   
   async _checkVidViewLogDirectory(){ 
@@ -290,12 +291,12 @@ export default class DashboardScreen extends Component {
           })
         }).then( result => result.json() )
           .then( response => { 
-            console.log('----- Dashboard _getUserProfile response.' );
+            // console.log('----- Dashboard _getUserProfile response.' );
             if (response["code"] == 'new_user' ) {
               console.log('==== Dashboard.js New User and going to Profile.js for FIRST fill out');
               this.props.navigation.push('Profile', {isNewUser: true}); // navigate to Profile.js Edit mode by {isNewUser: true} for this.state.isEditing:true. 20200526
             } else if ( response["code"] == 'ok' ) {
-              console.log('response.userProfile: ', response.userProfile);
+              // console.log('response.userProfile: ', response.userProfile);
               this.setState({
                 wval: response.userProfile.WVAL,
                 wunit: response.userProfile.WUNIT,
@@ -365,7 +366,7 @@ export default class DashboardScreen extends Component {
 
     const _loadDashboardFlatlist = (idTokenCopied) => {
       console.log('----- Dashboard _loadDashboardFlatlist.');
-      console.log('this.oldestVidTs: ', this.oldestVidTs);
+      console.log('this.largestMETS: ', this.largestMETS);
       
       fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/loadDashboardFlatlistYT-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
         method: 'POST',
@@ -376,14 +377,14 @@ export default class DashboardScreen extends Component {
         // mode: "no-cors", // no-cors, cors, *same-origin
         body: JSON.stringify({
           id_token: idTokenCopied,
-          // oldestVidTs: this.oldestVidTs,    
+          largestMETS: this.largestMETS + 0.0001,    
           flagMastersLoaded: flagMastersLoaded,
         })
       }).then( result => result.json() )
         .then( response => { 
-          console.log('------------------ _makeRemoteRequest response: ', response);
+          // console.log('------------------ _makeRemoteRequest response: ', response);
 
-          if( response["code"] == 'okFirst'){
+          if( response["code"] == 'okFirst'){ // the first load to loa ["flagMastersLoaded"]
             console.log('---------------- okFirst, length: ', response.detail.vidMetas.length );
             // console.log('_makeRemoteRequest response.detail.vidMetas: ', response.detail.vidMetas );
 
@@ -408,19 +409,19 @@ export default class DashboardScreen extends Component {
               flagMastersLoaded: true, // this to identify its downloaded
               wpart: response.wpart,
               const_exer: response.const_exer,
-              mets_per_part: response.mets_per_part, // 20200804
+              // mets_per_part: response.mets_per_part, // 20200804
               scaler_scale: response.scaler_scale, // 20200824
               scaler_mean: response.scaler_mean, // 20200824
               reg_sgd: response.reg_sgd, // 20200824
               adUnitID: response.const_exer.adUnitID,
             }); 
             // console.log('this.state.const_exer: ', this.state.const_exer );
-            console.log('this.state.mets_per_part: ', this.state.mets_per_part );
+            // console.log('this.state.mets_per_part: ', this.state.mets_per_part );
             // console.log('this.state.scaler_scale: ', this.state.scaler_scale );
             // console.log('this.state.scaler_mean: ', this.state.scaler_mean );
             // console.log('this.state.reg_sgd: ', this.state.reg_sgd );
 
-          } else if (response["code"] == 'ok') {
+          } else if (response["code"] == 'ok') { // after the second load, no need to load ["flagMastersLoaded"]
             console.log('---------------- ok, length: ', response.detail.vidMetas.length );
             // console.log('_makeRemoteRequest response.detail.vidMetas: ', response.detail.vidMetas );
 
@@ -476,7 +477,8 @@ export default class DashboardScreen extends Component {
 
   _handleRefresh = async () => {
     console.log('------------- _handleRefresh');
-    this.oldestVidTs = Date.now() / 1000; // reset timestamp to current time
+    // this.oldestVidTs = Date.now() / 1000; // reset timestamp to current time
+    this.largestMETS = 0 ; // reset
     // num_post = 0; // reset
     post_num = 0; // reset
     this.setState({
@@ -493,7 +495,7 @@ export default class DashboardScreen extends Component {
 
 
   _handleLoadMore = async () => {
-    console.log('------------- _handleLoadMore this.oldestVidTs: ', this.oldestVidTs);
+    console.log('------------- _handleLoadMore this.largestMETS: ', this.largestMETS);
     // num_post = 0; // reset
     this.setState({ page: this.state.page + 1 }, () => {
       this._makeRemoteRequest();
@@ -539,9 +541,9 @@ export default class DashboardScreen extends Component {
 
 
   renderPost = post => {
-      const { wpart, const_exer, wval, wunit } = this.state;
+      const { wpart, const_exer, wval, wunit, scaler_scale, scaler_mean, reg_sgd } = this.state;
       // num_post++; // increment var num_post
-      console.log('====== post ===== post_num:' , post_num, ', posts.length: ', this.state.posts.length);
+      console.log('====== post ====== post_num:' , post_num);
 
 
       // (() => {
@@ -569,22 +571,22 @@ export default class DashboardScreen extends Component {
           }
 
           if (post.METS_COMPUTED > 10) {
-            this.INTENSITY = 'High Intensive';
+            this.INTENSITY = 'High Intensity';
           } else if (post.METS_COMPUTED > 6) {
-            this.INTENSITY = 'Medium Intensive';
+            this.INTENSITY = 'Medium Intensity';
           } else {
-            this.INTENSITY = 'Low Intensive';
+            this.INTENSITY = 'Low Intensity';
           }
 
           //// This is to display Free mode
           if (post.TITLE == "Free Mode"  && post.NNAME == "JooGo Fit") {
             this.CAL = 'Unlimited';
-            this.LEN = 'Unlimited time';
-            this.INTENSITY = 'Your own intensity';
+            this.LEN = 'Unlimited Time';
+            this.INTENSITY = 'Your Own Intensity';
           }
           
-          if ( this.oldestVidTs > post.TS) { // Assign timestamp of the oldest video fetched by _loadDashboardFlatlist to control next video to be fetched by _loadDashboardFlatlist 20200528
-            this.oldestVidTs = post.TS;
+          if ( post.METS_COMPUTED > this.largestMETS) { // Assign to control next video to be fetched by _loadDashboardFlatlist 20200902
+            this.largestMETS = post.METS_COMPUTED;
           } 
 
           // post.TNURL = 'https://firebasestorage.googleapis.com/v0/b/joogo-v0.appspot.com/o/tn%2F' + post.VIDID + '?alt=media' // URL for Thumbsnail photo 20200528         
@@ -615,8 +617,8 @@ export default class DashboardScreen extends Component {
           // })        
         
 
-          console.log('------------- renderPost: ' , post_num, post.TS, post.ID, post.URL, post.METS_COMPUTED, post.LEN, );
-          console.log('this.oldestVidTs: ', this.oldestVidTs);
+          console.log('------------- renderPost: ' , post_num, post.ID, post.URL ); // , post.METS_COMPUTED, post.LEN, 
+      
 
         // } )(); 
 
@@ -661,7 +663,7 @@ export default class DashboardScreen extends Component {
 
                       <View style={{flexDirection: "row", marginVertical: 2, marginLeft: 3,}}>
                           <Ionicons name='ios-flame' size={20} color="#73788B"/>
-                          <Text style={styles.points}> {this.CAL} calories</Text>
+                          <Text style={styles.points}> {this.CAL} Calories</Text>
                       </View>
 
                       <View style={{flexDirection: "row", marginVertical: 2, marginLeft: 1,}}>
@@ -701,7 +703,7 @@ export default class DashboardScreen extends Component {
                   
                   {/* bottom right pane */}
                   <View style={{ }}>
-                    <TouchableOpacity onPress={ () => this.props.navigation.push('Live', {post, const_exer, mets_per_part, scaler_scale, scaler_mean, reg_sgd} ) } >
+                    <TouchableOpacity onPress={ () => this.props.navigation.push('Live', {post, const_exer, scaler_scale, scaler_mean, reg_sgd} ) } >
                         <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
                     </TouchableOpacity>
                   </View>
@@ -758,7 +760,7 @@ export default class DashboardScreen extends Component {
 
                         <View style={{flexDirection: "row", marginVertical: 2, marginLeft: 3,}}>
                             <Ionicons name='ios-flame' size={20} color="#73788B"/>
-                            <Text style={styles.points}> {this.CAL} calories</Text>
+                            <Text style={styles.points}> {this.CAL} Calories</Text>
                         </View>
 
                         <View style={{flexDirection: "row", marginVertical: 2, marginLeft: 1,}}>
@@ -799,7 +801,7 @@ export default class DashboardScreen extends Component {
   
                     {/* bottom right pane */}
                     <View style={{ }}>
-                      <TouchableOpacity onPress={ () => this.props.navigation.push('Live', {post, const_exer, mets_per_part, scaler_scale, scaler_mean, reg_sgd} ) } >
+                      <TouchableOpacity onPress={ () => this.props.navigation.push('Live', { post, const_exer, scaler_scale, scaler_mean, reg_sgd} ) } >
                           <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
                       </TouchableOpacity>
                     </View>
@@ -826,7 +828,7 @@ export default class DashboardScreen extends Component {
 
   render() {
     console.log('---------------- render');
-    const { isLoading, wpart, const_exer, mets_per_part, scaler_scale, scaler_mean, reg_sgd, } = this.state;
+    const { isLoading, wpart, const_exer, scaler_scale, scaler_mean, reg_sgd, } = this.state;
 
     return (
       <View style={styles.container}>
@@ -892,7 +894,7 @@ export default class DashboardScreen extends Component {
             <Text>Loading....</Text>
           </View>
         :
-          <SafeAreaView> 
+          <SafeAreaView style={{}}> 
 
             <FlatList
               style={styles.feed}
@@ -923,8 +925,8 @@ export default class DashboardScreen extends Component {
           {/* <Ionicons name="ios-add-circle-outline" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Post') }/> */}
           <MaterialIcons name='history' size={28} color="white" style={styles.HistoryIcon} onPress={ () => this.props.navigation.push('History') }/>
           {/* <Ionicons name="ios-medal" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Leaderboard') }/>  */}
-          {/* <Ionicons name='ios-flame' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Live', { const_exer, mets_per_part, scaler_scale, scaler_mean, reg_sgd } ) }/> */}
-          <Ionicons name='logo-youtube' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('LiveYT', { const_exer, mets_per_part, scaler_scale, scaler_mean, reg_sgd } ) }/>
+          {/* <Ionicons name='ios-flame' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Live', { const_exer, scaler_scale, scaler_mean, reg_sgd } ) }/> */}
+          <Ionicons name='logo-youtube' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('LiveYT', { const_exer, scaler_scale, scaler_mean, reg_sgd } ) }/>
         {/* </LinearGradient> */}
         </View>
 
@@ -964,6 +966,8 @@ const styles = StyleSheet.create({
   },  
   feed: {
     marginHorizontal: 0, // 8, 16
+    top: 150,
+    bottom: 50,
   },
   feedItem: {
       width: Dimensions.get('window').width * 0.95,
