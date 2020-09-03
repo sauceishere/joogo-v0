@@ -894,7 +894,7 @@ export default class DashboardScreen extends Component {
             <Text>Loading....</Text>
           </View>
         :
-          <SafeAreaView style={{}}> 
+          <SafeAreaView style={{ top: 0, bottom: 0}}> 
 
             <FlatList
               style={styles.feed}
@@ -966,8 +966,8 @@ const styles = StyleSheet.create({
   },  
   feed: {
     marginHorizontal: 0, // 8, 16
-    top: 150,
-    bottom: 50,
+    // top: 70,
+    // bottom: 50,
   },
   feedItem: {
       width: Dimensions.get('window').width * 0.95,

@@ -223,14 +223,14 @@ class ExerciseHistory extends Component {
       
         // (() => {
             post.TTLPT = parseFloat(post.TTLPT).toFixed(2); // point for this video that can be earned. Fix decimal place
-            post.SC_PCT = post.SC + '%'; // Add % for percentageBar 20200613
+            // post.SC_PCT = post.SC + '%'; // Add % for percentageBar 20200613
 
-            post.VIDLEN = parseInt(post.VIDLEN); // video length in XXmXXs
-            if (post.VIDLEN >= 60) {
-                post.VIDLEN_ = str_pad_left( post.VIDLEN / 60,'0',2) + 'm' + str_pad_left( post.VIDLEN - post.VIDLEN / 60 * 60,'0',2) + 's'
-            } else { 
-                post.VIDLEN_ = '00m' + str_pad_left( post.VIDLEN, '0', 2) + 's' 
-            }; // convert sec to min:sec
+            // post.VIDLEN = parseInt(post.VIDLEN); // video length in XXmXXs
+            // if (post.VIDLEN >= 60) {
+            //     post.VIDLEN_ = str_pad_left( post.VIDLEN / 60,'0',2) + 'm' + str_pad_left( post.VIDLEN - post.VIDLEN / 60 * 60,'0',2) + 's'
+            // } else { 
+            //     post.VIDLEN_ = '00m' + str_pad_left( post.VIDLEN, '0', 2) + 's' 
+            // }; // convert sec to min:sec
 
             post.PLAYSUM = parseInt(post.PLAYSUM); // video length in XXmXXs
             if (post.PLAYSUM >= 60) {
@@ -239,26 +239,26 @@ class ExerciseHistory extends Component {
                 post.PLAYSUM_ = '00m' + str_pad_left( post.PLAYSUM, '0', 2) + 's' 
             }; // convert sec to min:sec
 
-            if (post.PLAYSUM > post.VIDLEN) {
-                post.PLAYSUM_ = post.VIDLEN_; // Copy post.VIDLEN_ if playing time id longer than video length. 20200614
-            }
+            // if (post.PLAYSUM > post.VIDLEN) {
+            //     post.PLAYSUM_ = post.VIDLEN_; // Copy post.VIDLEN_ if playing time id longer than video length. 20200614
+            // }
             
-            post.PLAYPCT = parseInt(post.PLAYPCT); // remove decimal place
-            if (post.PLAYPCT * 100 >= 100) {
-                post.PLAYPCT_PCT = '100%'; // force to 100 if over 100%. 20200614 // Add % for percentageBar 20200613
-            } else {
-                post.PLAYPCT_PCT = (post.PLAYPCT * 100) + '%'; // Add % for percentageBar 20200613
-            }
-            // post.PLAYPCT_PCT = post.PLAYPCT + '%'; // Add % for percentageBar 20200613
+            // post.PLAYPCT = parseInt(post.PLAYPCT); // remove decimal place
+            // if (post.PLAYPCT * 100 >= 100) {
+            //     post.PLAYPCT_PCT = '100%'; // force to 100 if over 100%. 20200614 // Add % for percentageBar 20200613
+            // } else {
+            //     post.PLAYPCT_PCT = (post.PLAYPCT * 100) + '%'; // Add % for percentageBar 20200613
+            // }
+            
 
             if ( this.oldestLogTs > post.TS) { // Assign timestamp of the oldest video fetched by _loadDashboardFlatlist to control next video to be fetched by _loadDashboardFlatlist 20200528
                 // this.setState({oldestLogTs : post.TS});
                 this.oldestLogTs = post.TS;
             } 
     
-            post.TNURL = 'https://firebasestorage.googleapis.com/v0/b/joogo-v0.appspot.com/o/tn%2F' + post.VIDID + '?alt=media' // URL for Thumbsnail photo 20200528         
+            // post.TNURL = 'https://firebasestorage.googleapis.com/v0/b/joogo-v0.appspot.com/o/tn%2F' + post.VIDID + '?alt=media' // URL for Thumbsnail photo 20200528         
     
-            console.log('-- post: ' , post.VIDNAME, post.TS, post.VIDID );
+            console.log('-- post: ' , post.TS );
     
         // } )(); 
     
@@ -267,14 +267,14 @@ class ExerciseHistory extends Component {
             <View style={styles.feedItem}>
                 
                 {/* left pane */}
-                <View style={{ flex: 1, flexDirection: "column" }}>
+                <View style={{ flex: 1, flexDirection: "column" , width: Dimensions.get('window').width * 0.6,}}>
                     <TouchableOpacity>
                         <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
                     </TouchableOpacity>
                 </View>
     
                 {/* right pane */}   
-                <View style={{ flex: 1, flexDirection: "column", marginRight: Dimensions.get('window').width * 0.08, }}> 
+                <View style={{ flex: 1, flexDirection: "column", marginRight: Dimensions.get('window').width * 0.03, width: Dimensions.get('window').width * 0.4, }}> 
     
                     <View style={styles.textContents}>
                         <Text style={styles.timestamp}>{moment.unix(post.TS).fromNow()}</Text> 
@@ -283,24 +283,24 @@ class ExerciseHistory extends Component {
                     </View>    
     
                     <View style={styles.textMetadata}>
-                        <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
-                            <Ionicons name='ios-body' size={20} color="#73788B"/>
-                            <Text style={styles.points}>  {post.PT} / {post.TTLPT} movage</Text>
+                        <View style={{flexDirection: "row", marginTop: 2, marginLeft: 2,}}>
+                            <Ionicons name='ios-flame' size={24} color="#73788B"/>
+                            <Text style={styles.points}>  {post.SC} Calories</Text>
                         </View>
-                        <View style={{flexDirection: "column",}}>
+                        {/* <View style={{flexDirection: "column",}}>
                             <View style={[styles.percentageBar, {width: post.SC_PCT} ]}></View>
                             <View style={[styles.percentageBarBase, {width: Dimensions.get('window').width * 0.48} ]}></View>  
-                        </View>
+                        </View> */}
 
-                        <View style={{flexDirection: "row", marginTop: 3, marginLeft: 2,}}>
+                        <View style={{flexDirection: "row", marginTop: 1, marginLeft: 2,}}>
                             <Ionicons name='ios-time' size={20} color="#73788B"/>
                             {/* <Ionicons name='logo-youtube' size={17} color="#73788B"/> */}
-                            <Text style={styles.views}> {post.PLAYSUM_} / {post.VIDLEN_}</Text>
+                            <Text style={styles.views}> {post.PLAYSUM_} </Text>
                         </View>
-                        <View style={{flexDirection: "column",}}>
+                        {/* <View style={{flexDirection: "column",}}>
                             <View style={[styles.percentageBar, {width: post.PLAYPCT_PCT} ]}></View>
                             <View style={[styles.percentageBarBase, {width: Dimensions.get('window').width * 0.48} ]}></View>
-                        </View>
+                        </View> */}
                     </View>  
                     
                 </View>
@@ -332,26 +332,26 @@ class ExerciseHistory extends Component {
                     <View style={{width: '100%', flexDirection: 'column', flexWrap: 'nowrap' }}>
 
                         <View style={{width: '100%', flex: 1, marginTop: Dimensions.get('window').height * 0.05, }}>
-                            <Text style={styles.pageTitle}>Work Out History</Text>    
+                            <Text style={styles.pageTitle}>Burned Calorie History</Text>    
                         </View>
                     
                         <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', alignItems: 'center', marginTop: Dimensions.get('window').height * 0.05, paddingHorizontal: Dimensions.get('window').width * 0.02}} >
                             <View style={styles.tileItem}>
-                                <Ionicons name='ios-body' size={22} style={styles.tileItemIcon}/>
+                                <Ionicons name='ios-flame' size={22} style={styles.tileItemIcon}/>
                                 <Text style={styles.tileItemField}>{viewPtSum}</Text>    
-                                <Text style={styles.tileItemTitle}> Movage Earned</Text>
+                                <Text style={styles.tileItemTitle}> Total Calories Burned</Text>
                             </View>          
 
                             <View style={styles.tileItem}>
                                 <Ionicons name='ios-time' size={22} style={styles.tileItemIcon}/>
                                 <Text style={styles.tileItemField}>{playSum}</Text>  
-                                <Text style={styles.tileItemTitle}>Hours Played</Text> 
+                                <Text style={styles.tileItemTitle}>Total Hours Played</Text> 
                             </View>
                             
                             <View style={styles.tileItem}>
                                 <Ionicons name='logo-youtube' size={22} style={styles.tileItemIcon}/>
                                 <Text style={styles.tileItemField}>{viewTimes}</Text>  
-                                <Text style={styles.tileItemTitle}> Times Played</Text>
+                                <Text style={styles.tileItemTitle}> Total Times Played</Text>
                             </View>      
                         </View> 
 
@@ -905,7 +905,8 @@ const styles = StyleSheet.create({
 
     textContents: {
         flexDirection: "column", 
-        width: Dimensions.get('window').width * 0.48, //160,
+        // width: Dimensions.get('window').width * 0.45, //0.48 //160,
+        backgroundColor: 'pink',
     },
     timestamp: {
         fontSize: 15,
@@ -916,7 +917,7 @@ const styles = StyleSheet.create({
         marginRight: 5,
     },    
     title: {
-        marginTop: 8,
+        marginTop: 2,
         fontSize: 15,
         fontWeight: 'bold',
         color: '#ffa500', //'#ffbf00' // "#838899"
@@ -935,8 +936,11 @@ const styles = StyleSheet.create({
     },
         
     textMetadata: {
+        flexDirection: "column", 
         position: 'absolute',
         bottom: 4,
+        // width: Dimensions.get('window').width * 0.45, //0.48 //160,
+        backgroundColor: 'blue',        
     },
     length:{
         // fontWeight: 'bold',
@@ -971,8 +975,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffa500',
     },      
     postImage: {
-        width: Dimensions.get('window').width * 0.43 * 0.8, // 150,
-        height: Dimensions.get('window').width * 0.43 * (225/150) * 0.8, // 225,
+        width: Dimensions.get('window').width * 0.3 * (225/150), //150,
+        height: Dimensions.get('window').width * 0.3, //225,
         // width: 200,
         borderRadius: 5,
         marginVertical: 5,

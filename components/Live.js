@@ -80,12 +80,12 @@ export default class Live extends Component {
       progressBarWidth: 0, // initial at zero
       // flagLoopUpdateScore: false, // to control if the first loop to updateScore. 20200812
       // mdCumPrev: null, // keep Previous mdCum to compare with the latest mdCum. 20200813
-      octopusLoc: { // Location of Octopus Image
-        xRW: 2, yRW: 2, // 10=rightWrist // Red
-        xLW: 9, yLW: 2, // 9=leftwrist // Blue
-        xRA: 5, yRA: 5, // 16=rightAnkle // Red
-        xLA: 6, yLA: 5, // 15=leftAnkle // Blue        
-      },
+      // octopusLoc: { // Location of Octopus Image
+      //   xRW: 2, yRW: 2, // 10=rightWrist // Red
+      //   xLW: 9, yLW: 2, // 9=leftwrist // Blue
+      //   xRA: 5, yRA: 5, // 16=rightAnkle // Red
+      //   xLA: 6, yLA: 5, // 15=leftAnkle // Blue        
+      // },
     }
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);  
     // this._handlePlayAndPause = this._handlePlayAndPause.bind(this);
@@ -656,7 +656,7 @@ export default class Live extends Component {
               body: JSON.stringify({
                 id_token: idTokenCopied,
                 ts: JSON.parse(localFileContents)["ts"],
-                // vidId: JSON.parse(localFileContents)["vidId"],
+                vidId: JSON.parse(localFileContents)["vidId"],
                 viewId: JSON.parse(localFileContents)["viewId"],  
                 uid: firebase.auth().currentUser.uid ,         
                 sendId: uuidv4(),
@@ -741,13 +741,13 @@ export default class Live extends Component {
 
     const ts = Date.now() / 1000; // unix //date.getTime().toString();
     // console.log('ts: ', ts);
-    // const vidId = this.props.navigation.getParam('post')['VIDID'];
+    const vidId = this.props.navigation.getParam('post')['ID'];
     const viewId = uuidv4();
     const vidViewLogFileName = ts + '_' + viewId;
 
     var jsonContents = {};
     jsonContents["ts"] = ts;
-    // jsonContents["vidId"] = vidId;
+    jsonContents["vidId"] = vidId;
     jsonContents["viewId"] = viewId;
     jsonContents["uid"] = firebase.auth().currentUser.uid;
     jsonContents["startAt"] = this.vidState.vidStartAt;
@@ -1162,17 +1162,17 @@ export default class Live extends Component {
 
 
           // // Assign this.state.octopusLoc. 20200823
-          var octopusLocEach = {}; //initialize
-          if ( typeof slow1[secFromStart.toString()] !== "undefined") { 
-            console.log( 'slow1[secFromStart]: ', slow1[secFromStart.toString()] );
-            octopusLocEach = slow1[secFromStart.toString()]; // Assign Location
-          } else {
-            console.log( 'slow1[secFromStart]: error' ); 
-            octopusLocEach = slow1["ERR"]; // assign Location for Error
-          };
+          // var octopusLocEach = {}; //initialize
+          // if ( typeof slow1[secFromStart.toString()] !== "undefined") { 
+          //   console.log( 'slow1[secFromStart]: ', slow1[secFromStart.toString()] );
+          //   octopusLocEach = slow1[secFromStart.toString()]; // Assign Location
+          // } else {
+          //   console.log( 'slow1[secFromStart]: error' ); 
+          //   octopusLocEach = slow1["ERR"]; // assign Location for Error
+          // };
 
 
-          this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(3), scoreNow: scoreNow.toFixed(1), octopusLoc: octopusLocEach });// this is what shows as score on top right.
+          this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(3), scoreNow: scoreNow.toFixed(1) });// this is what shows as score on top right.
           this.mdCumAll.push( JSON.stringify({ 'sec': secFromStart, 'cntLoopUpdateScore': this.cntLoopUpdateScore, 'ts': Date.now()/1000, 'score': scoreNow.toFixed(3), 'playSum': this.vidState.vidPlayedSum.toFixed(2), 'pos': this.pos }) ); // append froms Start to End 
           
 
@@ -1988,7 +1988,7 @@ export default class Live extends Component {
 
 
               {/* Display octopusImage */}
-              { shouldPlay ?
+              {/* { shouldPlay ?
                 <View style={styles.octopusContainer}>
                   <Image style={[{ left: (this.camState.windowHeight * octopusLoc.xRW) - (this.camState.windowWidth * octopusImageSizePct/2 ), top: (this.camState.windowWidth * octopusLoc.yRW) - (this.camState.windowWidth * octopusImageSizePct/2 ) }, styles.octopusImage]} source={require('../assets/rWrist.png')} />
                   <Image style={[{ left: (this.camState.windowHeight * octopusLoc.xLW) - (this.camState.windowWidth * octopusImageSizePct/2 ), top: (this.camState.windowWidth * octopusLoc.yLW) - (this.camState.windowWidth * octopusImageSizePct/2 ) }, styles.octopusImage]} source={require('../assets/lWrist.png')} />
@@ -1997,7 +1997,7 @@ export default class Live extends Component {
                 </View>
               :
                 null
-              }  
+              }   */}
 
 
             </View> // close styles.layerOneContainer,
