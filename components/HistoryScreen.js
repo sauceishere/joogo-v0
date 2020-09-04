@@ -267,25 +267,38 @@ class ExerciseHistory extends Component {
             <View style={styles.feedItem}>
                 
                 {/* left pane */}
-                <View style={{ flex: 1, flexDirection: "column" , width: Dimensions.get('window').width * 0.6,}}>
+                <View style={{  }}>
                     <TouchableOpacity>
                         <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
                     </TouchableOpacity>
                 </View>
     
                 {/* right pane */}   
-                <View style={{ flex: 1, flexDirection: "column", marginRight: Dimensions.get('window').width * 0.03, width: Dimensions.get('window').width * 0.4, }}> 
+                <View style={{ flex: 2, flexDirection: "column", marginHorizontal: 3, }}> 
     
                     <View style={styles.textContents}>
                         <Text style={styles.timestamp}>{moment.unix(post.TS).fromNow()}</Text> 
-                        <Text style={styles.title}> {post.VIDNAME} </Text>
-                        <Text style={styles.name}>{post.NNAME}</Text>
+                        <Text style={styles.title}>' 
+                            { ((post.VIDNAME).length > 40) ? 
+                                (((post.VIDNAME).substring(0, 40-3)) + '...') 
+                            : 
+                                post.VIDNAME 
+                            }
+                        '</Text>
+
+                        <Text style={styles.name}>
+                            { ((post.NNAME).length > 25) ? 
+                                    (((post.NNAME).substring(0, 25-3)) + '...') 
+                            : 
+                                post.NNAME 
+                            }
+                        </Text>
                     </View>    
     
                     <View style={styles.textMetadata}>
-                        <View style={{flexDirection: "row", marginTop: 2, marginLeft: 2,}}>
-                            <Ionicons name='ios-flame' size={24} color="#73788B"/>
-                            <Text style={styles.points}>  {post.SC} Calories</Text>
+                        <View style={{flexDirection: "row", marginTop: 2, marginLeft: 3,}}>
+                            <Ionicons name='ios-flame' size={22} color="#73788B"/>
+                            <Text style={styles.points}> {post.SC} Calories</Text>
                         </View>
                         {/* <View style={{flexDirection: "column",}}>
                             <View style={[styles.percentageBar, {width: post.SC_PCT} ]}></View>
@@ -339,7 +352,7 @@ class ExerciseHistory extends Component {
                             <View style={styles.tileItem}>
                                 <Ionicons name='ios-flame' size={22} style={styles.tileItemIcon}/>
                                 <Text style={styles.tileItemField}>{viewPtSum}</Text>    
-                                <Text style={styles.tileItemTitle}> Total Calories Burned</Text>
+                                <Text style={styles.tileItemTitle}>Total Calories Burned</Text>
                             </View>          
 
                             <View style={styles.tileItem}>
@@ -351,11 +364,11 @@ class ExerciseHistory extends Component {
                             <View style={styles.tileItem}>
                                 <Ionicons name='logo-youtube' size={22} style={styles.tileItemIcon}/>
                                 <Text style={styles.tileItemField}>{viewTimes}</Text>  
-                                <Text style={styles.tileItemTitle}> Total Times Played</Text>
+                                <Text style={styles.tileItemTitle}>Total Times Played</Text>
                             </View>      
                         </View> 
 
-                        <View style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.03,}}> 
+                        <View style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.03, flex:1 }}> 
                             <FlatList
                                 style={styles.feed}
                                 data={this.state.postsExer}
@@ -366,7 +379,7 @@ class ExerciseHistory extends Component {
                                 // onRefresh={this._handleRefresh}
                                 // refreshing={this.state.refreshing}
                                 onEndReached={this._handleLoadMore}
-                                onEndReachedThreshold={1}
+                                onEndReachedThreshold={0}
                             >
                             </FlatList>
                         </View>
@@ -901,15 +914,16 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3, // iOS
         shadowRadius: 2, // iOS   
         elevation: 2, // Android
+        // justifyContent: 'space-between',
     },    
 
     textContents: {
         flexDirection: "column", 
-        // width: Dimensions.get('window').width * 0.45, //0.48 //160,
-        backgroundColor: 'pink',
+        // width: Dimensions.get('window').width * 0.4, //0.48 //160,
+        // backgroundColor: 'pink',
     },
     timestamp: {
-        fontSize: 15,
+        fontSize: 13,
         color: '##454D65', //"#C4C6CE",
         marginTop: 0,
         fontWeight: "500",
@@ -917,11 +931,11 @@ const styles = StyleSheet.create({
         marginRight: 5,
     },    
     title: {
-        marginTop: 2,
+        marginTop: 1,
         fontSize: 15,
         fontWeight: 'bold',
         color: '#ffa500', //'#ffbf00' // "#838899"
-        marginBottom: 8,
+        marginBottom: 1,
     },
     // avatar: {
     //     width: 36,
@@ -933,14 +947,15 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: "500",
         color: '#C4C6CE', //'#454D65' 
+        marginBottom: 1,
     },
         
     textMetadata: {
         flexDirection: "column", 
-        position: 'absolute',
-        bottom: 4,
-        // width: Dimensions.get('window').width * 0.45, //0.48 //160,
-        backgroundColor: 'blue',        
+        // position: 'absolute',
+        // bottom: 4,
+        // width: Dimensions.get('window').widtxh * 0.4, //0.48 //160,
+        // backgroundColor: 'blue',        
     },
     length:{
         // fontWeight: 'bold',
@@ -954,7 +969,7 @@ const styles = StyleSheet.create({
     //     marginLeft: 6,
     // },
     views:{
-        marginLeft: 4,
+        marginLeft: 3,
     },
     // likes: {
     // },
@@ -980,7 +995,9 @@ const styles = StyleSheet.create({
         // width: 200,
         borderRadius: 5,
         marginVertical: 5,
-        right: 0,
+        left: 0,
+        marginRight: 3,
+        // bottom: 0,
     },    
     loadingIndicator: {
         // position: 'absolute',

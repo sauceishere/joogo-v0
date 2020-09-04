@@ -21,7 +21,7 @@ import { Constants, Accelerometer } from 'expo-sensors'; // https://docs.expo.io
 import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
 import Svg, { Circle, Rect,} from 'react-native-svg';
 
-import {slow1} from '../assets/octopus';
+// import {slow1} from '../assets/octopus';
 // import {LB_PER_KG} from '..DashboardScreen';
 
 
@@ -463,8 +463,8 @@ export default class Live extends Component {
     console.log('------------------- componentDidMount LiveYT started');
     console.log('------ this.mets_per_part: ', this.mets_per_part);
     console.log('------ this.camState: ', this.camState);
-    console.log( 'slow1[secFromStart]: ', typeof slow1 );
-    console.log( 'slow1[secFromStart]: ', slow1["1"] );
+    // console.log( 'slow1[secFromStart]: ', typeof slow1 );
+    // console.log( 'slow1[secFromStart]: ', slow1["1"] );
     console.log('this.scaler_scale: ', this.scaler_scale );
     console.log('this.scaler_mean: ', this.scaler_mean );
     console.log('this.reg_sgd: ', this.reg_sgd );

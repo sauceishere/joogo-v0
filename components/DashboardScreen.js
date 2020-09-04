@@ -579,7 +579,8 @@ export default class DashboardScreen extends Component {
           }
 
           //// This is to display Free mode
-          if (post.TITLE == "Free Mode"  && post.NNAME == "JooGo Fit") {
+          // if (post.TITLE == "Free Mode"  && post.NNAME == "JooGo Fit") {
+          if (post.URL == "FREE") {
             this.CAL = 'Unlimited';
             this.LEN = 'Unlimited Time';
             this.INTENSITY = 'Your Own Intensity';
@@ -635,13 +636,19 @@ export default class DashboardScreen extends Component {
               <View style={styles.feedItem}>
                       
                 {/* upper row */}
-                <View style={{ flex: 2, flexDirection: "row", left: 10}}>
+                <View style={{ flex: 2, flexDirection: "row", left: 5}}>
                     {/* <View style={{ }}> 
                         <Image source={{uri: post.avatarFullUrl}} style={styles.avatar} resizeMode="cover"/>
                     </View>  */}
 
                     <View style={{flexDirection: "column"}}>
-                        <Text style={styles.name}>{post.NNAME}</Text>
+                        <Text style={styles.name}>
+                        { ((post.NNAME).length > 40) ? 
+                          (((post.NNAME).substring(0, 40-3)) + '...') 
+                        : 
+                          post.NNAME 
+                        }
+                      </Text>
                         {/* <Text style={styles.timestamp}>{moment.unix(post.TS).fromNow()}</Text> */}
                     </View>
                 </View>
@@ -651,27 +658,27 @@ export default class DashboardScreen extends Component {
 
                   {/* bottom left pane */}
                   <View style={styles.textContents}>
-                  <Text style={styles.title}> '
-                      { ((post.TITLE).length > 70) ? 
-                        (((post.TITLE).substring(0, 70-3)) + '...') 
+                    <Text style={styles.title}> '
+                      { ((post.TITLE).length > 30) ? 
+                        (((post.TITLE).substring(0, 30-3)) + '...') 
                       : 
                         post.TITLE 
                       }
-                      ' </Text>
+                    ' </Text>
 
                     <View style={styles.textMetadata}>
 
-                      <View style={{flexDirection: "row", marginVertical: 2, marginLeft: 3,}}>
+                      <View style={{flexDirection: "row", marginVertical: 1, marginLeft: 3,}}>
                           <Ionicons name='ios-flame' size={20} color="#73788B"/>
                           <Text style={styles.points}> {this.CAL} Calories</Text>
                       </View>
 
-                      <View style={{flexDirection: "row", marginVertical: 2, marginLeft: 1,}}>
+                      <View style={{flexDirection: "row", marginVertical: 1, marginLeft: 1,}}>
                           <Ionicons name='ios-time' size={20} color="#73788B"/>
                           <Text style={styles.length}> {this.LEN} </Text>
                       </View>
 
-                      <View style={{flexDirection: "row", marginVertical: 2, marginLeft: 2,}}>
+                      <View style={{flexDirection: "row", marginVertical: 1, marginLeft: 2,}}>
                           <Ionicons name='ios-body' size={20} color="#73788B"/>
                           <Text style={styles.length}> {this.INTENSITY} </Text>
                       </View>
@@ -738,7 +745,13 @@ export default class DashboardScreen extends Component {
                     </View>  */}
   
                     <View style={{flexDirection: "column"}}>
-                        <Text style={styles.name}>{post.NNAME}</Text>
+                      <Text style={styles.name}>
+                        { ((post.NNAME).length > 40) ? 
+                          (((post.NNAME).substring(0, 40-3)) + '...') 
+                        : 
+                          post.NNAME 
+                        }
+                      </Text>
                         {/* <Text style={styles.timestamp}>{moment.unix(post.TS).fromNow()}</Text>  */}
                     </View>
                 </View>
@@ -749,26 +762,26 @@ export default class DashboardScreen extends Component {
                     {/* bottom left pane */}
                     <View style={styles.textContents}>
                       <Text style={styles.title}> '
-                      { ((post.TITLE).length > 70) ? 
-                        (((post.TITLE).substring(0, 70-3)) + '...') 
-                      : 
-                        post.TITLE 
-                      }
+                        { ((post.TITLE).length > 30) ? 
+                          (((post.TITLE).substring(0, 30-3)) + '...') 
+                        : 
+                          post.TITLE 
+                        }
                       ' </Text>
 
                       <View style={styles.textMetadata}>
 
-                        <View style={{flexDirection: "row", marginVertical: 2, marginLeft: 3,}}>
+                        <View style={{flexDirection: "row", marginVertical: 1, marginLeft: 3,}}>
                             <Ionicons name='ios-flame' size={20} color="#73788B"/>
                             <Text style={styles.points}> {this.CAL} Calories</Text>
                         </View>
 
-                        <View style={{flexDirection: "row", marginVertical: 2, marginLeft: 1,}}>
+                        <View style={{flexDirection: "row", marginVertical: 1, marginLeft: 1,}}>
                             <Ionicons name='ios-time' size={20} color="#73788B"/>
                             <Text style={styles.length}> {this.LEN} </Text>
                         </View>
 
-                        <View style={{flexDirection: "row", marginVertical: 2, marginLeft: 2,}}>
+                        <View style={{flexDirection: "row", marginVertical: 1, marginLeft: 2,}}>
                             <Ionicons name='ios-body' size={20} color="#73788B"/>
                             <Text style={styles.length}> {this.INTENSITY} </Text>
                         </View>
@@ -1002,7 +1015,10 @@ const styles = StyleSheet.create({
   },
   textContents: {
       flexDirection: "column", 
+      flex: 2,
       width: Dimensions.get('window').width * 0.4,//0.52 //160,
+      // backgroundColor: 'green',
+      marginRight: 3,
   },
   title: {
       marginTop: 6,
@@ -1034,8 +1050,8 @@ const styles = StyleSheet.create({
 
   },
   postImage: {
-    width: Dimensions.get('window').width * 0.35 * (225/150), //150,
-    height: Dimensions.get('window').width * 0.35, //225,
+    width: Dimensions.get('window').width * 0.33 * (225/150), //150,
+    height: Dimensions.get('window').width * 0.33, //225,
     // width: 200,
     borderRadius: 5,
     marginVertical: 5,
