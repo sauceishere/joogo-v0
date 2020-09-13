@@ -1,6 +1,7 @@
 // https://www.youtube.com/watch?v=C3oDJdlrEKE&list=PL4cUxeGkcC9ixPU-QkScoRBVxtPPzVjrQ&index=25
 
-import React, { Component, useState } from 'react';
+// import React, { Component, useState } from 'react';
+import * as React from 'react';
 import { StyleSheet, Text, View, StatusBar } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from 'expo-linear-gradient';

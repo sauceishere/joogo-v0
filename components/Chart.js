@@ -27,9 +27,9 @@ export default class Chart extends Component {
         return (
             <View>
                 <Text>deed</Text>
-                <Svg height="20" width="20">
+                {/* <Svg height="20" width="20">
                     <Circle cx="10" cy="10" r="10" fill="red" />
-                </Svg>
+                </Svg> */}
             </View>
 
                 // <ChartItself/>
