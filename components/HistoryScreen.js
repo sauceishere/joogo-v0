@@ -8,9 +8,11 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { convertCompilerOptionsFromJson } from 'typescript';
 
 
-const str_pad_left = function (string,pad,length) { // convert from sec to min:sec // https://stackoverflow.com/questions/3733227/javascript-seconds-to-minutes-and-seconds
-    return (new Array(length+1).join(pad)+string).slice(-length);
-};
+
+
+// const str_pad_left = function (string,pad,length) { // convert from sec to min:sec // https://stackoverflow.com/questions/3733227/javascript-seconds-to-minutes-and-seconds
+//     return (new Array(length+1).join(pad)+string).slice(-length);
+// };
 
 export default class HistoryScreen extends Component {
     render() {
@@ -232,12 +234,28 @@ class ExerciseHistory extends Component {
             //     post.VIDLEN_ = '00m' + str_pad_left( post.VIDLEN, '0', 2) + 's' 
             // }; // convert sec to min:sec
 
-            post.PLAYSUM = parseInt(post.PLAYSUM); // video length in XXmXXs
-            if (post.PLAYSUM >= 60) {
-                post.PLAYSUM_ = str_pad_left( post.PLAYSUM / 60,'0',2) + 'm' + str_pad_left( post.PLAYSUM - post.PLAYSUM / 60 * 60,'0',2) + 's'
-            } else { 
-                post.PLAYSUM_ = '00m' + str_pad_left( post.PLAYSUM, '0', 2) + 's' 
-            }; // convert sec to min:sec
+            // post.PLAYSUM = parseInt(post.PLAYSUM); // video length in XXmXXs
+            // if (post.PLAYSUM >= 60) {
+            //     post.PLAYSUM_ = str_pad_left( post.PLAYSUM / 60,'0',2) + 'm' + str_pad_left( post.PLAYSUM - post.PLAYSUM / 60 * 60,'0',2) + 's'
+            // } else { 
+            //     post.PLAYSUM_ = '00m' + str_pad_left( post.PLAYSUM, '0', 2) + 's' 
+            // }; // convert sec to min:sec
+
+            if ( parseInt(post.PLAYSUM / 60) <= 10 ) { // less than 10 minutes
+                if ( (post.PLAYSUM - (parseInt(post.PLAYSUM / 60) * 60)) <= 10 ) { // less than 10 seconds
+                    post.PLAYSUM_ = '0' + parseInt(post.PLAYSUM / 60) + 'm' + '0' + parseInt((post.PLAYSUM - (parseInt(post.PLAYSUM / 60) * 60))) + 's';
+                } else {
+                    post.PLAYSUM_ = '0' + parseInt(post.PLAYSUM / 60) + 'm' + parseInt((post.PLAYSUM - (parseInt(post.PLAYSUM / 60) * 60))) + 's';
+                }
+            } else {
+                if ( (post.PLAYSUM - (parseInt(post.PLAYSUM / 60) * 60)) <= 10 ) { // less than 10 seconds
+                post.PLAYSUM_ = parseInt(post.PLAYSUM / 60) + 'm' + '0' + parseInt((post.PLAYSUM - (parseInt(post.PLAYSUM / 60) * 60))) + 's';
+                } else {
+                post.PLAYSUM_ = parseInt(post.PLAYSUM / 60) + 'm' + parseInt((post.PLAYSUM - (parseInt(post.PLAYSUM / 60) * 60))) + 's';
+                }
+            };
+
+
 
             // if (post.PLAYSUM > post.VIDLEN) {
             //     post.PLAYSUM_ = post.VIDLEN_; // Copy post.VIDLEN_ if playing time id longer than video length. 20200614
@@ -256,6 +274,8 @@ class ExerciseHistory extends Component {
                 this.oldestLogTs = post.TS;
             } 
     
+            post.SC = parseFloat(post.SC).toFixed(); // no decimal for Calories
+
             // post.TNURL = 'https://firebasestorage.googleapis.com/v0/b/joogo-v0.appspot.com/o/tn%2F' + post.VIDID + '?alt=media' // URL for Thumbsnail photo 20200528         
     
             console.log('-- post: ' , post.TS );
@@ -332,7 +352,7 @@ class ExerciseHistory extends Component {
             <View style={styles.container}>
 
                 {/* <TouchableOpacity onPress={ () => this.props.navigation.navigate('Stack2', { greeting: 'Hallo Post',}) } style={styles.PageSwitchButton} > 
-                    <Text style={{color: 'gray', fontSize: 16, fontWeight: 'bold',}}> Go to 'Post' History </Text>
+                    <Text style={{color: 'gray', fontSize: 16, fontWeight: 'bold',}}> Go to 'Chart' </Text>
                 </TouchableOpacity> */}
 
 
@@ -368,7 +388,8 @@ class ExerciseHistory extends Component {
                             </View>      
                         </View> 
 
-                        <View style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.03, flex:1 }}> 
+                        {/* <SafeAreaView style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.01, flex:1 }}>  */}
+                        <SafeAreaView style={{ marginTop: Dimensions.get('window').height * 0.01, height: Dimensions.get('window').height - 250  }}>
                             <FlatList
                                 style={styles.feed}
                                 data={this.state.postsExer}
@@ -382,7 +403,7 @@ class ExerciseHistory extends Component {
                                 onEndReachedThreshold={0}
                             >
                             </FlatList>
-                        </View>
+                        </SafeAreaView>
 
                     </View>
                 } 
@@ -404,6 +425,7 @@ class ExerciseHistory extends Component {
 
 
 // class PostHistory extends Component {
+
 
 //     constructor(props) {
 //         super(props);
@@ -805,7 +827,7 @@ class ExerciseHistory extends Component {
 const Stack = createSwitchNavigator(
     {
       Stack1: { screen: ExerciseHistory },
-    //   Stack2: { screen: PostHistory },
+    //   Stack2: { screen: Chart },
     },
     {
       initialRouteName: 'Stack1'
@@ -932,8 +954,8 @@ const styles = StyleSheet.create({
     },    
     title: {
         marginTop: 1,
-        fontSize: 15,
-        fontWeight: 'bold',
+        fontSize: 14,
+        // fontWeight: 'bold',
         color: '#ffa500', //'#ffbf00' // "#838899"
         marginBottom: 1,
     },
@@ -963,7 +985,7 @@ const styles = StyleSheet.create({
     },    
     points:{
         // fontWeight: 'bold',
-        marginLeft: 3,
+        marginLeft: 4,
     },
     // tags:{
     //     marginLeft: 6,

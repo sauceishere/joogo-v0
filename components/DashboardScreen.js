@@ -15,9 +15,9 @@ import { AdMobBanner } from 'expo-ads-admob';
 import ThreeAxisSensor from 'expo-sensors/build/ThreeAxisSensor';
 
 
-const str_pad_left = function (string,pad,length) { // convert from sec to min:sec // https://stackoverflow.com/questions/3733227/javascript-seconds-to-minutes-and-seconds
-    return (new Array(length+1).join(pad)+string).slice(-length);
-};
+// const str_pad_left = function (string,pad,length) { // convert from sec to min:sec // https://stackoverflow.com/questions/3733227/javascript-seconds-to-minutes-and-seconds
+//     return (new Array(length+1).join(pad)+string).slice(-length);
+// };
 
 // var num_post = 0; // to control when to shoe Adds in FlatList 20200618
 var post_num = 0; // to control when to shoe Adds in FlatList 20200623
@@ -557,17 +557,31 @@ export default class DashboardScreen extends Component {
 
           // this.PTSUM = parseFloat(post.PTSUM); // cummulative points that the users exercised. 
           
-          post.LEN = parseInt(post.LEN); // video length in XXmXXs
-          if (post.LEN >= 60) {
-            this.LEN = str_pad_left( post.LEN / 60,'0',2) + 'm' + str_pad_left( post.LEN - post.LEN / 60 * 60,'0',2) + 's'
-          } else { 
-            this.LEN = '00m' + str_pad_left( post.LEN, '0', 2) + 's' 
-          }; // convert sec to min:sec
+          // post.LEN = parseInt(post.LEN); // video length in XXmXXs
+          // if (post.LEN >= 60) {
+          //   this.LEN = str_pad_left( post.LEN / 60,'0',2) + 'm' + str_pad_left( post.LEN - post.LEN / 60 ,'0',2) + 's';
+          // } else { 
+          //   this.LEN = '00m' + str_pad_left( post.LEN, '0', 2) + 's'; 
+          // }; // convert sec to min:sec
+
+          if ( parseInt(post.LEN / 60) <= 10 ) { // less than 10 minutes
+            if ( (post.LEN - (parseInt(post.LEN / 60) * 60)) <= 10 ) { // less than 10 seconds
+              this.LEN = '0' + parseInt(post.LEN / 60) + 'm' + '0' + parseInt((post.LEN - (parseInt(post.LEN / 60) * 60))) + 's';
+            } else {
+              this.LEN = '0' + parseInt(post.LEN / 60) + 'm' + parseInt((post.LEN - (parseInt(post.LEN / 60) * 60))) + 's';
+            }
+          } else {
+            if ( (post.LEN - (parseInt(post.LEN / 60) * 60)) <= 10 ) { // less than 10 seconds
+              this.LEN = parseInt(post.LEN / 60) + 'm' + '0' + parseInt((post.LEN - (parseInt(post.LEN / 60) * 60))) + 's';
+            } else {
+              this.LEN = parseInt(post.LEN / 60) + 'm' + parseInt((post.LEN - (parseInt(post.LEN / 60) * 60))) + 's';
+            }
+          };
           
           if (wunit == 'kg') {
-            this.CAL = ( parseFloat(post.METS_COMPUTED) * wval * (post.LEN / 60 / 60) ).toFixed(1); 
+            this.CAL = ( parseFloat(post.METS_COMPUTED) * wval * (post.LEN / 60 / 60) ).toFixed(); 
           } else { // wunit = 'lb'
-            this.CAL = ( parseFloat(post.METS_COMPUTED) * (wval/LB_PER_KG) * (post.LEN / 60 / 60) ).toFixed(1); 
+            this.CAL = ( parseFloat(post.METS_COMPUTED) * (wval/LB_PER_KG) * (post.LEN / 60 / 60) ).toFixed(); 
           }
 
           if (post.METS_COMPUTED > 10) {
@@ -659,8 +673,8 @@ export default class DashboardScreen extends Component {
                   {/* bottom left pane */}
                   <View style={styles.textContents}>
                     <Text style={styles.title}> '
-                      { ((post.TITLE).length > 30) ? 
-                        (((post.TITLE).substring(0, 30-3)) + '...') 
+                      { ((post.TITLE).length > 35) ? 
+                        (((post.TITLE).substring(0, 35-3)) + '...') 
                       : 
                         post.TITLE 
                       }
@@ -722,7 +736,7 @@ export default class DashboardScreen extends Component {
               <View style={styles.ads}>
                 <AdMobBanner
                   bannerSize="mediumRectangle"
-                  adUnitID = 'ca-app-pub-3940256099942544/6300978111' // {this.state.adUnitID} // Banner ID ca-app-pub-9079750066587969/4230406044 // Test ID ca-app-pub-3940256099942544/6300978111
+                  adUnitID = 'ca-app-pub-9079750066587969/4230406044' // {this.state.adUnitID} // Banner ID ca-app-pub-9079750066587969/4230406044 // Test ID ca-app-pub-3940256099942544/6300978111
                   servePersonalizedAds // true or false
                   onDidFailToReceiveAdWithError={this.bannerError} />
               </View>  
@@ -762,8 +776,8 @@ export default class DashboardScreen extends Component {
                     {/* bottom left pane */}
                     <View style={styles.textContents}>
                       <Text style={styles.title}> '
-                        { ((post.TITLE).length > 30) ? 
-                          (((post.TITLE).substring(0, 30-3)) + '...') 
+                        { ((post.TITLE).length > 35) ? 
+                          (((post.TITLE).substring(0, 35-3)) + '...') 
                         : 
                           post.TITLE 
                         }
@@ -907,7 +921,8 @@ export default class DashboardScreen extends Component {
             <Text>Loading....</Text>
           </View>
         :
-          <SafeAreaView style={{ top: 0, bottom: 0}}> 
+          <SafeAreaView style={{ position: 'absolute', top: 0, height: Dimensions.get('window').height - 50 - 50 }}>  
+        {/* StatusBar.currentHeight */}
 
             <FlatList
               style={styles.feed}
@@ -939,7 +954,8 @@ export default class DashboardScreen extends Component {
           <MaterialIcons name='history' size={28} color="white" style={styles.HistoryIcon} onPress={ () => this.props.navigation.push('History') }/>
           {/* <Ionicons name="ios-medal" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Leaderboard') }/>  */}
           {/* <Ionicons name='ios-flame' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Live', { const_exer, scaler_scale, scaler_mean, reg_sgd } ) }/> */}
-          <Ionicons name='logo-youtube' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('LiveYT', { const_exer, scaler_scale, scaler_mean, reg_sgd } ) }/>
+          {/* <Ionicons name='logo-youtube' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('LiveYT', { const_exer, scaler_scale, scaler_mean, reg_sgd } ) }/> */}
+          <Ionicons name='ios-grid' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Chart', { const_exer } ) }/>
         {/* </LinearGradient> */}
         </View>
 
@@ -974,7 +990,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     justifyContent: 'space-between',
-    paddingHorizontal: 50,
+    paddingHorizontal: 100,
     // marginTop: 50,
   },  
   feed: {
@@ -1004,8 +1020,8 @@ const styles = StyleSheet.create({
       marginRight: 12
   },
   name: {
-      fontSize: 15,
-      fontWeight: "500",
+      fontSize: 14,
+      fontWeight: "bold", // 500
       color: '#454D65' 
   },
   timestamp: {
@@ -1022,15 +1038,16 @@ const styles = StyleSheet.create({
   },
   title: {
       marginTop: 6,
-      fontSize: 16,
-      fontWeight: 'bold',
+      fontSize: 15,
+      // fontWeight: 'bold',
       color: '#ffa500', //'#ffbf00' // "#838899"
-      marginBottom: 12,
+      marginBottom: 2,
 
   },
   textMetadata: {
       position: 'absolute',
-      bottom: 4,
+      bottom: 3,
+      fontSize: 12,
   },
   length:{
       // fontWeight: 'bold',
@@ -1071,7 +1088,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3, // iOS
     shadowRadius: 2, // iOS   
     elevation: 2, // Android
+    marginHorizontal: 3,
   },
+
 
   modal: {
     // flexGrow: 1,

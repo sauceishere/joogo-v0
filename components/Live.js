@@ -2145,7 +2145,7 @@ const styles = StyleSheet.create({
     height: Dimensions.get('window').width * 0.22, // 0.1
     width: Dimensions.get('window').height * 0.21, //0.4
     backgroundColor: 'rgba(20, 20, 20, 0.7)', // darkgray seethrough background
-    borderRadius: 10,  
+    borderRadius: 5,  
     justifyContent: 'center',
   },
   scoreText:{

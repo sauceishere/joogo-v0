@@ -615,34 +615,33 @@ export default class ProfileScreen extends Component {
                     </View>
 
                     <Text style={styles.itemTitle10}>Height</Text>
-                    <TextInput
-                      multiline={false}
-                      numberOfLines={1}
-                      maxLength={10}
-                      style={styles.itemField10}
-                      defaultValue= {hval}
-                      onChangeText={text => this._onHValChange(text) }
-                      value={this.state.hval}
-                      keyboardType='numeric'
-                    >
+                      <TextInput
+                        multiline={false}
+                        numberOfLines={1}
+                        maxLength={10}
+                        style={styles.itemField10}
+                        defaultValue= {hval}
+                        onChangeText={text => this._onHValChange(text) }
+                        value={this.state.hval}
+                        keyboardType='numeric'
+                      >
                     </TextInput>   
 
                     <Text style={styles.itemTitle}>Height Unit</Text>
                     <View style={styles.pickerView}>
-                    <Picker
-                        selectedValue= {hunit}
-                        onValueChange = {(itemValue) => this._onHUnitValueChange(itemValue) }
-                        style={styles.picker}
-                        itemStyle={styles.pickerItem}
-                        mode="dialog">
-                        <Picker.Item label={hunit} value={hunit} key={hunit}/>
-                        <Picker.Item label="cm" value="cm" key="cm"/>
-                        <Picker.Item label="ft" value="ft" key="ft" />
-                    </Picker>
-                    </View>
+                      <Picker
+                          selectedValue= {hunit}
+                          onValueChange = {(itemValue) => this._onHUnitValueChange(itemValue) }
+                          style={styles.picker}
+                          itemStyle={styles.pickerItem}
+                          mode="dialog">
+                          <Picker.Item label={hunit} value={hunit} key={hunit}/>
+                          <Picker.Item label="cm" value="cm" key="cm"/>
+                          <Picker.Item label="ft" value="ft" key="ft" />
+                      </Picker>
+                    </View> 
             
                     <Text style={styles.itemTitle10}>Gender</Text>
-                    {/* <Text style={styles.itemField00}>{profileData.GDR}</Text> */}
                     <View style={styles.pickerView}>
                       <Picker
                         selectedValue= {gdr}
@@ -659,7 +658,6 @@ export default class ProfileScreen extends Component {
                     </View>
       
                     <Text style={styles.itemTitle10}>Nationality</Text>
-                    {/* <Text style={styles.itemField00}>{profileData.NAT}</Text> */}
                     <View style={styles.pickerView}>
                       <Picker
                         selectedValue= {nat}
@@ -679,7 +677,6 @@ export default class ProfileScreen extends Component {
                     </View>
   
                     <Text style={styles.itemTitle10}>Birth Year</Text>
-                    {/* <Text style={styles.itemField00}>{profileData.BYR}</Text>   */}
                     <View style={styles.pickerView}>
                       <Picker
                         selectedValue= {byr}
@@ -697,7 +694,6 @@ export default class ProfileScreen extends Component {
                     </View>
 
                     <Text style={styles.itemTitle10}>Focus Body Parts (Max 2 tags)</Text>
-                    {/* <Text style={styles.itemField00}>{profileData.FAVTAG.map(n => n + ', ' )}</Text> */}
                     <View style={styles.pickerView}>
                       <Picker
                         selectedValue= {bt0}

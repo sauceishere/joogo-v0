@@ -1,4 +1,5 @@
-import React, { Component, useState } from 'react';
+// import React, { Component, useState } from 'react';
+import * as React from 'react';
 import { StyleSheet, View, StatusBar, Text} from 'react-native';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createAppContainer,  } from 'react-navigation';
@@ -13,6 +14,7 @@ import HistoryScreen from "../components/HistoryScreen";
 import LeaderboardScreen from "../components/Leaderboard";
 import Live from "../components/Live";
 import LiveYT from "../components/LiveYT";
+import Chart from "../components/Chart";
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from "@expo/vector-icons";
@@ -187,6 +189,29 @@ const screens = {
       }
     }, 
   },  
+  Chart: {
+    screen: Chart,
+    navigationOptions: ({ navigation }) => { //https://www.youtube.com/watch?v=C3oDJdlrEKE&list=PL4cUxeGkcC9ixPU-QkScoRBVxtPPzVjrQ&index=25
+      return {
+        // headerTitle: () => <Header title='Search' navigation={navigation} style={styles.Header}/>,
+        // headerStyle: () =>  <LinearGradient colors={['#ffbf00', '#ffb300', 'orange']} />, // { backgroundColor: 'orange' }, // #FF8C00
+        // headerTitle: () => <Header title='Live' navigation={navigation} />,
+        // title: 'Post Video',
+        // headerTitleAlign: 'center',
+        // // header: props => <GradientHeader/>,
+        headerShown: false,
+        // headerStyle: {
+        //   backgroundColor: '#ffa500',
+          // position: 'absolute',
+          // top: 0,
+          // left: 0,
+          // right: 0,
+        // },     
+      }
+    }, 
+  },  
+
+
 
 }
 
