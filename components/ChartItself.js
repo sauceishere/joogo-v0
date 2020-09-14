@@ -6,8 +6,8 @@ import { Circle, Rect } from 'react-native-svg';
 // import { SvgUri } from 'react-native-svg';
 // const { SvgUri } = Svg;
 
-import * as React from 'react';
-import { Component } from 'react';
+// import * as React from 'react';
+import React, { Component } from 'react';
 import { View, Text} from 'react-native';
 
 

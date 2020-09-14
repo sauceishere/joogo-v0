@@ -1,4 +1,5 @@
-import * as React from 'react';
+// import * as React from 'react';
+import React from 'react';
 // import { createStackNavigator } from 'react-navigation-stack';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';  // https://www.youtube.com/watch?v=ZcaQJoXY-3Q https://github.com/nathvarun/Expo-Google-Login-Firebase
 import LoginScreen from './components/LoginScreen';

@@ -1,6 +1,6 @@
 
-import * as React from 'react';
-import { Component, useState, useEffect  } from 'react';
+// import * as React from 'react';
+import React, { Component, useState, useEffect  } from 'react';
 import { Text, View, StyleSheet, Dimensions, StatusBar, Image, TouchableOpacity, SafeAreaView, ScrollView, Button, Platform, ActivityIndicator, Modal } from 'react-native';
 import {WebView} from 'react-native-webview';
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";

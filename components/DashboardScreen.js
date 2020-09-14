@@ -1,6 +1,6 @@
 
-import * as React from 'react';
-import { Component, useState } from 'react';
+// import * as React from 'react';
+import React, { Component, useState } from 'react';
 import { View, Text, StyleSheet, Button, FlatList, Dimensions, TouchableOpacity, Image, StatusBar, SafeAreaView, ScrollView, RefreshControl, ActivityIndicator, Modal, Keyboard, TouchableWithoutFeedback, Picker,TextInput  } from 'react-native';
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import moment from "moment"; // for flatlist

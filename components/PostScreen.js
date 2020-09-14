@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { Component, useState } from 'react';
+// import * as React from 'react';
+import React, { Component, useState } from 'react';
 import { StyleSheet, SafeAreaView, Image, View, ScrollView, Text, TouchableOpacity, TextInput, Button, Dimensions, ActivityIndicator, Keyboard, TouchableWithoutFeedback, Modal } from 'react-native';
 import * as firebase from 'firebase';
 import * as ImagePicker from "expo-image-picker";

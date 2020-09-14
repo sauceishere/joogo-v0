@@ -1,6 +1,6 @@
-// import React, { Component } from 'react';
-import * as React from 'react';
-import { Component } from 'react';
+import React, { Component } from 'react';
+// import * as React from 'react';
+// import { Component } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions, ActivityIndicator, Modal } from 'react-native';
 import firebase from 'firebase';
 import * as Google from 'expo-google-app-auth'; // sudo expo install expo-google-app-auth https://forums.expo.io/t/undefined-is-not-object-expo-google-loginasync/26889 

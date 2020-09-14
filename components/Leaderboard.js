@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { Component, useState } from 'react';
+// import * as React from 'react';
+import React, { Component, useState } from 'react';
 import { View, Text, StyleSheet, Button, FlatList, TouchableOpacity, Image, StatusBar, SafeAreaView, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
 import { createSwitchNavigator, createAppContainer } from 'react-navigation'; // https://qiita.com/kana-t/items/366c9c07a4c81d6b6c1e
 import * as firebase from 'firebase';
