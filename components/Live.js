@@ -15,7 +15,7 @@ import * as Permissions from 'expo-permissions';
 // import MediaMeta from 'react-native-media-meta'; // https://github.com/mybigday/react-native-media-meta
 import * as FileSystem from 'expo-file-system'; // https://docs.expo.io/versions/latest/sdk/filesystem/
 import { v4 as uuidv4 } from 'uuid';
-import {vidViewLogDirName} from '../shared/Consts';
+// import {vidViewLogDirName} from '../shared/Consts';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake'; //https://docs.expo.io/versions/latest/sdk/keep-awake/
 import { Constants, Accelerometer } from 'expo-sensors'; // https://docs.expo.io/versions/latest/sdk/accelerometer/ # https://snack.expo.io/@professorxii/expo-accelerometer-example
 
@@ -69,7 +69,7 @@ export default class Live extends Component {
       shouldPlay: false, // not play at default
       flagUpdateScore: false, //
       // flagVidEnd: false, // Flag 1 when Video ends, then stop logging
-      vidViewLogDirName: {vidViewLogDirName}['vidViewLogDirName'], // Local storage directory name to keep vidViewLog
+      vidViewLogDirName: this.props.navigation.getParam('vidViewLogDirName'), // {vidViewLogDirName}['vidViewLogDirName'], // Local storage directory name to keep vidViewLog
       // ULBColorTop: 'transparent',
       // ULBColorBottom: 'transparent',
       // ULBColorLeft: 'transparent',

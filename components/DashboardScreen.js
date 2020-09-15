@@ -10,7 +10,7 @@ import * as firestore from 'firebase/firestore';
 import * as FileSystem from 'expo-file-system'; // https://docs.expo.io/versions/latest/sdk/filesystem/
 import { v4 as uuidv4 } from 'uuid';
 import Constants from 'expo-constants'; // https://docs.expo.io/versions/latest/react-native/refreshcontrol/
-import {vidViewLogDirName} from '../shared/Consts';
+// import {vidViewLogDirName} from '../shared/Consts';
 import { AdMobBanner } from 'expo-ads-admob'; 
 import ThreeAxisSensor from 'expo-sensors/build/ThreeAxisSensor';
 
@@ -34,7 +34,7 @@ export default class DashboardScreen extends Component {
         doneComponentDidMount: false,
         // VidViewLogFileName: null, // vidViewLog filenames that sent to Firestore
         flagSentVidViewLog: false, // flag true when completed sending 
-        vidViewLogDirName: {vidViewLogDirName}['vidViewLogDirName'], // Local storage directory name to keep vidViewLog
+        vidViewLogDirName: null, //UID will be assigned during componentDidMount // {vidViewLogDirName}['vidViewLogDirName'], // Local storage directory name to keep vidViewLog
         isLoading: false,
         nname: null, // nickname inp
         flpage: 0, // page of flat list to control loadDashboardFlatList-py. 20200527
@@ -77,17 +77,17 @@ export default class DashboardScreen extends Component {
     // console.log('this.curDir: ', this.curDir);  
 
 
-    // Check Directories & Files in current directory. // THIS IS FOR MANUAL ACTION 
-    FileSystem.readDirectoryAsync( this.curDir + this.state.vidViewLogDirName ).then( content => {
-      console.log('check this.curDir Dirs and Files: ', content); // how many localFiles in array
-    })
+    // // Check Directories & Files in current directory. // THIS IS FOR MANUAL ACTION 
+    // FileSystem.readDirectoryAsync( this.curDir + this.state.vidViewLogDirName ).then( content => {
+    //   console.log('check this.curDir Dirs and Files: ', content); // how many localFiles in array
+    // })
 
-    // Delete File // THIS IS FOR MANUAL ACTION AGAINST ERROR
-    FileSystem.deleteAsync( this.curDir + this.state.vidViewLogDirName ).then( (dir) => {
-      console.log('---------- File Deleted: ', dir);
-    }).catch(error => {
-      console.log('error: ', error);
-    });    
+    // // Delete File // THIS IS FOR MANUAL ACTION AGAINST ERROR
+    // FileSystem.deleteAsync( this.curDir + this.state.vidViewLogDirName ).then( (dir) => {
+    //   console.log('---------- File Deleted: ', dir);
+    // }).catch(error => {
+    //   console.log('error: ', error);
+    // });    
 
 
 
@@ -142,8 +142,8 @@ export default class DashboardScreen extends Component {
 
         await FileSystem.readDirectoryAsync( this.curDir + this.state.vidViewLogDirName ).then( localFilesArray => {
           this.localFiles = localFilesArray;
-          console.log('----- this.localFiles.length: ', this.localFiles.length);
           console.log('----- this.localFiles: ', this.localFiles); // how many localFiles in array
+          console.log('----- this.localFiles.length: ', this.localFiles.length);
         }).catch( error => {
           console.log('FileSystem.readDirectoryAsync error: ', error);
           // alert('FileSystem.readDirectoryAsync error: ', error);
@@ -300,6 +300,7 @@ export default class DashboardScreen extends Component {
               this.setState({
                 wval: response.userProfile.WVAL,
                 wunit: response.userProfile.WUNIT,
+                vidViewLogDirName: response.userProfile.UID,
               });
             } else { // response[code] is Error
               console.log('Received response[code] = error from functions.');
@@ -828,7 +829,7 @@ export default class DashboardScreen extends Component {
   
                     {/* bottom right pane */}
                     <View style={{ }}>
-                      <TouchableOpacity onPress={ () => this.props.navigation.push('Live', { post, const_exer, scaler_scale, scaler_mean, reg_sgd} ) } >
+                      <TouchableOpacity onPress={ () => this.props.navigation.push('Live', { post, const_exer, scaler_scale, scaler_mean, reg_sgd, vidViewLogDirName} ) } >
                           <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
                       </TouchableOpacity>
                     </View>

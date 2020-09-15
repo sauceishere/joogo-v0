@@ -10,50 +10,52 @@ import { View, Text} from 'react-native';
 // import * as shape from 'd3-shape'
 
 import * as Svg from 'react-native-svg';
+// import Svg from 'react-native-svg';
 // import Svg, { Circle, Rect } from 'react-native-svg';
-// import { Circle, Rect } from 'react-native-svg';
-const { Circle, Rect } = Svg; // https://stackoverflow.com/questions/62114230/invariant-violation-using-react-native-svg
+import { Circle, Rect } from 'react-native-svg';
+// import Circle from 'react-native-svg';
+// const { Circle, Rect } = Svg; // https://stackoverflow.com/questions/62114230/invariant-violation-using-react-native-svg
 
 
-export default class Chart extends Component {
+// export default class Chart extends Component {
 
-//     // constructor(props) {
-//     //     super(props);
-//     //     this.state = {
-//     //     }
-//     // }
+// //     // constructor(props) {
+// //     //     super(props);
+// //     //     this.state = {
+// //     //     }
+// //     // }
 
-    render() {
-        return (
-            <View>
-                <Text>deed</Text>
-                {/* <Svg height="20" width="20">
-                    <Circle cx="10" cy="10" r="10" fill="red" />
-                </Svg> */}
-            </View>
+//     render() {
+//         return (
+//             // <View>
+//             //     <Text>deed</Text>
+//             // </View>
 
-                // <ChartItself/>
+//             <Svg height="20" width="20">
+//                 <Circle cx="10" cy="10" r="10" fill="red" />
+//             </Svg>            
+
+//                 // <ChartItself/>
       
-        );
-    }
-}
-
-
-
-
-// export default function Chart() {
-//     return(
-//         // <View>
-//         //     <Text>barmont</Text>
-//         // </View>
-//             // <ChartItself/>
-
-//         <Svg height="20" width="20">
-//             <Circle cx="10" cy="10" r="10" fill="red" />
-//         </Svg>
-
-//     )
+//         );
+//     }
 // }
+
+
+
+
+export default function Chart() {
+    return(
+        <View>
+
+            <Svg height="20" width="20">
+                {/* <Circle cx="10" cy="10" r="10" fill="red" /> */}
+            </Svg>
+
+        </View>
+
+    )
+}
 
 
 
