@@ -15,7 +15,7 @@ import * as Permissions from 'expo-permissions';
 // import MediaMeta from 'react-native-media-meta'; // https://github.com/mybigday/react-native-media-meta
 import * as FileSystem from 'expo-file-system'; // https://docs.expo.io/versions/latest/sdk/filesystem/
 import { v4 as uuidv4 } from 'uuid';
-// import {vidViewLogDirName} from '../shared/Consts';
+// import {vidViewLogTemp} from '../shared/Consts';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake'; //https://docs.expo.io/versions/latest/sdk/keep-awake/
 import { Constants, Accelerometer } from 'expo-sensors'; // https://docs.expo.io/versions/latest/sdk/accelerometer/ # https://snack.expo.io/@professorxii/expo-accelerometer-example
 
@@ -57,7 +57,7 @@ export default class Exercise extends Component {
       shouldPlay: false, // not play at default
       flagUpdateScore: false, //
       flagVidEnd: false, // Flag 1 when Video ends, then stop logging
-      vidViewLogDirName: this.props.navigation.getParam('vidViewLogDirName'), //{vidViewLogDirName}['vidViewLogDirName'], // Local storage directory name to keep vidViewLog
+      vidViewLogTemp: this.props.navigation.getParam('vidViewLogTemp'), //{vidViewLogTemp}['vidViewLogTemp'], // Local storage directory name to keep vidViewLog
       // ULBColorTop: 'transparent',
       // ULBColorBottom: 'transparent',
       // ULBColorLeft: 'transparent',
@@ -500,10 +500,10 @@ export default class Exercise extends Component {
     
     // // Upload vidViewLog to Firestore
     try {
-      if ( FileSystem.readDirectoryAsync( FileSystem.documentDirectory + this.state.vidViewLogDirName) ) {
+      if ( FileSystem.readDirectoryAsync( FileSystem.documentDirectory + this.state.vidViewLogTemp) ) {
             
         // read SINGLE local file
-        FileSystem.readAsStringAsync( FileSystem.documentDirectory + this.state.vidViewLogDirName + '/' + vidViewLogFileName + '.json').then( localFileContents => {
+        FileSystem.readAsStringAsync( FileSystem.documentDirectory + this.state.vidViewLogTemp + '/' + vidViewLogFileName + '.json').then( localFileContents => {
           // console.log( 'localFileContents: ', localFileContents);
 
 
@@ -559,7 +559,7 @@ export default class Exercise extends Component {
                 console.log('----- _sendSingleVidViewLog response:', response );
                 if (response["code"] == 'ok' ) {
                     //Delete SINGLE file in the LOCAL directory
-                    FileSystem.deleteAsync( FileSystem.documentDirectory + this.state.vidViewLogDirName + '/' + vidViewLogFileName + '.json').then( () => {
+                    FileSystem.deleteAsync( FileSystem.documentDirectory + this.state.vidViewLogTemp + '/' + vidViewLogFileName + '.json').then( () => {
                       console.log('SINGLE Localfile Uploaded & Deleted: ', vidViewLogFileName );
                       
                     }).catch( error => {
@@ -657,7 +657,7 @@ export default class Exercise extends Component {
 
     // vidViewLog for Firestore
     await FileSystem.writeAsStringAsync(
-      FileSystem.documentDirectory + this.state.vidViewLogDirName + '/' + vidViewLogFileName + '.json', 
+      FileSystem.documentDirectory + this.state.vidViewLogTemp + '/' + vidViewLogFileName + '.json', 
       jsonContents,
       ).then( () => {
         console.log('----------- vidViewLog saved: ');

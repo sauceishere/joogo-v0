@@ -15,7 +15,7 @@ import * as Permissions from 'expo-permissions';
 // import MediaMeta from 'react-native-media-meta'; // https://github.com/mybigday/react-native-media-meta
 import * as FileSystem from 'expo-file-system'; // https://docs.expo.io/versions/latest/sdk/filesystem/
 import { v4 as uuidv4 } from 'uuid';
-// import {vidViewLogDirName} from '../shared/Consts';
+// import {vidViewLogTemp} from '../shared/Consts';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake'; //https://docs.expo.io/versions/latest/sdk/keep-awake/
 import { Constants, Accelerometer } from 'expo-sensors'; // https://docs.expo.io/versions/latest/sdk/accelerometer/ # https://snack.expo.io/@professorxii/expo-accelerometer-example
 
@@ -23,7 +23,7 @@ import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.ex
 import Svg, { Circle, Rect,} from 'react-native-svg';
 
 // import {slow1} from '../assets/octopus';
-// import {LB_PER_KG} from '..DashboardScreen';
+import {LB_PER_KG} from '../shared/Consts';
 
 
 
@@ -36,7 +36,9 @@ const goBackIconSize = 50; //40
 const octopusImageSizePct = 0.25; // percentage of Dimensions.get('window').width. 20200824
 
 
+
 export default class Live extends Component {
+
 
   constructor(props) {
     super(props);
@@ -69,7 +71,8 @@ export default class Live extends Component {
       shouldPlay: false, // not play at default
       flagUpdateScore: false, //
       // flagVidEnd: false, // Flag 1 when Video ends, then stop logging
-      vidViewLogDirName: this.props.navigation.getParam('vidViewLogDirName'), // {vidViewLogDirName}['vidViewLogDirName'], // Local storage directory name to keep vidViewLog
+      vidViewLogTemp: 'vidViewLogTemp_' + firebase.auth().currentUser.uid, //{vidViewLogTemp}['vidViewLogTemp'], // Local storage directory name to keep vidViewLog
+      vidViewLog: 'vidViewLog_' + firebase.auth().currentUser.uid, //{vidViewLogTemp}['vidViewLogTemp'], // Local storage directory name to keep vidViewLog
       // ULBColorTop: 'transparent',
       // ULBColorBottom: 'transparent',
       // ULBColorLeft: 'transparent',
@@ -86,6 +89,8 @@ export default class Live extends Component {
       //   xRA: 5, yRA: 5, // 16=rightAnkle // Red
       //   xLA: 6, yLA: 5, // 15=leftAnkle // Blue        
       // },
+      wval: this.props.navigation.getParam('wval'), 
+      wunit: this.props.navigation.getParam('wunit'),
     }
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);  
     // this._handlePlayAndPause = this._handlePlayAndPause.bind(this);
@@ -144,7 +149,7 @@ export default class Live extends Component {
   // mets_per_part = this.props.navigation.getParam('mets_per_part');
   scaler_scale = this.props.navigation.getParam('scaler_scale').data;
   scaler_mean = this.props.navigation.getParam('scaler_mean').data;
-  reg_sgd = this.props.navigation.getParam('reg_sgd').data;
+  model = this.props.navigation.getParam('model').data;
   
 
   initialPositions = {
@@ -374,7 +379,7 @@ export default class Live extends Component {
 
   coefNTA = this.props.navigation.getParam('const_exer')['coefNTA']; // 20200614
 
-  WEIGHT_KG = 62; // my weight is 62kg. this should be inputted before video page. 20200804
+
 
 
 
@@ -442,13 +447,13 @@ export default class Live extends Component {
     }
 
     this.vidState.vidEndAt = Date.now()/1000;
-    console.log('------------------- componentWillUnmount Live 1');
+    // console.log('------------------- componentWillUnmount Live 1');
 
     // await this._unsubscribeFromAccelerometer();
-    console.log('------------------- componentWillUnmount Live 2');
+    // console.log('------------------- componentWillUnmount Live 2');
 
     deactivateKeepAwake();
-    console.log('------------------- componentWillUnmount Live 3');
+    // console.log('------------------- componentWillUnmount Live 3');
 
     ScreenOrientation.unlockAsync(); // back to portrait
     // await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
@@ -461,18 +466,28 @@ export default class Live extends Component {
 
 
   async componentDidMount() {
-    console.log('------------------- componentDidMount Live started 77');
+    console.log('------------------- componentDidMount Live started 79');
     // console.log('------ this.mets_per_part: ', this.mets_per_part);
-    console.log('------ this.camState: ', this.camState);
+    // console.log('------ this.camState: ', this.camState);
     // console.log( 'slow1[secFromStart]: ', typeof slow1 );
     // console.log( 'slow1[secFromStart]: ', slow1["1"] );
-    console.log('this.scaler_scale: ', this.scaler_scale );
-    console.log('this.scaler_mean: ', this.scaler_mean );
-    console.log('this.reg_sgd: ', this.reg_sgd );
+    // console.log('this.scaler_scale: ', this.scaler_scale );
+    // console.log('this.scaler_mean: ', this.scaler_mean );
+    // console.log('this.model: ', this.model );
     // console.log('screen height: ', Dimensions.get('screen').height);
     // console.log('screen width: ', Dimensions.get('screen').width);
     // console.log('window height: ', Dimensions.get('window').height);
     // console.log('window width: ', Dimensions.get('window').width);
+    // console.log('LB_PER_KG: ', LB_PER_KG);
+    // console.log('this.state.vidViewLogTemp: ', this.state.vidViewLogTemp);
+
+    if (this.state.wunit == 'kg') {
+      this.WEIGHT_KG = (this.state.wval).toFixed(); 
+    } else { // wunit = 'lb'
+      this.WEIGHT_KG = (this.state.wval / LB_PER_KG).toFixed(); 
+    }
+    console.log('this.WEIGHT_KG: ', this.WEIGHT_KG);
+  
     
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE); // to landscape
 
@@ -633,10 +648,10 @@ export default class Live extends Component {
     
     // // Upload vidViewLog to Firestore
     try {
-      if ( FileSystem.readDirectoryAsync( FileSystem.documentDirectory + this.state.vidViewLogDirName) ) {
+      if ( FileSystem.readDirectoryAsync( FileSystem.documentDirectory + this.state.vidViewLogTemp) ) {
             
         // read SINGLE local file
-        FileSystem.readAsStringAsync( FileSystem.documentDirectory + this.state.vidViewLogDirName + '/' + vidViewLogFileName + '.json').then( localFileContents => {
+        FileSystem.readAsStringAsync( FileSystem.documentDirectory + this.state.vidViewLogTemp + '/' + vidViewLogFileName + '.json').then( localFileContents => {
           // console.log( 'localFileContents: ', localFileContents);
 
 
@@ -681,18 +696,20 @@ export default class Live extends Component {
                 winHeight: JSON.parse(localFileContents)["winHeight"],
                 winWidth: JSON.parse(localFileContents)["winWidth"],
                 texDimsWidth: JSON.parse(localFileContents)["texDimsWidth"],
-                texDimsHeight: JSON.parse(localFileContents)["texDimsHeight"],
+                texDimsHeight: JSON.parse(localFileContents)["texDimsHeight"],                
                 // cntNTAout: JSON.parse(localFileContents)["outNTAcnt"],
                 // numFrameVidStart: JSON.parse(localFileContents)["numFrameVidStart"],
                 // numFrameAllPosOk: JSON.parse(localFileContents)["numFrameAllPosOk"],
-                // numFrameVidEnd: JSON.parse(localFileContents)["numFrameVidEnd"],      
+                // numFrameVidEnd: JSON.parse(localFileContents)["numFrameVidEnd"], 
+                wval: JSON.parse(localFileContents)["wval"],
+                wunit: JSON.parse(localFileContents)["wunit"],                     
               })
             }).then( result => result.json() )
               .then( response => { 
                 console.log('----- _sendSingleVidViewLog response:', response );
                 if (response["code"] == 'ok' ) {
                     //Delete SINGLE file in the LOCAL directory
-                    FileSystem.deleteAsync( FileSystem.documentDirectory + this.state.vidViewLogDirName + '/' + vidViewLogFileName + '.json').then( () => {
+                    FileSystem.deleteAsync( FileSystem.documentDirectory + this.state.vidViewLogTemp + '/' + vidViewLogFileName + '.json').then( () => {
                       console.log('SINGLE Localfile Uploaded & Deleted: ', vidViewLogFileName );
                       
                     }).catch( error => {
@@ -777,10 +794,13 @@ export default class Live extends Component {
     jsonContents['texDimsWidth'] = this.textureDims.width;
     jsonContents['texDimsHeight'] = this.textureDims.height;
 
-    jsonContents['outNTAcnt'] = this.outNTA.cnt;
-    jsonContents['numFrameVidStart'] = this.vidState.numFrameVidStart;
-    jsonContents['numFrameAllPosOk'] = this.vidState.numFrameAllPosOk;
-    jsonContents['numFrameVidEnd'] = this.vidState.numFrameVidEnd; 
+    // jsonContents['outNTAcnt'] = this.outNTA.cnt;
+    // jsonContents['numFrameVidStart'] = this.vidState.numFrameVidStart;
+    // jsonContents['numFrameAllPosOk'] = this.vidState.numFrameAllPosOk;
+    // jsonContents['numFrameVidEnd'] = this.vidState.numFrameVidEnd; 
+
+    jsonContents['wval'] = this.state.wval;
+    jsonContents['wunit'] = this.state.wunit;    
 
     jsonContents = JSON.stringify(jsonContents); // convert to string for saving file
     // console.log('jsonContents: ', jsonContents);
@@ -792,20 +812,49 @@ export default class Live extends Component {
     //   }
     // }
 
-    // vidViewLog for Firestore
+    
+    // vidViewLogTemp for Firestore
     await FileSystem.writeAsStringAsync(
-      FileSystem.documentDirectory + this.state.vidViewLogDirName + '/' + vidViewLogFileName + '.json', 
+      FileSystem.documentDirectory + this.state.vidViewLogTemp + '/' + vidViewLogFileName + '.json', 
       jsonContents,
       ).then( () => {
-        console.log('----------- vidViewLog saved: ');
+        console.log('----------- vidViewLogTemp saved: ');
         // this.setState({ savedFileName: vidViewLogFileName });
         
         this._sendVidViewLog( vidViewLogFileName );
 
       }).catch(error => {
-        console.log('vidViewLog error: ', error);
+        console.log('vidViewLogTemp error: ', error);
         // deactivateKeepAwake();
       });
+
+
+    // vidViewLog for LOCALLY save. 20200917
+    var jsonContentsSimp = {};
+    jsonContentsSimp["ts"] = ts;
+    jsonContentsSimp["vidId"] = vidId;
+    jsonContentsSimp["viewId"] = viewId;
+    jsonContentsSimp["uid"] = firebase.auth().currentUser.uid;
+    jsonContentsSimp["startAt"] = this.vidState.vidStartAt;
+    jsonContentsSimp["endAt"] = this.vidState.vidEndAt;
+    jsonContentsSimp["nTa"] = this.state.noseToAnkle;
+    jsonContentsSimp["pt"] = this.state.mdCumTtlNow;
+    jsonContentsSimp["score"] = this.state.scoreNow; 
+    jsonContentsSimp["playSum"] = this.vidState.vidPlayedSum; 
+    jsonContentsSimp['wval'] = this.state.wval;
+    jsonContentsSimp['wunit'] = this.state.wunit; 
+
+    jsonContentsSimp = JSON.stringify(jsonContentsSimp); // convert to string for saving file
+
+    await FileSystem.writeAsStringAsync(
+      FileSystem.documentDirectory + this.state.vidViewLog + '/' + vidViewLogFileName + '.json', 
+      jsonContentsSimp,
+    ).then( () => {
+      console.log('----------- vidViewLog saved: ');
+    }).catch(error => {
+      console.log('vidViewLog error: ', error);
+    });   
+
 
   }
 
@@ -1010,19 +1059,19 @@ export default class Live extends Component {
                 // (Math.pow((this.mdCumB.y15 - this.mdCumA.y15 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr) +   
                 // (Math.pow((this.mdCumB.y16 - this.mdCumA.y16 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr);    
                 
-                ( ( ( ( (this.mdCumB.x5 - this.mdCumA.x5) + (this.mdCumB.x6 - this.mdCumA.x6) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_sho ) / this.scaler_scale.x_sho * this.reg_sgd.x_sho ) + 
-                ( ( ( ( (this.mdCumB.x7 - this.mdCumA.x7) + (this.mdCumB.x8 - this.mdCumA.x8) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_elb ) / this.scaler_scale.x_elb * this.reg_sgd.x_elb ) + 
-                ( ( ( ( (this.mdCumB.x9 - this.mdCumA.x9) + (this.mdCumB.x10 - this.mdCumA.x10) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_wri ) / this.scaler_scale.x_wri * this.reg_sgd.x_wri ) + 
-                ( ( ( ( (this.mdCumB.x11 - this.mdCumA.x11) + (this.mdCumB.x12 - this.mdCumA.x12) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_hip ) / this.scaler_scale.x_hip * this.reg_sgd.x_hip ) + 
-                ( ( ( ( (this.mdCumB.x13 - this.mdCumA.x13) + (this.mdCumB.x14 - this.mdCumA.x14) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_kne ) / this.scaler_scale.x_kne * this.reg_sgd.x_kne ) + 
-                ( ( ( ( (this.mdCumB.x15 - this.mdCumA.x15) + (this.mdCumB.x16 - this.mdCumA.x16) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_ank ) / this.scaler_scale.x_ank * this.reg_sgd.x_ank ) + 
-                ( ( ( ( (this.mdCumB.y5 - this.mdCumA.y5) + (this.mdCumB.y6 - this.mdCumA.y6) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_sho ) / this.scaler_scale.y_sho * this.reg_sgd.y_sho ) + 
-                ( ( ( ( (this.mdCumB.y7 - this.mdCumA.y7) + (this.mdCumB.y8 - this.mdCumA.y8) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_elb ) / this.scaler_scale.y_elb * this.reg_sgd.y_elb ) + 
-                ( ( ( ( (this.mdCumB.y9 - this.mdCumA.y9) + (this.mdCumB.y10 - this.mdCumA.y10) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_wri ) / this.scaler_scale.y_wri * this.reg_sgd.y_wri ) + 
-                ( ( ( ( (this.mdCumB.y10 - this.mdCumA.y10) + (this.mdCumB.y12 - this.mdCumA.y12) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_hip ) / this.scaler_scale.y_hip * this.reg_sgd.y_hip ) + 
-                ( ( ( ( (this.mdCumB.y13 - this.mdCumA.y13) + (this.mdCumB.y14 - this.mdCumA.y14) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_kne ) / this.scaler_scale.y_kne * this.reg_sgd.y_kne ) + 
-                ( ( ( ( (this.mdCumB.y15 - this.mdCumA.y15) + (this.mdCumB.y16 - this.mdCumA.y16) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_ank ) / this.scaler_scale.y_ank * this.reg_sgd.y_ank ) + 
-                this.reg_sgd.intercept;
+                ( ( ( ( (this.mdCumB.x5 - this.mdCumA.x5) + (this.mdCumB.x6 - this.mdCumA.x6) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_sho ) / this.scaler_scale.x_sho * this.model.x_sho ) + 
+                ( ( ( ( (this.mdCumB.x7 - this.mdCumA.x7) + (this.mdCumB.x8 - this.mdCumA.x8) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_elb ) / this.scaler_scale.x_elb * this.model.x_elb ) + 
+                ( ( ( ( (this.mdCumB.x9 - this.mdCumA.x9) + (this.mdCumB.x10 - this.mdCumA.x10) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_wri ) / this.scaler_scale.x_wri * this.model.x_wri ) + 
+                ( ( ( ( (this.mdCumB.x11 - this.mdCumA.x11) + (this.mdCumB.x12 - this.mdCumA.x12) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_hip ) / this.scaler_scale.x_hip * this.model.x_hip ) + 
+                ( ( ( ( (this.mdCumB.x13 - this.mdCumA.x13) + (this.mdCumB.x14 - this.mdCumA.x14) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_kne ) / this.scaler_scale.x_kne * this.model.x_kne ) + 
+                ( ( ( ( (this.mdCumB.x15 - this.mdCumA.x15) + (this.mdCumB.x16 - this.mdCumA.x16) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_ank ) / this.scaler_scale.x_ank * this.model.x_ank ) + 
+                ( ( ( ( (this.mdCumB.y5 - this.mdCumA.y5) + (this.mdCumB.y6 - this.mdCumA.y6) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_sho ) / this.scaler_scale.y_sho * this.model.y_sho ) + 
+                ( ( ( ( (this.mdCumB.y7 - this.mdCumA.y7) + (this.mdCumB.y8 - this.mdCumA.y8) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_elb ) / this.scaler_scale.y_elb * this.model.y_elb ) + 
+                ( ( ( ( (this.mdCumB.y9 - this.mdCumA.y9) + (this.mdCumB.y10 - this.mdCumA.y10) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_wri ) / this.scaler_scale.y_wri * this.model.y_wri ) + 
+                ( ( ( ( (this.mdCumB.y10 - this.mdCumA.y10) + (this.mdCumB.y12 - this.mdCumA.y12) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_hip ) / this.scaler_scale.y_hip * this.model.y_hip ) + 
+                ( ( ( ( (this.mdCumB.y13 - this.mdCumA.y13) + (this.mdCumB.y14 - this.mdCumA.y14) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_kne ) / this.scaler_scale.y_kne * this.model.y_kne ) + 
+                ( ( ( ( (this.mdCumB.y15 - this.mdCumA.y15) + (this.mdCumB.y16 - this.mdCumA.y16) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_ank ) / this.scaler_scale.y_ank * this.model.y_ank ) + 
+                this.model.intercept;
 
               this.flag_mdCum = 0; // switch flag
 
@@ -1119,19 +1168,19 @@ export default class Live extends Component {
                 // (Math.pow((this.mdCumA.y15 - this.mdCumB.y15 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr) +   
                 // (Math.pow((this.mdCumA.y16 - this.mdCumB.y16 + 0.000001), 2) / NTAForScore * this.mets_per_part.y_ank_sqr);              
 
-                ( ( ( ( (this.mdCumA.x5 - this.mdCumB.x5) + (this.mdCumA.x6 - this.mdCumB.x6) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_sho ) / this.scaler_scale.x_sho * this.reg_sgd.x_sho ) + 
-                ( ( ( ( (this.mdCumA.x7 - this.mdCumB.x7) + (this.mdCumA.x8 - this.mdCumB.x8) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_elb ) / this.scaler_scale.x_elb * this.reg_sgd.x_elb ) + 
-                ( ( ( ( (this.mdCumA.x9 - this.mdCumB.x9) + (this.mdCumA.x10 - this.mdCumB.x10) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_wri ) / this.scaler_scale.x_wri * this.reg_sgd.x_wri ) + 
-                ( ( ( ( (this.mdCumA.x11 - this.mdCumB.x11) + (this.mdCumA.x12 - this.mdCumB.x12) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_hip ) / this.scaler_scale.x_hip * this.reg_sgd.x_hip ) + 
-                ( ( ( ( (this.mdCumA.x13 - this.mdCumB.x13) + (this.mdCumA.x14 - this.mdCumB.x14) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_kne ) / this.scaler_scale.x_kne * this.reg_sgd.x_kne ) + 
-                ( ( ( ( (this.mdCumA.x15 - this.mdCumB.x15) + (this.mdCumA.x16 - this.mdCumB.x16) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_ank ) / this.scaler_scale.x_ank * this.reg_sgd.x_ank ) + 
-                ( ( ( ( (this.mdCumA.y5 - this.mdCumB.y5) + (this.mdCumA.y6 - this.mdCumB.y6) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_sho ) / this.scaler_scale.y_sho * this.reg_sgd.y_sho ) + 
-                ( ( ( ( (this.mdCumA.y7 - this.mdCumB.y7) + (this.mdCumA.y8 - this.mdCumB.y8) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_elb ) / this.scaler_scale.y_elb * this.reg_sgd.y_elb ) + 
-                ( ( ( ( (this.mdCumA.y9 - this.mdCumB.y9) + (this.mdCumA.y10 - this.mdCumB.y10) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_wri ) / this.scaler_scale.y_wri * this.reg_sgd.y_wri ) + 
-                ( ( ( ( (this.mdCumA.y10 - this.mdCumB.y10) + (this.mdCumA.y12 - this.mdCumB.y12) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_hip ) / this.scaler_scale.y_hip * this.reg_sgd.y_hip ) + 
-                ( ( ( ( (this.mdCumA.y13 - this.mdCumB.y13) + (this.mdCumA.y14 - this.mdCumB.y14) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_kne ) / this.scaler_scale.y_kne * this.reg_sgd.y_kne ) + 
-                ( ( ( ( (this.mdCumA.y15 - this.mdCumB.y15) + (this.mdCumA.y16 - this.mdCumB.y16) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_ank ) / this.scaler_scale.y_ank * this.reg_sgd.y_ank ) + 
-                this.reg_sgd.intercept;
+                ( ( ( ( (this.mdCumA.x5 - this.mdCumB.x5) + (this.mdCumA.x6 - this.mdCumB.x6) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_sho ) / this.scaler_scale.x_sho * this.model.x_sho ) + 
+                ( ( ( ( (this.mdCumA.x7 - this.mdCumB.x7) + (this.mdCumA.x8 - this.mdCumB.x8) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_elb ) / this.scaler_scale.x_elb * this.model.x_elb ) + 
+                ( ( ( ( (this.mdCumA.x9 - this.mdCumB.x9) + (this.mdCumA.x10 - this.mdCumB.x10) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_wri ) / this.scaler_scale.x_wri * this.model.x_wri ) + 
+                ( ( ( ( (this.mdCumA.x11 - this.mdCumB.x11) + (this.mdCumA.x12 - this.mdCumB.x12) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_hip ) / this.scaler_scale.x_hip * this.model.x_hip ) + 
+                ( ( ( ( (this.mdCumA.x13 - this.mdCumB.x13) + (this.mdCumA.x14 - this.mdCumB.x14) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_kne ) / this.scaler_scale.x_kne * this.model.x_kne ) + 
+                ( ( ( ( (this.mdCumA.x15 - this.mdCumB.x15) + (this.mdCumA.x16 - this.mdCumB.x16) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.x_ank ) / this.scaler_scale.x_ank * this.model.x_ank ) + 
+                ( ( ( ( (this.mdCumA.y5 - this.mdCumB.y5) + (this.mdCumA.y6 - this.mdCumB.y6) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_sho ) / this.scaler_scale.y_sho * this.model.y_sho ) + 
+                ( ( ( ( (this.mdCumA.y7 - this.mdCumB.y7) + (this.mdCumA.y8 - this.mdCumB.y8) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_elb ) / this.scaler_scale.y_elb * this.model.y_elb ) + 
+                ( ( ( ( (this.mdCumA.y9 - this.mdCumB.y9) + (this.mdCumA.y10 - this.mdCumB.y10) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_wri ) / this.scaler_scale.y_wri * this.model.y_wri ) + 
+                ( ( ( ( (this.mdCumA.y10 - this.mdCumB.y10) + (this.mdCumA.y12 - this.mdCumB.y12) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_hip ) / this.scaler_scale.y_hip * this.model.y_hip ) + 
+                ( ( ( ( (this.mdCumA.y13 - this.mdCumB.y13) + (this.mdCumA.y14 - this.mdCumB.y14) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_kne ) / this.scaler_scale.y_kne * this.model.y_kne ) + 
+                ( ( ( ( (this.mdCumA.y15 - this.mdCumB.y15) + (this.mdCumA.y16 - this.mdCumB.y16) + 0.001) / 2 / NTAForScore ) - this.scaler_mean.y_ank ) / this.scaler_scale.y_ank * this.model.y_ank ) + 
+                this.model.intercept;
 
               this.flag_mdCum = 1; // switch flag
             }

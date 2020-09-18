@@ -14,6 +14,7 @@ import Constants from 'expo-constants'; // https://docs.expo.io/versions/latest/
 import { AdMobBanner } from 'expo-ads-admob'; 
 import ThreeAxisSensor from 'expo-sensors/build/ThreeAxisSensor';
 
+import {LB_PER_KG} from '../shared/Consts';
 
 // const str_pad_left = function (string,pad,length) { // convert from sec to min:sec // https://stackoverflow.com/questions/3733227/javascript-seconds-to-minutes-and-seconds
 //     return (new Array(length+1).join(pad)+string).slice(-length);
@@ -22,7 +23,7 @@ import ThreeAxisSensor from 'expo-sensors/build/ThreeAxisSensor';
 // var num_post = 0; // to control when to shoe Adds in FlatList 20200618
 var post_num = 0; // to control when to shoe Adds in FlatList 20200623
 
-export const LB_PER_KG = 2.205; // pounds / kilograms
+// export const LB_PER_KG = 2.205; // pounds / kilograms
 
 
 export default class DashboardScreen extends Component {
@@ -34,7 +35,7 @@ export default class DashboardScreen extends Component {
         doneComponentDidMount: false,
         // VidViewLogFileName: null, // vidViewLog filenames that sent to Firestore
         flagSentVidViewLog: false, // flag true when completed sending 
-        vidViewLogDirName: null, //UID will be assigned during componentDidMount // {vidViewLogDirName}['vidViewLogDirName'], // Local storage directory name to keep vidViewLog
+        vidViewLogTemp: null, //UID will be assigned during componentDidMount // {vidViewLogTemp}['vidViewLogTemp'], // Local storage directory name to keep vidViewLog
         isLoading: false,
         nname: null, // nickname inp
         flpage: 0, // page of flat list to control loadDashboardFlatList-py. 20200527
@@ -52,10 +53,11 @@ export default class DashboardScreen extends Component {
         // mets_per_part: null, //20200804
         scaler_scale: null,
         scaler_mean: null,
-        reg_sgd: null,
-        // wval: null, // weight value
-        // wunit: null, // weight unit
-        // fillingNow: true, // control modal        
+        model: null,
+        wval: null, // weight value
+        wunit: null, // weight unit
+        // fillingNow: true, // control modal    
+        vidViewLog: null,    
     }
     // this.allSnapShot = this.allSnapShot.bind(this);
     this._sendVidViewLog = this._sendVidViewLog.bind(this);
@@ -78,12 +80,12 @@ export default class DashboardScreen extends Component {
 
 
     // // Check Directories & Files in current directory. // THIS IS FOR MANUAL ACTION 
-    // FileSystem.readDirectoryAsync( this.curDir + this.state.vidViewLogDirName ).then( content => {
+    // FileSystem.readDirectoryAsync( this.curDir + this.state.vidViewLogTemp ).then( content => {
     //   console.log('check this.curDir Dirs and Files: ', content); // how many localFiles in array
     // })
 
     // // Delete File // THIS IS FOR MANUAL ACTION AGAINST ERROR
-    // FileSystem.deleteAsync( this.curDir + this.state.vidViewLogDirName ).then( (dir) => {
+    // FileSystem.deleteAsync( this.curDir + this.state.vidViewLogTemp ).then( (dir) => {
     //   console.log('---------- File Deleted: ', dir);
     // }).catch(error => {
     //   console.log('error: ', error);
@@ -93,34 +95,70 @@ export default class DashboardScreen extends Component {
 
     try {
 
-      // // check if vidViewLogDirName Directory already exists, if not then create directory 20200502
-      await FileSystem.getInfoAsync( this.curDir + this.state.vidViewLogDirName).then( async contents => {
-        console.log('getInfoAsync contents[size] in MB: ', contents['size'] / 1024 / 1024 );
+      // // check if vidViewLogTemp Directory already exists, if not then create directory 20200502
+      await FileSystem.getInfoAsync( this.curDir + this.state.vidViewLogTemp).then( async contents => {
+        console.log('vidViewLogTemp getInfoAsync contents[size] in MB: ', contents['size'] / 1024 / 1024, );
         if ( contents['exists'] == true & contents['isDirectory'] == true ) { // if folder already exists.
-          console.log('vidViewLogDirName already exists');
+          console.log('vidViewLogTemp already exists');
+          console.log('vidViewLogTemp contents.length: ', contents.length);
+          // console.log(FileSystem.documentDirectory + this.state.vidViewLogTemp + '/');
+          // console.log(this.curDir + this.state.vidViewLogTemp + '/');
 
           if ( contents['size'] > 50 * 1024 * 1024 ) { // if folder size is over 50MB, then delete files. 20200608
-            FileSystem.deleteAsync( this.curDir + this.state.vidViewLogDirName ).then( (dir) => {
+            FileSystem.deleteAsync( this.curDir + this.state.vidViewLogTemp ).then( (dir) => {
               console.log('---------- vidViewLog Folder Deleted');
               console.log('Video View Log files can not be sent out. Please contact help center');
-              alert('Video View Log files can not be sent out. Please contact help center');
+              // alert('Video View Log files can not be sent out. Please contact help center');
             }).catch(error => {
               console.log('Error deleting vidViewLog Folder: ', error);
             });    
           }
 
         } else { // if folder NOT exists, then create the directory
-          FileSystem.makeDirectoryAsync(this.curDir + this.state.vidViewLogDirName).then( () => { // create the directory
-            console.log('vidViewLogDirName Directory created');
+          FileSystem.makeDirectoryAsync(this.curDir + this.state.vidViewLogTemp).then( () => { // create the directory
+            console.log('vidViewLogTemp Directory created');
           }).catch( error => {
             console.log('FileSystem.makeDirectoryAsync error: ', error);
             alert('FileSystem.makeDirectoryAsync error: ', error);           
           }); 
         }
       }).catch( error => {
-        console.log('FileSystem.getInfoAsync error: ', error);
-        alert('FileSystem.getInfoAsync error: ', error);
+        console.log('vidViewLogTemp　FileSystem.getInfoAsync error: ', error);
+        alert('vidViewLogTemp　FileSystem.getInfoAsync error: ', error);
       })
+
+
+      // // check if vidViewLog Directory already exists, if not then create directory 20200917
+      await FileSystem.getInfoAsync( this.curDir + this.state.vidViewLog).then( async contents => {
+        console.log('vidViewLog getInfoAsync contents[size] in MB: ', contents['size'] / 1024 / 1024 );
+        if ( contents['exists'] == true & contents['isDirectory'] == true ) { // if folder already exists.
+          console.log('vidViewLog already exists');
+          console.log('vidViewLog contents.length: ', contents.length);
+          // console.log(FileSystem.documentDirectory + this.state.vidViewLog + '/');
+          // console.log(this.curDir + this.state.vidViewLog + '/');
+
+          if ( contents['size'] > 50 * 1024 * 1024 ) { // if folder size is over 50MB, then delete files. 20200608
+            FileSystem.deleteAsync( this.curDir + this.state.vidViewLog ).then( (dir) => {
+              console.log('---------- vidViewLog Folder Deleted');
+              console.log('Video View Log files can not be sent out. Please contact help center');
+              // alert('Video View Log files can not be sent out. Please contact help center');
+            }).catch(error => {
+              console.log('Error deleting vidViewLog Folder: ', error);
+            });    
+          }
+
+        } else { // if folder NOT exists, then create the directory
+          FileSystem.makeDirectoryAsync(this.curDir + this.state.vidViewLog).then( () => { // create the directory
+            console.log('vidViewLog Directory created');
+          }).catch( error => {
+            console.log('FileSystem.makeDirectoryAsync error: ', error);
+            alert('FileSystem.makeDirectoryAsync error: ', error);           
+          }); 
+        }
+      }).catch( error => {
+        console.log('vidViewLog FileSystem.getInfoAsync error: ', error);
+        alert('vidViewLog FileSystem.getInfoAsync error: ', error);
+      })      
 
 
     } catch(err){
@@ -138,9 +176,9 @@ export default class DashboardScreen extends Component {
     
     // // Upload vidViewLog to Firestore
     try {
-      if ( FileSystem.readDirectoryAsync( this.curDir  + this.state.vidViewLogDirName) ) {
+      if ( FileSystem.readDirectoryAsync( this.curDir  + this.state.vidViewLogTemp) ) {
 
-        await FileSystem.readDirectoryAsync( this.curDir + this.state.vidViewLogDirName ).then( localFilesArray => {
+        await FileSystem.readDirectoryAsync( this.curDir + this.state.vidViewLogTemp ).then( localFilesArray => {
           this.localFiles = localFilesArray;
           console.log('----- this.localFiles: ', this.localFiles); // how many localFiles in array
           console.log('----- this.localFiles.length: ', this.localFiles.length);
@@ -154,7 +192,7 @@ export default class DashboardScreen extends Component {
             console.log('num_file: ', num_file, Localfile);
             
             // read local file
-            FileSystem.readAsStringAsync( this.curDir  + this.state.vidViewLogDirName + '/' + Localfile).then( localFileContents => {
+            FileSystem.readAsStringAsync( this.curDir  + this.state.vidViewLogTemp + '/' + Localfile).then( localFileContents => {
               // console.log( 'localFileContents: ', localFileContents);
 
 
@@ -211,7 +249,7 @@ export default class DashboardScreen extends Component {
                         //Delete SINGLE file in the LOCAL directory
                         // console.log('Deleting SINGLE Localfile ');
 
-                        FileSystem.deleteAsync( this.curDir  + this.state.vidViewLogDirName + '/' + Localfile).then( () => {
+                        FileSystem.deleteAsync( this.curDir  + this.state.vidViewLogTemp + '/' + Localfile).then( () => {
                           console.log('SINGLE Localfile Uploaded & Deleted: ', Localfile );
                           // deactivateKeepAwake();
                         }).catch( error => {
@@ -271,7 +309,11 @@ export default class DashboardScreen extends Component {
 
     if (this.state.doneComponentDidMount == false) { // if variable is null. this if to prevent repeated loop.
       // console.log('this.state.vidFullUrl started ');
-      this.setState({isLoading: true});
+      this.setState({
+        isLoading: true,
+        vidViewLogTemp: 'vidViewLogTemp_' + firebase.auth().currentUser.uid,
+        vidViewLog: 'vidViewLog_' + firebase.auth().currentUser.uid,
+      });
 
 
 ////////// if New User, then go to Profile.js for FIRST fill out ////////////////////////////
@@ -300,8 +342,8 @@ export default class DashboardScreen extends Component {
               this.setState({
                 wval: response.userProfile.WVAL,
                 wunit: response.userProfile.WUNIT,
-                vidViewLogDirName: response.userProfile.UID,
               });
+              // console.log('this.state.vidViewLogTemp: ', this.state.vidViewLogTemp);
             } else { // response[code] is Error
               console.log('Received response[code] = error from functions.');
               alert('Received response[code] = error from functions., Please log-in again.');
@@ -413,14 +455,14 @@ export default class DashboardScreen extends Component {
               // mets_per_part: response.mets_per_part, // 20200804
               scaler_scale: response.scaler_scale, // 20200824
               scaler_mean: response.scaler_mean, // 20200824
-              reg_sgd: response.reg_sgd, // 20200824
+              model: response.reg_sgd, // 20200824
               adUnitID: response.const_exer.adUnitID,
             }); 
             // console.log('this.state.const_exer: ', this.state.const_exer );
             // console.log('this.state.mets_per_part: ', this.state.mets_per_part );
             // console.log('this.state.scaler_scale: ', this.state.scaler_scale );
             // console.log('this.state.scaler_mean: ', this.state.scaler_mean );
-            // console.log('this.state.reg_sgd: ', this.state.reg_sgd );
+            // console.log('this.state.model: ', this.state.model );
 
           } else if (response["code"] == 'ok') { // after the second load, no need to load ["flagMastersLoaded"]
             console.log('---------------- ok, length: ', response.detail.vidMetas.length );
@@ -542,7 +584,7 @@ export default class DashboardScreen extends Component {
 
 
   renderPost = post => {
-      const { wpart, const_exer, wval, wunit, scaler_scale, scaler_mean, reg_sgd } = this.state;
+      const { wpart, const_exer, wval, wunit, scaler_scale, scaler_mean, model, vidViewLogTemp } = this.state;
       // num_post++; // increment var num_post
       console.log('====== post ====== post_num:' , post_num);
 
@@ -725,7 +767,7 @@ export default class DashboardScreen extends Component {
                   
                   {/* bottom right pane */}
                   <View style={{ }}>
-                    <TouchableOpacity onPress={ () => this.props.navigation.push('Live', {post, const_exer, scaler_scale, scaler_mean, reg_sgd} ) } >
+                    <TouchableOpacity onPress={ () => this.props.navigation.push('Live', {post, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit} ) } >
                         <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
                     </TouchableOpacity>
                   </View>
@@ -829,7 +871,7 @@ export default class DashboardScreen extends Component {
   
                     {/* bottom right pane */}
                     <View style={{ }}>
-                      <TouchableOpacity onPress={ () => this.props.navigation.push('Live', { post, const_exer, scaler_scale, scaler_mean, reg_sgd, vidViewLogDirName} ) } >
+                      <TouchableOpacity onPress={ () => this.props.navigation.push('Live', { post, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit} ) } >
                           <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
                       </TouchableOpacity>
                     </View>
@@ -856,7 +898,7 @@ export default class DashboardScreen extends Component {
 
   render() {
     console.log('---------------- render');
-    const { isLoading, wpart, const_exer, scaler_scale, scaler_mean, reg_sgd, } = this.state;
+    const { isLoading, wpart, const_exer, scaler_scale, scaler_mean, model, } = this.state;
 
     return (
       <View style={styles.container}>
@@ -954,9 +996,9 @@ export default class DashboardScreen extends Component {
           {/* <Ionicons name="ios-add-circle-outline" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Post') }/> */}
           <MaterialIcons name='history' size={28} color="white" style={styles.HistoryIcon} onPress={ () => this.props.navigation.push('History') }/>
           {/* <Ionicons name="ios-medal" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Leaderboard') }/>  */}
-          {/* <Ionicons name='ios-flame' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Live', { const_exer, scaler_scale, scaler_mean, reg_sgd } ) }/> */}
-          {/* <Ionicons name='logo-youtube' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('LiveYT', { const_exer, scaler_scale, scaler_mean, reg_sgd } ) }/> */}
-          <Ionicons name='ios-grid' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Chart', { const_exer } ) }/>
+          {/* <Ionicons name='ios-flame' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Live', { const_exer, scaler_scale, scaler_mean, model } ) }/> */}
+          {/* <Ionicons name='logo-youtube' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('LiveYT', { const_exer, scaler_scale, scaler_mean, model } ) }/> */}
+          {/* <Ionicons name='ios-grid' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Chart', { const_exer } ) }/> */}
         {/* </LinearGradient> */}
         </View>
 
@@ -991,7 +1033,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     justifyContent: 'space-between',
-    paddingHorizontal: 100,
+    paddingHorizontal: 80,
     // marginTop: 50,
   },  
   feed: {
