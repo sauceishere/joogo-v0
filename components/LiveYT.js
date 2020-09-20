@@ -19,7 +19,7 @@ import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake'; //http
 import { Constants, Accelerometer } from 'expo-sensors'; // https://docs.expo.io/versions/latest/sdk/accelerometer/ # https://snack.expo.io/@professorxii/expo-accelerometer-example
 
 import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
-import Svg, { Circle, Rect,} from 'react-native-svg';
+// import Svg, { Circle, Rect,} from 'react-native-svg';
 
 // import {slow1} from '../assets/octopus';
 // import {LB_PER_KG} from '..DashboardScreen';
@@ -920,7 +920,7 @@ export default class Live extends Component {
             // this.mdCumNow = this.mdCum; // This is measure to avoid this,mdCumPrev duplicate issue. 20200814
             var mdCumTtlNow = 0; // initial assign
             this.scorePrev = 0; // initial assign
-            var scoreNow = 0;  // initial assign
+            var scoreNow = 0.0;  // initial assign
             console.log('--- this.scorePrev: ', this.scorePrev.toFixed(3));
             console.log('--- scoreNow: ', scoreNow.toFixed(3));
             
@@ -1534,7 +1534,8 @@ export default class Live extends Component {
 ///////// check if User moves towards Camera by noseToAnkle. 20200523 //////////// 
           if (shouldPlay == true )  { // check if video is playing
             if (this.pos.y0 != null && this.pos.y15 != null && this.pos.y16 != null) { // check if all necessary position data exist
-              if ( ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0 > noseToAnkle * this.outNTA.DistMoveCriteria) { // check if data is out of criteria
+              // if ( ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0 > noseToAnkle * this.outNTA.DistMoveCriteria) { // check if data is out of criteria
+              if ( Math.max(this.pos.y15 + this.pos.y16) - this.pos.y0 > noseToAnkle * this.outNTA.DistMoveCriteria) { // check if data is out of criteria
                 console.log('---------- out NoseToAnkle');
                 this.outNTA.cnt++; // increment
                 if (this.outNTA.cnt > this.outNTA.outTimesCriteria && this.outNTA.flag == false) { // check if count of out times more than criteria
@@ -1675,13 +1676,13 @@ export default class Live extends Component {
                       
                       this.vidState.numFrameAllPosOk = this.vidState.renderPoseTimes; // for record to Firestore vidViewLog. 20200524
 
-                      var videoCountDownSec = 5; // total countdown seconds until trainerVideo starts
+                      var videoCountDownSec = 1; // total countdown seconds until trainerVideo starts
                       // console.log('------------------ 0002');
 
                       var videoCountDown = setInterval( function(){
-                        // console.log('------------------ 0002.5: ', videoCountDownSec);
-                        this.setState({countdownTxt: videoCountDownSec + ' ...'}); // assign 
-                        console.log('--------------------- videoCountDownSec... : ', videoCountDownSec);
+                        // this.setState({countdownTxt: videoCountDownSec + ' ...'}); // assign
+                        this.setState({countdownTxt: 'GO'}); // assign 
+                        // console.log('--------------------- videoCountDownSec... : ', videoCountDownSec);
                         videoCountDownSec--; // decrement
                         if (videoCountDownSec < 0) { // when becomes smaller than zero
                           clearInterval(videoCountDown); // terminate interval

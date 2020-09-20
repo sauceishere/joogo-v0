@@ -898,7 +898,7 @@ export default class DashboardScreen extends Component {
 
   render() {
     console.log('---------------- render');
-    const { isLoading, wpart, const_exer, scaler_scale, scaler_mean, model, } = this.state;
+    const { isLoading, wpart, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit} = this.state;
 
     return (
       <View style={styles.container}>
@@ -997,7 +997,7 @@ export default class DashboardScreen extends Component {
           <MaterialIcons name='history' size={28} color="white" style={styles.HistoryIcon} onPress={ () => this.props.navigation.push('History') }/>
           {/* <Ionicons name="ios-medal" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Leaderboard') }/>  */}
           {/* <Ionicons name='ios-flame' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Live', { const_exer, scaler_scale, scaler_mean, model } ) }/> */}
-          {/* <Ionicons name='logo-youtube' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('LiveYT', { const_exer, scaler_scale, scaler_mean, model } ) }/> */}
+          <Ionicons name='logo-youtube' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('LiveYT', { const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit } ) }/>
           {/* <Ionicons name='ios-grid' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Chart', { const_exer } ) }/> */}
         {/* </LinearGradient> */}
         </View>

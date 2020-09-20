@@ -1063,7 +1063,8 @@ export default class Exercise extends Component {
 ///////// check if User moves towards Camera by noseToAnkle. 20200523 //////////// 
           if (shouldPlay == true && flagVidEnd == false)  { // check if video is playing
             if (this.pos.y0 != null && this.pos.y15 != null && this.pos.y16 != null) { // check if all necessary position data exist
-              if ( ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0 > noseToAnkle * this.outNTA.DistMoveCriteria) { // check if data is out of criteria
+              // if ( ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0 > noseToAnkle * this.outNTA.DistMoveCriteria) { // check if data is out of criteria
+              if ( Math.max(this.pos.y15 + this.pos.y16) - this.pos.y0 > noseToAnkle * this.outNTA.DistMoveCriteria) { // check if data is out of criteria
                 console.log('---------- out NoseToAnkle');
                 this.outNTA.cnt++; // increment
                 if (this.outNTA.cnt > this.outNTA.outTimesCriteria && this.outNTA.flag == false) { // check if count of out times more than criteria
@@ -1124,11 +1125,13 @@ export default class Exercise extends Component {
 
 
               if (this.pos.y0 != null && this.pos.y15 != null && this.pos.y16 != null) {
-                if ( ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0 > noseToAnkle) {
+                // if ( ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0 > noseToAnkle) { // average of leftAnkle and rightAnkle
+                if ( Math.max(this.pos.y15 + this.pos.y16) - this.pos.y0 > noseToAnkle) { // max of leftAnkle and rightAnkle 20200920
                   console.log('this.pos.x0, y0: ', this.pos.x0, this.pos.y0);
                   // this.noseToAnkle = ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0 ;
                   this.setState({ 
-                    noseToAnkle: ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0, 
+                    // noseToAnkle: ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0, // average of leftAnkle and rightAnkle
+                    noseToAnkle: Math.max(this.pos.y15 + this.pos.y16) - this.pos.y0, // max of leftAnkle and rightAnkle 20200920
                     flagNoseToAnkle: true,
                   });
                   console.log('noseToAnkle updated: ', noseToAnkle);

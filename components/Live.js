@@ -107,7 +107,7 @@ export default class Live extends Component {
   viewId = uuidv4();
 
   inputTensorWidth = Dimensions.get('window').width; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
-  inputTensorHeight = Dimensions.get('window').width; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //Dimensions.get('window').height / 3; // 200
+  inputTensorHeight = Dimensions.get('window').height; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //Dimensions.get('window').height / 3; // 200
 
   textureDims = { // https://github.com/tensorflow/tfjs/blob/master/tfjs-react-native/integration_rn59/components/webcam/realtime_demo.tsx
     width: this.props.navigation.getParam('const_exer')['textureDims']['width'], // 1800, //960, //Dimensions.get('window').width, // 960, // 1024, //768, //512, // 540, //256, // 1080, //videoSize, 
@@ -466,7 +466,7 @@ export default class Live extends Component {
 
 
   async componentDidMount() {
-    console.log('------------------- componentDidMount Live started 79');
+    console.log('------------------- componentDidMount Live started 81');
     // console.log('------ this.mets_per_part: ', this.mets_per_part);
     // console.log('------ this.camState: ', this.camState);
     // console.log( 'slow1[secFromStart]: ', typeof slow1 );
@@ -474,12 +474,14 @@ export default class Live extends Component {
     // console.log('this.scaler_scale: ', this.scaler_scale );
     // console.log('this.scaler_mean: ', this.scaler_mean );
     // console.log('this.model: ', this.model );
-    // console.log('screen height: ', Dimensions.get('screen').height);
-    // console.log('screen width: ', Dimensions.get('screen').width);
-    // console.log('window height: ', Dimensions.get('window').height);
-    // console.log('window width: ', Dimensions.get('window').width);
+    console.log('screen width, height: ', Dimensions.get('screen').width, Dimensions.get('screen').height);
+    console.log('window width, height: ', Dimensions.get('window').width, Dimensions.get('window').height);
+    console.log('inputTensorWidth, inputTensorHeight: ', this.inputTensorWidth, this.inputTensorHeight );
+    console.log('textureDims[width], [height]: ', this.textureDims['width'], this.textureDims['height'] );    
     // console.log('LB_PER_KG: ', LB_PER_KG);
     // console.log('this.state.vidViewLogTemp: ', this.state.vidViewLogTemp);
+
+
 
     if (this.state.wunit == 'kg') {
       this.WEIGHT_KG = (this.state.wval).toFixed(); 
@@ -929,7 +931,7 @@ export default class Live extends Component {
             // this.mdCumNow = this.mdCum; // This is measure to avoid this,mdCumPrev duplicate issue. 20200814
             var mdCumTtlNow = 0; // initial assign
             this.scorePrev = 0; // initial assign
-            var scoreNow = 0;  // initial assign
+            var scoreNow = 0.0;  // initial assign
             console.log('--- this.scorePrev: ', this.scorePrev.toFixed(3));
             console.log('--- scoreNow: ', scoreNow.toFixed(3));
             
@@ -1259,22 +1261,22 @@ export default class Live extends Component {
             console.log(k.part, ' : ', Math.round(k.position.x), Math.round(k.position.y), 's:', k.score.toFixed(2) )
 
 ////////// check if exerciser is out of camera range. 20200127 ////////////////////      
-            if (k.position.x > this.inputTensorWidth * 4/4) { 
+            if (k.position.x > this.inputTensorWidth * 0.95 ) { 
               this.frameOutCnt.right += 1; 
               this.frameOutCntCum.right += 1;
               console.log('out on observers Right > > > > > > > > > > ', this.frameOutCnt.right);
             }
-            if (k.position.x < this.inputTensorWidth * 0/4) {
+            if (k.position.x < this.inputTensorWidth * 0.05 ) {
               this.frameOutCnt.left += 1;
               this.frameOutCntCum.left += 1;
               console.log('out on observers Left < < < < < < < < < < ', this.frameOutCnt.left);
             }
-            if (k.position.y < this.inputTensorHeight * 0/4) {
+            if (k.position.y < this.inputTensorHeight * 0.05 ) {
               this.frameOutCnt.top += 1;
               this.frameOutCntCum.top += 1;
               console.log('out on observers Top ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ', this.frameOutCnt.top);
             }
-            if (k.position.y > this.inputTensorHeight * 4/4 + StatusBar.currentHeight ) { // added StatusBar.currentHeight since frame out to bottom often seen. 20200531
+            if (k.position.y > this.inputTensorHeight * 0.95 - StatusBar.currentHeight) { // added StatusBar.currentHeight since frame out to bottom often seen. 20200531
               this.frameOutCnt.bottom += 1;
               this.frameOutCntCum.bottom += 1;
               console.log('out on observers Bottom v v v v v v v v v v v ', this.frameOutCnt.bottom);
@@ -1525,7 +1527,8 @@ export default class Live extends Component {
 ///////// check if User moves towards Camera by noseToAnkle. 20200523 //////////// 
           if (shouldPlay == true )  { // check if video is playing
             if (this.pos.y0 != null && this.pos.y15 != null && this.pos.y16 != null) { // check if all necessary position data exist
-              if ( ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0 > noseToAnkle * this.outNTA.DistMoveCriteria) { // check if data is out of criteria
+              // if ( ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0 > noseToAnkle * this.outNTA.DistMoveCriteria) { // check if data is out of criteria
+              if ( Math.max(this.pos.y15 + this.pos.y16) - this.pos.y0 > noseToAnkle * this.outNTA.DistMoveCriteria) { // check if data is out of criteria
                 console.log('---------- out NoseToAnkle');
                 this.outNTA.cnt++; // increment
                 if (this.outNTA.cnt > this.outNTA.outTimesCriteria && this.outNTA.flag == false) { // check if count of out times more than criteria
@@ -1586,11 +1589,13 @@ export default class Live extends Component {
 
 
               if (this.pos.y0 != null && this.pos.y15 != null && this.pos.y16 != null) {
-                if ( ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0 > noseToAnkle) {
+                // if ( ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0 > noseToAnkle) { // average of leftAnkle and rightAnkle
+                if ( Math.max(this.pos.y15 + this.pos.y16) - this.pos.y0 > noseToAnkle) { // max of leftAnkle and rightAnkle 20200920
                   console.log('this.pos.x0, y0: ', this.pos.x0, this.pos.y0);
                   // this.noseToAnkle = ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0 ;
                   this.setState({ 
-                    noseToAnkle: ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0, 
+                    // noseToAnkle: ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0, // average of leftAnkle and rightAnkle
+                    noseToAnkle: Math.max(this.pos.y15 + this.pos.y16) - this.pos.y0, // max of leftAnkle and rightAnkle 20200920
                     flagNoseToAnkle: true,
                   });
                   console.log('noseToAnkle updated: ', noseToAnkle);
@@ -1666,13 +1671,13 @@ export default class Live extends Component {
                       
                       this.vidState.numFrameAllPosOk = this.vidState.renderPoseTimes; // for record to Firestore vidViewLog. 20200524
 
-                      var videoCountDownSec = 5; // total countdown seconds until trainerVideo starts
+                      var videoCountDownSec = 1; // total countdown seconds until trainerVideo starts
                       // console.log('------------------ 0002');
 
                       var videoCountDown = setInterval( function(){
-                        // console.log('------------------ 0002.5: ', videoCountDownSec);
-                        this.setState({countdownTxt: videoCountDownSec + ' ...'}); // assign 
-                        console.log('--------------------- videoCountDownSec... : ', videoCountDownSec);
+                        // this.setState({countdownTxt: videoCountDownSec + ' ...'}); // assign 
+                        this.setState({countdownTxt: 'GO' }); // assign 
+                        // console.log('--------------------- videoCountDownSec... : ', videoCountDownSec);
                         videoCountDownSec--; // decrement
                         if (videoCountDownSec < 0) { // when becomes smaller than zero
                           clearInterval(videoCountDown); // terminate interval
@@ -1754,6 +1759,7 @@ export default class Live extends Component {
         if (this.frameOutCnt.top > this.frameOutCntCriteria) {
             if (this.frameOutCntPrev.top < this.frameOutCnt.top) { // increased from previous assignment
               this.ULBColor.top = 'red';
+              console.log('RED RED RED RED RED RED RED RED RED RED RED RED RED ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^. ');
               // this.setState({ ULBColorTop: 'red' });
             } else if (this.frameOutCntPrev.top === this.frameOutCnt.top) {// compare with previous assignment
               this.ULBColor.top = 'transparent';   
@@ -1766,6 +1772,7 @@ export default class Live extends Component {
         if (this.frameOutCnt.bottom > this.frameOutCntCriteria) {
             if (this.frameOutCntPrev.bottom < this.frameOutCnt.bottom) { // increased from previous assignment
               this.ULBColor.bottom = 'red';
+              console.log('RED RED RED RED RED RED RED RED RED RED RED RED RED vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv ');
               // this.setState({ ULBColorBottom: 'red' });
             } else if (this.frameOutCntPrev.bottom === this.frameOutCnt.bottom) {// compare with previous assignment
               this.ULBColor.bottom = 'transparent';
@@ -1778,6 +1785,7 @@ export default class Live extends Component {
         if (this.frameOutCnt.left > this.frameOutCntCriteria) {
           if (this.frameOutCntPrev.left < this.frameOutCnt.left) { // increased from previous assignment
             this.ULBColor.left = 'red';
+            console.log('RED RED RED RED RED RED RED RED RED RED RED RED RED <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<. ');
             // this.setState({ ULBColorLeft: 'red' });
           } else if (this.frameOutCntPrev.left === this.frameOutCnt.left) {// compare with previous assignment
             this.ULBColor.left = 'transparent'; 
@@ -1790,6 +1798,7 @@ export default class Live extends Component {
         if (this.frameOutCnt.right > this.frameOutCntCriteria) {
           if (this.frameOutCntPrev.right < this.frameOutCnt.right) { // increased from previous assignment
             this.ULBColor.right = 'red';
+            console.log('RED RED RED RED RED RED RED RED RED RED RED RED RED >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>. ');
             // this.setState({ ULBColorRight: 'red' });
           } else if (this.frameOutCntPrev.right === this.frameOutCnt.right) {// compare with previous assignment
             this.ULBColor.right = 'transparent';   
@@ -1975,18 +1984,18 @@ export default class Live extends Component {
               } */}
 
                  
-              {/* { flagAllPosOk && 
+              { flagAllPosOk && 
                 <View style={[styles.upperLayerContainer, {
                   borderTopColor: this.ULBColor.top,
                   borderBottomColor: this.ULBColor.bottom,
                   borderLeftColor: this.ULBColor.left,
                   borderRightColor: this.ULBColor.right,
-                  borderWidth: Dimensions.get('window').height * 0.01} ]}>
+                  borderWidth: Dimensions.get('window').height * 0.03} ]}>
   
-                  <View style={[styles.progressBar, {width: this.state.progressBarWidth} ]}>
-                  </View>
+                  {/* <View style={[styles.progressBar, {width: this.state.progressBarWidth} ]}>
+                  </View> */}
                 </View>
-              } */}
+              }
               {/* https://reactnativecode.com/set-padding-dynamically/https://reactnativecode.com/set-padding-dynamically/ */}
                
 
@@ -2307,8 +2316,8 @@ const styles = StyleSheet.create({
   upperLayerContainer: {
     position: 'absolute',
     top: 0, //StatusBar.currentHeight,
-    height: Dimensions.get('window').height, // StatusBar.currentHeight, // Dynamically get & summate screen height & statusbar height.
-    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').width, // - StatusBar.currentHeight, // Dynamically get & summate screen height & statusbar height.
+    width: Dimensions.get('window').height, // - StatusBar.currentHeight,
     // zIndex: 400, // removed 20200531
     opacity: 0.9,
     // backgroundColor: '#ffa500', 
