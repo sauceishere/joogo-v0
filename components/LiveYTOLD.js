@@ -444,17 +444,17 @@ export default class Live extends Component {
     }
 
     this.vidState.vidEndAt = Date.now()/1000;
-    // console.log('------------------- componentWillUnmount Live 1');
+    console.log('------------------- componentWillUnmount Live 1');
 
     // await this._unsubscribeFromAccelerometer();
-    // console.log('------------------- componentWillUnmount Live 2');
+    console.log('------------------- componentWillUnmount Live 2');
 
     deactivateKeepAwake();
-    // console.log('------------------- componentWillUnmount Live 3');
+    console.log('------------------- componentWillUnmount Live 3');
 
     ScreenOrientation.unlockAsync(); // back to portrait
     // await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
-    // console.log('------------------- componentWillUnmount Live 4');
+    console.log('------------------- componentWillUnmount Live 4');
 
     await this._saveVidViewLog();
 
