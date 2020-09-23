@@ -25,6 +25,8 @@ import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.ex
 // import {LB_PER_KG} from '..DashboardScreen';
 import {LB_PER_KG} from '../shared/Consts';
 
+// import YouTube from 'react-native-youtube'; // llNFfJPyNvI
+
 
 const TensorCamera = cameraWithTensors(Camera); // https://js.tensorflow.org/api_react_native/latest/#cameraWithTensors
 
@@ -47,7 +49,7 @@ export default class Live extends Component {
       isPosenetLoaded: false, 
       cameraType: Camera.Constants.Type.front,
       modelName: 'posenet',
-      vidFullUrl: 'https://www.youtube.com/embed/sDhqARXot8Y?&autoplay=1', // &mute=0&showinfo=1&controls=0&fullscreen=1//'https://www.youtube.com/watch?v=sDhqARXot8Y', // // get from Firebase Storage
+      vidFullUrl: 'https://www.youtube.com/watch?v=-wtIMTCHWuI', // 'https://www.youtube.com/embed/llNFfJPyNvI', // autoplay=1&showinfo=0&controls=1&fullscreen=1', //?mute=1&autoplay=1&showinfo=0&controls=1&fullscreen=1', // &mute=0&showinfo=1&controls=0&fullscreen=1//'https://www.youtube.com/watch?v=sDhqARXot8Y', // // get from Firebase Storage
       vidLength: 10,//this.props.navigation.getParam('post')['LEN'], // length of video navigated from Dashboard.js
       // isVidMetaLoaded: false,
       // isWPartLoaded: false,
@@ -88,6 +90,7 @@ export default class Live extends Component {
     //   },
       wval: this.props.navigation.getParam('wval'), 
       wunit: this.props.navigation.getParam('wunit'),
+      isReady: false, // react-native-youtube
     }
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);  
     // this._handlePlayAndPause = this._handlePlayAndPause.bind(this);
@@ -463,7 +466,7 @@ export default class Live extends Component {
 
 
   async componentDidMount() {
-    console.log('------------------- componentDidMount LiveYT started');
+    console.log('------------------- componentDidMount LiveYT started 002 ');
     console.log('------ this.mets_per_part: ', this.mets_per_part);
     console.log('------ this.camState: ', this.camState);
     // console.log( 'slow1[secFromStart]: ', typeof slow1 );
@@ -590,15 +593,15 @@ export default class Live extends Component {
 
   async _vidDefault () {
     console.log('=============== _vidDefault ===============');
-    // await this.webviewRef.injectJavaScript(`
-    // document.getElementsByTagName("video")[0].pause();
-    // document.getElementsByTagName("video")[0].setAttribute("preload", "auto"); 
-    // document.getElementsByTagName("video")[0].setAttribute("muted", "true"); 
-    // document.getElementsByTagName("video")[0].removeAttribute('controls'); // hide control panels
-    // document.getElementsByTagName("video")[0].style.objectFit = 'fill'; // fill to widnow screen 
-    // document.getElementsByTagName("video")[0].style.height = '100%';
-    // document.getElementsByTagName("video")[0].style.width = '100%'; 
-    // `);
+    await this.webviewRef.injectJavaScript(`
+      document.getElementsByTagName("video")[0].pause();
+      document.getElementsByTagName("video")[0].setAttribute("muted", "true"); 
+      document.getElementsByTagName("video")[0].setAttribute("preload", "auto"); 
+      document.getElementsByTagName("video")[0].removeAttribute('controls'); // hide control panels
+      document.getElementsByTagName("video")[0].style.objectFit = 'fill'; // fill to widnow screen 
+      document.getElementsByTagName("video")[0].style.height = '100%';
+      document.getElementsByTagName("video")[0].style.width = '100%'; 
+    `);
     console.log('_vidDefault this.state.shouldPlay: ', this.state.shouldPlay);
   }      
 
@@ -662,7 +665,7 @@ export default class Live extends Component {
               body: JSON.stringify({
                 id_token: idTokenCopied,
                 ts: JSON.parse(localFileContents)["ts"],
-                // vidId: JSON.parse(localFileContents)["vidId"],
+                vidId: JSON.parse(localFileContents)["vidId"],
                 viewId: JSON.parse(localFileContents)["viewId"],  
                 uid: firebase.auth().currentUser.uid ,         
                 sendId: uuidv4(),
@@ -749,13 +752,13 @@ export default class Live extends Component {
 
     const ts = Date.now() / 1000; // unix //date.getTime().toString();
     // console.log('ts: ', ts);
-    // const vidId = this.props.navigation.getParam('post')['VIDID'];
+    const vidId = this.props.navigation.getParam('post')['VIDID'];
     const viewId = uuidv4();
     const vidViewLogFileName = ts + '_' + viewId;
 
     var jsonContents = {};
     jsonContents["ts"] = ts;
-    // jsonContents["vidId"] = vidId;
+    jsonContents["vidId"] = vidId;
     jsonContents["viewId"] = viewId;
     jsonContents["uid"] = firebase.auth().currentUser.uid;
     jsonContents["startAt"] = this.vidState.vidStartAt;
@@ -1903,16 +1906,27 @@ export default class Live extends Component {
                   </View>
 
                   <View style={styles.trainerVideoContainer}>
-                  {/* <View style={[ {zindex: 400 }, styles.trainerVideoContainer ]}> */}
                     <WebView
-                        ref={r => (this.webviewRef = r)}
-                        source={{ uri: this.state.vidFullUrl }}
-                        // source={{html: '<iframe width="{this.camState.windowHeight}" height="{this.camState.windowWidth}" src="https://www.youtube.com/embed/sDhqARXot8Y?&autoplay=1"frameborder="0" allowfullscreen></iframe>'}}
-                        // source={{html: '<video width="320" height="240" autoplay><source src="https://www.youtube.com/embed/sDhqARXot8Y?&autoplay=1" type="video/mp4"></video>' }}
-                        // style={[ {zindex: 400 }, styles.trainerVideo]} 
-                        style={ styles.trainerVideo } 
-                        onNavigationStateChange={this._vidDefault}
+                      ref={r => (this.webviewRef = r)}
+                      source={{ uri: this.state.vidFullUrl }}
+                      // source={{html: '<iframe width="{this.camState.windowHeight}" height="{this.camState.windowWidth}" src="https://www.youtube.com/embed/sDhqARXot8Y?&autoplay=1"frameborder="0" allowfullscreen></iframe>'}}
+                      // source={{html: '<video width="320" height="240" autoplay><source src="https://www.youtube.com/embed/sDhqARXot8Y?&autoplay=1" type="video/mp4"></video>' }}
+                      // style={[ {zindex: 400 }, styles.trainerVideo]} 
+                      style={ styles.trainerVideo } 
+                      onNavigationStateChange={this._vidDefault}
                     /> 
+
+                    {/* <YouTube
+                      videoId="llNFfJPyNvI" // The YouTube video ID
+                      play // control playback of video with true/false
+                      fullscreen // control whether the video should play in fullscreen or inline
+                      // loop // control whether the video should loop when ended
+                      onReady={e => this.setState({ isReady: true })}
+                      onChangeState={e => this.setState({ status: e.state })}
+                      onChangeQuality={e => this.setState({ quality: e.quality })}
+                      onError={e => this.setState({ error: e.error })}
+                      style={{ alignSelf: 'stretch', height: 300 }}
+                    />                     */}
                   </View> 
 
                 </View>
@@ -1923,12 +1937,12 @@ export default class Live extends Component {
 
                   <View style={styles.trainerVideoContainer}>
                     <WebView
-                        ref={r => (this.webviewRef = r)}
-                          source={{ uri: this.state.vidFullUrl }}
-                        // source={{html: '<iframe width="{this.camState.windowHeight}" height="{this.camState.windowWidth}" src="https://www.youtube.com/embed/sDhqARXot8Y?&autoplay=1"frameborder="0" allowfullscreen></iframe>'}}
-                        // source={{html: '<video width="320" height="240" autoplay><source src="https://www.youtube.com/embed/sDhqARXot8Y?&autoplay=1" type="video/mp4"></video>' }}
-                        style={ styles.trainerVideo } 
-                        onNavigationStateChange={this._vidDefault}
+                      ref={r => (this.webviewRef = r)}
+                      source={{ uri: this.state.vidFullUrl }}
+                      // source={{html: '<iframe width="{this.camState.windowHeight}" height="{this.camState.windowWidth}" src="https://www.youtube.com/embed/sDhqARXot8Y?&autoplay=1"frameborder="0" allowfullscreen></iframe>'}}
+                      // source={{html: '<video width="320" height="240" autoplay><source src="https://www.youtube.com/embed/sDhqARXot8Y?&autoplay=1" type="video/mp4"></video>' }}
+                      style={ styles.trainerVideo } 
+                      onNavigationStateChange={this._vidDefault}
                     /> 
                   </View>  
 
@@ -1993,7 +2007,7 @@ export default class Live extends Component {
               } */}
 
                  
-              { flagAllPosOk && 
+              {/* { flagAllPosOk && 
                 <View style={[styles.upperLayerContainer, {
                   borderTopColor: this.ULBColor.top,
                   borderBottomColor: this.ULBColor.bottom,
@@ -2001,10 +2015,10 @@ export default class Live extends Component {
                   borderRightColor: this.ULBColor.right,
                   borderWidth: Dimensions.get('window').height * 0.03} ]}>
   
-                  {/* <View style={[styles.progressBar, {width: this.state.progressBarWidth} ]}>
-                  </View> */}
+                  <View style={[styles.progressBar, {width: this.state.progressBarWidth} ]}>
+                  </View>
                 </View>
-              }
+              } */}
               {/* https://reactnativecode.com/set-padding-dynamically/https://reactnativecode.com/set-padding-dynamically/ */}
                
 
@@ -2139,7 +2153,7 @@ const styles = StyleSheet.create({
     // alignItems: 'center',
     // justifyContent: 'center',  
     borderColor: 'white', // BORDER IS NECESSARY BUT DONT KNOW WHY. 20200531
-    borderWidth: 0.1, // BORDER IS NECESSARY BUT DONT KNOW WHY. 20200531
+    borderWidth: 10, // BORDER IS NECESSARY BUT DONT KNOW WHY. 20200531
     // position: absolute, // DON'T ADD THIS, IT WILL BE BLUE EXPO ERROR SCREEN. 20200524
   },
   trainerVideo: {
@@ -2150,11 +2164,13 @@ const styles = StyleSheet.create({
     // height: '100%',
     // width: '100%',
     height: Dimensions.get('window').width, 
-    width: Dimensions.get('window').height,    
+    width: Dimensions.get('window').height,
     alignItems: 'center',
     justifyContent: 'center',  
     // zindex: 300,     
     top: 0,
+    borderColor: 'blue', // BORDER IS NECESSARY BUT DONT KNOW WHY. 20200531
+    borderWidth: 10, // BORDER IS NECESSARY BUT DONT KNOW WHY. 20200531
   },
 
   modelResults: {

@@ -35,7 +35,7 @@ export default class DashboardScreen extends Component {
         doneComponentDidMount: false,
         // VidViewLogFileName: null, // vidViewLog filenames that sent to Firestore
         flagSentVidViewLog: false, // flag true when completed sending 
-        vidViewLogTemp: null, //UID will be assigned during componentDidMount // {vidViewLogTemp}['vidViewLogTemp'], // Local storage directory name to keep vidViewLog
+        vidViewLogTemp: 'vidViewLogTemp_' + firebase.auth().currentUser.uid, //UID will be assigned during componentDidMount // {vidViewLogTemp}['vidViewLogTemp'], // Local storage directory name to keep vidViewLog
         isLoading: false,
         nname: null, // nickname inp
         flpage: 0, // page of flat list to control loadDashboardFlatList-py. 20200527
@@ -79,13 +79,13 @@ export default class DashboardScreen extends Component {
     // console.log('this.curDir: ', this.curDir);  
 
 
-    // // Check Directories & Files in current directory. // THIS IS FOR MANUAL ACTION 
+    // // // Check Directories & Files in current directory. // THIS IS FOR MANUAL ACTION 
     // FileSystem.readDirectoryAsync( this.curDir + this.state.vidViewLogTemp ).then( content => {
     //   console.log('check this.curDir Dirs and Files: ', content); // how many localFiles in array
     // })
 
     // // Delete File // THIS IS FOR MANUAL ACTION AGAINST ERROR
-    // FileSystem.deleteAsync( this.curDir + this.state.vidViewLogTemp ).then( (dir) => {
+    // FileSystem.deleteAsync( this.curDir  ).then( (dir) => {
     //   console.log('---------- File Deleted: ', dir);
     // }).catch(error => {
     //   console.log('error: ', error);
@@ -105,9 +105,9 @@ export default class DashboardScreen extends Component {
           // console.log(this.curDir + this.state.vidViewLogTemp + '/');
 
           if ( contents['size'] > 50 * 1024 * 1024 ) { // if folder size is over 50MB, then delete files. 20200608
-            FileSystem.deleteAsync( this.curDir + this.state.vidViewLogTemp ).then( (dir) => {
-              console.log('---------- vidViewLog Folder Deleted');
-              console.log('Video View Log files can not be sent out. Please contact help center');
+            FileSystem.deleteAsync( this.curDir ).then( (dir) => {
+              console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx vidViewLog Folder Deleted due to exceeded folder size.');
+              // console.log('Video View Log files can not be sent out. Please contact help center');
               // alert('Video View Log files can not be sent out. Please contact help center');
             }).catch(error => {
               console.log('Error deleting vidViewLog Folder: ', error);
@@ -305,13 +305,13 @@ export default class DashboardScreen extends Component {
 
 
   async componentDidMount() {
-    console.log('------------- componentDidMount Dashboard started');
+    console.log('------------- componentDidMount Dashboard started 003');
 
     if (this.state.doneComponentDidMount == false) { // if variable is null. this if to prevent repeated loop.
       // console.log('this.state.vidFullUrl started ');
       this.setState({
         isLoading: true,
-        vidViewLogTemp: 'vidViewLogTemp_' + firebase.auth().currentUser.uid,
+        // vidViewLogTemp: 'vidViewLogTemp_' + firebase.auth().currentUser.uid,
         vidViewLog: 'vidViewLog_' + firebase.auth().currentUser.uid,
       });
 
