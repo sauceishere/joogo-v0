@@ -946,7 +946,7 @@ const styles = StyleSheet.create({
     },
     timestamp: {
         fontSize: 13,
-        color: '##454D65', //"#C4C6CE",
+        color: '#454D65', //"#C4C6CE",
         marginTop: 0,
         fontWeight: "500",
         textAlign: 'right',

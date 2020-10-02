@@ -47,7 +47,7 @@ export default class DashboardScreen extends Component {
         refreshing: false,
         // oldestVidTs: Date.now() / 1000,
         flagMastersLoaded: false, // becomes true when wpart & const_exer downloaded from firebase 20200606.
-        wpart: null, // will be assigned after downloaded from Firebase. 20200606
+        // wpart: null, // will be assigned after downloaded from Firebase. 20200606
         const_exer: null, // will be assigned after downloaded from Firebase. 20200606
         adUnitID: null, // get adUnitID form Firebase 20200625
         // mets_per_part: null, //20200804
@@ -58,6 +58,7 @@ export default class DashboardScreen extends Component {
         wunit: null, // weight unit
         // fillingNow: true, // control modal    
         vidViewLog: null,    
+        model2: null,
     }
     // this.allSnapShot = this.allSnapShot.bind(this);
     this._sendVidViewLog = this._sendVidViewLog.bind(this);
@@ -305,7 +306,7 @@ export default class DashboardScreen extends Component {
 
 
   async componentDidMount() {
-    console.log('------------- componentDidMount Dashboard started 003');
+    console.log('------------- componentDidMount Dashboard started 06');
 
     if (this.state.doneComponentDidMount == false) { // if variable is null. this if to prevent repeated loop.
       // console.log('this.state.vidFullUrl started ');
@@ -411,7 +412,7 @@ export default class DashboardScreen extends Component {
       console.log('----- Dashboard _loadDashboardFlatlist.');
       console.log('this.largestMETS: ', this.largestMETS);
       
-      fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/loadDashboardFlatlistYT-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+      fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/loadDashboardFlatlist4-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
         method: 'POST',
         headers: {
           // 'Accept': 'application/json', 
@@ -450,13 +451,14 @@ export default class DashboardScreen extends Component {
               refreshing: false,
               isLoading: false,
               flagMastersLoaded: true, // this to identify its downloaded
-              wpart: response.wpart,
+              // wpart: response.wpart,
               const_exer: response.const_exer,
               // mets_per_part: response.mets_per_part, // 20200804
               scaler_scale: response.scaler_scale, // 20200824
               scaler_mean: response.scaler_mean, // 20200824
-              model: response.reg_sgd, // 20200824
+              model: response.reg, // 20200824
               adUnitID: response.const_exer.adUnitID,
+              model2: response.reg2, // 20200824
             }); 
             // console.log('this.state.const_exer: ', this.state.const_exer );
             // console.log('this.state.mets_per_part: ', this.state.mets_per_part );
@@ -584,7 +586,7 @@ export default class DashboardScreen extends Component {
 
 
   renderPost = post => {
-      const { wpart, const_exer, wval, wunit, scaler_scale, scaler_mean, model, vidViewLogTemp } = this.state;
+      const {  const_exer, wval, wunit, scaler_scale, scaler_mean, model, vidViewLogTemp , adUnitID} = this.state;
       // num_post++; // increment var num_post
       console.log('====== post ====== post_num:' , post_num);
 
@@ -779,7 +781,7 @@ export default class DashboardScreen extends Component {
               <View style={styles.ads}>
                 <AdMobBanner
                   bannerSize="mediumRectangle"
-                  adUnitID = 'ca-app-pub-9079750066587969/4230406044' // {this.state.adUnitID} // Banner ID ca-app-pub-9079750066587969/4230406044 // Test ID ca-app-pub-3940256099942544/6300978111
+                  adUnitID = {adUnitID} //'ca-app-pub-9079750066587969/4230406044' // {this.state.adUnitID} // Banner ID ca-app-pub-9079750066587969/4230406044 // Test ID ca-app-pub-3940256099942544/6300978111
                   servePersonalizedAds // true or false
                   onDidFailToReceiveAdWithError={this.bannerError} />
               </View>  
@@ -898,7 +900,7 @@ export default class DashboardScreen extends Component {
 
   render() {
     console.log('---------------- render');
-    const { isLoading, wpart, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit} = this.state;
+    const { isLoading, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit} = this.state;
 
     return (
       <View style={styles.container}>

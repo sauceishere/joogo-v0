@@ -49,7 +49,7 @@ export default class Live extends Component {
       isPosenetLoaded: false, 
       cameraType: Camera.Constants.Type.front,
       modelName: 'posenet',
-      vidFullUrl: 'https://www.youtube.com/watch?v=-wtIMTCHWuI', // 'https://www.youtube.com/embed/llNFfJPyNvI', // autoplay=1&showinfo=0&controls=1&fullscreen=1', //?mute=1&autoplay=1&showinfo=0&controls=1&fullscreen=1', // &mute=0&showinfo=1&controls=0&fullscreen=1//'https://www.youtube.com/watch?v=sDhqARXot8Y', // // get from Firebase Storage
+      vidFullUrl: 'https://www.youtube.com/embed/llNFfJPyNvI?fullscreen=1', //'https://www.youtube.com/watch?v=-wtIMTCHWuI', // 'https://www.youtube.com/embed/llNFfJPyNvI',  -wtIMTCHWuI // autoplay=1&showinfo=0&controls=1&fullscreen=1', //?mute=1&autoplay=1&showinfo=0&controls=1&fullscreen=1', // &mute=0&showinfo=1&controls=0&fullscreen=1//'https://www.youtube.com/watch?v=sDhqARXot8Y', // // get from Firebase Storage
       vidLength: 10,//this.props.navigation.getParam('post')['LEN'], // length of video navigated from Dashboard.js
       // isVidMetaLoaded: false,
       // isWPartLoaded: false,
@@ -1905,7 +1905,7 @@ export default class Live extends Component {
                     />
                   </View>
 
-                  <View style={styles.trainerVideoContainer}>
+                  <View style={styles.trainerVideoContainer }>
                     <WebView
                       ref={r => (this.webviewRef = r)}
                       source={{ uri: this.state.vidFullUrl }}
@@ -2124,7 +2124,7 @@ const styles = StyleSheet.create({
     width: Dimensions.get('screen').height,
     position: 'absolute',
     flex: 0,
-    zindex: 0, // 20200531
+    // zindex: 0, // 20200531
     // borderColor: 'green',
     // borderWidth: 1,
   },
@@ -2137,7 +2137,7 @@ const styles = StyleSheet.create({
     flex: 0,    
     // borderColor: 'purple', 
     // borderWidth: 2,   
-    zindex: 1, //20200531
+    // zindex: 1, //20200531
   }, 
   trainerVideoContainer: {
     flex: 1,
@@ -2152,8 +2152,8 @@ const styles = StyleSheet.create({
     // zindex: 100,
     // alignItems: 'center',
     // justifyContent: 'center',  
-    borderColor: 'white', // BORDER IS NECESSARY BUT DONT KNOW WHY. 20200531
-    borderWidth: 10, // BORDER IS NECESSARY BUT DONT KNOW WHY. 20200531
+    borderColor: 'black', // BORDER IS NECESSARY BUT DONT KNOW WHY. 20200531
+    borderWidth: 0.1, // BORDER IS NECESSARY BUT DONT KNOW WHY. 20200531
     // position: absolute, // DON'T ADD THIS, IT WILL BE BLUE EXPO ERROR SCREEN. 20200524
   },
   trainerVideo: {
@@ -2164,13 +2164,13 @@ const styles = StyleSheet.create({
     // height: '100%',
     // width: '100%',
     height: Dimensions.get('window').width, 
-    width: Dimensions.get('window').height,
+    // width: Dimensions.get('window').height,
     alignItems: 'center',
     justifyContent: 'center',  
     // zindex: 300,     
     top: 0,
-    borderColor: 'blue', // BORDER IS NECESSARY BUT DONT KNOW WHY. 20200531
-    borderWidth: 10, // BORDER IS NECESSARY BUT DONT KNOW WHY. 20200531
+    // borderColor: 'blue', // BORDER IS NECESSARY BUT DONT KNOW WHY. 20200531
+    // borderWidth: 10, // BORDER IS NECESSARY BUT DONT KNOW WHY. 20200531
   },
 
   modelResults: {

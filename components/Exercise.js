@@ -1623,7 +1623,7 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width,
     position: 'absolute',
     flex: 0,
-    zindex: 0, // 20200531
+    // zindex: 0, // 20200531
     // borderColor: 'green',
     // borderWidth: 1,
   },
@@ -1636,7 +1636,7 @@ const styles = StyleSheet.create({
     flex: 0,    
     // borderColor: 'purple', 
     // borderWidth: 2,   
-    zindex: 1, //20200531
+    // zindex: 1, //20200531
   }, 
   trainerVideoContainer: {
     flex: 1,
