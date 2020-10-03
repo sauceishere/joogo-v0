@@ -472,7 +472,7 @@ export default class Live extends Component {
 
 
   async componentDidMount() {
-    console.log('------------------- componentDidMount Live started 81');
+    console.log('------------------- componentDidMount Live started 82');
     // console.log('------ this.mets_per_part: ', this.mets_per_part);
     // console.log('------ this.camState: ', this.camState);
     // console.log( 'slow1[secFromStart]: ', typeof slow1 );
@@ -483,7 +483,7 @@ export default class Live extends Component {
     console.log('screen width, height: ', Dimensions.get('screen').width, Dimensions.get('screen').height);
     console.log('window width, height: ', Dimensions.get('window').width, Dimensions.get('window').height);
     console.log('inputTensorWidth, inputTensorHeight: ', this.inputTensorWidth, this.inputTensorHeight );
-    console.log('textureDims[width], [height]: ', this.textureDims['width'], this.textureDims['height'] );    
+    console.log('textureDims.width .height: ', this.textureDims.width, this.textureDims.height );    
     // console.log('LB_PER_KG: ', LB_PER_KG);
     // console.log('this.state.vidViewLogTemp: ', this.state.vidViewLogTemp);
 
@@ -976,6 +976,9 @@ export default class Live extends Component {
 
             if (this.flag_mdCum == 1) {
               console.log('--- this.flag_mdCum == 1, Update mdCumB');
+              console.log('this.mdCum: ', this.mdCum);
+              console.log('this.mdCumA: ', this.mdCumA);
+              console.log('this.mdCumB: ', this.mdCumB);
               // this.mdCumB = this.mdCum; //update mdCumB
               this.mdCumB.x5 = this.mdCum.x5; // update mdCum
               this.mdCumB.x6 = this.mdCum.x6; // update mdCum
@@ -1002,50 +1005,53 @@ export default class Live extends Component {
               // console.log('--- this.mdCumB: ', this.mdCumB);  
 
 
-              // flag if position is smaller than support. 20201002
-              if ( this.mdCumB.y13 < this.mdCumB.y11 ) { // leftKnee < leftHip
-                this.flagHighLow.lkne = 1;
-              } else {
-                this.flagHighLow.lkne = 0;
-              }
-              if ( this.mdCumB.y14 < this.mdCumB.y12 ) { // rightKnee < rightHip
-                this.flagHighLow.rkne = 1;
-              } else {
-                this.flagHighLow.rkne = 0;
-              }
-              if ( this.mdCumB.y15 < this.mdCumB.y13 ) { // leftAnkle < leftKnee
-                this.flagHighLow.lank = 1;
-              } else {
-                this.flagHighLow.lank = 0;
-              }
-              if ( this.mdCumB.y16 < this.mdCumB.y14 ) { // righttAnkle < righttKnee
-                this.flagHighLow.rank = 1;
-              } else {
-                this.flagHighLow.rank = 0;
-              }              
+              // // flag if position is smaller than support. 20201002
+              // if ( this.mdCumB.y13 < this.mdCumB.y11 ) { // leftKnee < leftHip
+              //   this.flagHighLow.lkne = 1;
+              // } else {
+              //   this.flagHighLow.lkne = 0;
+              // }
+              // if ( this.mdCumB.y14 < this.mdCumB.y12 ) { // rightKnee < rightHip
+              //   this.flagHighLow.rkne = 1;
+              // } else {
+              //   this.flagHighLow.rkne = 0;
+              // }
+              // if ( this.mdCumB.y15 < this.mdCumB.y13 ) { // leftAnkle < leftKnee
+              //   this.flagHighLow.lank = 1;
+              // } else {
+              //   this.flagHighLow.lank = 0;
+              // }
+              // if ( this.mdCumB.y16 < this.mdCumB.y14 ) { // righttAnkle < righttKnee
+              //   this.flagHighLow.rank = 1;
+              // } else {
+              //   this.flagHighLow.rank = 0;
+              // }              
               
-              mdCumTtlNow =  
-                ( ( ( ( (this.mdCumB.y10 - this.mdCumA.y10) + (this.mdCumB.y12 - this.mdCumA.y12) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_hip ) / this.scaler_scale.y_hip * this.model.y_hip ) + 
+              mdCumTtlNow =  11;
+                // ( ( ( ( (this.mdCumB.y10 - this.mdCumA.y10) + (this.mdCumB.y12 - this.mdCumA.y12) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_hip ) / this.scaler_scale.y_hip * this.model.y_hip ) + 
 
-                ( ( ( ( Math.abs( (this.mdCumB.x5 - this.mdCumB.x11) - (this.mdCumA.x5 - this.mdCumA.x11) ) + Math.abs( (this.mdCumB.x6 - this.mdCumB.x12) - (this.mdCumA.x6 - this.mdCumA.x12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_sho ) / this.scaler_scale.x_sho * this.model.x_sho ) + 
-                ( ( ( ( Math.abs( (this.mdCumB.x7 - this.mdCumB.x5) - (this.mdCumA.x7 - this.mdCumA.x5) ) + Math.abs( (this.mdCumB.x8 - this.mdCumB.x6) - (this.mdCumA.x8 - this.mdCumA.x6) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_elb ) / this.scaler_scale.x_elb * this.model.x_elb ) + 
-                ( ( ( ( Math.abs( (this.mdCumB.x9 - this.mdCumB.x7) - (this.mdCumA.x9 - this.mdCumA.x7) ) + Math.abs( (this.mdCumB.x10 - this.mdCumB.x8) - (this.mdCumA.x10 - this.mdCumA.x8) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_wri ) / this.scaler_scale.x_wri * this.model.x_wri ) +
-                ( ( ( ( Math.abs( (this.mdCumB.x13 - this.mdCumB.x11) - (this.mdCumA.x13 - this.mdCumA.x11) ) + Math.abs( (this.mdCumB.x14 - this.mdCumB.x12) - (this.mdCumA.x14 - this.mdCumA.x12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_kne ) / this.scaler_scale.x_kne * this.model.x_kne ) +
-                ( ( ( ( Math.abs( (this.mdCumB.x15 - this.mdCumB.x13) - (this.mdCumA.x15 - this.mdCumA.x13) ) + Math.abs( (this.mdCumB.x16 - this.mdCumB.x14) - (this.mdCumA.x16 - this.mdCumA.x14) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_ank ) / this.scaler_scale.x_ank * this.model.x_ank ) +
+                // ( ( ( ( Math.abs( (this.mdCumB.x5 - this.mdCumB.x11) - (this.mdCumA.x5 - this.mdCumA.x11) ) + Math.abs( (this.mdCumB.x6 - this.mdCumB.x12) - (this.mdCumA.x6 - this.mdCumA.x12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_sho ) / this.scaler_scale.x_sho * this.model.x_sho ) + 
+                // ( ( ( ( Math.abs( (this.mdCumB.x7 - this.mdCumB.x5) - (this.mdCumA.x7 - this.mdCumA.x5) ) + Math.abs( (this.mdCumB.x8 - this.mdCumB.x6) - (this.mdCumA.x8 - this.mdCumA.x6) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_elb ) / this.scaler_scale.x_elb * this.model.x_elb ) + 
+                // ( ( ( ( Math.abs( (this.mdCumB.x9 - this.mdCumB.x7) - (this.mdCumA.x9 - this.mdCumA.x7) ) + Math.abs( (this.mdCumB.x10 - this.mdCumB.x8) - (this.mdCumA.x10 - this.mdCumA.x8) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_wri ) / this.scaler_scale.x_wri * this.model.x_wri ) +
+                // ( ( ( ( Math.abs( (this.mdCumB.x13 - this.mdCumB.x11) - (this.mdCumA.x13 - this.mdCumA.x11) ) + Math.abs( (this.mdCumB.x14 - this.mdCumB.x12) - (this.mdCumA.x14 - this.mdCumA.x12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_kne ) / this.scaler_scale.x_kne * this.model.x_kne ) +
+                // ( ( ( ( Math.abs( (this.mdCumB.x15 - this.mdCumB.x13) - (this.mdCumA.x15 - this.mdCumA.x13) ) + Math.abs( (this.mdCumB.x16 - this.mdCumB.x14) - (this.mdCumA.x16 - this.mdCumA.x14) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_ank ) / this.scaler_scale.x_ank * this.model.x_ank ) +
 
-                ( ( ( ( Math.abs( (this.mdCumB.y5 - this.mdCumB.y11) - (this.mdCumA.y5 - this.mdCumA.y11) ) + Math.abs( (this.mdCumB.y6 - this.mdCumB.y12) - (this.mdCumA.y6 - this.mdCumA.y12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_sho ) / this.scaler_scale.y_sho * this.model.y_sho ) + 
-                ( ( ( ( Math.abs( (this.mdCumB.y7 - this.mdCumB.y5) - (this.mdCumA.y7 - this.mdCumA.y5) ) + Math.abs( (this.mdCumB.y8 - this.mdCumB.y6) - (this.mdCumA.y8 - this.mdCumA.y6) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_elb ) / this.scaler_scale.y_elb * this.model.y_elb ) + 
-                ( ( ( ( Math.abs( (this.mdCumB.y9 - this.mdCumB.y7) - (this.mdCumA.y9 - this.mdCumA.y7) ) + Math.abs( (this.mdCumB.y10 - this.mdCumB.y8) - (this.mdCumA.y10 - this.mdCumA.y8) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_wri ) / this.scaler_scale.y_wri * this.model.y_wri ) +
-                ( ( ( ( Math.abs( (this.mdCumB.y13 - this.mdCumB.y11) - (this.mdCumA.y13 - this.mdCumA.y11) ) + Math.abs( (this.mdCumB.y14 - this.mdCumB.y12) - (this.mdCumA.y14 - this.mdCumA.y12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_kne ) / this.scaler_scale.y_kne * this.model.y_kne ) +
-                ( ( ( ( Math.abs( (this.mdCumB.y15 - this.mdCumB.y13) - (this.mdCumA.y15 - this.mdCumA.y13) ) + Math.abs( (this.mdCumB.y16 - this.mdCumB.y14) - (this.mdCumA.y16 - this.mdCumA.y14) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_ank ) / this.scaler_scale.y_ank * this.model.y_ank ) +
+                // ( ( ( ( Math.abs( (this.mdCumB.y5 - this.mdCumB.y11) - (this.mdCumA.y5 - this.mdCumA.y11) ) + Math.abs( (this.mdCumB.y6 - this.mdCumB.y12) - (this.mdCumA.y6 - this.mdCumA.y12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_sho ) / this.scaler_scale.y_sho * this.model.y_sho ) + 
+                // ( ( ( ( Math.abs( (this.mdCumB.y7 - this.mdCumB.y5) - (this.mdCumA.y7 - this.mdCumA.y5) ) + Math.abs( (this.mdCumB.y8 - this.mdCumB.y6) - (this.mdCumA.y8 - this.mdCumA.y6) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_elb ) / this.scaler_scale.y_elb * this.model.y_elb ) + 
+                // ( ( ( ( Math.abs( (this.mdCumB.y9 - this.mdCumB.y7) - (this.mdCumA.y9 - this.mdCumA.y7) ) + Math.abs( (this.mdCumB.y10 - this.mdCumB.y8) - (this.mdCumA.y10 - this.mdCumA.y8) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_wri ) / this.scaler_scale.y_wri * this.model.y_wri ) +
+                // ( ( ( ( Math.abs( (this.mdCumB.y13 - this.mdCumB.y11) - (this.mdCumA.y13 - this.mdCumA.y11) ) + Math.abs( (this.mdCumB.y14 - this.mdCumB.y12) - (this.mdCumA.y14 - this.mdCumA.y12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_kne ) / this.scaler_scale.y_kne * this.model.y_kne ) +
+                // ( ( ( ( Math.abs( (this.mdCumB.y15 - this.mdCumB.y13) - (this.mdCumA.y15 - this.mdCumA.y13) ) + Math.abs( (this.mdCumB.y16 - this.mdCumB.y14) - (this.mdCumA.y16 - this.mdCumA.y14) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_ank ) / this.scaler_scale.y_ank * this.model.y_ank ) +
 
-                this.model.intercept;
+                // this.model.intercept;
 
 
               this.flag_mdCum = 0; // switch flag
 
-            } else {
+            } else { // if this.flag_mdCum = 0
               console.log('--- this.flag_mdCum == 0, Update mdCumA');
+              console.log('this.mdCum: ', this.mdCum);
+              console.log('this.mdCumA: ', this.mdCumA);
+              console.log('this.mdCumB: ', this.mdCumB);
               // this.mdCumA = this.mdCum; // update mdCumA
               this.mdCumA.x5 = this.mdCum.x5; // update mdCum
               this.mdCumA.x6 = this.mdCum.x6; // update mdCum
@@ -1071,27 +1077,28 @@ export default class Live extends Component {
               this.mdCumA.y15 = this.mdCum.y15; // update mdCum    
               // console.log('--- this.mdCumA: ', this.mdCumA);  
 
-              mdCumTtlNow =  
-                ( ( ( ( (this.mdCumA.y10 - this.mdCumB.y10) + (this.mdCumA.y12 - this.mdCumB.y12) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_hip ) / this.scaler_scale.y_hip * this.model.y_hip ) + 
+              mdCumTtlNow = 12;
+                // ( ( ( ( (this.mdCumA.y10 - this.mdCumB.y10) + (this.mdCumA.y12 - this.mdCumB.y12) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_hip ) / this.scaler_scale.y_hip * this.model.y_hip ) + 
 
-                ( ( ( ( Math.abs( (this.mdCumA.x5 - this.mdCumA.x11) - (this.mdCumB.x5 - this.mdCumB.x11) ) + Math.abs( (this.mdCumA.x6 - this.mdCumA.x12) - (this.mdCumB.x6 - this.mdCumB.x12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_sho ) / this.scaler_scale.x_sho * this.model.x_sho ) + 
-                ( ( ( ( Math.abs( (this.mdCumA.x7 - this.mdCumA.x5) - (this.mdCumB.x7 - this.mdCumB.x5) ) + Math.abs( (this.mdCumA.x8 - this.mdCumA.x6) - (this.mdCumB.x8 - this.mdCumB.x6) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_elb ) / this.scaler_scale.x_elb * this.model.x_elb ) + 
-                ( ( ( ( Math.abs( (this.mdCumA.x9 - this.mdCumA.x7) - (this.mdCumB.x9 - this.mdCumB.x7) ) + Math.abs( (this.mdCumA.x10 - this.mdCumA.x8) - (this.mdCumB.x10 - this.mdCumB.x8) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_wri ) / this.scaler_scale.x_wri * this.model.x_wri ) +
-                ( ( ( ( Math.abs( (this.mdCumA.x13 - this.mdCumA.x11) - (this.mdCumB.x13 - this.mdCumB.x11) ) + Math.abs( (this.mdCumA.x14 - this.mdCumA.x12) - (this.mdCumB.x14 - this.mdCumB.x12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_kne ) / this.scaler_scale.x_kne * this.model.x_kne ) +
-                ( ( ( ( Math.abs( (this.mdCumA.x15 - this.mdCumA.x13) - (this.mdCumB.x15 - this.mdCumB.x13) ) + Math.abs( (this.mdCumA.x16 - this.mdCumA.x14) - (this.mdCumB.x16 - this.mdCumB.x14) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_ank ) / this.scaler_scale.x_ank * this.model.x_ank ) +
+                // ( ( ( ( Math.abs( (this.mdCumA.x5 - this.mdCumA.x11) - (this.mdCumB.x5 - this.mdCumB.x11) ) + Math.abs( (this.mdCumA.x6 - this.mdCumA.x12) - (this.mdCumB.x6 - this.mdCumB.x12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_sho ) / this.scaler_scale.x_sho * this.model.x_sho ) + 
+                // ( ( ( ( Math.abs( (this.mdCumA.x7 - this.mdCumA.x5) - (this.mdCumB.x7 - this.mdCumB.x5) ) + Math.abs( (this.mdCumA.x8 - this.mdCumA.x6) - (this.mdCumB.x8 - this.mdCumB.x6) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_elb ) / this.scaler_scale.x_elb * this.model.x_elb ) + 
+                // ( ( ( ( Math.abs( (this.mdCumA.x9 - this.mdCumA.x7) - (this.mdCumB.x9 - this.mdCumB.x7) ) + Math.abs( (this.mdCumA.x10 - this.mdCumA.x8) - (this.mdCumB.x10 - this.mdCumB.x8) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_wri ) / this.scaler_scale.x_wri * this.model.x_wri ) +
+                // ( ( ( ( Math.abs( (this.mdCumA.x13 - this.mdCumA.x11) - (this.mdCumB.x13 - this.mdCumB.x11) ) + Math.abs( (this.mdCumA.x14 - this.mdCumA.x12) - (this.mdCumB.x14 - this.mdCumB.x12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_kne ) / this.scaler_scale.x_kne * this.model.x_kne ) +
+                // ( ( ( ( Math.abs( (this.mdCumA.x15 - this.mdCumA.x13) - (this.mdCumB.x15 - this.mdCumB.x13) ) + Math.abs( (this.mdCumA.x16 - this.mdCumA.x14) - (this.mdCumB.x16 - this.mdCumB.x14) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_ank ) / this.scaler_scale.x_ank * this.model.x_ank ) +
 
-                ( ( ( ( Math.abs( (this.mdCumA.y5 - this.mdCumA.y11) - (this.mdCumB.y5 - this.mdCumB.y11) ) + Math.abs( (this.mdCumA.y6 - this.mdCumA.y12) - (this.mdCumB.y6 - this.mdCumB.y12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_sho ) / this.scaler_scale.y_sho * this.model.y_sho ) + 
-                ( ( ( ( Math.abs( (this.mdCumA.y7 - this.mdCumA.y5) - (this.mdCumB.y7 - this.mdCumB.y5) ) + Math.abs( (this.mdCumA.y8 - this.mdCumA.y6) - (this.mdCumB.y8 - this.mdCumB.y6) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_elb ) / this.scaler_scale.y_elb * this.model.y_elb ) + 
-                ( ( ( ( Math.abs( (this.mdCumA.y9 - this.mdCumA.y7) - (this.mdCumB.y9 - this.mdCumB.y7) ) + Math.abs( (this.mdCumA.y10 - this.mdCumA.y8) - (this.mdCumB.y10 - this.mdCumB.y8) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_wri ) / this.scaler_scale.y_wri * this.model.y_wri ) +
-                ( ( ( ( Math.abs( (this.mdCumA.y13 - this.mdCumA.y11) - (this.mdCumB.y13 - this.mdCumB.y11) ) + Math.abs( (this.mdCumA.y14 - this.mdCumA.y12) - (this.mdCumB.y14 - this.mdCumB.y12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_kne ) / this.scaler_scale.y_kne * this.model.y_kne ) +
-                ( ( ( ( Math.abs( (this.mdCumA.y15 - this.mdCumA.y13) - (this.mdCumB.y15 - this.mdCumB.y13) ) + Math.abs( (this.mdCumA.y16 - this.mdCumA.y14) - (this.mdCumB.y16 - this.mdCumB.y14) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_ank ) / this.scaler_scale.y_ank * this.model.y_ank ) +
+                // ( ( ( ( Math.abs( (this.mdCumA.y5 - this.mdCumA.y11) - (this.mdCumB.y5 - this.mdCumB.y11) ) + Math.abs( (this.mdCumA.y6 - this.mdCumA.y12) - (this.mdCumB.y6 - this.mdCumB.y12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_sho ) / this.scaler_scale.y_sho * this.model.y_sho ) + 
+                // ( ( ( ( Math.abs( (this.mdCumA.y7 - this.mdCumA.y5) - (this.mdCumB.y7 - this.mdCumB.y5) ) + Math.abs( (this.mdCumA.y8 - this.mdCumA.y6) - (this.mdCumB.y8 - this.mdCumB.y6) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_elb ) / this.scaler_scale.y_elb * this.model.y_elb ) + 
+                // ( ( ( ( Math.abs( (this.mdCumA.y9 - this.mdCumA.y7) - (this.mdCumB.y9 - this.mdCumB.y7) ) + Math.abs( (this.mdCumA.y10 - this.mdCumA.y8) - (this.mdCumB.y10 - this.mdCumB.y8) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_wri ) / this.scaler_scale.y_wri * this.model.y_wri ) +
+                // ( ( ( ( Math.abs( (this.mdCumA.y13 - this.mdCumA.y11) - (this.mdCumB.y13 - this.mdCumB.y11) ) + Math.abs( (this.mdCumA.y14 - this.mdCumA.y12) - (this.mdCumB.y14 - this.mdCumB.y12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_kne ) / this.scaler_scale.y_kne * this.model.y_kne ) +
+                // ( ( ( ( Math.abs( (this.mdCumA.y15 - this.mdCumA.y13) - (this.mdCumB.y15 - this.mdCumB.y13) ) + Math.abs( (this.mdCumA.y16 - this.mdCumA.y14) - (this.mdCumB.y16 - this.mdCumB.y14) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_ank ) / this.scaler_scale.y_ank * this.model.y_ank ) +
 
-                this.model.intercept;
+                // this.model.intercept;
 
 
               this.flag_mdCum = 1; // switch flag
             }
 
+            console.log('TtTtTtTtTtTtTtTtTtTt here 0');
             // if ( mdCumTtlNow < 1.3) {
             //   mdCumTtlNow = 1.3; // force to change METS 1.3. This is METS of 'Rest position'. 20200824 
             //   console.log('--- mdCumTtlNow FORCED');

@@ -161,11 +161,12 @@ export default class LoginScreen extends Component {
     this.setState({isSigningIn: true}); // change to ActivityIndicator
     try {
       const result = await Google.logInAsync({ // https://forums.expo.io/t/undefined-is-not-object-expo-google-loginasync/26889
-        androidClientId: '399964185668-v0mufm387n2vhg46rqh7rrg9q68l9g7p.apps.googleusercontent.com', // This is generated from Google developer site API page. 20200203 https://docs.expo.io/versions/latest/sdk/google/ https://console.cloud.google.com/apis/credentials?clientUpdateTime=2020-02-03T00:17:44.450577Z&project=getfit-f3a98
+        // androidClientId: '399964185668-v0mufm387n2vhg46rqh7rrg9q68l9g7p.apps.googleusercontent.com', // This is generated from Google developer site API page. 20200203 https://docs.expo.io/versions/latest/sdk/google/ https://console.cloud.google.com/apis/credentials?clientUpdateTime=2020-02-03T00:17:44.450577Z&project=getfit-f3a98
         androidStandaloneAppClientId: '399964185668-sors0c13tg8nvaapal534ndthdmqp2vf.apps.googleusercontent.com', // 399964185668-fe4n3c3k61jmglaobivqrd0vri8711a2.apps.googleusercontent.com
         // https://blog.expo.io/google-sign-in-with-react-native-and-expo-9cac6c392f0e 20200601
         // behavior: 'web',
-        // iosClientId: 'xxxxxxx', //enter ios client id
+        // iosClientId: '399964185668-0mb6rijfn1c24etqjkrhpt48f31cgdag.apps.googleusercontent.com', //enter ios client id
+        iosStandaloneAppClientId: '399964185668-0mb6rijfn1c24etqjkrhpt48f31cgdag.apps.googleusercontent.com', // just duplicated from iosClientId to test if it works. 20201003
         scopes: ['profile', 'email'], //scopes: ['profile', 'email']
         // redirectUrl: 'https://joogo-v0.firebaseapp.com/'
       });

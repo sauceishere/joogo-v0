@@ -752,7 +752,7 @@ export default class Live extends Component {
 
     const ts = Date.now() / 1000; // unix //date.getTime().toString();
     // console.log('ts: ', ts);
-    const vidId = this.props.navigation.getParam('post')['VIDID'];
+    const vidId = this.props.navigation.getParam('post')['ID'];
     const viewId = uuidv4();
     const vidViewLogFileName = ts + '_' + viewId;
 

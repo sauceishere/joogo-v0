@@ -306,7 +306,7 @@ export default class DashboardScreen extends Component {
 
 
   async componentDidMount() {
-    console.log('------------- componentDidMount Dashboard started 06');
+    console.log('------------- componentDidMount Dashboard started 09');
 
     if (this.state.doneComponentDidMount == false) { // if variable is null. this if to prevent repeated loop.
       // console.log('this.state.vidFullUrl started ');
@@ -405,7 +405,7 @@ export default class DashboardScreen extends Component {
 
 
   _makeRemoteRequest = async () => {
-    console.log('------------- _makeRemoteRequest');
+    // console.log('------------- _makeRemoteRequest');
     const { page, flagMastersLoaded } = this.state;
 
     const _loadDashboardFlatlist = (idTokenCopied) => {
@@ -426,7 +426,7 @@ export default class DashboardScreen extends Component {
         })
       }).then( result => result.json() )
         .then( response => { 
-          // console.log('------------------ _makeRemoteRequest response: ', response);
+          console.log('------------------ _makeRemoteRequest response: ', response);
 
           if( response["code"] == 'okFirst'){ // the first load to loa ["flagMastersLoaded"]
             console.log('---------------- okFirst, length: ', response.detail.vidMetas.length );
