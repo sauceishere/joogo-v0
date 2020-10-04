@@ -33,7 +33,7 @@ const goBackIconSize = 50; //40
 
 // const ttlCW = 12; // total cell of width
 // const ttlCH = 6; // total cell of height
-const octopusImageSizePct = 0.25; // percentage of Dimensions.get('window').width. 20200824
+// const octopusImageSizePct = 0.25; // percentage of Dimensions.get('window').width. 20200824
 
 
 
@@ -106,13 +106,26 @@ export default class Live extends Component {
 
   viewId = uuidv4();
 
-  inputTensorWidth = Dimensions.get('window').width; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
-  inputTensorHeight = Dimensions.get('window').height; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //Dimensions.get('window').height / 3; // 200
+  // resize Width & Height, Smaller is faster
+  inputTensorWidth = Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
+  inputTensorHeight = Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height']  ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //Dimensions.get('window').height / 3; // 200
 
-  textureDims = { // https://github.com/tensorflow/tfjs/blob/master/tfjs-react-native/integration_rn59/components/webcam/realtime_demo.tsx
-    width: this.props.navigation.getParam('const_exer')['textureDims']['width'], // 1800, //960, //Dimensions.get('window').width, // 960, // 1024, //768, //512, // 540, //256, // 1080, //videoSize, 
-    height: this.props.navigation.getParam('const_exer')['textureDims']['height'], // 1200, //960, //Dimensions.get('window').height, // 960, // 1024, //768, //512, //960, //453, // 1920, //videoSize,
-  };
+
+  textureDims = Platform.OS === 'ios' ? 
+    { // https://github.com/tensorflow/tfjs/blob/master/tfjs-react-native/integration_rn59/components/webcam/realtime_demo.tsx
+      width: this.props.navigation.getParam('const_exer')['textureDimsIos']['width'], // 1800, //960, //Dimensions.get('window').width, // 960, // 1024, //768, //512, // 540, //256, // 1080, //videoSize, 
+      height: this.props.navigation.getParam('const_exer')['textureDimsIos']['height'] , // 1200, //960, //Dimensions.get('window').height, // 960, // 1024, //768, //512, //960, //453, // 1920, //videoSize,
+    }
+   : //  For Android
+    { // https://github.com/tensorflow/tfjs/blob/master/tfjs-react-native/integration_rn59/components/webcam/realtime_demo.tsx
+      width: this.props.navigation.getParam('const_exer')['textureDims']['width'], // 1800, //960, //Dimensions.get('window').width, // 960, // 1024, //768, //512, // 540, //256, // 1080, //videoSize, 
+      height: this.props.navigation.getParam('const_exer')['textureDims']['height'], // 1200, //960, //Dimensions.get('window').height, // 960, // 1024, //768, //512, //960, //453, // 1920, //videoSize,
+    }; 
+
+  // textureDims = { // https://github.com/tensorflow/tfjs/blob/master/tfjs-react-native/integration_rn59/components/webcam/realtime_demo.tsx
+  //   width: this.props.navigation.getParam('const_exer')['textureDims']['width'], // 1800, //960, //Dimensions.get('window').width, // 960, // 1024, //768, //512, // 540, //256, // 1080, //videoSize, 
+  //   height: this.props.navigation.getParam('const_exer')['textureDims']['height'], // 1200, //960, //Dimensions.get('window').height, // 960, // 1024, //768, //512, //960, //453, // 1920, //videoSize,
+  // };
 
   MIN_KEYPOINT_SCORE = this.props.navigation.getParam('const_exer')['minKeypointScore'];
 
@@ -152,22 +165,40 @@ export default class Live extends Component {
   model = this.props.navigation.getParam('model').data;
   model2 = this.props.navigation.getParam('model2');
   
+  // when Landscape
+  // initialPositions = {
+  //   x9Min: this.inputTensorWidth * 0/5, // leftWrist
+  //   x9Max: this.inputTensorWidth * 2/5, // leftWrist
+  //   y9Min: this.inputTensorHeight * 1/4, // leftWrist
+  //   y9Max: this.inputTensorHeight * 3/4, // leftWrist
+  //   x10Min: this.inputTensorWidth * 3/5, // rightWrist
+  //   x10Max: this.inputTensorWidth * 5/5, // rightWrist   
+  //   y10Min: this.inputTensorHeight * 1/4, // rightWrist
+  //   y10Max: this.inputTensorHeight * 3/4, // rightWrist 
+  //   xBothAnkleMin: this.inputTensorWidth * 1/5, 
+  //   xBothAnkleMax: this.inputTensorWidth * 4/5,                           
+  //   yBothAnkleMin: this.inputTensorHeight * 3/4, 
+  //   yBothAnkleMax: this.inputTensorHeight * 4/4,       
+  //   NoseToAnkleMin: this.inputTensorHeight * 1/4, // y distance between nose to ankle should be more than this  
+  //   xRightToLeftMin: this.inputTensorWidth * 1/5, // x distance between right to left wrist should be more than this.    
+  // };
 
+  // when Portrait 20201004
   initialPositions = {
-    x9Min: this.inputTensorWidth * 0/5, // leftWrist
-    x9Max: this.inputTensorWidth * 2/5, // leftWrist
-    y9Min: this.inputTensorHeight * 1/4, // leftWrist
-    y9Max: this.inputTensorHeight * 3/4, // leftWrist
-    x10Min: this.inputTensorWidth * 3/5, // rightWrist
-    x10Max: this.inputTensorWidth * 5/5, // rightWrist   
-    y10Min: this.inputTensorHeight * 1/4, // rightWrist
-    y10Max: this.inputTensorHeight * 3/4, // rightWrist 
-    xBothAnkleMin: this.inputTensorWidth * 1/5, 
-    xBothAnkleMax: this.inputTensorWidth * 4/5,                           
-    yBothAnkleMin: this.inputTensorHeight * 3/4, 
-    yBothAnkleMax: this.inputTensorHeight * 4/4,       
-    NoseToAnkleMin: this.inputTensorHeight * 1/4, // y distance between nose to ankle should be more than this  
-    xRightToLeftMin: this.inputTensorWidth * 1/5, // x distance between right to left wrist should be more than this.    
+    x9Min: this.inputTensorWidth * 0/4, // 3/4 // leftWrist
+    x9Max: this.inputTensorWidth * 4/4, // leftWrist
+    y9Min: this.inputTensorHeight * 1/5, // leftWrist
+    y9Max: this.inputTensorHeight * 3/5, // leftWrist
+    x10Min: this.inputTensorWidth * 0/4, // rightWrist
+    x10Max: this.inputTensorWidth * 1/4, // rightWrist   
+    y10Min: this.inputTensorHeight * 1/5, // rightWrist
+    y10Max: this.inputTensorHeight * 3/5, // rightWrist 
+    xBothAnkleMin: this.inputTensorWidth * 1/4, 
+    xBothAnkleMax: this.inputTensorWidth * 3/4,                           
+    yBothAnkleMin: this.inputTensorHeight * 3/5, 
+    yBothAnkleMax: this.inputTensorHeight * 5/5,       
+    NoseToAnkleMin: this.inputTensorHeight * 1.5/5, // y distance between nose to ankle should be more than this  
+    // xRightToLeftMin: this.inputTensorWidth * 2/4, // x distance between right to left wrist should be more than this.    
   };
 
 
@@ -413,7 +444,8 @@ export default class Live extends Component {
     // this.setState({ shouldPlay : false});
     // clearInterval(_updateScore); // did NOT work 20200603
     // clearInterval(videoCountDown); // did NOT work 20200603
-    ScreenOrientation.unlockAsync(); // back to portrait
+    // ScreenOrientation.unlockAsync(); // back to portrait
+    // ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
     this.props.navigation.goBack();
     // await this._saveVidViewLog(); // removed because this process is duplicated with componentWillUnmount
   }  
@@ -431,7 +463,8 @@ export default class Live extends Component {
       // console.log('--------- nextImageTensor: ', nextImageTensor);
       // console.log('images.next().done; ', images.next().done)
     
-      const flipHorizontal = Platform.OS === 'ios' ? false : true;
+      const flipHorizontal = Platform.OS === 'ios' ? false : true; // false : true;
+      // const flipHorizontal = true; // false : true;
       const pose = await this.state.posenetModel.estimateSinglePose( nextImageTensor, { flipHorizontal }); // predict
       tf.dispose(nextImageTensor); 
       this.setState({ pose }); // assign pose to state, and run rendor
@@ -461,8 +494,8 @@ export default class Live extends Component {
     deactivateKeepAwake();
     // console.log('------------------- componentWillUnmount Live 3');
 
-    ScreenOrientation.unlockAsync(); // back to portrait
-    // await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
+    // ScreenOrientation.unlockAsync(); // back to portrait
+    // ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
     console.log('------------------- componentWillUnmount Live 4');
 
     await this._saveVidViewLog();
@@ -497,7 +530,10 @@ export default class Live extends Component {
     console.log('this.WEIGHT_KG: ', this.WEIGHT_KG);
   
     
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE); // to landscape
+    // ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE); // to landscape
+    // console.log( 'ScreenOrientation.ScreenOrientationInfo: ', ScreenOrientation.ScreenOrientationInfo(orientation) );
+    // console.log( 'ScreenOrientation.PlatformOrientationInfo: ', ScreenOrientation.PlatformOrientationInfo(screenOrientationArrayIOS) );
+    
 
     activateKeepAwake();
 
@@ -2015,8 +2051,10 @@ const styles = StyleSheet.create({
     // justifyContent: 'center',
     // padding: 24,
     top: 0, //StatusBar.currentHeight,
-    height: Dimensions.get('screen').width, 
-    width: Dimensions.get('screen').height,
+    // height: Dimensions.get('screen').width, // when Landscape 
+    // width: Dimensions.get('screen').height, // when Landscape 
+    height: Dimensions.get('screen').height, // when Portrait 
+    width: Dimensions.get('screen').width, // when Portrait     
     position: 'absolute',
     flex: 0,
     // zindex: 0, // 20200531
@@ -2026,8 +2064,10 @@ const styles = StyleSheet.create({
   layerOneContainer: {
     // backgroundColor: 'blue',
     opacity: 1, // to see through trainerVideo 20200530
-    height: Dimensions.get('screen').width, 
-    width: Dimensions.get('screen').height,
+    // height: Dimensions.get('screen').width, // when Landscape 
+    // width: Dimensions.get('screen').height, // when Landscape 
+    height: Dimensions.get('screen').height, // when Portrait 
+    width: Dimensions.get('screen').width, // when Portrait 
     position: 'absolute',
     flex: 0,    
     // borderColor: 'purple', 
@@ -2169,15 +2209,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     // left: Dimensions.get('window').width / 2 - 310 / 2,
     // borderColor: 'blue',
-    // borderWidth: 3,
+    // borderWidth: 1,
   },
   initialPostureImage: {
     position: 'absolute',
-    left: Dimensions.get('window').height / 2 - 310 / 2, //  centering the image in consideration with android navigation bar. 20200816 
-    width: Dimensions.get('window').width, // photo size = 475*310
-    height: Dimensions.get('window').width,    
-    // top: 0,
-    bottom: Dimensions.get('window').width * 0.01,
+    // left: Dimensions.get('window').height / 2 - 310 / 2, // when Landscape //  centering the image in consideration with android navigation bar. 20200816 
+    // width: Dimensions.get('window').width, // when Landscape // photo size = 475*310
+    // height: Dimensions.get('window').width, // when Landscape
+    // bottom: Dimensions.get('window').width * 0.01, // when Landscape
+    // left: Dimensions.get('window').width / 2 - 310 / 2, // when Portrait
+    width: Dimensions.get('window').width, // when Portrait
+    height: Dimensions.get('window').width, // when Portrait
+    bottom: Dimensions.get('window').height * 0.15, // when Landscape
     // justifyContent: 'center',
     // borderColor: 'green',
     // borderWidth: 1,
@@ -2188,8 +2231,10 @@ const styles = StyleSheet.create({
     // flex: 1,
     flexGrow:1,
     position: 'absolute',
-    top: Dimensions.get('window').width * 0.2,
-    left: Dimensions.get('window').height * 0.02, 
+    // top: Dimensions.get('window').width * 0.2, // when Landscape 
+    // left: Dimensions.get('window').height * 0.02, // when Landscape 
+    top: Dimensions.get('window').height * 0.13, // when Portrait 
+    left: Dimensions.get('window').width * 0.04, // when Portrait 
     // width: Dimensions.get('window').width * 0.9,
     // height: null,
     // width: null,    
@@ -2198,6 +2243,8 @@ const styles = StyleSheet.create({
     // marginHorizontal: Dimensions.get('window').width * 0.2,
     backgroundColor: 'rgba(20, 20, 20, 0.7)', 
     borderRadius: 10,
+    // borderColor: 'pink',
+    // borderWidth: 1,    
   },
   attentionText: {
     // textShadowColor: 'black',
@@ -2210,32 +2257,34 @@ const styles = StyleSheet.create({
     // backgroundColor: 'rgba(220, 220, 220, 0.7)', 
   },
 
-  octopusContainer: {
-    // flexGrow:1,
-    flex: 0,
-    position: 'absolute',
-    bottom: 0,
-    width: '100%', //Dimensions.get('window').width * 1,
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    // borderColor: 'green',
-    // borderWidth: 3,
-  },
-  octopusImage: {
-    position: 'absolute',
-    // width: Dimensions.get('window').width * 1 / ttlCH * 1.5,
-    // height: Dimensions.get('window').width * 1 / ttlCH * 1.5,
-    height: Dimensions.get('window').width * octopusImageSizePct,
-    width: Dimensions.get('window').width * octopusImageSizePct,  
-  },
+  // octopusContainer: {
+  //   // flexGrow:1,
+  //   flex: 0,
+  //   position: 'absolute',
+  //   bottom: 0,
+  //   width: '100%', //Dimensions.get('window').width * 1,
+  //   height: '100%',
+  //   alignItems: 'center',
+  //   justifyContent: 'center',
+  //   // borderColor: 'green',
+  //   // borderWidth: 3,
+  // },
+  // octopusImage: {
+  //   position: 'absolute',
+  //   // width: Dimensions.get('window').width * 1 / ttlCH * 1.5,
+  //   // height: Dimensions.get('window').width * 1 / ttlCH * 1.5,
+  //   height: Dimensions.get('window').width * octopusImageSizePct,
+  //   width: Dimensions.get('window').width * octopusImageSizePct,  
+  // },
 
 
   upperLayerContainer: {
     position: 'absolute',
     top: 0, //StatusBar.currentHeight,
-    height: Dimensions.get('window').width, // - StatusBar.currentHeight, // Dynamically get & summate screen height & statusbar height.
-    width: Dimensions.get('window').height, // - StatusBar.currentHeight,
+    // height: Dimensions.get('window').width, // when Landscape // - StatusBar.currentHeight, // Dynamically get & summate screen height & statusbar height.
+    // width: Dimensions.get('window').height, // when Landscape // - StatusBar.currentHeight,
+    height: Dimensions.get('window').height, // when Portrait
+    width: Dimensions.get('window').width, // when Portrait
     // zIndex: 400, // removed 20200531
     opacity: 0.9,
     // backgroundColor: '#ffa500', 
@@ -2302,9 +2351,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',   
     backgroundColor: 'rgba(20, 20, 20, 0.7)', // 'rgba(220, 220, 220, 0.5)'
     position: 'absolute',
-    top: Dimensions.get('window').width * 0.07,
-    left: Dimensions.get('window').height * 0.02, 
-    // zIndex: 501, // removed 20200531
+    // top: Dimensions.get('window').width * 0.07, // when Landscape
+    // left: Dimensions.get('window').height * 0.02, // when Landscape
+    top: Dimensions.get('window').height * 0.04, // when Portrait
+    left: Dimensions.get('window').width * 0.04, // when Portrait
     height: goBackIconSize,
     width: goBackIconSize,
     borderRadius: goBackIconSize,

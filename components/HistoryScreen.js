@@ -364,11 +364,11 @@ class ExerciseHistory extends Component {
                 : 
                     <View style={{width: '100%', flexDirection: 'column', flexWrap: 'nowrap' }}>
 
-                        <View style={{width: '100%', flex: 1, marginTop: Dimensions.get('window').height * 0.05, }}>
+                        {/* <View style={{width: '100%', flex: 1, marginTop: Dimensions.get('window').height * 0.05, }}>
                             <Text style={styles.pageTitle}>Burned Calorie History</Text>    
-                        </View>
+                        </View> */}
                     
-                        <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', alignItems: 'center', marginTop: Dimensions.get('window').height * 0.05, paddingHorizontal: Dimensions.get('window').width * 0.02}} >
+                        <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', alignItems: 'center', marginTop: Dimensions.get('window').height * 0.02, paddingHorizontal: Dimensions.get('window').width * 0.02}} >
                             <View style={styles.tileItem}>
                                 <Ionicons name='ios-flame' size={22} style={styles.tileItemIcon}/>
                                 <Text style={styles.tileItemField}>{viewPtSum}</Text>    
@@ -389,7 +389,7 @@ class ExerciseHistory extends Component {
                         </View> 
 
                         {/* <SafeAreaView style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.01, flex:1 }}>  */}
-                        <SafeAreaView style={{ marginTop: Dimensions.get('window').height * 0.01, height: Dimensions.get('window').height - 250  }}>
+                        <SafeAreaView style={{ marginTop: Dimensions.get('window').height * 0.01, height: Dimensions.get('window').height - 200  }}>
                             <FlatList
                                 style={styles.feed}
                                 data={this.state.postsExer}
@@ -851,7 +851,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         // paddingHorizontal: 10,
-        marginTop: 5,
+        // marginTop: 5,
+        backgroundColor: '#DCDCDC',
     },
     // inputContainer: {
     //     marginHorizontal: Dimensions.get('window').width * 0.05,
@@ -888,11 +889,11 @@ const styles = StyleSheet.create({
         // flexDirection: "row",
         // flex: 3,
         // marginVertical: 5,
-        shadowColor: 'black', // iOS
-        shadowOffset: { width: 5, height: 5 }, // iOS
-        shadowOpacity: 0.3, // iOS
-        shadowRadius: 2, // iOS   
-        elevation: 2, // Android
+        // shadowColor: 'black', // iOS
+        // shadowOffset: { width: 5, height: 5 }, // iOS
+        // shadowOpacity: 0.3, // iOS
+        // shadowRadius: 2, // iOS   
+        // elevation: 2, // Android
     },
     tileItemIcon:{
         textAlign: 'center',
@@ -932,8 +933,8 @@ const styles = StyleSheet.create({
         flex: 2,
         marginVertical: 5,
         shadowColor: 'black', // iOS
-        shadowOffset: { width: 5, height: 5 }, // iOS
-        shadowOpacity: 0.3, // iOS
+        shadowOffset: { width: 3, height: 3 }, // iOS
+        shadowOpacity: 0.1, // iOS
         shadowRadius: 2, // iOS   
         elevation: 2, // Android
         // justifyContent: 'space-between',

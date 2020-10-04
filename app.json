@@ -9,11 +9,11 @@
     ],
     "version": "1.0.8",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon1024x1024.png",
     "splash": {
-      "image": "./assets/wefit_icon_orange_in_white512.png",
+      "image": "./assets/splash1242x2436.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffa500"
+      "backgroundColor": "#f7931e"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -23,6 +23,7 @@
     ],
     "ios": {
       "supportsTablet": true,
+      "requireFullScreen": true, 
       "config": {
         "googleSignIn": {
           "reservedClientId": "com.googleusercontent.apps.399964185668-0mb6rijfn1c24etqjkrhpt48f31cgdag"

@@ -936,14 +936,14 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     backgroundColor: 'white',
     // textAlign: 'right',
-    width: '70%',
+    width: '80%',
     // position: 'absolute',
     // right: 0, // align to right
-    marginLeft: '30%',
+    marginLeft: '20%',
   },
   loadingIndicator: {
-    position: 'absolute',
-    top: '50%',
+    // position: 'absolute',
+    // top: '50%',
     // right: 20,
     flexGrow:1,
     height:null,
@@ -963,10 +963,10 @@ const styles = StyleSheet.create({
     // color: 'dimgray',
     paddingBottom: 10,
     // paddingLeft: 30,
-    width: '70%',
+    width: '80%',
     // position: 'absolute',
     // right: 0, // align to right
-    marginLeft: '30%',
+    marginLeft: '20%',
   },
   pickerViewBt1: {
     height: 35, 
@@ -981,10 +981,10 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     marginTop: 5,
     // paddingLeft: 30,
-    width: '70%',
+    width: '80%',
     // position: 'absolute',
     // right: 0, // align to right
-    marginLeft: '30%',
+    marginLeft: '20%',
   },  
   picker: {
     // height: Dimensions.get('window').height * 0.7, 
@@ -1045,7 +1045,7 @@ const styles = StyleSheet.create({
     height: 40,
     shadowColor: 'black', // iOS
     shadowOffset: { width: 5, height: 5 }, // iOS
-    shadowOpacity: 0.8, // iOS
+    shadowOpacity: 0.4, // iOS
     shadowRadius: 5, // iOS   
     elevation: 5, // Android
     marginTop: 40,

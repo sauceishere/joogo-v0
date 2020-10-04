@@ -961,12 +961,12 @@ export default class DashboardScreen extends Component {
 
 
         { isLoading ? 
-          <View style={styles.uploadingIndicator}>
+          <View style={styles.loadingIndicator}>
             <ActivityIndicator size="large" color='#ffa500'/>
             <Text>Loading....</Text>
           </View>
         :
-          <SafeAreaView style={{ position: 'absolute', top: 0, height: Dimensions.get('window').height - 50 - 50 }}>  
+          <SafeAreaView style={{ position: 'absolute', top: 0, height: Dimensions.get('window').height - 50 - 50, backgroundColor: '#DCDCDC' }}>  
         {/* StatusBar.currentHeight */}
 
             <FlatList
@@ -999,8 +999,9 @@ export default class DashboardScreen extends Component {
           <MaterialIcons name='history' size={28} color="white" style={styles.HistoryIcon} onPress={ () => this.props.navigation.push('History') }/>
           {/* <Ionicons name="ios-medal" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Leaderboard') }/>  */}
           {/* <Ionicons name='ios-flame' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Live', { const_exer, scaler_scale, scaler_mean, model } ) }/> */}
+          <Ionicons name='ios-stats' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Stats', { const_exer } ) }/>
           <Ionicons name='logo-youtube' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('LiveYT', { const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit } ) }/>
-          {/* <Ionicons name='ios-grid' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Chart', { const_exer } ) }/> */}
+
         {/* </LinearGradient> */}
         </View>
 
@@ -1017,7 +1018,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    // backgroundColor: 'white',
+    backgroundColor: '#DCDCDC',
   },
   // scrollview: {
   //   width: '100%',
@@ -1039,7 +1040,8 @@ const styles = StyleSheet.create({
     // marginTop: 50,
   },  
   feed: {
-    marginHorizontal: 0, // 8, 16
+    // marginHorizontal: 0, // 8, 16
+    backgroundColor: "#DCDCDC", // feed background
     // top: 70,
     // bottom: 50,
   },
@@ -1052,8 +1054,8 @@ const styles = StyleSheet.create({
       flex: 2,
       marginVertical: 5,
       shadowColor: 'black', // iOS
-      shadowOffset: { width: 5, height: 5 }, // iOS
-      shadowOpacity: 0.3, // iOS
+      shadowOffset: { width: 3, height: 3 }, // iOS
+      shadowOpacity: 0.1, // iOS
       shadowRadius: 2, // iOS   
       elevation: 2, // Android
       marginHorizontal: 3,
@@ -1129,8 +1131,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginVertical: 5,
     shadowColor: 'black', // iOS
-    shadowOffset: { width: 5, height: 5 }, // iOS
-    shadowOpacity: 0.3, // iOS
+    shadowOffset: { width: 3, height: 3 }, // iOS
+    shadowOpacity: 0.1, // iOS
     shadowRadius: 2, // iOS   
     elevation: 2, // Android
     marginHorizontal: 3,
@@ -1235,5 +1237,17 @@ const styles = StyleSheet.create({
     elevation: 5, // Android
     marginTop: 40,
   },  
+  loadingIndicator: {
+    // position: 'absolute',
+    // top: 20,
+    // right: 20,
+    flexGrow: 1,
+    height: null,
+    width: null,    
+    alignItems: 'center',
+    justifyContent: 'center',    
+    // zIndex: 500, // removed 20200531
+  },
+
 
 });
