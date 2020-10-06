@@ -718,8 +718,8 @@ export default class DashboardScreen extends Component {
                   {/* bottom left pane */}
                   <View style={styles.textContents}>
                     <Text style={styles.title}> '
-                      { ((post.TITLE).length > 35) ? 
-                        (((post.TITLE).substring(0, 35-3)) + '...') 
+                      { ((post.TITLE).length > 55) ? 
+                        (((post.TITLE).substring(0, 55-3)) + '...') 
                       : 
                         post.TITLE 
                       }
@@ -727,18 +727,18 @@ export default class DashboardScreen extends Component {
 
                     <View style={styles.textMetadata}>
 
-                      <View style={{flexDirection: "row", marginVertical: 1, marginLeft: 3,}}>
-                          <Ionicons name='ios-flame' size={20} color="#73788B"/>
+                      <View style={{flexDirection: "row", marginVertical: 0.7, marginLeft: 3,}}>
+                          <Ionicons name='ios-flame' size={18} color="#73788B"/>
                           <Text style={styles.points}> {this.CAL} Calories</Text>
                       </View>
 
-                      <View style={{flexDirection: "row", marginVertical: 1, marginLeft: 1,}}>
-                          <Ionicons name='ios-time' size={20} color="#73788B"/>
+                      <View style={{flexDirection: "row", marginVertical: 0.7, marginLeft: 1,}}>
+                          <Ionicons name='ios-time' size={18} color="#73788B"/>
                           <Text style={styles.length}> {this.LEN} </Text>
                       </View>
 
-                      <View style={{flexDirection: "row", marginVertical: 1, marginLeft: 2,}}>
-                          <Ionicons name='ios-body' size={20} color="#73788B"/>
+                      <View style={{flexDirection: "row", marginVertical: 0.7, marginLeft: 2,}}>
+                          <Ionicons name='ios-body' size={18} color="#73788B"/>
                           <Text style={styles.length}> {this.INTENSITY} </Text>
                       </View>
 
@@ -821,8 +821,8 @@ export default class DashboardScreen extends Component {
                     {/* bottom left pane */}
                     <View style={styles.textContents}>
                       <Text style={styles.title}> '
-                        { ((post.TITLE).length > 35) ? 
-                          (((post.TITLE).substring(0, 35-3)) + '...') 
+                        { ((post.TITLE).length > 55) ? 
+                          (((post.TITLE).substring(0, 55-3)) + '...') 
                         : 
                           post.TITLE 
                         }
@@ -830,18 +830,18 @@ export default class DashboardScreen extends Component {
 
                       <View style={styles.textMetadata}>
 
-                        <View style={{flexDirection: "row", marginVertical: 1, marginLeft: 3,}}>
-                            <Ionicons name='ios-flame' size={20} color="#73788B"/>
+                        <View style={{flexDirection: "row", marginVertical: 0.7, marginLeft: 3,}}>
+                            <Ionicons name='ios-flame' size={18} color="#73788B"/>
                             <Text style={styles.points}> {this.CAL} Calories</Text>
                         </View>
 
-                        <View style={{flexDirection: "row", marginVertical: 1, marginLeft: 1,}}>
-                            <Ionicons name='ios-time' size={20} color="#73788B"/>
+                        <View style={{flexDirection: "row", marginVertical: 0.7, marginLeft: 1,}}>
+                            <Ionicons name='ios-time' size={18} color="#73788B"/>
                             <Text style={styles.length}> {this.LEN} </Text>
                         </View>
 
-                        <View style={{flexDirection: "row", marginVertical: 1, marginLeft: 2,}}>
-                            <Ionicons name='ios-body' size={20} color="#73788B"/>
+                        <View style={{flexDirection: "row", marginVertical: 0.7, marginLeft: 2,}}>
+                            <Ionicons name='ios-body' size={18} color="#73788B"/>
                             <Text style={styles.length}> {this.INTENSITY} </Text>
                         </View>
 
@@ -1082,6 +1082,7 @@ const styles = StyleSheet.create({
       width: Dimensions.get('window').width * 0.4,//0.52 //160,
       // backgroundColor: 'green',
       marginRight: 3,
+      fontSize: 16,
   },
   title: {
       marginTop: 6,
@@ -1093,8 +1094,8 @@ const styles = StyleSheet.create({
   },
   textMetadata: {
       position: 'absolute',
-      bottom: 3,
-      fontSize: 12,
+      bottom: 1,
+      fontSize: 11,
   },
   length:{
       // fontWeight: 'bold',

@@ -31,12 +31,13 @@ const styles = StyleSheet.create({
     width: '100%',
     // height: '50%',
     // flexDirection: 'row',
-    // alignItems: 'center',
+    alignItems: 'center',
     // justifyContent: 'center',
     backgroundColor: 'transparent',
     flex: 1, 
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    // textAlignVertical: 'center',
   },
   LGHeader: {
     // width: '100%',
@@ -59,9 +60,10 @@ const styles = StyleSheet.create({
   },  
   headerTitle: {
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 18,
     color: 'white',
     letterSpacing: 1,
+    // textAlignVertical: 'center',
   },
   headerRight: {
     fontWeight: 'bold',

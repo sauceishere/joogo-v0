@@ -1,6 +1,6 @@
 // import * as React from 'react';
 import React, { Component, useState } from 'react';
-import { StyleSheet, SafeAreaView, Image, View, ScrollView, Text, TouchableOpacity, TextInput, Button, Dimensions, ActivityIndicator, Keyboard, TouchableWithoutFeedback, Picker, Modal } from 'react-native';
+import { StyleSheet, SafeAreaView, Image, View, ScrollView, Text, TouchableOpacity, TextInput, Button, Dimensions, ActivityIndicator, Keyboard, TouchableWithoutFeedback, Modal, Picker } from 'react-native';
 import * as firebase from 'firebase';
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
@@ -13,6 +13,14 @@ import {enCheckDuplicatedNickname} from '../shared/Consts';
 
 // import * as functions from 'firebase/functions';
 // import { flattenDiagnosticMessageText } from 'typescript';
+// import {Picker} from '@react-native-community/picker'; // 20201005 because react native picker is deprecated.
+// import RNPickerSelect from 'react-native-picker-select'; 
+
+import ModalSelector from 'react-native-modal-selector';
+
+
+
+
 
 export const LB_PER_KG = 2.205; // pounds devided by kilograms
 
@@ -188,13 +196,6 @@ export default class ProfileScreen extends Component {
     // console.log('firebase.auth().currentUser.uid: ', firebase.auth().currentUser.uid);
     console.log('this.state.ProfileEditId: ', this.state.ProfileEditId);
 
-    // // create year list 20200420
-    let thisYear = new Date().getFullYear();
-    var i;
-    for (i = thisYear + 1; i > thisYear - 120; i--) { // current year - 120 yrlists
-      this.yrlist.push( i.toString() ); // convert string for parsing array & append to array
-      // console.log(i);
-    }
     
     if (this.state.DidGetProfileData == false) {
       await this._getUsers();
@@ -296,7 +297,8 @@ export default class ProfileScreen extends Component {
   }
 
   _onWUnitValueChange = async (unit) =>  {
-    await this.setState({ wunit: unit.toString() });
+    // console.log( 'unit: ', unit.key );
+    await this.setState({ wunit: unit.key.toString() });
     console.log( 'this.state.wunit: ', this.state.wunit );
   }
 
@@ -306,25 +308,25 @@ export default class ProfileScreen extends Component {
   }
 
   _onHUnitValueChange = async (unit) =>  {
-    await this.setState({ hunit: unit.toString() });
+    await this.setState({ hunit: unit.key.toString() });
     console.log( 'this.state.hunit: ', this.state.hunit );
   }
 
   _onGenderValueChange = async (gender) =>  {
     // console.log( 'gender: ', gender );
-    await this.setState({ gdr: gender.toString() });
+    await this.setState({ gdr: gender.key.toString() });
     console.log( 'this.state.gdr: ', this.state.gdr );
   }
 
   _onCountryValueChange = async (country) =>  {
     // console.log( 'country: ', country );
-    await this.setState({ nat: country.toString() });
+    await this.setState({ nat: country.key.toString() });
     console.log( 'this.state.nat: ', this.state.nat );
   }
 
   _onYearValueChange = async (year) =>  {
     // console.log( 'year: ', year );
-    await this.setState({ byr: year.toString() });
+    await this.setState({ byr: year.key.toString() });
     console.log( 'this.state.byr: ', this.state.byr );
   }
 
@@ -542,6 +544,44 @@ export default class ProfileScreen extends Component {
     const { isUploading, allComplete, isEditing, DidGetProfileData, nname, gdr, byr, nat, bt0, bt1, ts, llogin, lupdate, isSigningOut, wval, wunit, hval, hunit, isNewUser } = this.state;
     // console.log('ts: ', ts);
 
+    // from here, creating master for drop down menu. 20201006
+    const master_weight_unit = [
+      { key: 'kg', label: 'kg' },
+      { key: 'lb', label: 'lb' }
+    ];
+
+    const master_height_unit = [
+      { key: 'cm', label: 'cm' },
+      { key: 'ft', label: 'ft' }
+    ];    
+
+    const master_gender = [
+      { key: 'Male', label: 'Male' },
+      { key: 'Female', label: 'Female' },
+      { key: 'Other', label: 'Other' },
+      { key: 'Not specified', label: 'Not specified' },
+    ];    
+
+    var master_countrylist = new Array();
+      this.cnlist.countrylist.map( (obj) => 
+        // { key: obj["Name"], label:obj["Name"] }
+        // console.log( obj["Name"] )
+        master_countrylist.push( { key: obj["Name"], label: obj["Name"] } )
+      ) 
+      master_countrylist.push( { key: 'Other', label: 'Other'} );
+      master_countrylist.push( { key: 'Not specified', label: 'Not specified' } );
+    // console.log('master_countrylist: ', master_countrylist);
+
+    // // create year list 20200420
+    let thisYear = new Date().getFullYear();
+    var i;
+    var master_byr = new Array();
+    for (i = thisYear + 1; i > thisYear - 120; i--) { // current year - 120 yrlists
+      this.yrlist.push( i.toString() ); // convert string for parsing array & append to array
+      master_byr.push( {key: i.toString(), label: i.toString()})
+      // console.log(i);
+    }
+
     return (
 
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}> 
@@ -599,20 +639,32 @@ export default class ProfileScreen extends Component {
                       keyboardType='numeric'
                     >
                     </TextInput>  
+
            
-                    <Text style={styles.itemTitle}><Text style={styles.itemMandatory}>* </Text>Weight Unit</Text>
+                    {/* <Text style={styles.itemTitle}><Text style={styles.itemMandatory}>* </Text>Weight Unit</Text>
                     <View style={styles.pickerView}>
                     <Picker
                       selectedValue= {wunit}
                       onValueChange = {(itemValue) => this._onWUnitValueChange(itemValue) }
                       style={styles.picker}
                       itemStyle={styles.pickerItem}
-                      mode="dialog">
+                      mode="dialog"
+                    >
                       <Picker.Item label={wunit} value={wunit} key={wunit}/>
                       <Picker.Item label="kg" value="kg" key="kg"/>
                       <Picker.Item label="lb" value="lb" key="lb" />
                     </Picker>
+                    </View> */}
+                    <Text style={styles.itemTitle}><Text style={styles.itemMandatory}>* </Text>Weight Unit</Text>
+                    <View style={styles.pickerView}>
+                    <ModalSelector
+                      data = {master_weight_unit}
+                      initValue={wunit}
+                      onChange={ (option) => this._onWUnitValueChange(option) } 
+                      style={styles.picker}
+                    />
                     </View>
+
 
                     <Text style={styles.itemTitle10}>Height</Text>
                       <TextInput
@@ -627,7 +679,7 @@ export default class ProfileScreen extends Component {
                       >
                     </TextInput>   
 
-                    <Text style={styles.itemTitle}>Height Unit</Text>
+                    {/* <Text style={styles.itemTitle}>Height Unit</Text>
                     <View style={styles.pickerView}>
                       <Picker
                           selectedValue= {hunit}
@@ -639,9 +691,18 @@ export default class ProfileScreen extends Component {
                           <Picker.Item label="cm" value="cm" key="cm"/>
                           <Picker.Item label="ft" value="ft" key="ft" />
                       </Picker>
+                    </View>  */}
+                    <Text style={styles.itemTitle}>Height Unit</Text>
+                    <View style={styles.pickerView}>
+                    <ModalSelector
+                      data = {master_height_unit}
+                      initValue={hunit}
+                      onChange={ (option) => this._onHUnitValueChange(option) } 
+                      style={styles.picker}
+                    />
                     </View> 
-            
-                    <Text style={styles.itemTitle10}>Gender</Text>
+
+                    {/* <Text style={styles.itemTitle10}>Gender</Text>
                     <View style={styles.pickerView}>
                       <Picker
                         selectedValue= {gdr}
@@ -655,9 +716,18 @@ export default class ProfileScreen extends Component {
                         <Picker.Item label="Other" value="Other" key="Other"/>
                         <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
                       </Picker>
-                    </View>
-      
-                    <Text style={styles.itemTitle10}>Nationality</Text>
+                    </View> */}
+                    <Text style={styles.itemTitle}>Gender</Text>
+                    <View style={styles.pickerView}>
+                    <ModalSelector
+                      data = {master_gender}
+                      initValue={gdr}
+                      onChange={ (option) => this._onGenderValueChange(option) } 
+                      style={styles.picker}
+                    />
+                    </View> 
+
+                    {/* <Text style={styles.itemTitle10}>Nationality</Text>
                     <View style={styles.pickerView}>
                       <Picker
                         selectedValue= {nat}
@@ -674,9 +744,18 @@ export default class ProfileScreen extends Component {
                         <Picker.Item label="Other" value="Other" key="Other"/>
                         <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
                       </Picker>
-                    </View>
-  
-                    <Text style={styles.itemTitle10}>Birth Year</Text>
+                    </View> */}
+                    <Text style={styles.itemTitle}>Nationality</Text>
+                    <View style={styles.pickerView}>
+                    <ModalSelector
+                      data = {master_countrylist}
+                      initValue={nat}
+                      onChange={ (option) => this._onCountryValueChange(option) } 
+                      style={styles.picker}
+                    />
+                    </View> 
+
+                    {/* <Text style={styles.itemTitle10}>Birth Year</Text>
                     <View style={styles.pickerView}>
                       <Picker
                         selectedValue= {byr}
@@ -691,9 +770,18 @@ export default class ProfileScreen extends Component {
                         <Picker.Item label="Other" value="Other" key="Other"/>
                         <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
                       </Picker>
-                    </View>
+                    </View> */}
+                    <Text style={styles.itemTitle}>Birth Year</Text>
+                    <View style={styles.pickerView}>
+                    <ModalSelector
+                      data = {master_byr}
+                      initValue={byr}
+                      onChange={ (option) => this._onYearValueChange(option) } 
+                      style={styles.picker}
+                    />
+                    </View> 
 
-                    <Text style={styles.itemTitle10}>Focus Body Parts (Max 2 tags)</Text>
+                    {/* <Text style={styles.itemTitle10}>Focus Body Parts (Max 2 tags)</Text>
                     <View style={styles.pickerView}>
                       <Picker
                         selectedValue= {bt0}
@@ -721,7 +809,7 @@ export default class ProfileScreen extends Component {
                           )}
                         <Picker.Item label="Not Specified" value="Not specified." key="Not specified." />  
                       </Picker>
-                    </View>                  
+                    </View>                   */}
               
 
 
@@ -808,12 +896,11 @@ export default class ProfileScreen extends Component {
                     <Text style={styles.itemField00}>{byr}</Text>                  
                   </View>
 
-                  <View style={styles.tableRow}>
+                  {/* <View style={styles.tableRow}>
                     <Text style={styles.itemTitle}>Focus Body Parts</Text>
-                    {/* <Text style={styles.itemField00}>{profileData.FAVTAG.map(n => n + ', ' )}</Text> */}
                     <Text style={styles.itemField00}>{bt0}</Text>
                     <Text style={styles.itemField00}>{bt1}</Text>
-                  </View>
+                  </View> */}
 
                   <View style={styles.tableRow}>
                     <Text style={styles.itemTitle}>Account Created</Text>
@@ -926,14 +1013,15 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   itemField10: {
-    borderWidth: 1, 
+    borderWidth: 2, 
     borderColor: 'lightgray', 
     borderRadius: 5, 
     fontSize: 17,
     height: 35,
-    color: 'dimgray',
+    color: 'lightgray', //'dimgray',
     textAlignVertical: 'center',
-    paddingLeft: 10,
+    textAlign: 'center',
+    // paddingLeft: 10,
     backgroundColor: 'white',
     // textAlign: 'right',
     width: '80%',
@@ -990,17 +1078,22 @@ const styles = StyleSheet.create({
     // height: Dimensions.get('window').height * 0.7, 
     // width: 200, 
     // backgroundColor: 'white',
-    // borderWidth: 1, 
+    // borderWidth: 0.5, 
+    borderColor: 'lightgray',
     // borderColor: 'lightgray', 
-    // borderRadius: 5, 
+    borderRadius: 5, 
     // padding: 10, 
     // fontSize: 18,
-    color: 'dimgray',
+    // color: 'dimgray',
     // textAlign: 'center',
     // textAlignVertical: 'bottom',
     // paddingBottom: 10,
     // backgroundColor: 'pink',
+    // paddingLeft: 10,
+    // paddingVertical: 0,
     height: 35,
+    padding: 0,
+
   },  
   pickerItem: {
     // alignItems: 'center',
@@ -1008,7 +1101,7 @@ const styles = StyleSheet.create({
     // textAlignVertical: 'center',
     // textAlign: 'center',
     // fontSize: 18,
-    // color: 'dimgray',
+    color: 'green',
     // height: Dimensions.get('window').height * 0.7,
     // backgroundColor: 'green',
      
@@ -1087,7 +1180,7 @@ const styles = StyleSheet.create({
     opacity: 1.0,
     shadowColor: 'black', // iOS
     shadowOffset: { width: 20, height: 20 }, // iOS
-    shadowOpacity: 0.8, // iOS
+    shadowOpacity: 0.4, // iOS
     shadowRadius: 10, // iOS   
     elevation: 10, // Android
   },

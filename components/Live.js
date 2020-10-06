@@ -110,7 +110,7 @@ export default class Live extends Component {
   inputTensorWidth = Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
   inputTensorHeight = Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height']  ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //Dimensions.get('window').height / 3; // 200
 
-
+  // DON'T CHANGE OR ADJUST textureDims because Posenet can not scan whole screen. 
   textureDims = Platform.OS === 'ios' ? 
     { // https://github.com/tensorflow/tfjs/blob/master/tfjs-react-native/integration_rn59/components/webcam/realtime_demo.tsx
       width: this.props.navigation.getParam('const_exer')['textureDimsIos']['width'], // 1800, //960, //Dimensions.get('window').width, // 960, // 1024, //768, //512, // 540, //256, // 1080, //videoSize, 
@@ -1959,7 +1959,7 @@ export default class Live extends Component {
                 null
               :
                 <View style={styles.initialPostureContainer}>
-                  <Image style={styles.initialPostureImage} source={require('../assets/initialPosture_310x310dotted.png')} />
+                  <Image style={styles.initialPostureImage} source={require('../assets/initialPosture310x370dotted.png')} />
                 </View>
               }
 
@@ -2219,8 +2219,8 @@ const styles = StyleSheet.create({
     // bottom: Dimensions.get('window').width * 0.01, // when Landscape
     // left: Dimensions.get('window').width / 2 - 310 / 2, // when Portrait
     width: Dimensions.get('window').width, // when Portrait
-    height: Dimensions.get('window').width, // when Portrait
-    bottom: Dimensions.get('window').height * 0.15, // when Landscape
+    height: Dimensions.get('window').width * 370/310, // when Portrait
+    bottom: Dimensions.get('window').height * 0.1, // when Landscape
     // justifyContent: 'center',
     // borderColor: 'green',
     // borderWidth: 1,

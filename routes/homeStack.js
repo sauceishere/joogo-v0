@@ -85,6 +85,12 @@ const screens = {
           // left: 0,
           // right: 0,
         },   
+        headerBackTitle: 'Back',
+        // headerBackTitleVisible: false, // https://reactnavigation.org/docs/stack-navigator/#headerbacktitlevisible
+        headerBackTitleStyle: {
+          // color: 'gray',
+          fontSize: 16, 
+        },
       }
     }, 
   },
@@ -124,7 +130,13 @@ const screens = {
           // top: 0,
           // left: 0,
           // right: 0,
-        },     
+        }, 
+        headerBackTitle: 'Back',
+        // headerBackTitleVisible: false, // https://reactnavigation.org/docs/stack-navigator/#headerbacktitlevisible
+        headerBackTitleStyle: {
+          // color: 'gray',
+          fontSize: 16, 
+        },    
       }
     }, 
   },  
@@ -144,7 +156,13 @@ const screens = {
           // top: 0,
           // left: 0,
           // right: 0,
-        },     
+        },  
+        headerBackTitle: 'Back',
+        // headerBackTitleVisible: false, // https://reactnavigation.org/docs/stack-navigator/#headerbacktitlevisible
+        headerBackTitleStyle: {
+          // color: 'gray',
+          fontSize: 16, 
+        },   
       }
     }, 
   },    
@@ -207,7 +225,13 @@ const screens = {
           // top: 0,
           // left: 0,
           // right: 0,
-        // },     
+        // },  
+        headerBackTitle: 'Back',
+        // headerBackTitleVisible: false, // https://reactnavigation.org/docs/stack-navigator/#headerbacktitlevisible
+        headerBackTitleStyle: {
+          // color: 'gray',
+          fontSize: 16, 
+        },   
       }
     }, 
   },  
@@ -229,6 +253,12 @@ const screens = {
           // left: 0,
           // right: 0,
         },     
+        headerBackTitle: 'Back',
+        // headerBackTitleVisible: false, // https://reactnavigation.org/docs/stack-navigator/#headerbacktitlevisible
+        headerBackTitleStyle: {
+          // color: 'gray',
+          fontSize: 16, 
+        },
       }
     }, 
   },  
