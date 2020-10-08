@@ -160,9 +160,9 @@ export default class Live extends Component {
   // vidMeta = this.props.navigation.getParam('post')
   // wpart = this.props.navigation.getParam('wpart');
   // mets_per_part = this.props.navigation.getParam('mets_per_part');
-  scaler_scale = this.props.navigation.getParam('scaler_scale').data;
-  scaler_mean = this.props.navigation.getParam('scaler_mean').data;
-  model = this.props.navigation.getParam('model').data;
+  scaler_scale = this.props.navigation.getParam('scaler_scale');
+  scaler_mean = this.props.navigation.getParam('scaler_mean');
+  model = this.props.navigation.getParam('model');
   model2 = this.props.navigation.getParam('model2');
   
   // when Landscape
@@ -185,7 +185,7 @@ export default class Live extends Component {
 
   // when Portrait 20201004
   initialPositions = {
-    x9Min: this.inputTensorWidth * 0/4, // 3/4 // leftWrist
+    x9Min: this.inputTensorWidth * 3/4, // 3/4 // leftWrist
     x9Max: this.inputTensorWidth * 4/4, // leftWrist
     y9Min: this.inputTensorHeight * 1/5, // leftWrist
     y9Max: this.inputTensorHeight * 3/5, // leftWrist
@@ -506,12 +506,13 @@ export default class Live extends Component {
 
   async componentDidMount() {
     console.log('------------------- componentDidMount Live started 82');
+    // console.log('this.props.navigation.getParam: ', this.props.navigation.getParam('wval') );
     // console.log('------ this.mets_per_part: ', this.mets_per_part);
     // console.log('------ this.camState: ', this.camState);
     // console.log( 'slow1[secFromStart]: ', typeof slow1 );
     // console.log( 'slow1[secFromStart]: ', slow1["1"] );
-    // console.log('this.scaler_scale: ', this.scaler_scale );
-    // console.log('this.scaler_mean: ', this.scaler_mean );
+    console.log('this.scaler_scale: ', this.scaler_scale );
+    console.log('this.scaler_mean: ', this.scaler_mean );
     // console.log('this.model: ', this.model );
     console.log('screen width, height: ', Dimensions.get('screen').width, Dimensions.get('screen').height);
     console.log('window width, height: ', Dimensions.get('window').width, Dimensions.get('window').height);
@@ -519,13 +520,14 @@ export default class Live extends Component {
     console.log('textureDims.width .height: ', this.textureDims.width, this.textureDims.height );    
     // console.log('LB_PER_KG: ', LB_PER_KG);
     // console.log('this.state.vidViewLogTemp: ', this.state.vidViewLogTemp);
+    // console.log('this.props.navigation.getParam(model2): ', this.props.navigation.getParam('model2') );
 
 
 
     if (this.state.wunit == 'kg') {
-      this.WEIGHT_KG = (this.state.wval).toFixed(); 
+      this.WEIGHT_KG = this.state.wval
     } else { // wunit = 'lb'
-      this.WEIGHT_KG = (this.state.wval / LB_PER_KG).toFixed(); 
+      this.WEIGHT_KG = this.state.wval / LB_PER_KG
     }
     console.log('this.WEIGHT_KG: ', this.WEIGHT_KG);
   
@@ -804,6 +806,7 @@ export default class Live extends Component {
     // console.log('ts: ', ts);
     const vidId = this.props.navigation.getParam('post')['ID'];
     const viewId = uuidv4();
+    // const vidViewLogFileName = ts + '_' + '_' + this.state.scoreNow + '_' + this.vidState.vidPlayedSum + '_' + viewId;
     const vidViewLogFileName = ts + '_' + viewId;
 
     var jsonContents = {};
@@ -905,9 +908,9 @@ export default class Live extends Component {
 
 
 
-
   renderPose() {
     console.log('-------- renderPose.: ', this.vidState.renderPoseTimes);
+    const time0 = Date.now() / 1000; 
 
     const {pose, vidLength, flagAllPosOk, noseToAnkle, flagNoseToAnkle, rightToLeft, flagRightToLeft ,vidFullUrl, shouldPlay, flagUpdateScore } = this.state;
     // console.log('-------- pose: ', pose);
@@ -955,6 +958,8 @@ export default class Live extends Component {
       // if (this.state.shouldPlay === true & this.state.flagUpdateScore === true) { 
         console.log('--- this.state.shouldPlay === true & this.state.flagUpdateScore === true');
         
+        console.log('time0a: ', Date.now() / 1000 - time0); 
+ 
 
 
         var _updateScore = setInterval( () => {
@@ -1012,9 +1017,9 @@ export default class Live extends Component {
 
             if (this.flag_mdCum == 1) {
               console.log('--- this.flag_mdCum == 1, Update mdCumB');
-              console.log('this.mdCum: ', this.mdCum);
-              console.log('this.mdCumA: ', this.mdCumA);
-              console.log('this.mdCumB: ', this.mdCumB);
+              // console.log('this.mdCum: ', this.mdCum);
+              // console.log('this.mdCumA: ', this.mdCumA);
+              // console.log('this.mdCumB: ', this.mdCumB);
               // this.mdCumB = this.mdCum; //update mdCumB
               this.mdCumB.x5 = this.mdCum.x5; // update mdCum
               this.mdCumB.x6 = this.mdCum.x6; // update mdCum
@@ -1063,31 +1068,31 @@ export default class Live extends Component {
               //   this.flagHighLow.rank = 0;
               // }              
               
-              mdCumTtlNow =  11;
-                // ( ( ( ( (this.mdCumB.y10 - this.mdCumA.y10) + (this.mdCumB.y12 - this.mdCumA.y12) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_hip ) / this.scaler_scale.y_hip * this.model.y_hip ) + 
+              mdCumTtlNow = 
+                ( ( ( ( (this.mdCumB.y10 - this.mdCumA.y10) + (this.mdCumB.y12 - this.mdCumA.y12) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_hip ) / this.scaler_scale.y_hip * this.model.y_hip ) + 
 
-                // ( ( ( ( Math.abs( (this.mdCumB.x5 - this.mdCumB.x11) - (this.mdCumA.x5 - this.mdCumA.x11) ) + Math.abs( (this.mdCumB.x6 - this.mdCumB.x12) - (this.mdCumA.x6 - this.mdCumA.x12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_sho ) / this.scaler_scale.x_sho * this.model.x_sho ) + 
-                // ( ( ( ( Math.abs( (this.mdCumB.x7 - this.mdCumB.x5) - (this.mdCumA.x7 - this.mdCumA.x5) ) + Math.abs( (this.mdCumB.x8 - this.mdCumB.x6) - (this.mdCumA.x8 - this.mdCumA.x6) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_elb ) / this.scaler_scale.x_elb * this.model.x_elb ) + 
-                // ( ( ( ( Math.abs( (this.mdCumB.x9 - this.mdCumB.x7) - (this.mdCumA.x9 - this.mdCumA.x7) ) + Math.abs( (this.mdCumB.x10 - this.mdCumB.x8) - (this.mdCumA.x10 - this.mdCumA.x8) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_wri ) / this.scaler_scale.x_wri * this.model.x_wri ) +
-                // ( ( ( ( Math.abs( (this.mdCumB.x13 - this.mdCumB.x11) - (this.mdCumA.x13 - this.mdCumA.x11) ) + Math.abs( (this.mdCumB.x14 - this.mdCumB.x12) - (this.mdCumA.x14 - this.mdCumA.x12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_kne ) / this.scaler_scale.x_kne * this.model.x_kne ) +
-                // ( ( ( ( Math.abs( (this.mdCumB.x15 - this.mdCumB.x13) - (this.mdCumA.x15 - this.mdCumA.x13) ) + Math.abs( (this.mdCumB.x16 - this.mdCumB.x14) - (this.mdCumA.x16 - this.mdCumA.x14) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_ank ) / this.scaler_scale.x_ank * this.model.x_ank ) +
+                ( ( ( ( Math.abs( (this.mdCumB.x5 - this.mdCumB.x11) - (this.mdCumA.x5 - this.mdCumA.x11) ) + Math.abs( (this.mdCumB.x6 - this.mdCumB.x12) - (this.mdCumA.x6 - this.mdCumA.x12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_sho ) / this.scaler_scale.x_sho * this.model.x_sho ) + 
+                ( ( ( ( Math.abs( (this.mdCumB.x7 - this.mdCumB.x5) - (this.mdCumA.x7 - this.mdCumA.x5) ) + Math.abs( (this.mdCumB.x8 - this.mdCumB.x6) - (this.mdCumA.x8 - this.mdCumA.x6) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_elb ) / this.scaler_scale.x_elb * this.model.x_elb ) + 
+                ( ( ( ( Math.abs( (this.mdCumB.x9 - this.mdCumB.x7) - (this.mdCumA.x9 - this.mdCumA.x7) ) + Math.abs( (this.mdCumB.x10 - this.mdCumB.x8) - (this.mdCumA.x10 - this.mdCumA.x8) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_wri ) / this.scaler_scale.x_wri * this.model.x_wri ) +
+                ( ( ( ( Math.abs( (this.mdCumB.x13 - this.mdCumB.x11) - (this.mdCumA.x13 - this.mdCumA.x11) ) + Math.abs( (this.mdCumB.x14 - this.mdCumB.x12) - (this.mdCumA.x14 - this.mdCumA.x12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_kne ) / this.scaler_scale.x_kne * this.model.x_kne ) +
+                ( ( ( ( Math.abs( (this.mdCumB.x15 - this.mdCumB.x13) - (this.mdCumA.x15 - this.mdCumA.x13) ) + Math.abs( (this.mdCumB.x16 - this.mdCumB.x14) - (this.mdCumA.x16 - this.mdCumA.x14) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_ank ) / this.scaler_scale.x_ank * this.model.x_ank ) +
 
-                // ( ( ( ( Math.abs( (this.mdCumB.y5 - this.mdCumB.y11) - (this.mdCumA.y5 - this.mdCumA.y11) ) + Math.abs( (this.mdCumB.y6 - this.mdCumB.y12) - (this.mdCumA.y6 - this.mdCumA.y12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_sho ) / this.scaler_scale.y_sho * this.model.y_sho ) + 
-                // ( ( ( ( Math.abs( (this.mdCumB.y7 - this.mdCumB.y5) - (this.mdCumA.y7 - this.mdCumA.y5) ) + Math.abs( (this.mdCumB.y8 - this.mdCumB.y6) - (this.mdCumA.y8 - this.mdCumA.y6) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_elb ) / this.scaler_scale.y_elb * this.model.y_elb ) + 
-                // ( ( ( ( Math.abs( (this.mdCumB.y9 - this.mdCumB.y7) - (this.mdCumA.y9 - this.mdCumA.y7) ) + Math.abs( (this.mdCumB.y10 - this.mdCumB.y8) - (this.mdCumA.y10 - this.mdCumA.y8) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_wri ) / this.scaler_scale.y_wri * this.model.y_wri ) +
-                // ( ( ( ( Math.abs( (this.mdCumB.y13 - this.mdCumB.y11) - (this.mdCumA.y13 - this.mdCumA.y11) ) + Math.abs( (this.mdCumB.y14 - this.mdCumB.y12) - (this.mdCumA.y14 - this.mdCumA.y12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_kne ) / this.scaler_scale.y_kne * this.model.y_kne ) +
-                // ( ( ( ( Math.abs( (this.mdCumB.y15 - this.mdCumB.y13) - (this.mdCumA.y15 - this.mdCumA.y13) ) + Math.abs( (this.mdCumB.y16 - this.mdCumB.y14) - (this.mdCumA.y16 - this.mdCumA.y14) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_ank ) / this.scaler_scale.y_ank * this.model.y_ank ) +
+                ( ( ( ( Math.abs( (this.mdCumB.y5 - this.mdCumB.y11) - (this.mdCumA.y5 - this.mdCumA.y11) ) + Math.abs( (this.mdCumB.y6 - this.mdCumB.y12) - (this.mdCumA.y6 - this.mdCumA.y12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_sho ) / this.scaler_scale.y_sho * this.model.y_sho ) + 
+                ( ( ( ( Math.abs( (this.mdCumB.y7 - this.mdCumB.y5) - (this.mdCumA.y7 - this.mdCumA.y5) ) + Math.abs( (this.mdCumB.y8 - this.mdCumB.y6) - (this.mdCumA.y8 - this.mdCumA.y6) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_elb ) / this.scaler_scale.y_elb * this.model.y_elb ) + 
+                ( ( ( ( Math.abs( (this.mdCumB.y9 - this.mdCumB.y7) - (this.mdCumA.y9 - this.mdCumA.y7) ) + Math.abs( (this.mdCumB.y10 - this.mdCumB.y8) - (this.mdCumA.y10 - this.mdCumA.y8) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_wri ) / this.scaler_scale.y_wri * this.model.y_wri ) +
+                ( ( ( ( Math.abs( (this.mdCumB.y13 - this.mdCumB.y11) - (this.mdCumA.y13 - this.mdCumA.y11) ) + Math.abs( (this.mdCumB.y14 - this.mdCumB.y12) - (this.mdCumA.y14 - this.mdCumA.y12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_kne ) / this.scaler_scale.y_kne * this.model.y_kne ) +
+                ( ( ( ( Math.abs( (this.mdCumB.y15 - this.mdCumB.y13) - (this.mdCumA.y15 - this.mdCumA.y13) ) + Math.abs( (this.mdCumB.y16 - this.mdCumB.y14) - (this.mdCumA.y16 - this.mdCumA.y14) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_ank ) / this.scaler_scale.y_ank * this.model.y_ank ) +
 
-                // this.model.intercept;
+                this.model.intercept;
 
 
               this.flag_mdCum = 0; // switch flag
 
             } else { // if this.flag_mdCum = 0
               console.log('--- this.flag_mdCum == 0, Update mdCumA');
-              console.log('this.mdCum: ', this.mdCum);
-              console.log('this.mdCumA: ', this.mdCumA);
-              console.log('this.mdCumB: ', this.mdCumB);
+              // console.log('this.mdCum: ', this.mdCum);
+              // console.log('this.mdCumA: ', this.mdCumA);
+              // console.log('this.mdCumB: ', this.mdCumB);
               // this.mdCumA = this.mdCum; // update mdCumA
               this.mdCumA.x5 = this.mdCum.x5; // update mdCum
               this.mdCumA.x6 = this.mdCum.x6; // update mdCum
@@ -1113,22 +1118,22 @@ export default class Live extends Component {
               this.mdCumA.y15 = this.mdCum.y15; // update mdCum    
               // console.log('--- this.mdCumA: ', this.mdCumA);  
 
-              mdCumTtlNow = 12;
-                // ( ( ( ( (this.mdCumA.y10 - this.mdCumB.y10) + (this.mdCumA.y12 - this.mdCumB.y12) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_hip ) / this.scaler_scale.y_hip * this.model.y_hip ) + 
+              mdCumTtlNow = 
+                ( ( ( ( (this.mdCumA.y10 - this.mdCumB.y10) + (this.mdCumA.y12 - this.mdCumB.y12) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_hip ) / this.scaler_scale.y_hip * this.model.y_hip ) + 
 
-                // ( ( ( ( Math.abs( (this.mdCumA.x5 - this.mdCumA.x11) - (this.mdCumB.x5 - this.mdCumB.x11) ) + Math.abs( (this.mdCumA.x6 - this.mdCumA.x12) - (this.mdCumB.x6 - this.mdCumB.x12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_sho ) / this.scaler_scale.x_sho * this.model.x_sho ) + 
-                // ( ( ( ( Math.abs( (this.mdCumA.x7 - this.mdCumA.x5) - (this.mdCumB.x7 - this.mdCumB.x5) ) + Math.abs( (this.mdCumA.x8 - this.mdCumA.x6) - (this.mdCumB.x8 - this.mdCumB.x6) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_elb ) / this.scaler_scale.x_elb * this.model.x_elb ) + 
-                // ( ( ( ( Math.abs( (this.mdCumA.x9 - this.mdCumA.x7) - (this.mdCumB.x9 - this.mdCumB.x7) ) + Math.abs( (this.mdCumA.x10 - this.mdCumA.x8) - (this.mdCumB.x10 - this.mdCumB.x8) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_wri ) / this.scaler_scale.x_wri * this.model.x_wri ) +
-                // ( ( ( ( Math.abs( (this.mdCumA.x13 - this.mdCumA.x11) - (this.mdCumB.x13 - this.mdCumB.x11) ) + Math.abs( (this.mdCumA.x14 - this.mdCumA.x12) - (this.mdCumB.x14 - this.mdCumB.x12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_kne ) / this.scaler_scale.x_kne * this.model.x_kne ) +
-                // ( ( ( ( Math.abs( (this.mdCumA.x15 - this.mdCumA.x13) - (this.mdCumB.x15 - this.mdCumB.x13) ) + Math.abs( (this.mdCumA.x16 - this.mdCumA.x14) - (this.mdCumB.x16 - this.mdCumB.x14) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_ank ) / this.scaler_scale.x_ank * this.model.x_ank ) +
+                ( ( ( ( Math.abs( (this.mdCumA.x5 - this.mdCumA.x11) - (this.mdCumB.x5 - this.mdCumB.x11) ) + Math.abs( (this.mdCumA.x6 - this.mdCumA.x12) - (this.mdCumB.x6 - this.mdCumB.x12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_sho ) / this.scaler_scale.x_sho * this.model.x_sho ) + 
+                ( ( ( ( Math.abs( (this.mdCumA.x7 - this.mdCumA.x5) - (this.mdCumB.x7 - this.mdCumB.x5) ) + Math.abs( (this.mdCumA.x8 - this.mdCumA.x6) - (this.mdCumB.x8 - this.mdCumB.x6) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_elb ) / this.scaler_scale.x_elb * this.model.x_elb ) + 
+                ( ( ( ( Math.abs( (this.mdCumA.x9 - this.mdCumA.x7) - (this.mdCumB.x9 - this.mdCumB.x7) ) + Math.abs( (this.mdCumA.x10 - this.mdCumA.x8) - (this.mdCumB.x10 - this.mdCumB.x8) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_wri ) / this.scaler_scale.x_wri * this.model.x_wri ) +
+                ( ( ( ( Math.abs( (this.mdCumA.x13 - this.mdCumA.x11) - (this.mdCumB.x13 - this.mdCumB.x11) ) + Math.abs( (this.mdCumA.x14 - this.mdCumA.x12) - (this.mdCumB.x14 - this.mdCumB.x12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_kne ) / this.scaler_scale.x_kne * this.model.x_kne ) +
+                ( ( ( ( Math.abs( (this.mdCumA.x15 - this.mdCumA.x13) - (this.mdCumB.x15 - this.mdCumB.x13) ) + Math.abs( (this.mdCumA.x16 - this.mdCumA.x14) - (this.mdCumB.x16 - this.mdCumB.x14) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_ank ) / this.scaler_scale.x_ank * this.model.x_ank ) +
 
-                // ( ( ( ( Math.abs( (this.mdCumA.y5 - this.mdCumA.y11) - (this.mdCumB.y5 - this.mdCumB.y11) ) + Math.abs( (this.mdCumA.y6 - this.mdCumA.y12) - (this.mdCumB.y6 - this.mdCumB.y12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_sho ) / this.scaler_scale.y_sho * this.model.y_sho ) + 
-                // ( ( ( ( Math.abs( (this.mdCumA.y7 - this.mdCumA.y5) - (this.mdCumB.y7 - this.mdCumB.y5) ) + Math.abs( (this.mdCumA.y8 - this.mdCumA.y6) - (this.mdCumB.y8 - this.mdCumB.y6) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_elb ) / this.scaler_scale.y_elb * this.model.y_elb ) + 
-                // ( ( ( ( Math.abs( (this.mdCumA.y9 - this.mdCumA.y7) - (this.mdCumB.y9 - this.mdCumB.y7) ) + Math.abs( (this.mdCumA.y10 - this.mdCumA.y8) - (this.mdCumB.y10 - this.mdCumB.y8) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_wri ) / this.scaler_scale.y_wri * this.model.y_wri ) +
-                // ( ( ( ( Math.abs( (this.mdCumA.y13 - this.mdCumA.y11) - (this.mdCumB.y13 - this.mdCumB.y11) ) + Math.abs( (this.mdCumA.y14 - this.mdCumA.y12) - (this.mdCumB.y14 - this.mdCumB.y12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_kne ) / this.scaler_scale.y_kne * this.model.y_kne ) +
-                // ( ( ( ( Math.abs( (this.mdCumA.y15 - this.mdCumA.y13) - (this.mdCumB.y15 - this.mdCumB.y13) ) + Math.abs( (this.mdCumA.y16 - this.mdCumA.y14) - (this.mdCumB.y16 - this.mdCumB.y14) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_ank ) / this.scaler_scale.y_ank * this.model.y_ank ) +
+                ( ( ( ( Math.abs( (this.mdCumA.y5 - this.mdCumA.y11) - (this.mdCumB.y5 - this.mdCumB.y11) ) + Math.abs( (this.mdCumA.y6 - this.mdCumA.y12) - (this.mdCumB.y6 - this.mdCumB.y12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_sho ) / this.scaler_scale.y_sho * this.model.y_sho ) + 
+                ( ( ( ( Math.abs( (this.mdCumA.y7 - this.mdCumA.y5) - (this.mdCumB.y7 - this.mdCumB.y5) ) + Math.abs( (this.mdCumA.y8 - this.mdCumA.y6) - (this.mdCumB.y8 - this.mdCumB.y6) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_elb ) / this.scaler_scale.y_elb * this.model.y_elb ) + 
+                ( ( ( ( Math.abs( (this.mdCumA.y9 - this.mdCumA.y7) - (this.mdCumB.y9 - this.mdCumB.y7) ) + Math.abs( (this.mdCumA.y10 - this.mdCumA.y8) - (this.mdCumB.y10 - this.mdCumB.y8) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_wri ) / this.scaler_scale.y_wri * this.model.y_wri ) +
+                ( ( ( ( Math.abs( (this.mdCumA.y13 - this.mdCumA.y11) - (this.mdCumB.y13 - this.mdCumB.y11) ) + Math.abs( (this.mdCumA.y14 - this.mdCumA.y12) - (this.mdCumB.y14 - this.mdCumB.y12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_kne ) / this.scaler_scale.y_kne * this.model.y_kne ) +
+                ( ( ( ( Math.abs( (this.mdCumA.y15 - this.mdCumA.y13) - (this.mdCumB.y15 - this.mdCumB.y13) ) + Math.abs( (this.mdCumA.y16 - this.mdCumA.y14) - (this.mdCumB.y16 - this.mdCumB.y14) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_ank ) / this.scaler_scale.y_ank * this.model.y_ank ) +
 
-                // this.model.intercept;
+                this.model.intercept;
 
 
               this.flag_mdCum = 1; // switch flag
@@ -1177,6 +1182,8 @@ export default class Live extends Component {
           // };
 
 
+          console.log('time0b: ', Date.now() / 1000 - time0);         
+                
           this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(3), scoreNow: scoreNow.toFixed(1) });// this is what shows as score on top right.
           this.mdCumAll.push( JSON.stringify({ 'sec': secFromStart, 'cntLoopUpdateScore': this.cntLoopUpdateScore, 'ts': Date.now()/1000, 'score': scoreNow.toFixed(3), 'playSum': this.vidState.vidPlayedSum.toFixed(2), 'pos': this.pos }) ); // append froms Start to End 
           
@@ -1205,6 +1212,7 @@ export default class Live extends Component {
         // console.log('4 this.mdCumA.x10, y13, y15: ', this.mdCumA.x10, this.mdCumA.y13, this.mdCumA.y15 );
         // console.log('4 this.mdCumB.x10, y13, y15: ', this.mdCumB.x10, this.mdCumB.y13, this.mdCumB.y15 );
 
+        console.log('time0c: ', Date.now() / 1000 - time0); 
 
         var identifiedBpartsEach = []; // reset at each loop 20200520
 
@@ -1236,6 +1244,7 @@ export default class Live extends Component {
               console.log('out on observers Bottom v v v v v v v v v v v ', this.frameOutCnt.bottom);
             }
 
+            console.log('time0d: ', Date.now() / 1000 - time0);
 
 
   ////////// assign each value to this.pos.xxx ////////////////////
@@ -1476,6 +1485,7 @@ export default class Live extends Component {
 
           }); // closing .map
 
+          console.log('time0e: ', Date.now() / 1000 - time0); 
 
 
 ///////// check if User moves towards Camera by noseToAnkle. 20200523 //////////// 
@@ -1572,6 +1582,7 @@ export default class Live extends Component {
 
             }
 
+            console.log('time0f: ', Date.now() / 1000 - time0);         
 
   ////////// to check if all the positions are ready in camera  ////////////////////
 
@@ -1618,7 +1629,7 @@ export default class Live extends Component {
                     console.log('---------- this.cntIniPos: ', this.cntIniPos);
 
                     // hide webCam, initialPosture.png & start countdown 
-                    if (flagAllPosOk == false && this.cntIniPos > 2) { // flag to control going through one time 
+                    if (flagAllPosOk == false && this.cntIniPos > 1) { // flag to control going through one time 
                       //flagAllPosOk = 1; // flag to confirm all the positions are within camera range
                       this.setState({ flagAllPosOk: true });
                       console.log('oooooooooooooooooooooooooooooooooooooooooo All the positions confirmed ooooooooooooooooooooooooooooooooooooooooooooo ');
@@ -1776,6 +1787,8 @@ export default class Live extends Component {
 
     this.vidState.renderPoseTimes++; // increment
 
+    console.log('time0g: ', Date.now() / 1000 - time0); 
+
   } // closing renderPose
 
 
@@ -1785,6 +1798,8 @@ export default class Live extends Component {
 
   render() {
     console.log('----------------- render --------------------');
+    var time1 = Date.now() / 1000; 
+
     const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, scoreNow, vidStartAt, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon, octopusLoc } = this.state;
 
     if (shouldPlay == true) { // increment only shouldPlay=true. this means not incremented whe video is paused.
@@ -1792,6 +1807,8 @@ export default class Live extends Component {
     }
     console.log( '-- Interval: ', (Date.now()/1000 - this.vidState.loopStartAt).toFixed(2)  ); // this does not have any meaning, just to show how fast code runs.
     this.vidState.loopStartAt = Date.now()/1000;
+
+    console.log('time1a: ', Date.now() / 1000 - time1);
 
 
 
@@ -1816,6 +1833,8 @@ export default class Live extends Component {
         this.prevAccelData.z = accelerometerData.z; // assign only        
       }
     } 
+
+    console.log('time1b: ', Date.now() / 1000 - time1);
 
 
 
@@ -2156,10 +2175,14 @@ const styles = StyleSheet.create({
     // backgroundColor: 'white',
     // zIndex: 201, // removed 20200531
     position: 'absolute',
-    top: Dimensions.get('window').width * 0.07,
-    right: Dimensions.get('window').height * 0.12, 
-    height: Dimensions.get('window').width * 0.22, // 0.1
-    width: Dimensions.get('window').height * 0.21, //0.4
+    // top: Dimensions.get('window').width * 0.07, // when Landscape
+    // right: Dimensions.get('window').height * 0.12, // when Landscape
+    // height: Dimensions.get('window').width * 0.22, // when Landscape
+    // width: Dimensions.get('window').height * 0.21, // when Landscape
+    top: Dimensions.get('window').width * 0.08, // when Landscape
+    right: Dimensions.get('window').height * 0.02, // when Landscape
+    height: Dimensions.get('window').width * 0.22, // when Landscape
+    width: Dimensions.get('window').height * 0.21, // when Landscape    
     backgroundColor: 'rgba(20, 20, 20, 0.7)', // darkgray seethrough background
     borderRadius: 5,  
     justifyContent: 'center',
@@ -2174,6 +2197,7 @@ const styles = StyleSheet.create({
     textShadowRadius: 10,
     color: '#ffa500',
     textAlignVertical: 'center',
+    paddingRight: 5,
     // fontFamily: fredoka-one,
   },   
   playButtonContainer: {

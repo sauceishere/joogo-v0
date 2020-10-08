@@ -464,7 +464,7 @@ export default class DashboardScreen extends Component {
             // console.log('this.state.mets_per_part: ', this.state.mets_per_part );
             // console.log('this.state.scaler_scale: ', this.state.scaler_scale );
             // console.log('this.state.scaler_mean: ', this.state.scaler_mean );
-            // console.log('this.state.model: ', this.state.model );
+            console.log('this.state.model2: ', this.state.model2 );
 
           } else if (response["code"] == 'ok') { // after the second load, no need to load ["flagMastersLoaded"]
             console.log('---------------- ok, length: ', response.detail.vidMetas.length );
@@ -586,7 +586,7 @@ export default class DashboardScreen extends Component {
 
 
   renderPost = post => {
-      const {  const_exer, wval, wunit, scaler_scale, scaler_mean, model, vidViewLogTemp , adUnitID} = this.state;
+      const {  const_exer, wval, wunit, scaler_scale, scaler_mean, model, vidViewLogTemp , adUnitID, model2} = this.state;
       // num_post++; // increment var num_post
       console.log('====== post ====== post_num:' , post_num);
 
@@ -769,7 +769,7 @@ export default class DashboardScreen extends Component {
                   
                   {/* bottom right pane */}
                   <View style={{ }}>
-                    <TouchableOpacity onPress={ () => this.props.navigation.push('Live', {post, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit} ) } >
+                    <TouchableOpacity onPress={ () => this.props.navigation.push('Live', {post, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit, model2} ) } >
                         <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
                     </TouchableOpacity>
                   </View>
@@ -873,7 +873,7 @@ export default class DashboardScreen extends Component {
   
                     {/* bottom right pane */}
                     <View style={{ }}>
-                      <TouchableOpacity onPress={ () => this.props.navigation.push('Live', { post, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit} ) } >
+                      <TouchableOpacity onPress={ () => this.props.navigation.push('Live', { post, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit, model2} ) } >
                           <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
                       </TouchableOpacity>
                     </View>
