@@ -806,8 +806,8 @@ export default class Live extends Component {
     // console.log('ts: ', ts);
     const vidId = this.props.navigation.getParam('post')['ID'];
     const viewId = uuidv4();
-    // const vidViewLogFileName = ts + '_' + '_' + this.state.scoreNow + '_' + this.vidState.vidPlayedSum + '_' + viewId;
-    const vidViewLogFileName = ts + '_' + viewId;
+    const vidViewLogFileName = ts + '_' + '_' + this.state.scoreNow + '_' + this.vidState.vidPlayedSum + '_' + viewId;
+    // const vidViewLogFileName = ts + '_' + viewId;
 
     var jsonContents = {};
     jsonContents["ts"] = ts;
@@ -983,28 +983,28 @@ export default class Live extends Component {
             console.log('--- scoreNow: ', scoreNow.toFixed(3));
             
             // this.mdCumA = this.mdCum; // update mdCumA
-            this.mdCumA.x5 = this.mdCum.x5; // update mdCum
-            this.mdCumA.x6 = this.mdCum.x6; // update mdCum
-            this.mdCumA.x7 = this.mdCum.x7; // update mdCum
-            this.mdCumA.x8 = this.mdCum.x8; // update mdCum
-            this.mdCumA.x9 = this.mdCum.x9; // update mdCum
-            this.mdCumA.x10 = this.mdCum.x10; // update mdCum
-            this.mdCumA.x11 = this.mdCum.x11; // update mdCum
-            this.mdCumA.x12 = this.mdCum.x12; // update mdCum
-            this.mdCumA.x13 = this.mdCum.x13; // update mdCum
-            this.mdCumA.x14 = this.mdCum.x14; // update mdCum
-            this.mdCumA.x15 = this.mdCum.x15; // update mdCum
-            this.mdCumA.y5 = this.mdCum.y5; // update mdCum
-            this.mdCumA.y6 = this.mdCum.y6; // update mdCum
-            this.mdCumA.y7 = this.mdCum.y7; // update mdCum
-            this.mdCumA.y8 = this.mdCum.y8; // update mdCum
-            this.mdCumA.y9 = this.mdCum.y9; // update mdCum
-            this.mdCumA.y10 = this.mdCum.y10; // update mdCum
-            this.mdCumA.y11 = this.mdCum.y11; // update mdCum
-            this.mdCumA.y12 = this.mdCum.y12; // update mdCum
-            this.mdCumA.y13 = this.mdCum.y13; // update mdCum
-            this.mdCumA.y14 = this.mdCum.y14; // update mdCum
-            this.mdCumA.y15 = this.mdCum.x15; // update mdCum           
+            this.mdCumA.x5 = this.mdCum.x5.toFixed(3); // update mdCum
+            this.mdCumA.x6 = this.mdCum.x6.toFixed(3); // update mdCum
+            this.mdCumA.x7 = this.mdCum.x7.toFixed(3); // update mdCum
+            this.mdCumA.x8 = this.mdCum.x8.toFixed(3); // update mdCum
+            this.mdCumA.x9 = this.mdCum.x9.toFixed(3); // update mdCum
+            this.mdCumA.x10 = this.mdCum.x10.toFixed(3); // update mdCum
+            this.mdCumA.x11 = this.mdCum.x11.toFixed(3); // update mdCum
+            this.mdCumA.x12 = this.mdCum.x12.toFixed(3); // update mdCum
+            this.mdCumA.x13 = this.mdCum.x13.toFixed(3); // update mdCum
+            this.mdCumA.x14 = this.mdCum.x14.toFixed(3); // update mdCum
+            this.mdCumA.x15 = this.mdCum.x15.toFixed(3); // update mdCum
+            this.mdCumA.y5 = this.mdCum.y5.toFixed(3); // update mdCum
+            this.mdCumA.y6 = this.mdCum.y6.toFixed(3); // update mdCum
+            this.mdCumA.y7 = this.mdCum.y7.toFixed(3); // update mdCum
+            this.mdCumA.y8 = this.mdCum.y8.toFixed(3); // update mdCum
+            this.mdCumA.y9 = this.mdCum.y9.toFixed(3); // update mdCum
+            this.mdCumA.y10 = this.mdCum.y10.toFixed(3); // update mdCum
+            this.mdCumA.y11 = this.mdCum.y11.toFixed(3); // update mdCum
+            this.mdCumA.y12 = this.mdCum.y12.toFixed(3); // update mdCum
+            this.mdCumA.y13 = this.mdCum.y13.toFixed(3); // update mdCum
+            this.mdCumA.y14 = this.mdCum.y14.toFixed(3); // update mdCum
+            this.mdCumA.y15 = this.mdCum.x15.toFixed(3); // update mdCum           
           
             // console.log('0 this.mdCum.x10, y13, y15: ', this.mdCum.x10, this.mdCum.y13, this.mdCum.y15 );
             // console.log('0 this.mdCumA.x10, y13, y15: ', this.mdCumA.x10, this.mdCumA.y13, this.mdCumA.y15 );
@@ -1021,28 +1021,28 @@ export default class Live extends Component {
               // console.log('this.mdCumA: ', this.mdCumA);
               // console.log('this.mdCumB: ', this.mdCumB);
               // this.mdCumB = this.mdCum; //update mdCumB
-              this.mdCumB.x5 = this.mdCum.x5; // update mdCum
-              this.mdCumB.x6 = this.mdCum.x6; // update mdCum
-              this.mdCumB.x7 = this.mdCum.x7; // update mdCum
-              this.mdCumB.x8 = this.mdCum.x8; // update mdCum
-              this.mdCumB.x9 = this.mdCum.x9; // update mdCum
-              this.mdCumB.x10 = this.mdCum.x10; // update mdCum
-              this.mdCumB.x11 = this.mdCum.x11; // update mdCum
-              this.mdCumB.x12 = this.mdCum.x12; // update mdCum
-              this.mdCumB.x13 = this.mdCum.x13; // update mdCum
-              this.mdCumB.x14 = this.mdCum.x14; // update mdCum
-              this.mdCumB.x15 = this.mdCum.x15; // update mdCum
-              this.mdCumB.y5 = this.mdCum.y5; // update mdCum
-              this.mdCumB.y6 = this.mdCum.y6; // update mdCum
-              this.mdCumB.y7 = this.mdCum.y7; // update mdCum
-              this.mdCumB.y8 = this.mdCum.y8; // update mdCum
-              this.mdCumB.y9 = this.mdCum.y9; // update mdCum
-              this.mdCumB.y10 = this.mdCum.y10; // update mdCum
-              this.mdCumB.y11 = this.mdCum.y11; // update mdCum
-              this.mdCumB.y12 = this.mdCum.y12; // update mdCum
-              this.mdCumB.y13 = this.mdCum.y13; // update mdCum
-              this.mdCumB.y14 = this.mdCum.y14; // update mdCum
-              this.mdCumB.y15 = this.mdCum.y15; // update mdCum     
+              this.mdCumB.x5 = this.mdCum.x5.toFixed(3); // update mdCum
+              this.mdCumB.x6 = this.mdCum.x6.toFixed(3); // update mdCum
+              this.mdCumB.x7 = this.mdCum.x7.toFixed(3); // update mdCum
+              this.mdCumB.x8 = this.mdCum.x8.toFixed(3); // update mdCum
+              this.mdCumB.x9 = this.mdCum.x9.toFixed(3); // update mdCum
+              this.mdCumB.x10 = this.mdCum.x10.toFixed(3); // update mdCum
+              this.mdCumB.x11 = this.mdCum.x11.toFixed(3); // update mdCum
+              this.mdCumB.x12 = this.mdCum.x12.toFixed(3); // update mdCum
+              this.mdCumB.x13 = this.mdCum.x13.toFixed(3); // update mdCum
+              this.mdCumB.x14 = this.mdCum.x14.toFixed(3); // update mdCum
+              this.mdCumB.x15 = this.mdCum.x15.toFixed(3); // update mdCum
+              this.mdCumB.y5 = this.mdCum.y5.toFixed(3); // update mdCum
+              this.mdCumB.y6 = this.mdCum.y6.toFixed(3); // update mdCum
+              this.mdCumB.y7 = this.mdCum.y7.toFixed(3); // update mdCum
+              this.mdCumB.y8 = this.mdCum.y8.toFixed(3); // update mdCum
+              this.mdCumB.y9 = this.mdCum.y9.toFixed(3); // update mdCum
+              this.mdCumB.y10 = this.mdCum.y10.toFixed(3); // update mdCum
+              this.mdCumB.y11 = this.mdCum.y11.toFixed(3); // update mdCum
+              this.mdCumB.y12 = this.mdCum.y12.toFixed(3); // update mdCum
+              this.mdCumB.y13 = this.mdCum.y13.toFixed(3); // update mdCum
+              this.mdCumB.y14 = this.mdCum.y14.toFixed(3); // update mdCum
+              this.mdCumB.y15 = this.mdCum.y15.toFixed(3); // update mdCum     
               // console.log('--- this.mdCumB: ', this.mdCumB);  
 
 
@@ -1094,28 +1094,28 @@ export default class Live extends Component {
               // console.log('this.mdCumA: ', this.mdCumA);
               // console.log('this.mdCumB: ', this.mdCumB);
               // this.mdCumA = this.mdCum; // update mdCumA
-              this.mdCumA.x5 = this.mdCum.x5; // update mdCum
-              this.mdCumA.x6 = this.mdCum.x6; // update mdCum
-              this.mdCumA.x7 = this.mdCum.x7; // update mdCum
-              this.mdCumA.x8 = this.mdCum.x8; // update mdCum
-              this.mdCumA.x9 = this.mdCum.x9; // update mdCum
-              this.mdCumA.x10 = this.mdCum.x10; // update mdCum
-              this.mdCumA.x11 = this.mdCum.x11; // update mdCum
-              this.mdCumA.x12 = this.mdCum.x12; // update mdCum
-              this.mdCumA.x13 = this.mdCum.x13; // update mdCum
-              this.mdCumA.x14 = this.mdCum.x14; // update mdCum
-              this.mdCumA.x15 = this.mdCum.x15; // update mdCum
-              this.mdCumA.y5 = this.mdCum.y5; // update mdCum
-              this.mdCumA.y6 = this.mdCum.y6; // update mdCum
-              this.mdCumA.y7 = this.mdCum.y7; // update mdCum
-              this.mdCumA.y8 = this.mdCum.y8; // update mdCum
-              this.mdCumA.y9 = this.mdCum.y9; // update mdCum
-              this.mdCumA.y10 = this.mdCum.y10; // update mdCum
-              this.mdCumA.y11 = this.mdCum.y11; // update mdCum
-              this.mdCumA.y12 = this.mdCum.y12; // update mdCum
-              this.mdCumA.y13 = this.mdCum.y13; // update mdCum
-              this.mdCumA.y14 = this.mdCum.y14; // update mdCum
-              this.mdCumA.y15 = this.mdCum.y15; // update mdCum    
+              this.mdCumA.x5 = this.mdCum.x5.toFixed(3); // update mdCum
+              this.mdCumA.x6 = this.mdCum.x6.toFixed(3); // update mdCum
+              this.mdCumA.x7 = this.mdCum.x7.toFixed(3); // update mdCum
+              this.mdCumA.x8 = this.mdCum.x8.toFixed(3); // update mdCum
+              this.mdCumA.x9 = this.mdCum.x9.toFixed(3); // update mdCum
+              this.mdCumA.x10 = this.mdCum.x10.toFixed(3); // update mdCum
+              this.mdCumA.x11 = this.mdCum.x11.toFixed(3); // update mdCum
+              this.mdCumA.x12 = this.mdCum.x12.toFixed(3); // update mdCum
+              this.mdCumA.x13 = this.mdCum.x13.toFixed(3); // update mdCum
+              this.mdCumA.x14 = this.mdCum.x14.toFixed(3); // update mdCum
+              this.mdCumA.x15 = this.mdCum.x15.toFixed(3); // update mdCum
+              this.mdCumA.y5 = this.mdCum.y5.toFixed(3); // update mdCum
+              this.mdCumA.y6 = this.mdCum.y6.toFixed(3); // update mdCum
+              this.mdCumA.y7 = this.mdCum.y7.toFixed(3); // update mdCum
+              this.mdCumA.y8 = this.mdCum.y8.toFixed(3); // update mdCum
+              this.mdCumA.y9 = this.mdCum.y9.toFixed(3) // update mdCum
+              this.mdCumA.y10 = this.mdCum.y10.toFixed(3); // update mdCum
+              this.mdCumA.y11 = this.mdCum.y11.toFixed(3); // update mdCum
+              this.mdCumA.y12 = this.mdCum.y12.toFixed(3); // update mdCum
+              this.mdCumA.y13 = this.mdCum.y13.toFixed(3); // update mdCum
+              this.mdCumA.y14 = this.mdCum.y14.toFixed(3); // update mdCum
+              this.mdCumA.y15 = this.mdCum.y15.toFixed(3); // update mdCum    
               // console.log('--- this.mdCumA: ', this.mdCumA);  
 
               mdCumTtlNow = 
@@ -1185,8 +1185,8 @@ export default class Live extends Component {
           console.log('time0b: ', Date.now() / 1000 - time0);         
                 
           this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(3), scoreNow: scoreNow.toFixed(1) });// this is what shows as score on top right.
-          this.mdCumAll.push( JSON.stringify({ 'sec': secFromStart, 'cntLoopUpdateScore': this.cntLoopUpdateScore, 'ts': Date.now()/1000, 'score': scoreNow.toFixed(3), 'playSum': this.vidState.vidPlayedSum.toFixed(2), 'pos': this.pos }) ); // append froms Start to End 
-          
+          // this.mdCumAll.push( JSON.stringify({ 'sec': secFromStart, 'cntLoopUpdateScore': this.cntLoopUpdateScore, 'ts': Date.now()/1000, 'score': scoreNow.toFixed(3), 'playSum': this.vidState.vidPlayedSum.toFixed(2), 'pos': this.pos }) ); // append froms Start to End 
+          this.mdCumAll = 0; // Dummy. To improve response speed 20201010
 
           if ( this.state.shouldPlay === false ) { // this will force to stop setInterval(_updateScore) when user outNTA or press gobackhome BEFORE video ends. 20200603
             console.log('this will force to stop setInterval(_updateScore).');
@@ -1249,9 +1249,7 @@ export default class Live extends Component {
 
   ////////// assign each value to this.pos.xxx ////////////////////
             if ( k.part === 'nose') {
-              // identifiedBpartsEach.push("0");
-              // identifiedBpartsEach.push([0, Math.round(k.position.x), Math.round(k.position.y), k.score.toFixed(2) ]);
-              identifiedBpartsEach.push( { 'p': '0', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
+              // identifiedBpartsEach.push( { 'p': '0', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
               if (this.pos.x0 != null) { // after 2nd loop
                 this.mdCum.x0 = Math.abs( this.pos.x0 - Math.round(k.position.x) ) + this.mdCum.x0 ;
               } else { // 1st loop
@@ -1271,13 +1269,13 @@ export default class Live extends Component {
             } else if (k.part == 'leftEye') {
               // this.pos.x1 = Math.round(k.position.x);
             //   this.pos.y1 = Math.round(k.position.y);
-              identifiedBpartsEach.push( { 'p': '1', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
+              // identifiedBpartsEach.push( { 'p': '1', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
             } else if (k.part== 'rightEye') {
               // this.pos.x2 = Math.round(k.position.x);
             //   this.pos.y2 = Math.round(k.position.y);
-              identifiedBpartsEach.push( { 'p': '2', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
+              // identifiedBpartsEach.push( { 'p': '2', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
             } else if (k.part == 'leftElbow') {
-                identifiedBpartsEach.push( { 'p': '7', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
+                // identifiedBpartsEach.push( { 'p': '7', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x7 != null) { // after 2nd loop
                   this.mdCum.x7 = Math.abs( this.pos.x7 - Math.round(k.position.x) ) + this.mdCum.x7;
                 } else { // 1st loop
@@ -1294,7 +1292,7 @@ export default class Live extends Component {
                 }      
                 this.pos.y7 = Math.round(k.position.y); // update present position                    
             } else if (k.part == 'rightElbow') {
-                identifiedBpartsEach.push( { 'p': '8', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
+                // identifiedBpartsEach.push( { 'p': '8', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x8 != null) { // after 2nd loop
                   this.mdCum.x8 = Math.abs( this.pos.x8 - Math.round(k.position.x) ) + this.mdCum.x8;
                 } else { // 1st loop
@@ -1311,7 +1309,7 @@ export default class Live extends Component {
                 }      
                 this.pos.y8 = Math.round(k.position.y); // update present position     
             } else if (k.part == 'leftWrist') {
-                identifiedBpartsEach.push( { 'p': '9', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
+                // identifiedBpartsEach.push( { 'p': '9', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x9 != null) { // after 2nd loop
                   this.mdCum.x9 = Math.abs( this.pos.x9 - Math.round(k.position.x) ) + this.mdCum.x9;
                 } else { // 1st loop
@@ -1328,7 +1326,7 @@ export default class Live extends Component {
                 }      
                 this.pos.y9 = Math.round(k.position.y); // update present position  
             } else if (k.part == 'rightWrist') {
-                identifiedBpartsEach.push( { 'p': '10', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
+                // identifiedBpartsEach.push( { 'p': '10', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x10 != null) { // after 2nd loop
                   this.mdCum.x10 = Math.abs( this.pos.x10 - Math.round(k.position.x) ) + this.mdCum.x10;
                 } else { // 1st loop
@@ -1345,7 +1343,7 @@ export default class Live extends Component {
                 }      
                 this.pos.y10 = Math.round(k.position.y); // update present position   
             } else if (k.part == 'leftShoulder') {
-                identifiedBpartsEach.push( { 'p': '5', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
+                // identifiedBpartsEach.push( { 'p': '5', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x5 != null) { // after 2nd loop
                   this.mdCum.x5 = Math.abs( this.pos.x5 - Math.round(k.position.x) ) + this.mdCum.x5;
                 } else { // 1st loop
@@ -1362,7 +1360,7 @@ export default class Live extends Component {
                 }      
                 this.pos.y5 = Math.round(k.position.y); // update present position                  
             } else if (k.part == 'rightShoulder') {
-                identifiedBpartsEach.push( { 'p': '6', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
+                // identifiedBpartsEach.push( { 'p': '6', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x6 != null) { // after 2nd loop
                   this.mdCum.x6 = Math.abs( this.pos.x6 - Math.round(k.position.x) ) + this.mdCum.x6;
                 } else { // 1st loop
@@ -1379,7 +1377,7 @@ export default class Live extends Component {
                 }      
                 this.pos.y6 = Math.round(k.position.y); // update present position 
             } else if (k.part == 'leftHip') {
-                identifiedBpartsEach.push( { 'p': '11', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
+                // identifiedBpartsEach.push( { 'p': '11', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x11 != null) { // after 2nd loop
                   this.mdCum.x11 = Math.abs( this.pos.x11 - Math.round(k.position.x) ) + this.mdCum.x11;
                 } else { // 1st loop
@@ -1396,7 +1394,7 @@ export default class Live extends Component {
                 }      
                 this.pos.y11 = Math.round(k.position.y); // update present position   
             } else if (k.part == 'rightHip') {
-                identifiedBpartsEach.push( { 'p': '12', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
+                // identifiedBpartsEach.push( { 'p': '12', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x12 != null) { // after 2nd loop
                   this.mdCum.x12 = Math.abs( this.pos.x12 - Math.round(k.position.x) ) + this.mdCum.x12;
                 } else { // 1st loop
@@ -1413,7 +1411,7 @@ export default class Live extends Component {
                 }      
                 this.pos.y12 = Math.round(k.position.y); // update present position 
             } else if (k.part == 'leftKnee') {
-                identifiedBpartsEach.push( { 'p': '13', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
+                // identifiedBpartsEach.push( { 'p': '13', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x13 != null) { // after 2nd loop
                   this.mdCum.x13 = Math.abs( this.pos.x13 - Math.round(k.position.x) ) + this.mdCum.x13;
                 } else { // 1st loop
@@ -1430,7 +1428,7 @@ export default class Live extends Component {
                 }      
                 this.pos.y13 = Math.round(k.position.y); // update present position                     
             } else if (k.part == 'rightKnee') {
-                identifiedBpartsEach.push( { 'p': '14', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
+                // identifiedBpartsEach.push( { 'p': '14', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x14 != null) { // after 2nd loop
                   this.mdCum.x14 = Math.abs( this.pos.x14 - Math.round(k.position.x) ) + this.mdCum.x14;
                 } else { // 1st loop
@@ -1447,7 +1445,7 @@ export default class Live extends Component {
                 }      
                 this.pos.y14 = Math.round(k.position.y); // update present position 
             } else if (k.part == 'leftAnkle') {
-                identifiedBpartsEach.push( { 'p': '15', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
+                // identifiedBpartsEach.push( { 'p': '15', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x15 != null) { // after 2nd loop
                   this.mdCum.x15 = Math.abs( this.pos.x15 - Math.round(k.position.x) ) + this.mdCum.x15;
                 } else { // 1st loop
@@ -1464,7 +1462,7 @@ export default class Live extends Component {
                 }      
                 this.pos.y15 = Math.round(k.position.y); // update present position 
             } else if (k.part == 'rightAnkle') {
-                identifiedBpartsEach.push( { 'p': '16', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
+                // identifiedBpartsEach.push( { 'p': '16', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x16 != null) { // after 2nd loop
                   this.mdCum.x16 = Math.abs( this.pos.x16 - Math.round(k.position.x) ) + this.mdCum.x16;
                 } else { // 1st loop
@@ -1522,13 +1520,14 @@ export default class Live extends Component {
 
           // console.log('identifiedBpartsEach: ', identifiedBpartsEach.length, ' | ', identifiedBpartsEach);
 
-          if ( identifiedBpartsEach.length == 0 ) { // will not append 'bp' to avoid error
-            this.identifiedBPartsAll.push( JSON.stringify({ 'lp': this.vidState.LOOPTIMES, 'ts': Date.now()/1000 }) ); // append to array per each loop
-          } else {
-            this.identifiedBPartsAll.push( JSON.stringify({ 'lp': this.vidState.renderPoseTimes, 'ts': Date.now()/1000, 'bp': identifiedBpartsEach }) ); // append to array per each loop
-          }
+          // if ( identifiedBpartsEach.length == 0 ) { // will not append 'bp' to avoid error
+          //   this.identifiedBPartsAll.push( JSON.stringify({ 'lp': this.vidState.LOOPTIMES, 'ts': Date.now()/1000 }) ); // append to array per each loop
+          // } else {
+          //   this.identifiedBPartsAll.push( JSON.stringify({ 'lp': this.vidState.renderPoseTimes, 'ts': Date.now()/1000, 'bp': identifiedBpartsEach }) ); // append to array per each loop
+          // }
           // this.identifiedBPartsAll = []; // emptize it because do not want to record.
     
+          this.identifiedBPartsAll = 0; // Dummy. To improve response speed 20201010
 
 
 
