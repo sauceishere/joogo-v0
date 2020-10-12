@@ -1,206 +1,3 @@
-// // 'use strict';
-
-
-
-
-
-// // Snippet based on https://github.com/hswolff/BetterWeather/blob/master/js/weather/WeatherGraph.js
-// import React, { Component } from 'react';
-// import { ART } from 'react-native';
-
-// const { Group, Shape, Surface } = ART;
-
-// export default class Chart extends Component {
-//   render() {
-//     return (
-//       <Surface width={200} height={100}>
-//         <Group x={0} y={0}>
-//           <Shape d={this.props.linePath} stroke="#000" strokeWidth={1} />
-//         </Group>
-//       </Surface>
-//     );
-//   }
-// }
-
-
-
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-// import React, {Component} from 'react';
-// import { BarChart, XAxis } from 'react-native-svg-charts'; // 2.1.0
-// import { View } from 'react-native';
-
-// import {Svg} from "react-native-svg"; // Supported builtin module
-
-// // export default class Stats extends React.PureComponent {
-// export default class Stats extends Component {
-//     render() {
-
-//         const data    = [ 14, -1, 100, -95, -94, -24, -8, 85, -91, 35, -53, 53, -78, 66, 96, 33, -26, -32, 73, 8 ]
-//         const barData = [
-//             {
-//                 values: data,
-//                 positive: {
-//                     fill: 'rgb(134, 65, 244)',
-//                 },
-//                 negative: {
-//                     fill: 'rgba(134, 65, 244, 0.2)',
-//                 },
-//             },
-//         ]
-
-//         return (
-//             <View style={ { height: 200 } }>
-//                 <BarChart
-//                     style={ { flex: 1 } }
-//                     data={ barData }
-//                 />
-//                 <XAxis
-//                     style={ { paddingVertical: 16 } }
-//                     values={ data }
-//                     formatLabel={ (value, index) => index }
-//                     chartType={ XAxis.Type.BAR }
-//                     labelStyle={ { 
-//                       color: 'grey',
-//                       transform:[{ rotateX: '45deg'}]
-//                     } }
-//                 />
-//             </View>
-//         )
-//     }
-// }
-
-
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-// import { StackedAreaChart } from 'react-native-svg-charts';
-// import * as shape from 'd3-shape';
-// import React, {Component} from 'react';
-// // import * as React from 'react';
- 
-// //class StackedAreaExample extends React.PureComponent {
-// export default class Stats extends Component {
-//     render() {
-//         const data = [
-//             {
-//                 month: new Date(2015, 0, 1),
-//                 apples: 3840,
-//                 bananas: 1920,
-//                 cherries: 960,
-//                 dates: 400,
-//             },
-//             {
-//                 month: new Date(2015, 1, 1),
-//                 apples: 1600,
-//                 bananas: 1440,
-//                 cherries: 960,
-//                 dates: 400,
-//             },
-//             {
-//                 month: new Date(2015, 2, 1),
-//                 apples: 640,
-//                 bananas: 960,
-//                 cherries: 3640,
-//                 dates: 400,
-//             },
-//             {
-//                 month: new Date(2015, 3, 1),
-//                 apples: 3320,
-//                 bananas: 480,
-//                 cherries: 640,
-//                 dates: 400,
-//             },
-//         ]
- 
-//         const colors = ['#8800cc', '#aa00ff', '#cc66ff', '#eeccff']
-//         const keys = ['apples', 'bananas', 'cherries', 'dates']
-//         const svgs = [
-//             { onPress: () => console.log('apples') },
-//             { onPress: () => console.log('bananas') },
-//             { onPress: () => console.log('cherries') },
-//             { onPress: () => console.log('dates') },
-//         ]
- 
-//         return (
-//             <StackedAreaChart
-//                 style={{ height: 200, paddingVertical: 16 }}
-//                 data={data}
-//                 keys={keys}
-//                 colors={colors}
-//                 curve={shape.curveNatural}
-//                 showGrid={false}
-//                 svgs={svgs}
-//             />
-//         )
-//     }
-// }
-
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-// // import * as React from 'react';
-// import React, {Component} from 'react';
-// import { Text, View, StyleSheet, Dimensions, StatusBar, Image, TouchableOpacity, SafeAreaView, ScrollView, Button, Platform, ActivityIndicator, } from 'react-native';
-// // // import ChartItself from "../components/ChartItself";
-
-// // // https://www.npmjs.com/package/react-native-svg-charts#stackedareachart
-// // // import { StackedAreaChart } from 'react-native-svg-charts'
-// // // import * as shape from 'd3-shape'
-
-// // // import * as Svg from 'react-native-svg';
-// import {Svg} from 'react-native-svg';
-// // // // import Svg, { Circle, Rect } from 'react-native-svg';
-// import { Circle, Rect } from 'react-native-svg';
-// // // // import Circle from 'react-native-svg';
-// // // // const { Circle, Rect } = Svg; // https://stackoverflow.com/questions/62114230/invariant-violation-using-react-native-svg
-
-
-// export default class Stats extends Component {
-
-// //     // constructor(props) {
-// //     //     super(props);
-// //     //     this.state = {
-// //     //     }
-// //     // }
-
-//     render() {
-//         return (
-//             <View>
-//                 <Svg height="20" width="20" >
-//                     <Circle cx="10" cy="10" r="10" fill="red" />
-//                 </Svg>
-//             </View>
-//         );
-//     }
-// }
-
-
-
-
-
-
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 
 
 // // import * as React from 'react';
@@ -294,111 +91,274 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 // WebView referred to https://snack.expo.io/@wodin/webview-example
-import * as React from 'react';
+import React from 'react';
 import {Component} from 'react';
 import { StyleSheet, View, Text, Dimensions} from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import * as firebase from 'firebase';
 
+import * as FileSystem from 'expo-file-system'; // https://docs.expo.io/versions/latest/sdk/filesystem/
+// import  {SQLite} from 'expo-sqlite';
+import * as SQLite from 'expo-sqlite';
+// import { real } from '@tensorflow/tfjs';
 
-// import d3 from '../assets/d3min';
+// import {dbSQLite, dbName} from './DashboardScreen';
+
+// const dbSQLite = SQLite.openDatabase( 'db.' + firebase.auth().currentUser.uid);
+
 
 // export default function App() {
 export default class Stats extends Component {
 
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            dbName: 'db_' + firebase.auth().currentUser.uid, //UID will be assigned during componentDidMount // {vidViewLogTemp}['vidViewLogTemp'], // Local storage directory name to keep vidViewLog
+            // sumLogName: 'sumLog_' + firebase.auth().currentUser.uid, // summary log for Total Calorie Burned, Total Hours Played, Total Times Played
+            // dbContents: null, // get data from db
+            scoreTtl: null, // otal calories burned.
+            playSumTtl: null,  // total duration played.
+            playCnt: null, // total times played.
+        }
+    };
+
+
+    async componentDidMount() {
+        const { dbName, } = this.state;
+        console.log('------------- componentDidMount Stats started');
+        dbSQLite = SQLite.openDatabase( 'db.' + firebase.auth().currentUser.uid);
+
+
+
+        // check if db directory exists.
+        this.curDir = FileSystem.documentDirectory; // get root directory
+        // // check if vidViewLogTemp Directory already exists, if not then create directory 20200502
+        await FileSystem.getInfoAsync( this.curDir + 'SQLite' + dbName ).then( async contents => {
+            if ( contents['exists'] == true & contents['isDirectory'] == true ) { // if folder already exists.
+                console.log('dbName already exists');
+                console.log('dbName contents.length: ', contents.length);
+                console.log('dbName getInfoAsync contents[size] in MB: ', contents['size'] / 1024 / 1024, );
+            } else {
+                console.log('dbName NOT exist');
+            }
+      
+        }).catch( error => {
+            console.log('dbName FileSystem.getInfoAsync error: ', error);
+            alert('dbName FileSystem.getInfoAsync error: ', error);
+        })
+
+
+
+        // sqllite
+        // https://sqlite.org/datatype3.html
+        // https://qiita.com/falorse/items/17370bc33676e8c03b9d
+
+        // create table
+        dbSQLite.transaction(tx => {
+            tx.executeSql(
+              'create table if not exists vidViewLog (id integer primary key not null, ts real, vidId blob, viewId blob, startAt real, endAt real, score real, playSum real, wval blob, wunit text);', // uid blob, nTa real, pt blob,  実行したいSQL文
+              null, // SQL文の引数
+              () => {console.log('success in creating sqllite0')}, // 成功時のコールバック関数
+              () => {console.log('fail in creating sqllite0')} // 失敗時のコールバック関数
+            );
+          },
+          () => {console.log('fail in creating sqllite1')}, // 失敗時のコールバック関数
+          () => {console.log('success in creating sqllite1')} // 成功時のコールバック関数
+        );
+
+        // insert into table
+        dbSQLite.transaction(tx => {
+            tx.executeSql(
+              `insert into vidViewLog (ts, vidId, score) values (?, ?, ?);`,
+              [Date.now() / 1000, '332602b9-13f5-412f-bb5a-d67589bf6427', '0.4' ]
+            );
+          },
+          () => {console.log('fail in inserting sqllite')},
+          () => {console.log('success in inserting sqllite')},
+        );
+
+        // get from table
+        dbSQLite.transaction(tx => {
+            tx.executeSql(
+              'select * from vidViewLog',
+              null,
+            //   (_, { rows: { _array } }) => this.setState({ dbContents: _array} )
+            // (_array) => this.setState({ dbContents: _array} )
+            (tx, results) => {
+                // console.log('results: ', results);
+                var scoreTtl = 0; // initiate variable to summate total calories burned.
+                var playSumTtl = 0;  // initiate variable to summate total duration played.
+                var playCnt = 0;  // initiate variable to summate total times played.
+                if (results.rows.length > 0) { 
+                    results.rows._array.map(result => {
+                        console.log('result.id, ts, score, playSum, startAt: ', result.id, result.ts, result.score, result.playSum, result.startAt);
+                        // console.log(result);
+                        scoreTtl = result.score++;
+                        playSumTtl = result.playSum++;
+                        if (result.startAt > 0) {
+                            playCnt++;
+                        }
+                    })
+
+                } else {
+                    console.log('No data in SQLite');
+                }
+
+                scoreTtl = 999999;
+                if ( scoreTtl < 1000 ) {
+                    scoreTtl = parseFloat(scoreTtl).toFixed(1); // show like 0.1
+                } else if (scoreTtl > 1000000) { 
+                    scoreTtl = parseFloat(scoreTtl / 1000 / 10).toFixed(1) + 'K'; // show like 0.1
+                } else { // 1,000 < x < 1,000,000
+                    scoreTtl = parseInt(scoreTtl); 
+                }
+
+                if ( playSumTtl < 60 * 60 * 10 ) { // less than 10 hour
+                    playSumTtl = parseFloat(playSumTtl / 60 / 60 ).toFixed(1); // show like 0.1
+                } else { 
+                    playSumTtl = parseInt(playSumTtl / 60 / 60); // convert from second to hour
+                }
+
+                if ( playCnt < 1000 ) {
+                    playCnt = parseInt(playCnt); // 
+                } else if (scoreTtl > 1000000) { 
+                    playCnt = parseInt(playCnt / 1000) + 'K'; //
+                } else { // 1,000 < x < 1,000,000
+                    playCnt = parseInt(playCnt); 
+                }
+
+                this.setState({ scoreTtl: scoreTtl, playSumTtl: playSumTtl, playCnt: playCnt });
+            }
+            );
+          },
+          () => {console.log('fail in selecting sqlite')},
+          () => {console.log('success in selecting sqlte: ')},
+        ); 
+
+
+        // });
+    };
+
+
+    // NULL. The value is a NULL value.
+    // INTEGER. The value is a signed integer, stored in 1, 2, 3, 4, 6, or 8 bytes depending on the magnitude of the value.
+    // REAL. The value is a floating point value, stored as an 8-byte IEEE floating point number.
+    // TEXT. The value is a text string, stored using the database encoding (UTF-8, UTF-16BE or UTF-16LE).
+    // BLOB. The value is a blob of data, stored exactly as it was input.
+
+    // jsonContentsSimp["ts"] = ts;
+    // jsonContentsSimp["vidId"] = vidId;
+    // jsonContentsSimp["viewId"] = viewId;
+    // jsonContentsSimp["uid"] = firebase.auth().currentUser.uid;
+    // jsonContentsSimp["startAt"] = this.vidState.vidStartAt;
+    // jsonContentsSimp["endAt"] = this.vidState.vidEndAt;
+    // jsonContentsSimp["nTa"] = this.state.noseToAnkle;
+    // jsonContentsSimp["pt"] = this.state.mdCumTtlNow;
+    // jsonContentsSimp["score"] = this.state.scoreNow; 
+    // jsonContentsSimp["playSum"] = this.vidState.vidPlayedSum; 
+    // jsonContentsSimp['wval'] = this.state.wval;
+    // jsonContentsSimp['wunit'] = this.state.wunit;     
+
+
+
+
+
     render() {  
+        console.log('--- render Stats');
+        const { scoreTtl, playSumTtl, playCnt } = this.state;
+        console.log('scoreTtl, playSumTtl, playCnt: ', scoreTtl, playSumTtl, playCnt);
 
-    // const data = '[{"name":"E","value":0.12702},{"name":"T","value":0.09056},{"name":"A","value":0.08167},{"name":"O","value":0.07507},{"name":"I","value":0.06966},{"name":"N","value":0.06749},{"name":"S","value":0.06327},{"name":"H","value":0.06094},{"name":"R","value":0.05987},{"name":"D","value":0.04253},{"name":"L","value":0.04025},{"name":"C","value":0.02782},{"name":"U","value":0.02758},{"name":"M","value":0.02406},{"name":"W","value":0.0236},{"name":"F","value":0.02288},{"name":"G","value":0.02015},{"name":"Y","value":0.01974},{"name":"P","value":0.01929},{"name":"B","value":0.01492},{"name":"V","value":0.00978},{"name":"K","value":0.00772},{"name":"J","value":0.00153},{"name":"X","value":0.0015},{"name":"Q","value":0.00095},{"name":"Z","value":0.00074}]'
-    // const data = '[ 5, 10, 15, 20, 25, 30, 50 ]';
-
-    // const d3 = '';
-    // <script src="https://d3js.org/d3.v6.min.js"></script>
-
-    // <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@latest/dist/svg.min.js"></script>
+        // const data = '[{"name":"E","value":0.12702},{"name":"T","value":0.09056},{"name":"A","value":0.08167},{"name":"O","value":0.07507},{"name":"I","value":0.06966},{"name":"N","value":0.06749},{"name":"S","value":0.06327},{"name":"H","value":0.06094},{"name":"R","value":0.05987},{"name":"D","value":0.04253},{"name":"L","value":0.04025},{"name":"C","value":0.02782},{"name":"U","value":0.02758},{"name":"M","value":0.02406},{"name":"W","value":0.0236},{"name":"F","value":0.02288},{"name":"G","value":0.02015},{"name":"Y","value":0.01974},{"name":"P","value":0.01929},{"name":"B","value":0.01492},{"name":"V","value":0.00978},{"name":"K","value":0.00772},{"name":"J","value":0.00153},{"name":"X","value":0.0015},{"name":"Q","value":0.00095},{"name":"Z","value":0.00074}]'
+        // const data = '[ 5, 10, 15, 20, 25, 30, 50 ]';
 
 
-    const initialHTMLContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="utf-8">
-            <title></title>
-            <meta name="author" content="">
-            <meta name="description" content="">
-            <meta name="viewport" content="width=device-width, initial-scale=1">
 
-            <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        const initialHTMLContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <title></title>
+                <meta name="author" content="">
+                <meta name="description" content="">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+
+                <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+                
+                <style type="text/css">
+                    body{
+                        background-color: #dcdcdc;
+                        width: 95%; 
+                        height: 95%;
+                    }
+                    div#chart_div{
+                        border: solid 0.1em white;
+                        border-radius: 0.5em;
+                        width: 100%; 
+                        // height: 100%;
+                        // padding: 0;
+                        // background-color: pink;
+                    }
+                </style>
             
-            <style type="text/css">
-                body{
-                    background-color: #dcdcdc;
-                    width: 95%; 
+            
+            </head>
+            <body>
+                <div id="chart_div" ></div>
+
+                <script type="text/javascript">
+                google.charts.load('current', {'packages':['corechart']});
+                google.charts.setOnLoadCallback(drawChart);
+            
+                function drawChart() {
+                    var data = google.visualization.arrayToDataTable([
+                    ['Year', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    ['12',  1000,      400,300,200,100,800,1000],
+                    ['13',  1170,      460, 200, 800, 1200, 500, 400],
+                    ['14',  660,       1120, 2000, 3000,300,300,200],
+                    ['15',  1030,      540, 200,3000,400,30,300],
+                    ['16',  1000,      400,300,200,100,800,1000],
+                    ['17',  660,       1120, 2000, 3000,300,300,200],
+                    ['18',  1030,      540, 200,3000,400,30,300],
+                    ['20',  1000,      400,300,200,100,800,1000]
+                    ]);
+            
+                    // var options = {
+                    //   title: 'Company Performance',
+                    //   hAxis: {title: 'Year',  titleTextStyle: {color: '#333'}},
+                    //   vAxis: {minValue: 0}
+                    // };
+            
+                    var options_stacked = {
+                        isStacked: true,
+                        height: 400,
+                        width: '95%',
+                        legend: {position: 'top', maxLines: 2},
+                        vAxis: {title: 'Calories', minValue: 0},
+                        hAxis: {title: 'Week',  titleTextStyle: {color: '#333'}, slantedText: true, slantedTextAngle:90},
+                        // animation: {startup: true, duration: 3},
+                        // colors: ['red', 'yellow', 'orange', 'blue', 'green', 'purple', 'pink'],
+                        // colors: ['#b37400', '#cc8400', '#ffa500', '#ffae1a', '#ffc04d', '#ffc967', '#ffdb9a'], // '#e69500', '#ffb733', '#ffd280',
+                        // colors: ['#ffdb9a', '#ffc967', '#ffc04d', '#ffae1a', '#ffa500', '#cc8400', '#b37400'],
+                        // colors: ['#fd6104', '#fd9a00', '#ffa500', '#ffae1a', '#ffce03', '#fef001', '#ffff00'],
+                        colors: ['#fd6104','#f58c00', '#ff980f', '#ffa329', '#ffae42', '#ffdd42', '#ffff00', ], // '#ff9e42', '#ffa500',  '#ffbe42', 
+                        areaOpacity: 1,
+                        chartArea:{left:60, top:60, bottom: 50, right: 10}, // width:'50%',height:'75%'
+                        
+
+                    };
+            
+                    var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+                    chart.draw(data, options_stacked);
                 }
-                div#chart_div{
-                    border: solid 0.1em white;
-                    border-radius: 0.5em;
-                    // width: 95%; 
-                    // height: 100%;
-                    // padding: 0;
-                    // background-color: pink;
-                }
-            </style>
-        
-        
-        </head>
-        <body>
-            <div id="chart_div" ></div>
-
-            <script type="text/javascript">
-              google.charts.load('current', {'packages':['corechart']});
-              google.charts.setOnLoadCallback(drawChart);
-        
-              function drawChart() {
-                var data = google.visualization.arrayToDataTable([
-                  ['Year', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                  ['12',  1000,      400,300,200,100,800,1000],
-                  ['13',  1170,      460, 200, 800, 1200, 500, 400],
-                  ['14',  660,       1120, 2000, 3000,300,300,200],
-                  ['15',  1030,      540, 200,3000,400,30,300],
-                  ['16',  1000,      400,300,200,100,800,1000],
-                  ['17',  660,       1120, 2000, 3000,300,300,200],
-                  ['18',  1030,      540, 200,3000,400,30,300],
-                  ['20',  1000,      400,300,200,100,800,1000]
-                ]);
-        
-                // var options = {
-                //   title: 'Company Performance',
-                //   hAxis: {title: 'Year',  titleTextStyle: {color: '#333'}},
-                //   vAxis: {minValue: 0}
-                // };
-        
-                var options_stacked = {
-                    isStacked: true,
-                    // height: 400,
-                    // width: 400,
-                    legend: {position: 'top', maxLines: 2},
-                    vAxis: {title: 'Calories', minValue: 0},
-                    hAxis: {title: 'Week',  titleTextStyle: {color: '#333'}, slantedText: true, slantedTextAngle:90},
-                    // animation: {startup: true, duration: 3},
-                    // colors: ['red', 'yellow', 'orange', 'blue', 'green', 'purple', 'pink'],
-                    // colors: ['#b37400', '#cc8400', '#ffa500', '#ffae1a', '#ffc04d', '#ffc967', '#ffdb9a'], // '#e69500', '#ffb733', '#ffd280',
-                    // colors: ['#ffdb9a', '#ffc967', '#ffc04d', '#ffae1a', '#ffa500', '#cc8400', '#b37400'],
-                    colors: ['#fd6104', '#fd9a00', '#ffa500', '#ffae1a', '#ffce03', '#fef001', '#ffff00'],
-                    areaOpacity: 1,
-                    chartArea:{left:60, top:60, bottom: 50, right: 10}, // width:'50%',height:'75%'
-                    
-
-                };
-        
-                var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
-                chart.draw(data, options_stacked);
-              }
-            </script>
+                </script>
 
 
-        </body>
-        </html>
-    `;
+            </body>
+            </html>
+        `;
 
 
     
@@ -408,24 +368,24 @@ export default class Stats extends Component {
                 <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', alignItems: 'center', marginVertical: Dimensions.get('window').height * 0.02, paddingHorizontal: Dimensions.get('window').height * 0.01}} >
                     <View style={styles.tileItem}>
                         <Ionicons name='ios-flame' size={22} style={styles.tileItemIcon}/>
-                        <Text style={styles.tileItemField}>500</Text>    
+                        <Text style={styles.tileItemField}> {scoreTtl} </Text>    
                         <Text style={styles.tileItemTitle}>Total Calories Burned</Text>
                     </View>          
 
                     <View style={styles.tileItem}>
                         <Ionicons name='ios-time' size={22} style={styles.tileItemIcon}/>
-                        <Text style={styles.tileItemField}>30</Text>  
+                        <Text style={styles.tileItemField}>{ playSumTtl }</Text>  
                         <Text style={styles.tileItemTitle}>Total Hours Played</Text> 
                     </View>
                     
                     <View style={styles.tileItem}>
                         <Ionicons name='logo-youtube' size={22} style={styles.tileItemIcon}/>
-                        <Text style={styles.tileItemField}>210</Text>  
+                        <Text style={styles.tileItemField}> {playCnt} </Text>  
                         <Text style={styles.tileItemTitle}>Total Times Played</Text>
                     </View>      
                 </View> 
 
-
+              
                 <WebView
                     originWhitelist={['*']}
                     javaScriptEnabled={true}
@@ -436,8 +396,6 @@ export default class Stats extends Component {
                     }}
                     style={ styles.chartArea }
                 />
-
-                <Text>here</Text>
 
 
             </View>
@@ -511,107 +469,10 @@ const styles = StyleSheet.create({
         // borderColor: 'green',
         // borderWidth: 2,
     },
-    chartArea :{
-        backgroundColor: '#DCDCDC',
-    },
+    // chartArea :{
+    //     backgroundColor: '#DCDCDC',
+    //     height: Dimensions.get('screen').width,
+    // },
 });
 
 
-
-
-// <View style={styles.trainerVideoContainer}>
-// <WebView
-//   ref={r => (this.webviewRef = r)}
-//   source={{ html:  }}
-//   // javaScriptEnabled = {true}
-//   // injectedJavaScript=
-//   //   {`
-//   //   `}
-//   style={styles.trainerVideo} 
-//   // onMessage={this.onMessage}
-//   onNavigationStateChange={this._vidDefault}
-// />
-// </View>
-
-
-
-// var dataset = ${data};
-// d3.select("body").selectAll("div")
-// .data(dataset)
-// .enter()
-// .append("div")
-// .attr("class", "bar")
-// .style("height", function(d) {
-// var barHeight = d * 5;  // 高さを5倍にする
-// return barHeight + "px";
-// });
-
-
-
-
-
-{/* <script>
-
-document.getElementById("target").innerHTML = "neeear";
-
-var data = '[{"year":1880,"sex":"F","name":"Helen","n":636,"prop":0.0065161264},{"year":1880,"sex":"F","name":"Amanda","n":241,"prop":0.0024691611},{"year":1880,"sex":"F","name":"Betty","n":117,"prop":0.0011987214},{"year":1880,"sex":"F","name":"Dorothy","n":112,"prop":0.001147494},{"year":1880,"sex":"F","name":"Linda","n":27,"prop":0.000276628},{"year":1880,"sex":"F","name":"Deborah","n":12,"prop":0.0001229458},{"year":1880,"sex":"F","name":"Jessica","n":7,"prop":0.0000717184},{"year":1881,"sex":"F","name":"Helen","n":612,"prop":0.0061908856},{"year":1881,"sex":"F","name":"Amanda","n":263,"prop":0.0026604623},{"year":1881,"sex":"F","name":"Betty","n":112,"prop":0.0011329725},{"year":1881,"sex":"F","name":"Dorothy","n":109,"prop":0.0011026251},{"year":1881,"sex":"F","name":"Linda","n":38,"prop":0.0003844014},{"year":1881,"sex":"F","name":"Deborah","n":14,"prop":0.0001416216}]';
-
-
-var margin = {top: 10, right: 30, bottom: 30, left: 60},
-    width = 460 - margin.left - margin.right,
-    height = 400 - margin.top - margin.bottom;
-
-
-var svg = d3.select("#my_dataviz")
-    .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")");
-
-
-var sumstat = d3.nest()
-  .key(function(d) { return d.year;})
-  .entries(data);
-
-
-var mygroups = ["Helen", "Amanda", "Ashley"] // list of group names
-var mygroup = [1,2,3] // list of group names
-var stackedData = d3.stack()
-  .keys(mygroup)
-  .value(function(d, key){
-    return d.values[key].n
-  })
-  (sumstat)
-  
-var x = d3.scaleLinear()
-  .domain(d3.extent(data, function(d) { return d.year; }))
-  .range([ 0, width ]);
-svg.append("g")
-  .attr("transform", "translate(0," + height + ")")
-  .call(d3.axisBottom(x).ticks(5));
-
-var y = d3.scaleLinear()
-  .domain([0, d3.max(data, function(d) { return +d.n; })*1.2])
-  .range([ height, 0 ]);
-svg.append("g")
-  .call(d3.axisLeft(y));
-
-var color = d3.scaleOrdinal()
-  .domain(mygroups)
-  .range(['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf','#999999'])
-
-svg
-  .selectAll("mylayers")
-  .data(stackedData)
-  .enter()
-  .append("path")
-    .style("fill", function(d) { name = mygroups[d.key-1] ;  return color(name); })
-    .attr("d", d3.area()
-      .x(function(d, i) { return x(d.data.key); })
-      .y0(function(d) { return y(d[0]); })
-      .y1(function(d) { return y(d[1]); })
-  )
-
-</script> */}

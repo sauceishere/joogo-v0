@@ -16,6 +16,9 @@ import ThreeAxisSensor from 'expo-sensors/build/ThreeAxisSensor';
 
 import {LB_PER_KG} from '../shared/Consts';
 
+// export const dbName = 'db.' + firebase.auth().currentUser.uid;
+// export const dbSQLite = SQLite.openDatabase( dbName );
+
 // const str_pad_left = function (string,pad,length) { // convert from sec to min:sec // https://stackoverflow.com/questions/3733227/javascript-seconds-to-minutes-and-seconds
 //     return (new Array(length+1).join(pad)+string).slice(-length);
 // };

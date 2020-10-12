@@ -18,11 +18,10 @@ import {enCheckDuplicatedNickname} from '../shared/Consts';
 
 import ModalSelector from 'react-native-modal-selector';
 
+import {LB_PER_KG} from '../shared/Consts';
+// export const LB_PER_KG = 2.205; // pounds devided by kilograms
 
 
-
-
-export const LB_PER_KG = 2.205; // pounds devided by kilograms
 
 export default class ProfileScreen extends Component {
   constructor(props) {
@@ -470,7 +469,7 @@ export default class ProfileScreen extends Component {
 
         if (this.state.wunit == 'kg' & this.state.wval < 200) {
             console.log('weight is within limit in kg');
-        } else if ( this.state.wunit == 'lb' & this.state.wval < 200 * LB_PER_KG) {
+        } else if ( this.state.wunit == 'lb' & this.state.wval < 200 * {LB_PER_KG} ) {
             console.log('weight is within limit in lb');
         } else { // if too heavy or not number.
             console.log('Your weight may be wrong. ¥n Please fill out weight again');
