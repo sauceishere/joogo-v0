@@ -99,13 +99,11 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import * as firebase from 'firebase';
 
 import * as FileSystem from 'expo-file-system'; // https://docs.expo.io/versions/latest/sdk/filesystem/
-// import  {SQLite} from 'expo-sqlite';
 import * as SQLite from 'expo-sqlite';
 // import { real } from '@tensorflow/tfjs';
+import moment from 'moment'; // https://momentjs.com/docs/
 
 // import {dbSQLite, dbName} from './DashboardScreen';
-
-// const dbSQLite = SQLite.openDatabase( 'db.' + firebase.auth().currentUser.uid);
 
 
 // export default function App() {
@@ -115,64 +113,48 @@ export default class Stats extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            dbName: 'db_' + firebase.auth().currentUser.uid, //UID will be assigned during componentDidMount // {vidViewLogTemp}['vidViewLogTemp'], // Local storage directory name to keep vidViewLog
+            // dbName: 'db_' + firebase.auth().currentUser.uid, //UID will be assigned during componentDidMount // {vidViewLogTemp}['vidViewLogTemp'], // Local storage directory name to keep vidViewLog
             // sumLogName: 'sumLog_' + firebase.auth().currentUser.uid, // summary log for Total Calorie Burned, Total Hours Played, Total Times Played
             // dbContents: null, // get data from db
-            scoreTtl: null, // otal calories burned.
+            scoreTtl: null, // total calories burned.
             playSumTtl: null,  // total duration played.
             playCnt: null, // total times played.
+            dataByYearWeeks: null, // data for google chart
+            didLoadChartData: false,
+            test: "test desu",
+            test2: "test2 yo",
         }
     };
 
 
     async componentDidMount() {
-        const { dbName, } = this.state;
+        // const { dbName, } = this.state;
         console.log('------------- componentDidMount Stats started');
-        dbSQLite = SQLite.openDatabase( 'db.' + firebase.auth().currentUser.uid);
 
-
-
-        // check if db directory exists.
-        this.curDir = FileSystem.documentDirectory; // get root directory
-        // // check if vidViewLogTemp Directory already exists, if not then create directory 20200502
-        await FileSystem.getInfoAsync( this.curDir + 'SQLite' + dbName ).then( async contents => {
-            if ( contents['exists'] == true & contents['isDirectory'] == true ) { // if folder already exists.
-                console.log('dbName already exists');
-                console.log('dbName contents.length: ', contents.length);
-                console.log('dbName getInfoAsync contents[size] in MB: ', contents['size'] / 1024 / 1024, );
-            } else {
-                console.log('dbName NOT exist');
-            }
-      
-        }).catch( error => {
-            console.log('dbName FileSystem.getInfoAsync error: ', error);
-            alert('dbName FileSystem.getInfoAsync error: ', error);
-        })
-
-
+        const dbSQLite = SQLite.openDatabase( 'db_' + firebase.auth().currentUser.uid); // initiate SQLite 20201013
 
         // sqllite
         // https://sqlite.org/datatype3.html
         // https://qiita.com/falorse/items/17370bc33676e8c03b9d
 
-        // create table
-        dbSQLite.transaction(tx => {
-            tx.executeSql(
-              'create table if not exists vidViewLog (id integer primary key not null, ts real, vidId blob, viewId blob, startAt real, endAt real, score real, playSum real, wval blob, wunit text);', // uid blob, nTa real, pt blob,  実行したいSQL文
-              null, // SQL文の引数
-              () => {console.log('success in creating sqllite0')}, // 成功時のコールバック関数
-              () => {console.log('fail in creating sqllite0')} // 失敗時のコールバック関数
-            );
-          },
-          () => {console.log('fail in creating sqllite1')}, // 失敗時のコールバック関数
-          () => {console.log('success in creating sqllite1')} // 成功時のコールバック関数
-        );
+        // // create table
+        // dbSQLite.transaction(tx => {
+        //     tx.executeSql(
+        //     'create table if not exists vidViewLog (id integer primary key not null, ts real, vidId blob, viewId blob, startAt real, endAt real, score real, playSum real, wval blob, wunit text);', // uid blob, nTa real, pt blob,  実行したいSQL文
+        //     null, // SQL文の引数
+        //     () => {console.log('success in creating sqllite0')}, // 成功時のコールバック関数
+        //     () => {console.log('fail in creating sqllite0')} // 失敗時のコールバック関数
+        //     );
+        // },
+        // () => {console.log('fail in creating sqllite1')}, // 失敗時のコールバック関数
+        // () => {console.log('success in creating sqllite1')} // 成功時のコールバック関数
+        // );
 
         // insert into table
         dbSQLite.transaction(tx => {
             tx.executeSql(
-              `insert into vidViewLog (ts, vidId, score) values (?, ?, ?);`,
-              [Date.now() / 1000, '332602b9-13f5-412f-bb5a-d67589bf6427', '0.4' ]
+              `insert into vidViewLog (ts, vidId, score, playSum, startAt) values (?, ?, ?, ?, ?);`,
+              [Date.now() / 1000, '332602b9-13f5-412f-bb5a-d67589bf6427', Math.random() * 100, Math.random()*100, parseInt(Math.random()) ]
             );
           },
           () => {console.log('fail in inserting sqllite')},
@@ -188,43 +170,198 @@ export default class Stats extends Component {
             // (_array) => this.setState({ dbContents: _array} )
             (tx, results) => {
                 // console.log('results: ', results);
+
+
+                // create blank arrayPastWeeks. 20201013　https://developers.google.com/chart/interactive/docs/gallery/areachart
+                // var arrayPastWeeks = [ ["Year_Week", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] ];
+                var jsonPastWeeks = {}; // to append blank object, and later increment actual data.
+                var arrayYearWeeks = []; // to record Year_Weeks like '202002' in int for 
+                let dtNow = new Date(); // local datetime 
+                let deductDays = [0, -7, -14, -21, -28, -35, -42, -49, -56, -63, -70, -77, -84, -91]; // back to 3 months ago
+                console.log('Math.abs(Math.min(...deductDays)): ', Math.abs(Math.min(...deductDays)) );
+                var x;
+                // for (x of deductDays) {
+                //     // console.log( moment(dtNow).add(x, 'd').toDate().getFullYear(), (moment(dtNow).add(x, 'd').toDate().getMonth() + 1 ).toString().padStart(2,'0'), (moment(dtNow).add(x, 'd').toDate().getDate() ).toString().padStart(2,'0')  );
+                //     let weeknum = moment( (moment(dtNow).add(x, 'd').toDate().getMonth() + 1 ).toString().padStart(2,'0') + "-" + (moment(dtNow).add(x, 'd').toDate().getDate() ).toString().padStart(2,'0') + "-" + moment(dtNow).add(x, 'd').toDate().getFullYear(), "MM-DD-YYYY").week();
+                //     arrayPastWeeks.push( [ parseInt( (moment(dtNow).add(x, 'd').toDate().getFullYear().toString() ).concat( weeknum.toString() ) ) ,0,0,0,0,0,0,0] ) // like ["Year-Week", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] ["2020-52",0,0,0,0,0,0,0]
+                // };
+                // arrayPastWeeks = arrayPastWeeks.sort(function(a, b){return a.Year_Week - b.Year_Week}); // sort Year_week Descending
+                // console.log('arrayPastWeeks: ', arrayPastWeeks);
+
+                for (x of deductDays) {
+                    // console.log( moment(dtNow).add(x, 'd').toDate().getFullYear(), (moment(dtNow).add(x, 'd').toDate().getMonth() + 1 ).toString().padStart(2,'0'), (moment(dtNow).add(x, 'd').toDate().getDate() ).toString().padStart(2,'0')  );
+                    let weeknum = moment( (moment(dtNow).add(x, 'd').toDate().getMonth() + 1 ).toString().padStart(2,'0') + "-" + (moment(dtNow).add(x, 'd').toDate().getDate() ).toString().padStart(2,'0') + "-" + moment(dtNow).add(x, 'd').toDate().getFullYear(), "MM-DD-YYYY").week();
+                    jsonPastWeeks[ parseInt( (moment(dtNow).add(x, 'd').toDate().getFullYear().toString() ).concat( weeknum.toString() ) ) ] = { "Sun":0, "Mon":0, "Tue":0, "Wed":0, "Thu":0, "Fri":0, "Sat":0 }; // assign
+                    arrayYearWeeks.push( parseInt( (moment(dtNow).add(x, 'd').toDate().getFullYear().toString() ).concat( weeknum.toString() ) ) ); // keep this to create array for google chart
+                }
+                // console.log('jsonPastWeeks: ', jsonPastWeeks);
+
+
+
+
+
+                // console.log('arrayPastWeeks: ', JSON.stringify(arrayPastWeeks));
+
+                // var arrayPastWeeksDummy = [
+                // ["Year-Week", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+                // ['2020-15',  1030,      540, 200,3000,400,30,300],
+                // ['2020-16',  1000,      400,300,200,100,800,1000],
+                // ['2020-17',  660,       1120, 2000, 3000,300,300,200],
+                // ['2020-18',  1030,      540, 200,3000,400,30,300],
+                // ['2020-20',  1000,      400,300,200,100,800,1000]
+                // ];
+                // arrayPastWeeksDummy = JSON.stringify(arrayPastWeeksDummy);
+                // console.log('arrayPastWeeksDummy: ', arrayPastWeeksDummy);
+
+            
+
+                // create 3 variables for summary 
                 var scoreTtl = 0; // initiate variable to summate total calories burned.
                 var playSumTtl = 0;  // initiate variable to summate total duration played.
                 var playCnt = 0;  // initiate variable to summate total times played.
+                const dowArray = [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ];
                 if (results.rows.length > 0) { 
                     results.rows._array.map(result => {
-                        console.log('result.id, ts, score, playSum, startAt: ', result.id, result.ts, result.score, result.playSum, result.startAt);
-                        // console.log(result);
-                        scoreTtl = result.score++;
-                        playSumTtl = result.playSum++;
-                        if (result.startAt > 0) {
+                        // console.log('result: ', result);
+                        // console.log('result.id, ts, score, playSum, startAt: ', result.id, result.ts, result.score, result.playSum, result.startAt, new Date(result.ts * 1000).toLocaleString() );
+                        scoreTtl = scoreTtl + result.score;
+                        playSumTtl = playSumTtl + result.playSum;
+                        if (result.startAt != null) { // if there is startAt ts exists
                             playCnt++;
+                        };
+
+                        // create data for google chart
+                        if ( parseInt(result.ts) > parseInt(result.ts) - Math.abs(Math.min(...deductDays)) * 60 * 60 * 24 ) { // filter data that is younger than X days old, to reduce data processing.
+                            let year =  new Date( new Date(result.ts * 1000).toLocaleString()).getFullYear() ;
+                            let month =  (new Date( new Date(result.ts * 1000).toLocaleString()).getMonth() + 1 ).toString().padStart(2,'0') ;
+                            let date = (new Date( new Date( result.ts * 1000).toLocaleDateString()).getDate() ).toString().padStart(2,'0') ;
+                            let dow = new Date( new Date( result.ts * 1000).toLocaleDateString()).getDay() ; // 0 = Sunday
+                            // console.log('dow: ', dow);
+                            let dowText = dowArray[dow]; // match from dowArray to convert to text 
+                            // console.log('dowText: ', dowText);
+                            let weeknum = moment(month + "-" + date + "-" + year, "MM-DD-YYYY").week();
+
+                            // var ind;
+                            // for (ind of arrayPastWeeks) {
+                            //     console.log('ind: ', ind["Year_Week"]);
+                            //     if ( ind["Year_Week"] == parseInt( (year.toString()).concat(weeknum.toString()) ) ) {
+                            //         arrayPastWeeks[ind][dow + 1] = arrayPastWeeks[ind][dow + 1] + result.score; // increment result.score
+                            //         break 
+                            //     }
+                            // }
+
+                            jsonPastWeeks[ parseInt( (year.toString()).concat(weeknum.toString()) ).toString() ][dowText] = parseInt( jsonPastWeeks[ (year.toString()).concat(weeknum.toString()) ][dowText] ) + parseInt( result.score );
+                        
+                            // console.log( 'year month date, dow, weeknum: ', year, month, date, dow, weeknum);
                         }
                     })
+                    console.log('jsonPastWeeks: ', jsonPastWeeks);
 
                 } else {
                     console.log('No data in SQLite');
                 }
 
-                scoreTtl = 999999;
+
+
+                // arrayPastWeeks = arrayPastWeeks.sort(function(a, b){return b.Year_Week - a.Year_Week}); // sort Year_week Descending
+                // arrayPastWeeks = JSON.stringify(arrayPastWeeks); // convert to json datatype.
+
+
+
+                // arrayPastWeeks= {
+                //     202001: {
+                //       Fri: 7,
+                //       Mon: 3,
+                //       Sat: 8,
+                //       Sun: 2,
+                //       Thu: 6,
+                //       Tue: 4,
+                //       Wed: 5
+                //     },
+                //     202002: {
+                //       Fri: 107,
+                //       Mon: 3,
+                //       Sat: 8,
+                //       Sun: 2,
+                //       Thu: 6,
+                //       Tue: 4,
+                //       Wed: 5
+                //     },
+                //     202003: {
+                //       Fri: 7,
+                //       Mon: 3,
+                //       Sat: 8,
+                //       Sun: 2,
+                //       Thu: 6,
+                //       Tue: 4,
+                //       Wed: 5
+                //     }
+                // };
+                // arrayPastWeeks= [
+                //     { "Year_Week":202001,
+                //     "Fri": 7,
+                //     "Mon": 3,
+                //     "Sat": 8,
+                //     "Sun": 2,
+                //     "Thu": 6,
+                //     "Tue": 4,
+                //     "Wed": 5
+                //     },
+                //     { "Year_Week":202002,
+                //     "Fri": 7,
+                //     "Mon": 3,
+                //     "Sat": 8,
+                //     "Sun": 2,
+                //     "Thu": 6,
+                //     "Tue": 4,
+                //     "Wed": 5
+                //     },
+                //     { "Year_Week":202003,
+                //       "Fri": 7,
+                //       "Mon": 3,
+                //       "Sat": 8,
+                //       "Sun": 2,
+                //       "Thu": 6,
+                //       "Tue": 4,
+                //       "Wed": 5
+                //     }
+                // ];
+                // arrayPastWeeks = JSON.stringify(arrayPastWeeks);
+
+
+                // // Convert object to array for google chart
+                arrayYearWeeks.sort(); // sort Year_Week
+                // console.log('arrayYearWeeks: ', arrayYearWeeks);
+                var dataByYearWeeks = [ ["Year_Week", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] ];   
+                arrayYearWeeks.map(ind => {
+                    // console.log('ind: ', ind);
+                    dataByYearWeeks.push( [ ind.toString().slice(0, 4) + "_" + ind.toString().slice(4, 6), jsonPastWeeks[ind]['Sun'], jsonPastWeeks[ind]['Mon'], jsonPastWeeks[ind]['Tue'], jsonPastWeeks[ind]['Wed'], jsonPastWeeks[ind]['Thu'], jsonPastWeeks[ind]['Fri'], jsonPastWeeks[ind]['Sat']]); // data array for google chart like ['2020-01', 1,3,2,5,4,6,3]
+                });
+
+
+                dataByYearWeeks = JSON.stringify(dataByYearWeeks);
+                this.setState({ dataByYearWeeks: dataByYearWeeks, didLoadChartData: true });
+
+                // scoreTtl = 9999.7;
                 if ( scoreTtl < 1000 ) {
-                    scoreTtl = parseFloat(scoreTtl).toFixed(1); // show like 0.1
-                } else if (scoreTtl > 1000000) { 
-                    scoreTtl = parseFloat(scoreTtl / 1000 / 10).toFixed(1) + 'K'; // show like 0.1
-                } else { // 1,000 < x < 1,000,000
-                    scoreTtl = parseInt(scoreTtl); 
+                    scoreTtl = parseFloat(scoreTtl).toString().slice(0, parseFloat(scoreTtl).toString().indexOf('.') + 2 ); 
+                } else { // >= 1000
+                    // scoreTtl = parseFloat(scoreTtl).toString().slice(0, parseFloat(scoreTtl / 1000).toString().indexOf('.') + 2 ) + 'K';
+                    scoreTtl = parseInt(scoreTtl).toString();
                 }
 
-                if ( playSumTtl < 60 * 60 * 10 ) { // less than 10 hour
-                    playSumTtl = parseFloat(playSumTtl / 60 / 60 ).toFixed(1); // show like 0.1
+                if ( playSumTtl < 60 * 60 * 100 ) { // less than 100 hour
+                    playSumTtl = parseFloat(playSumTtl / 60 / 60).toString().slice(0, parseFloat(playSumTtl / 60 / 60).toString().indexOf('.') + 2 );
                 } else { 
-                    playSumTtl = parseInt(playSumTtl / 60 / 60); // convert from second to hour
+                    // playSumTtl = parseInt(playSumTtl / 60 / 60).toString();
+                    playSumTtl = parseFloat(playSumTtl / 60 / 60).toString().slice(0, parseFloat(playSumTtl / 60 / 60).toString().indexOf('.') + 2 );
                 }
 
                 if ( playCnt < 1000 ) {
                     playCnt = parseInt(playCnt); // 
                 } else if (scoreTtl > 1000000) { 
-                    playCnt = parseInt(playCnt / 1000) + 'K'; //
+                    // playCnt = parseInt(playCnt / 1000) + 'K'; //
+                    playCnt = parseInt(playCnt);
                 } else { // 1,000 < x < 1,000,000
                     playCnt = parseInt(playCnt); 
                 }
@@ -238,7 +375,6 @@ export default class Stats extends Component {
         ); 
 
 
-        // });
     };
 
 
@@ -267,8 +403,9 @@ export default class Stats extends Component {
 
     render() {  
         console.log('--- render Stats');
-        const { scoreTtl, playSumTtl, playCnt } = this.state;
+        const { scoreTtl, playSumTtl, playCnt, dataByYearWeeks, didLoadChartData, test, test2 } = this.state;
         console.log('scoreTtl, playSumTtl, playCnt: ', scoreTtl, playSumTtl, playCnt);
+        console.log('dataByYearWeeks: ', dataByYearWeeks);
 
         // const data = '[{"name":"E","value":0.12702},{"name":"T","value":0.09056},{"name":"A","value":0.08167},{"name":"O","value":0.07507},{"name":"I","value":0.06966},{"name":"N","value":0.06749},{"name":"S","value":0.06327},{"name":"H","value":0.06094},{"name":"R","value":0.05987},{"name":"D","value":0.04253},{"name":"L","value":0.04025},{"name":"C","value":0.02782},{"name":"U","value":0.02758},{"name":"M","value":0.02406},{"name":"W","value":0.0236},{"name":"F","value":0.02288},{"name":"G","value":0.02015},{"name":"Y","value":0.01974},{"name":"P","value":0.01929},{"name":"B","value":0.01492},{"name":"V","value":0.00978},{"name":"K","value":0.00772},{"name":"J","value":0.00153},{"name":"X","value":0.0015},{"name":"Q","value":0.00095},{"name":"Z","value":0.00074}]'
         // const data = '[ 5, 10, 15, 20, 25, 30, 50 ]';
@@ -297,33 +434,70 @@ export default class Stats extends Component {
                         border: solid 0.1em white;
                         border-radius: 0.5em;
                         width: 100%; 
-                        // height: 100%;
+                        height: 100%;
                         // padding: 0;
                         // background-color: pink;
                     }
+                    // div#rawData{
+                    //     border: solid 0.1em white;
+                    //     border-radius: 0.5em;
+                    //     width: 100%; 
+                    //     height: 10%;
+                    //     // padding: 0;
+                    //     background-color: pink;
+                    // }
                 </style>
-            
-            
-            </head>
-            <body>
-                <div id="chart_div" ></div>
+
 
                 <script type="text/javascript">
+
                 google.charts.load('current', {'packages':['corechart']});
                 google.charts.setOnLoadCallback(drawChart);
             
                 function drawChart() {
-                    var data = google.visualization.arrayToDataTable([
-                    ['Year', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                    ['12',  1000,      400,300,200,100,800,1000],
-                    ['13',  1170,      460, 200, 800, 1200, 500, 400],
-                    ['14',  660,       1120, 2000, 3000,300,300,200],
-                    ['15',  1030,      540, 200,3000,400,30,300],
-                    ['16',  1000,      400,300,200,100,800,1000],
-                    ['17',  660,       1120, 2000, 3000,300,300,200],
-                    ['18',  1030,      540, 200,3000,400,30,300],
-                    ['20',  1000,      400,300,200,100,800,1000]
-                    ]);
+                    // var data = google.visualization.arrayToDataTable([
+                    // ["Year-Week", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+                    // ['2020-12',  1000,      400,300,200,100,800,1000],
+                    // ['2020-13',  1170,      460, 200, 800, 1200, 500, 400],
+                    // ['2020-20',  1000,      400,300,200,100,800,1000]
+                    // ]);
+                    var data = google.visualization.arrayToDataTable( ${dataByYearWeeks} );
+
+                    // var data = new google.visualization.DataTable();
+                    // data.addColumn('string', 'Year-Week');
+                    // data.addColumn('number', 'Sun');
+                    // data.addColumn('number', 'Mon');
+                    // data.addColumn('number', 'Tue');
+                    // data.addColumn('number', 'Wed');
+                    // data.addColumn('number', 'Thu');
+                    // data.addColumn('number', 'Fri');
+                    // data.addColumn('number', 'Sat');
+                    // data.addRows([
+                    //     ['2020-12',  1000,      400,300,200,100,800,1000],
+                    //     ['2020-13',  1170,      460, 200, 800, 1200, 500, 400],
+                    //     ['2020-14',  660,       1120, 2000, 3000,300,300,200],
+                    //     ['2020-15',  1030,      540, 200,3000,400,30,300],
+                    //     ['2020-16',  1000,      400,300,200,100,800,1000],
+                    //     ['2020-17',  660,       1120, 2000, 3000,300,300,200],
+                    //     ['2020-18',  1030,      540, 200,3000,400,30,300],
+                    //     ['2020-20',  1000,      400,300,200,100,800,1000]
+                    // ]);
+                    // data.addRows( new Map({arrayPastWeeks}) );
+                    // data.addColumn('string', 'Task');
+                    // data.addColumn('number', 'Hours per Day');
+                    // data.addRows([
+                    // ['Work', 11],
+                    // ['Eat', 2],
+                    // ['Commute', 2],
+                    // ['Watch TV', 2],
+                    // ['Sleep', {v:7, f:'7.000'}]
+                    // ]);
+
+                    // var data = new google.visualization.DataView( {arrayPastWeeks}  );
+
+                    // var data = google.visualization.DataView.fromJSON( {arrayPastWeeks} , viewAsJson );
+                    
+                    
             
                     // var options = {
                     //   title: 'Company Performance',
@@ -337,7 +511,7 @@ export default class Stats extends Component {
                         width: '95%',
                         legend: {position: 'top', maxLines: 2},
                         vAxis: {title: 'Calories', minValue: 0},
-                        hAxis: {title: 'Week',  titleTextStyle: {color: '#333'}, slantedText: true, slantedTextAngle:90},
+                        hAxis: {title: 'Year_Week',  titleTextStyle: {color: '#333'}, slantedText: true, slantedTextAngle:90},
                         // animation: {startup: true, duration: 3},
                         // colors: ['red', 'yellow', 'orange', 'blue', 'green', 'purple', 'pink'],
                         // colors: ['#b37400', '#cc8400', '#ffa500', '#ffae1a', '#ffc04d', '#ffc967', '#ffdb9a'], // '#e69500', '#ffb733', '#ffd280',
@@ -345,7 +519,7 @@ export default class Stats extends Component {
                         // colors: ['#fd6104', '#fd9a00', '#ffa500', '#ffae1a', '#ffce03', '#fef001', '#ffff00'],
                         colors: ['#fd6104','#f58c00', '#ff980f', '#ffa329', '#ffae42', '#ffdd42', '#ffff00', ], // '#ff9e42', '#ffa500',  '#ffbe42', 
                         areaOpacity: 1,
-                        chartArea:{left:60, top:60, bottom: 50, right: 10}, // width:'50%',height:'75%'
+                        chartArea:{left:60, top:60, bottom: 80, right: 10}, // width:'50%',height:'75%'
                         
 
                     };
@@ -355,6 +529,12 @@ export default class Stats extends Component {
                 }
                 </script>
 
+            
+            
+            </head>
+            <body>
+                
+                <div id="chart_div" ></div>
 
             </body>
             </html>
@@ -385,17 +565,20 @@ export default class Stats extends Component {
                     </View>      
                 </View> 
 
-              
-                <WebView
-                    originWhitelist={['*']}
-                    javaScriptEnabled={true}
-                    domStorageEnabled={true}
-                    source={{
-                    html: initialHTMLContent,
-                    // baseUrl: 'https://fcc3ddae59ed.us-west-2.playback.live-video.net',
-                    }}
-                    style={ styles.chartArea }
-                />
+                { didLoadChartData ?
+                    <WebView
+                        originWhitelist={['*']}
+                        javaScriptEnabled={true}
+                        domStorageEnabled={true}
+                        source={{
+                        html: initialHTMLContent,
+                        // baseUrl: 'https://fcc3ddae59ed.us-west-2.playback.live-video.net',
+                        }}
+                        style={ styles.chartArea }
+                    />
+                :
+                    null
+                }
 
 
             </View>
@@ -460,7 +643,7 @@ const styles = StyleSheet.create({
         // borderColor: 'white', 
         // borderRadius: 5, 
         fontWeight: 'bold',
-        fontSize: 30,
+        fontSize: 26,
         // height: 35,
         color: 'dimgray',
         textAlignVertical: 'center',

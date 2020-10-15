@@ -13,21 +13,14 @@ import Constants from 'expo-constants'; // https://docs.expo.io/versions/latest/
 // import {vidViewLogDirName} from '../shared/Consts';
 import { AdMobBanner } from 'expo-ads-admob'; 
 import ThreeAxisSensor from 'expo-sensors/build/ThreeAxisSensor';
+// import * as SQLite from 'expo-sqlite';
 
 import {LB_PER_KG} from '../shared/Consts';
 
-// export const dbName = 'db.' + firebase.auth().currentUser.uid;
-// export const dbSQLite = SQLite.openDatabase( dbName );
 
-// const str_pad_left = function (string,pad,length) { // convert from sec to min:sec // https://stackoverflow.com/questions/3733227/javascript-seconds-to-minutes-and-seconds
-//     return (new Array(length+1).join(pad)+string).slice(-length);
-// };
 
-// var num_post = 0; // to control when to shoe Adds in FlatList 20200618
-var post_num = 0; // to control when to shoe Adds in FlatList 20200623
 
-// export const LB_PER_KG = 2.205; // pounds / kilograms
-
+var post_num = 0; // to control when to show Adds in FlatList 20200623
 
 export default class DashboardScreen extends Component {
 
@@ -62,6 +55,8 @@ export default class DashboardScreen extends Component {
         // fillingNow: true, // control modal    
         vidViewLog: null,    
         model2: null,
+        // dbName: 'db_' + firebase.auth().currentUser.uid,
+        // dbSQLite: null,
     }
     // this.allSnapShot = this.allSnapShot.bind(this);
     this._sendVidViewLog = this._sendVidViewLog.bind(this);
@@ -132,37 +127,58 @@ export default class DashboardScreen extends Component {
       })
 
 
-      // // check if vidViewLog Directory already exists, if not then create directory 20200917
-      await FileSystem.getInfoAsync( this.curDir + this.state.vidViewLog).then( async contents => {
-        console.log('vidViewLog getInfoAsync contents[size] in MB: ', contents['size'] / 1024 / 1024 );
-        if ( contents['exists'] == true & contents['isDirectory'] == true ) { // if folder already exists.
-          console.log('vidViewLog already exists');
-          console.log('vidViewLog contents.length: ', contents.length);
-          // console.log(FileSystem.documentDirectory + this.state.vidViewLog + '/');
-          // console.log(this.curDir + this.state.vidViewLog + '/');
+      // // // check if vidViewLog Directory already exists, if not then create directory 20200917
+      // await FileSystem.getInfoAsync( this.curDir + this.state.vidViewLog).then( async contents => {
+      //   console.log('vidViewLog getInfoAsync contents[size] in MB: ', contents['size'] / 1024 / 1024 );
+      //   if ( contents['exists'] == true & contents['isDirectory'] == true ) { // if folder already exists.
+      //     console.log('vidViewLog already exists');
+      //     console.log('vidViewLog contents.length: ', contents.length);
+      //     // console.log(FileSystem.documentDirectory + this.state.vidViewLog + '/');
+      //     // console.log(this.curDir + this.state.vidViewLog + '/');
 
-          if ( contents['size'] > 50 * 1024 * 1024 ) { // if folder size is over 50MB, then delete files. 20200608
-            FileSystem.deleteAsync( this.curDir + this.state.vidViewLog ).then( (dir) => {
-              console.log('---------- vidViewLog Folder Deleted');
-              console.log('Video View Log files can not be sent out. Please contact help center');
-              // alert('Video View Log files can not be sent out. Please contact help center');
-            }).catch(error => {
-              console.log('Error deleting vidViewLog Folder: ', error);
-            });    
-          }
+      //     if ( contents['size'] > 50 * 1024 * 1024 ) { // if folder size is over 50MB, then delete files. 20200608
+      //       FileSystem.deleteAsync( this.curDir + this.state.vidViewLog ).then( (dir) => {
+      //         console.log('---------- vidViewLog Folder Deleted');
+      //         console.log('Video View Log files can not be sent out. Please contact help center');
+      //         // alert('Video View Log files can not be sent out. Please contact help center');
+      //       }).catch(error => {
+      //         console.log('Error deleting vidViewLog Folder: ', error);
+      //       });    
+      //     }
 
-        } else { // if folder NOT exists, then create the directory
-          FileSystem.makeDirectoryAsync(this.curDir + this.state.vidViewLog).then( () => { // create the directory
-            console.log('vidViewLog Directory created');
-          }).catch( error => {
-            console.log('FileSystem.makeDirectoryAsync error: ', error);
-            alert('FileSystem.makeDirectoryAsync error: ', error);           
-          }); 
-        }
-      }).catch( error => {
-        console.log('vidViewLog FileSystem.getInfoAsync error: ', error);
-        alert('vidViewLog FileSystem.getInfoAsync error: ', error);
-      })      
+      //   } else { // if folder NOT exists, then create the directory
+      //     FileSystem.makeDirectoryAsync(this.curDir + this.state.vidViewLog).then( () => { // create the directory
+      //       console.log('vidViewLog Directory created');
+      //     }).catch( error => {
+      //       console.log('FileSystem.makeDirectoryAsync error: ', error);
+      //       alert('FileSystem.makeDirectoryAsync error: ', error);           
+      //     }); 
+      //   }
+      // }).catch( error => {
+      //   console.log('vidViewLog FileSystem.getInfoAsync error: ', error);
+      //   alert('vidViewLog FileSystem.getInfoAsync error: ', error);
+      // })      
+
+
+        // // check if db directory exists.
+        // this.curDir = FileSystem.documentDirectory; // get root directory
+        // // // check if vidViewLogTemp Directory already exists, if not then create directory 20200502
+        // await FileSystem.getInfoAsync( this.curDir + '/SQLite/' + dbName ).then( async contents => {
+        //     console.log('contents: ', contents);
+        //     if ( contents['exists'] == true ) { // if folder already exists.
+        //         console.log('dbName already exists');
+        //         console.log('dbName contents.length: ', contents.length);
+        //         console.log('dbName getInfoAsync contents[size] in MB: ', contents['size'] / 1024 / 1024, );
+        //     } else {
+        //         console.log('dbName NOT exist');
+
+
+        //     }
+      
+        // }).catch( error => {
+        //     console.log('dbName FileSystem.getInfoAsync error: ', error);
+        //     alert('dbName FileSystem.getInfoAsync error: ', error);
+        // })
 
 
     } catch(err){
@@ -215,7 +231,7 @@ export default class DashboardScreen extends Component {
                   body: JSON.stringify({
                     id_token: idTokenCopied,
                     ts: JSON.parse(localFileContents)["ts"],
-                    // vidId: JSON.parse(localFileContents)["vidId"],
+                    vidId: JSON.parse(localFileContents)["vidId"],
                     viewId: JSON.parse(localFileContents)["viewId"],  
                     uid: firebase.auth().currentUser.uid ,         
                     sendId: uuidv4(),
@@ -317,6 +333,7 @@ export default class DashboardScreen extends Component {
         isLoading: true,
         // vidViewLogTemp: 'vidViewLogTemp_' + firebase.auth().currentUser.uid,
         vidViewLog: 'vidViewLog_' + firebase.auth().currentUser.uid,
+        // dbSQLite: dbSQLite,
       });
 
 
@@ -429,7 +446,7 @@ export default class DashboardScreen extends Component {
         })
       }).then( result => result.json() )
         .then( response => { 
-          console.log('------------------ _makeRemoteRequest response: ', response);
+          // console.log('------------------ _makeRemoteRequest response: ', response);
 
           if( response["code"] == 'okFirst'){ // the first load to loa ["flagMastersLoaded"]
             console.log('---------------- okFirst, length: ', response.detail.vidMetas.length );
