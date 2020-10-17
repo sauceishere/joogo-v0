@@ -13,7 +13,7 @@ import Constants from 'expo-constants'; // https://docs.expo.io/versions/latest/
 // import {vidViewLogDirName} from '../shared/Consts';
 import { AdMobBanner } from 'expo-ads-admob'; 
 import ThreeAxisSensor from 'expo-sensors/build/ThreeAxisSensor';
-// import * as SQLite from 'expo-sqlite';
+// import * as SQLite from 'expo-sqlite';  // os_.platform error came out if use SQLite 20201015
 
 import {LB_PER_KG} from '../shared/Consts';
 
@@ -57,6 +57,7 @@ export default class DashboardScreen extends Component {
         model2: null,
         // dbName: 'db_' + firebase.auth().currentUser.uid,
         // dbSQLite: null,
+        isGuest: this.props.navigation.getParam('isGuest'), // navigated from LoginScreen.js or LoadingScreen.js 20201017
     }
     // this.allSnapShot = this.allSnapShot.bind(this);
     this._sendVidViewLog = this._sendVidViewLog.bind(this);
@@ -261,6 +262,8 @@ export default class DashboardScreen extends Component {
                     // numFrameVidStart: JSON.parse(localFileContents)["numFrameVidStart"],
                     // numFrameAllPosOk: JSON.parse(localFileContents)["numFrameAllPosOk"],
                     // numFrameVidEnd: JSON.parse(localFileContents)["numFrameVidEnd"], 
+                    wval: JSON.parse(localFileContents)["wval"],
+                    wunit: JSON.parse(localFileContents)["wunit"], 
                   })
                 }).then( result => result.json() )
                   .then( response => { 
@@ -335,6 +338,7 @@ export default class DashboardScreen extends Component {
         vidViewLog: 'vidViewLog_' + firebase.auth().currentUser.uid,
         // dbSQLite: dbSQLite,
       });
+  
 
 
 ////////// if New User, then go to Profile.js for FIRST fill out ////////////////////////////
@@ -920,7 +924,7 @@ export default class DashboardScreen extends Component {
 
   render() {
     console.log('---------------- render');
-    const { isLoading, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit} = this.state;
+    const { isLoading, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit, isGuest} = this.state;
 
     return (
       <View style={styles.container}>
@@ -996,9 +1000,9 @@ export default class DashboardScreen extends Component {
               renderItem={({ item }) => this.renderPost(item)}
               // renderItem={this.renderPost}
               // keyExtractor={item => item.id}
-              keyExtractor={item => item.VIDID}
+              keyExtractor={item => item.ID}
               showsVerticalScrollIndicator={false}
-              // key={item =>  item.VIDID} // https://stackoverflow.com/questions/45947921/react-native-cant-fix-flatlist-keys-warning
+              key={item => item.ID} // https://stackoverflow.com/questions/45947921/react-native-cant-fix-flatlist-keys-warning
               onRefresh={this._handleRefresh}
               refreshing={this.state.refreshing}
               onEndReached={this._handleLoadMore}
@@ -1010,20 +1014,21 @@ export default class DashboardScreen extends Component {
 
         }
 
-        
-        {/* <LinearGradient colors={['#ffa500', '#ffb300', 'orange']} style={styles.footerContainer}>  */}
-        <View style={styles.footerContainer}>
-          {/* https://docs.expo.io/versions/latest/sdk/linear-gradient/ */}
-          <Ionicons name='ios-person' size={28} color="white" style={styles.ProfileIcon} onPress={ () => this.props.navigation.push('Profile') } />  
-          {/* <Ionicons name="ios-add-circle-outline" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Post') }/> */}
-          <MaterialIcons name='history' size={28} color="white" style={styles.HistoryIcon} onPress={ () => this.props.navigation.push('History') }/>
-          {/* <Ionicons name="ios-medal" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Leaderboard') }/>  */}
-          {/* <Ionicons name='ios-flame' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Live', { const_exer, scaler_scale, scaler_mean, model } ) }/> */}
-          <Ionicons name='ios-stats' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Stats', { const_exer } ) }/>
-          <Ionicons name='logo-youtube' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('LiveYT', { const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit } ) }/>
 
-        {/* </LinearGradient> */}
-        </View>
+        { isGuest ?
+          null
+        :
+          <View style={styles.footerContainer}>
+            {/* https://docs.expo.io/versions/latest/sdk/linear-gradient/ */}
+            <Ionicons name='ios-person' size={28} color="white" style={styles.ProfileIcon} onPress={ () => this.props.navigation.push('Profile') } />  
+            {/* <Ionicons name="ios-add-circle-outline" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Post') }/> */}
+            <MaterialIcons name='history' size={28} color="white" style={styles.HistoryIcon} onPress={ () => this.props.navigation.push('History') }/>
+            {/* <Ionicons name="ios-medal" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Leaderboard') }/>  */}
+            {/* <Ionicons name='ios-flame' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Live', { const_exer, scaler_scale, scaler_mean, model } ) }/> */}
+            <Ionicons name='ios-stats' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Stats', { const_exer } ) }/>
+            {/* <Ionicons name='logo-youtube' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('LiveYT', { const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit } ) }/> */}
+          </View>
+        }
 
       </View>
     )  

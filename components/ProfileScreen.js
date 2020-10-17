@@ -882,11 +882,7 @@ export default class ProfileScreen extends Component {
                   <View style={styles.tableRow}>
                     <Text style={styles.itemTitle}>Nationality</Text>
                     <Text style={styles.itemField00}>
-                      { ((nat).length > 25) ? 
-                        (((nat).substring(0, 25-3)) + '...') 
-                      : 
-                        nat 
-                      }
+                      {nat}
                     </Text>
                   </View>
 

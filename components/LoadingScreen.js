@@ -90,7 +90,7 @@ export default class LoadingScreen extends Component {
           });
 
           console.log('------------------------------ Going to Dashboard.js');  
-          this.props.navigation.navigate('DashboardScreen', { authedUid: 'authhh' });
+          this.props.navigation.navigate('DashboardScreen', { isGuest: false });
 
         } else { // if user NOT logged in
           console.log('== User NOT logged in, Going to Login.js');

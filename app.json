@@ -28,7 +28,9 @@
         "googleSignIn": {
           "reservedClientId": "com.googleusercontent.apps.399964185668-0mb6rijfn1c24etqjkrhpt48f31cgdag"
         }
-      }
+      },
+      "bundleIdentifier": "io.joogo.joogofit",
+      "buildNumber": "1.0.1"
     },
     "android": {
       "versionCode": 17,

@@ -21,9 +21,11 @@ import { Constants, Accelerometer } from 'expo-sensors'; // https://docs.expo.io
 
 import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
 import Svg, { Circle, Rect,} from 'react-native-svg';
+import * as SQLite from 'expo-sqlite';
 
 // import {slow1} from '../assets/octopus';
 import {LB_PER_KG} from '../shared/Consts';
+
 
 
 
@@ -110,6 +112,7 @@ export default class Live extends Component {
   inputTensorWidth = Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
   inputTensorHeight = Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height']  ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //Dimensions.get('window').height / 3; // 200
 
+
   // DON'T CHANGE OR ADJUST textureDims because Posenet can not scan whole screen. 
   textureDims = Platform.OS === 'ios' ? 
     { // https://github.com/tensorflow/tfjs/blob/master/tfjs-react-native/integration_rn59/components/webcam/realtime_demo.tsx
@@ -165,41 +168,41 @@ export default class Live extends Component {
   model = this.props.navigation.getParam('model');
   model2 = this.props.navigation.getParam('model2');
   
-  // when Landscape
-  // initialPositions = {
-  //   x9Min: this.inputTensorWidth * 0/5, // leftWrist
-  //   x9Max: this.inputTensorWidth * 2/5, // leftWrist
-  //   y9Min: this.inputTensorHeight * 1/4, // leftWrist
-  //   y9Max: this.inputTensorHeight * 3/4, // leftWrist
-  //   x10Min: this.inputTensorWidth * 3/5, // rightWrist
-  //   x10Max: this.inputTensorWidth * 5/5, // rightWrist   
-  //   y10Min: this.inputTensorHeight * 1/4, // rightWrist
-  //   y10Max: this.inputTensorHeight * 3/4, // rightWrist 
-  //   xBothAnkleMin: this.inputTensorWidth * 1/5, 
-  //   xBothAnkleMax: this.inputTensorWidth * 4/5,                           
-  //   yBothAnkleMin: this.inputTensorHeight * 3/4, 
-  //   yBothAnkleMax: this.inputTensorHeight * 4/4,       
-  //   NoseToAnkleMin: this.inputTensorHeight * 1/4, // y distance between nose to ankle should be more than this  
-  //   xRightToLeftMin: this.inputTensorWidth * 1/5, // x distance between right to left wrist should be more than this.    
-  // };
-
-  // when Portrait 20201004
+  // // when Landscape
   initialPositions = {
-    x9Min: this.inputTensorWidth * 3/4, // 3/4 // leftWrist
-    x9Max: this.inputTensorWidth * 4/4, // leftWrist
-    y9Min: this.inputTensorHeight * 1/5, // leftWrist
-    y9Max: this.inputTensorHeight * 3/5, // leftWrist
-    x10Min: this.inputTensorWidth * 0/4, // rightWrist
-    x10Max: this.inputTensorWidth * 1/4, // rightWrist   
-    y10Min: this.inputTensorHeight * 1/5, // rightWrist
-    y10Max: this.inputTensorHeight * 3/5, // rightWrist 
-    xBothAnkleMin: this.inputTensorWidth * 1/4, 
-    xBothAnkleMax: this.inputTensorWidth * 3/4,                           
-    yBothAnkleMin: this.inputTensorHeight * 3/5, 
-    yBothAnkleMax: this.inputTensorHeight * 5/5,       
-    NoseToAnkleMin: this.inputTensorHeight * 1.5/5, // y distance between nose to ankle should be more than this  
-    // xRightToLeftMin: this.inputTensorWidth * 2/4, // x distance between right to left wrist should be more than this.    
+    x9Min: this.inputTensorWidth * 0/5, // leftWrist
+    x9Max: this.inputTensorWidth * 2/5, // leftWrist
+    y9Min: this.inputTensorHeight * 1/4, // leftWrist
+    y9Max: this.inputTensorHeight * 3/4, // leftWrist
+    x10Min: this.inputTensorWidth * 3/5, // rightWrist
+    x10Max: this.inputTensorWidth * 5/5, // rightWrist   
+    y10Min: this.inputTensorHeight * 1/4, // rightWrist
+    y10Max: this.inputTensorHeight * 3/4, // rightWrist 
+    xBothAnkleMin: this.inputTensorWidth * 1/5, 
+    xBothAnkleMax: this.inputTensorWidth * 4/5,                           
+    yBothAnkleMin: this.inputTensorHeight * 3/4, 
+    yBothAnkleMax: this.inputTensorHeight * 4/4,       
+    NoseToAnkleMin: this.inputTensorHeight * 1/4, // y distance between nose to ankle should be more than this  
+    xRightToLeftMin: this.inputTensorWidth * 1/5, // x distance between right to left wrist should be more than this.    
   };
+
+  // // when Portrait 20201004
+  // initialPositions = {
+  //   x9Min: this.inputTensorWidth * 3/4, // 3/4 // leftWrist
+  //   x9Max: this.inputTensorWidth * 4/4, // leftWrist
+  //   y9Min: this.inputTensorHeight * 1/5, // leftWrist
+  //   y9Max: this.inputTensorHeight * 3/5, // leftWrist
+  //   x10Min: this.inputTensorWidth * 0/4, // rightWrist
+  //   x10Max: this.inputTensorWidth * 1/4, // rightWrist   
+  //   y10Min: this.inputTensorHeight * 1/5, // rightWrist
+  //   y10Max: this.inputTensorHeight * 3/5, // rightWrist 
+  //   xBothAnkleMin: this.inputTensorWidth * 1/4, 
+  //   xBothAnkleMax: this.inputTensorWidth * 3/4,                           
+  //   yBothAnkleMin: this.inputTensorHeight * 3/5, 
+  //   yBothAnkleMax: this.inputTensorHeight * 5/5,       
+  //   NoseToAnkleMin: this.inputTensorHeight * 1.5/5, // y distance between nose to ankle should be more than this  
+  //   // xRightToLeftMin: this.inputTensorWidth * 2/4, // x distance between right to left wrist should be more than this.    
+  // };
 
 
   pos = { // coordinate at the loop
@@ -444,7 +447,7 @@ export default class Live extends Component {
     // this.setState({ shouldPlay : false});
     // clearInterval(_updateScore); // did NOT work 20200603
     // clearInterval(videoCountDown); // did NOT work 20200603
-    // ScreenOrientation.unlockAsync(); // back to portrait
+    ScreenOrientation.unlockAsync(); // back to portrait
     // ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
     this.props.navigation.goBack();
     // await this._saveVidViewLog(); // removed because this process is duplicated with componentWillUnmount
@@ -494,7 +497,7 @@ export default class Live extends Component {
     deactivateKeepAwake();
     // console.log('------------------- componentWillUnmount Live 3');
 
-    // ScreenOrientation.unlockAsync(); // back to portrait
+    ScreenOrientation.unlockAsync(); // back to portrait
     // ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
     console.log('------------------- componentWillUnmount Live 4');
 
@@ -511,8 +514,8 @@ export default class Live extends Component {
     // console.log('------ this.camState: ', this.camState);
     // console.log( 'slow1[secFromStart]: ', typeof slow1 );
     // console.log( 'slow1[secFromStart]: ', slow1["1"] );
-    console.log('this.scaler_scale: ', this.scaler_scale );
-    console.log('this.scaler_mean: ', this.scaler_mean );
+    // console.log('this.scaler_scale: ', this.scaler_scale );
+    // console.log('this.scaler_mean: ', this.scaler_mean );
     // console.log('this.model: ', this.model );
     console.log('screen width, height: ', Dimensions.get('screen').width, Dimensions.get('screen').height);
     console.log('window width, height: ', Dimensions.get('window').width, Dimensions.get('window').height);
@@ -532,7 +535,7 @@ export default class Live extends Component {
     console.log('this.WEIGHT_KG: ', this.WEIGHT_KG);
   
     
-    // ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE); // to landscape
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE); // to landscape
     // console.log( 'ScreenOrientation.ScreenOrientationInfo: ', ScreenOrientation.ScreenOrientationInfo(orientation) );
     // console.log( 'ScreenOrientation.PlatformOrientationInfo: ', ScreenOrientation.PlatformOrientationInfo(screenOrientationArrayIOS) );
     
@@ -752,7 +755,7 @@ export default class Live extends Component {
               })
             }).then( result => result.json() )
               .then( response => { 
-                console.log('----- _sendSingleVidViewLog response:', response );
+                // console.log('----- _sendSingleVidViewLog response:', response );
                 if (response["code"] == 'ok' ) {
                     //Delete SINGLE file in the LOCAL directory
                     FileSystem.deleteAsync( FileSystem.documentDirectory + this.state.vidViewLogTemp + '/' + vidViewLogFileName + '.json').then( () => {
@@ -850,7 +853,7 @@ export default class Live extends Component {
     jsonContents['wunit'] = this.state.wunit;    
 
     jsonContents = JSON.stringify(jsonContents); // convert to string for saving file
-    // console.log('jsonContents: ', jsonContents);
+    console.log('jsonContents: ', jsonContents);
     // console.log('jsonContents keys: ', Object.keys(jsonContents));
     // console.log('jsonContents keys: ');
     // for (var key in jsonContents) {
@@ -877,30 +880,59 @@ export default class Live extends Component {
 
 
     // vidViewLog for LOCALLY save. 20200917
-    var jsonContentsSimp = {};
-    jsonContentsSimp["ts"] = ts;
-    jsonContentsSimp["vidId"] = vidId;
-    jsonContentsSimp["viewId"] = viewId;
-    jsonContentsSimp["uid"] = firebase.auth().currentUser.uid;
-    jsonContentsSimp["startAt"] = this.vidState.vidStartAt;
-    jsonContentsSimp["endAt"] = this.vidState.vidEndAt;
-    jsonContentsSimp["nTa"] = this.state.noseToAnkle;
-    jsonContentsSimp["pt"] = this.state.mdCumTtlNow;
-    jsonContentsSimp["score"] = this.state.scoreNow; 
-    jsonContentsSimp["playSum"] = this.vidState.vidPlayedSum; 
-    jsonContentsSimp['wval'] = this.state.wval;
-    jsonContentsSimp['wunit'] = this.state.wunit; 
+    // var jsonContentsSimp = {};
+    // jsonContentsSimp["ts"] = ts;
+    // jsonContentsSimp["vidId"] = vidId;
+    // jsonContentsSimp["viewId"] = viewId;
+    // jsonContentsSimp["uid"] = firebase.auth().currentUser.uid;
+    // jsonContentsSimp["startAt"] = this.vidState.vidStartAt;
+    // jsonContentsSimp["endAt"] = this.vidState.vidEndAt;
+    // jsonContentsSimp["nTa"] = this.state.noseToAnkle;
+    // jsonContentsSimp["pt"] = this.state.mdCumTtlNow;
+    // jsonContentsSimp["score"] = this.state.scoreNow; 
+    // jsonContentsSimp["playSum"] = this.vidState.vidPlayedSum; 
+    // jsonContentsSimp['wval'] = this.state.wval;
+    // jsonContentsSimp['wunit'] = this.state.wunit; 
 
-    jsonContentsSimp = JSON.stringify(jsonContentsSimp); // convert to string for saving file
+    // jsonContentsSimp = JSON.stringify(jsonContentsSimp); // convert to string for saving file
 
-    await FileSystem.writeAsStringAsync(
-      FileSystem.documentDirectory + this.state.vidViewLog + '/' + vidViewLogFileName + '.json', 
-      jsonContentsSimp,
-    ).then( () => {
-      console.log('----------- vidViewLog saved: ');
-    }).catch(error => {
-      console.log('vidViewLog error: ', error);
-    });   
+    // await FileSystem.writeAsStringAsync(
+    //   FileSystem.documentDirectory + this.state.vidViewLog + '/' + vidViewLogFileName + '.json', 
+    //   jsonContentsSimp,
+    // ).then( () => {
+    //   console.log('----------- vidViewLog saved: ');
+    // }).catch(error => {
+    //   console.log('vidViewLog error: ', error);
+    // });   
+
+
+
+    //// Create & Insert into SQLite vidViewLog. 20201015
+    const dbSQLite = SQLite.openDatabase( 'db_' + firebase.auth().currentUser.uid); // initiate SQLite 20201013
+
+    // create table 'vidViewLog' if not exist
+    dbSQLite.transaction(tx => {
+        tx.executeSql(
+        'create table if not exists vidViewLog (id integer primary key not null, ts real, vidId blob, viewId blob, startAt real, endAt real, score real, playSum real, wval blob, wunit text);', // uid blob, nTa real, pt blob,  実行したいSQL文
+        null, // SQL文の引数
+        () => {console.log('success in creating sqllite0')}, // 成功時のコールバック関数
+        () => {console.log('fail in creating sqllite0')} // 失敗時のコールバック関数
+        );
+    },
+      () => {console.log('fail in creating sqllite1')}, // 失敗時のコールバック関数
+      () => {console.log('success in creating sqllite1')} // 成功時のコールバック関数
+    );    
+
+    // Insert into SQLite vidViewLog.
+    dbSQLite.transaction(tx => {
+      tx.executeSql(
+        `insert into vidViewLog (ts, vidId, viewId, startAt, endAt, score, playSum, wval, wunit) values (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+        [ts, vidId, viewId, this.vidState.vidStartAt, this.vidState.vidEndAt, this.state.scoreNow, this.vidState.vidPlayedSum, this.state.wval, this.state.wunit]
+      );
+    },
+      () => {console.log('fail in inserting sqllite')},
+      () => {console.log('success in inserting sqllite')},
+    );
 
 
   }
@@ -958,7 +990,7 @@ export default class Live extends Component {
       // if (this.state.shouldPlay === true & this.state.flagUpdateScore === true) { 
         console.log('--- this.state.shouldPlay === true & this.state.flagUpdateScore === true');
         
-        console.log('time0a: ', Date.now() / 1000 - time0); 
+        // console.log('time0a: ', Date.now() / 1000 - time0); 
  
 
 
@@ -1139,7 +1171,6 @@ export default class Live extends Component {
               this.flag_mdCum = 1; // switch flag
             }
 
-            console.log('TtTtTtTtTtTtTtTtTtTt here 0');
             // if ( mdCumTtlNow < 1.3) {
             //   mdCumTtlNow = 1.3; // force to change METS 1.3. This is METS of 'Rest position'. 20200824 
             //   console.log('--- mdCumTtlNow FORCED');
@@ -1182,7 +1213,7 @@ export default class Live extends Component {
           // };
 
 
-          console.log('time0b: ', Date.now() / 1000 - time0);         
+          // console.log('time0b: ', Date.now() / 1000 - time0);         
                 
           this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(3), scoreNow: scoreNow.toFixed(1) });// this is what shows as score on top right.
           // this.mdCumAll.push( JSON.stringify({ 'sec': secFromStart, 'cntLoopUpdateScore': this.cntLoopUpdateScore, 'ts': Date.now()/1000, 'score': scoreNow.toFixed(3), 'playSum': this.vidState.vidPlayedSum.toFixed(2), 'pos': this.pos }) ); // append froms Start to End 
@@ -1200,19 +1231,13 @@ export default class Live extends Component {
 
       } // closing if (this.state.shouldPlay === true & this.state.flagUpdateScore === true )
 
-      // console.log('3 this.mdCum.x10, y13, y15: ', this.mdCum.x10, this.mdCum.y13, this.mdCum.y15 );
-      // console.log('3 this.mdCumA.x10, y13, y15: ', this.mdCumA.x10, this.mdCumA.y13, this.mdCumA.y15 );
-      // console.log('3 this.mdCumB.x10, y13, y15: ', this.mdCumB.x10, this.mdCumB.y13, this.mdCumB.y15 );
-    
 
       
       if ( pose != null ) {
         // console.log('-------- pose.keypoints: ', pose.keypoints)
-        // console.log('4 this.mdCum.x10, y13, y15: ', this.mdCum.x10, this.mdCum.y13, this.mdCum.y15 );
-        // console.log('4 this.mdCumA.x10, y13, y15: ', this.mdCumA.x10, this.mdCumA.y13, this.mdCumA.y15 );
-        // console.log('4 this.mdCumB.x10, y13, y15: ', this.mdCumB.x10, this.mdCumB.y13, this.mdCumB.y15 );
+    
 
-        console.log('time0c: ', Date.now() / 1000 - time0); 
+        // console.log('time0c: ', Date.now() / 1000 - time0); 
 
         var identifiedBpartsEach = []; // reset at each loop 20200520
 
@@ -1244,7 +1269,7 @@ export default class Live extends Component {
               console.log('out on observers Bottom v v v v v v v v v v v ', this.frameOutCnt.bottom);
             }
 
-            console.log('time0d: ', Date.now() / 1000 - time0);
+            // console.log('time0d: ', Date.now() / 1000 - time0);
 
 
   ////////// assign each value to this.pos.xxx ////////////////////
@@ -1483,7 +1508,7 @@ export default class Live extends Component {
 
           }); // closing .map
 
-          console.log('time0e: ', Date.now() / 1000 - time0); 
+          // console.log('time0e: ', Date.now() / 1000 - time0); 
 
 
 ///////// check if User moves towards Camera by noseToAnkle. 20200523 //////////// 
@@ -1581,7 +1606,7 @@ export default class Live extends Component {
 
             }
 
-            console.log('time0f: ', Date.now() / 1000 - time0);         
+            // console.log('time0f: ', Date.now() / 1000 - time0);         
 
   ////////// to check if all the positions are ready in camera  ////////////////////
 
@@ -1786,7 +1811,7 @@ export default class Live extends Component {
 
     this.vidState.renderPoseTimes++; // increment
 
-    console.log('time0g: ', Date.now() / 1000 - time0); 
+    // console.log('time0g: ', Date.now() / 1000 - time0); 
 
   } // closing renderPose
 
@@ -1807,7 +1832,7 @@ export default class Live extends Component {
     console.log( '-- Interval: ', (Date.now()/1000 - this.vidState.loopStartAt).toFixed(2)  ); // this does not have any meaning, just to show how fast code runs.
     this.vidState.loopStartAt = Date.now()/1000;
 
-    console.log('time1a: ', Date.now() / 1000 - time1);
+    // console.log('time1a: ', Date.now() / 1000 - time1);
 
 
 
@@ -1833,7 +1858,7 @@ export default class Live extends Component {
       }
     } 
 
-    console.log('time1b: ', Date.now() / 1000 - time1);
+    // console.log('time1b: ', Date.now() / 1000 - time1);
 
 
 
@@ -2069,10 +2094,10 @@ const styles = StyleSheet.create({
     // justifyContent: 'center',
     // padding: 24,
     top: 0, //StatusBar.currentHeight,
-    // height: Dimensions.get('screen').width, // when Landscape 
-    // width: Dimensions.get('screen').height, // when Landscape 
-    height: Dimensions.get('screen').height, // when Portrait 
-    width: Dimensions.get('screen').width, // when Portrait     
+    height: Dimensions.get('screen').width, // when Landscape 
+    width: Dimensions.get('screen').height, // when Landscape 
+    // height: Dimensions.get('screen').height, // when Portrait 
+    // width: Dimensions.get('screen').width, // when Portrait     
     position: 'absolute',
     flex: 0,
     // zindex: 0, // 20200531
@@ -2082,10 +2107,10 @@ const styles = StyleSheet.create({
   layerOneContainer: {
     // backgroundColor: 'blue',
     opacity: 1, // to see through trainerVideo 20200530
-    // height: Dimensions.get('screen').width, // when Landscape 
-    // width: Dimensions.get('screen').height, // when Landscape 
-    height: Dimensions.get('screen').height, // when Portrait 
-    width: Dimensions.get('screen').width, // when Portrait 
+    height: Dimensions.get('screen').width, // when Landscape 
+    width: Dimensions.get('screen').height, // when Landscape 
+    // height: Dimensions.get('screen').height, // when Portrait 
+    // width: Dimensions.get('screen').width, // when Portrait 
     position: 'absolute',
     flex: 0,    
     // borderColor: 'purple', 
@@ -2174,14 +2199,14 @@ const styles = StyleSheet.create({
     // backgroundColor: 'white',
     // zIndex: 201, // removed 20200531
     position: 'absolute',
-    // top: Dimensions.get('window').width * 0.07, // when Landscape
-    // right: Dimensions.get('window').height * 0.12, // when Landscape
-    // height: Dimensions.get('window').width * 0.22, // when Landscape
-    // width: Dimensions.get('window').height * 0.21, // when Landscape
-    top: Dimensions.get('window').width * 0.08, // when Landscape
-    right: Dimensions.get('window').height * 0.02, // when Landscape
+    top: Dimensions.get('window').width * 0.07, // when Landscape
+    right: Dimensions.get('window').height * 0.12, // when Landscape
     height: Dimensions.get('window').width * 0.22, // when Landscape
-    width: Dimensions.get('window').height * 0.21, // when Landscape    
+    width: Dimensions.get('window').height * 0.21, // when Landscape
+    // top: Dimensions.get('window').width * 0.08, // when Portrait
+    // right: Dimensions.get('window').height * 0.02, // when Portrait
+    // height: Dimensions.get('window').width * 0.22, // when Portrait
+    // width: Dimensions.get('window').height * 0.21, // when Portrait    
     backgroundColor: 'rgba(20, 20, 20, 0.7)', // darkgray seethrough background
     borderRadius: 5,  
     justifyContent: 'center',
@@ -2237,13 +2262,13 @@ const styles = StyleSheet.create({
   initialPostureImage: {
     position: 'absolute',
     // left: Dimensions.get('window').height / 2 - 310 / 2, // when Landscape //  centering the image in consideration with android navigation bar. 20200816 
-    // width: Dimensions.get('window').width, // when Landscape // photo size = 475*310
-    // height: Dimensions.get('window').width, // when Landscape
-    // bottom: Dimensions.get('window').width * 0.01, // when Landscape
-    // left: Dimensions.get('window').width / 2 - 310 / 2, // when Portrait
-    width: Dimensions.get('window').width, // when Portrait
-    height: Dimensions.get('window').width * 370/310, // when Portrait
-    bottom: Dimensions.get('window').height * 0.1, // when Landscape
+    width: Dimensions.get('window').width, // when Landscape // photo size = 475*310
+    height: Dimensions.get('window').width, // when Landscape
+    bottom: Dimensions.get('window').width * 0.1, // when Landscape
+    left: Dimensions.get('window').width / 2 - 310 / 2, // when Portrait
+    // width: Dimensions.get('window').width, // when Portrait
+    // height: Dimensions.get('window').width * 370/310, // when Portrait
+    // bottom: Dimensions.get('window').height * 0.1, // when Portrait
     // justifyContent: 'center',
     // borderColor: 'green',
     // borderWidth: 1,
@@ -2254,10 +2279,10 @@ const styles = StyleSheet.create({
     // flex: 1,
     flexGrow:1,
     position: 'absolute',
-    // top: Dimensions.get('window').width * 0.2, // when Landscape 
-    // left: Dimensions.get('window').height * 0.02, // when Landscape 
-    top: Dimensions.get('window').height * 0.13, // when Portrait 
-    left: Dimensions.get('window').width * 0.04, // when Portrait 
+    top: Dimensions.get('window').width * 0.25, // when Landscape 
+    left: Dimensions.get('window').height * 0.02, // when Landscape 
+    // top: Dimensions.get('window').height * 0.13, // when Portrait 
+    // left: Dimensions.get('window').width * 0.04, // when Portrait 
     // width: Dimensions.get('window').width * 0.9,
     // height: null,
     // width: null,    
@@ -2304,10 +2329,10 @@ const styles = StyleSheet.create({
   upperLayerContainer: {
     position: 'absolute',
     top: 0, //StatusBar.currentHeight,
-    // height: Dimensions.get('window').width, // when Landscape // - StatusBar.currentHeight, // Dynamically get & summate screen height & statusbar height.
-    // width: Dimensions.get('window').height, // when Landscape // - StatusBar.currentHeight,
-    height: Dimensions.get('window').height, // when Portrait
-    width: Dimensions.get('window').width, // when Portrait
+    height: Dimensions.get('window').width, // when Landscape // - StatusBar.currentHeight, // Dynamically get & summate screen height & statusbar height.
+    width: Dimensions.get('window').height, // when Landscape // - StatusBar.currentHeight,
+    // height: Dimensions.get('window').height, // when Portrait
+    // width: Dimensions.get('window').width, // when Portrait
     // zIndex: 400, // removed 20200531
     opacity: 0.9,
     // backgroundColor: '#ffa500', 
@@ -2374,10 +2399,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',   
     backgroundColor: 'rgba(20, 20, 20, 0.7)', // 'rgba(220, 220, 220, 0.5)'
     position: 'absolute',
-    // top: Dimensions.get('window').width * 0.07, // when Landscape
-    // left: Dimensions.get('window').height * 0.02, // when Landscape
-    top: Dimensions.get('window').height * 0.04, // when Portrait
-    left: Dimensions.get('window').width * 0.04, // when Portrait
+    top: Dimensions.get('window').width * 0.07, // when Landscape
+    left: Dimensions.get('window').height * 0.02, // when Landscape
+    // top: Dimensions.get('window').height * 0.04, // when Portrait
+    // left: Dimensions.get('window').width * 0.04, // when Portrait
     height: goBackIconSize,
     width: goBackIconSize,
     borderRadius: goBackIconSize,

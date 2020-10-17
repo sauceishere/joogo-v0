@@ -6,7 +6,7 @@ import * as firebase from 'firebase';
 import moment from "moment"; 
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { convertCompilerOptionsFromJson } from 'typescript';
-
+import * as SQLite from 'expo-sqlite';
 
 
 
@@ -37,10 +37,10 @@ class ExerciseHistory extends Component {
         this.state = {
             isLoading: true,
             doneComponentDidMount: false,
-            param: this.props.navigation.getParam('greeting'),
-            viewPtSum: null,
-            playSum: null,
-            viewTimes: null,
+            // param: this.props.navigation.getParam('greeting'),
+            // viewPtSum: null,
+            // playSum: null,
+            // viewTimes: null,
             postsExer: [], // assign response from loadExerHist-py
             // oldestLogTs: Date.now() / 1000,
             page: 1,
@@ -64,63 +64,63 @@ class ExerciseHistory extends Component {
             console.log('this.state.doneComponentDidMount === false');
             // this.setState({isLoading: true});
     
-            const _getExerHistSummary = (idTokenCopied) => {
-                console.log('----- History _getExerHistSummary.');
-                //   console.log('this.oldestLogTs: ', this.oldestLogTs);
+            // const _getExerHistSummary = (idTokenCopied) => {
+            //     console.log('----- History _getExerHistSummary.');
+            //     //   console.log('this.oldestLogTs: ', this.oldestLogTs);
                 
-                fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/getExerHistSummary-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
-                    method: 'POST',
-                    headers: {
-                        // 'Accept': 'application/json', 
-                        'Content-Type' : 'application/json' // text/html text/plain application/json
-                    },
-                        // mode: "no-cors", // no-cors, cors, *same-origin
-                        body: JSON.stringify({
-                        id_token: idTokenCopied,
-                    })
-                }).then( result => result.json() )
-                    .then( response => { 
-                    // console.log('------------------ _getExerHistSummary response: ', response);
+            //     fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/getExerHistSummary-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+            //         method: 'POST',
+            //         headers: {
+            //             // 'Accept': 'application/json', 
+            //             'Content-Type' : 'application/json' // text/html text/plain application/json
+            //         },
+            //             // mode: "no-cors", // no-cors, cors, *same-origin
+            //             body: JSON.stringify({
+            //             id_token: idTokenCopied,
+            //         })
+            //     }).then( result => result.json() )
+            //         .then( response => { 
+            //         // console.log('------------------ _getExerHistSummary response: ', response);
         
-                        if( response["code"] == 'ok'){
-                            console.log('---------------- ok');
-                            console.log('_getExerHistSummary response.detail: ', response.detail );
+            //             if( response["code"] == 'ok'){
+            //                 console.log('---------------- ok');
+            //                 console.log('_getExerHistSummary response.detail: ', response.detail );
 
-                            var viewPtSum = response.detail.VIEW_PTSUM;
-                            viewPtSum = parseInt(viewPtSum); // convert to int
-                            var playSum = response.detail.PLAYSUM;
-                            if ( playSum < 60 * 60 ) { // less than 1 hour
-                                playSum = parseFloat(playSum / 60 / 60 / 10).toFixed(2); // show like 0.1
-                            } else { // over 1 hour
-                                playSum = parseInt(playSum / 60 / 60); // convert from second to hour
-                            }
-                            var viewTimes = response.detail.VIEW_TIMES;
+            //                 var viewPtSum = response.detail.VIEW_PTSUM;
+            //                 viewPtSum = parseInt(viewPtSum); // convert to int
+            //                 var playSum = response.detail.PLAYSUM;
+            //                 if ( playSum < 60 * 60 ) { // less than 1 hour
+            //                     playSum = parseFloat(playSum / 60 / 60 / 10).toFixed(2); // show like 0.1
+            //                 } else { // over 1 hour
+            //                     playSum = parseInt(playSum / 60 / 60); // convert from second to hour
+            //                 }
+            //                 var viewTimes = response.detail.VIEW_TIMES;
 
-                            this.setState({
-                                // isLoading: false,
-                                viewPtSum: viewPtSum,
-                                playSum: playSum,
-                                viewTimes: viewTimes,
-                            }); 
-                        } 
+            //                 this.setState({
+            //                     // isLoading: false,
+            //                     viewPtSum: viewPtSum,
+            //                     playSum: playSum,
+            //                     viewTimes: viewTimes,
+            //                 }); 
+            //             } 
             
-                }).catch((error) => {
-                    this.setState({ isLoading: false, });
-                    console.log('Error _getExerHistSummary: ', error);
-                    alert('Error _getExerHistSummary. Please try again later.');
-                });
+            //     }).catch((error) => {
+            //         this.setState({ isLoading: false, });
+            //         console.log('Error _getExerHistSummary: ', error);
+            //         alert('Error _getExerHistSummary. Please try again later.');
+            //     });
         
-            }
+            // }
         
-            await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then( function(idToken) {
-                const idTokenCopied = idToken;
+            // await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then( function(idToken) {
+            //     const idTokenCopied = idToken;
             
-                _getExerHistSummary(idTokenCopied);
+            //     _getExerHistSummary(idTokenCopied);
             
-            }).catch(function(error) {
-                console.log('Error xxxxxxxxxxxxxxxx Could not get idToken _getExerHistSummary : ', error);
-                alert('Error, Could not get idToken _getExerHistSummary. please try again later.')
-            });  
+            // }).catch(function(error) {
+            //     console.log('Error xxxxxxxxxxxxxxxx Could not get idToken _getExerHistSummary : ', error);
+            //     alert('Error, Could not get idToken _getExerHistSummary. please try again later.')
+            // });  
     
             await this._requestLoadExerHist(); // kick 
             
@@ -346,7 +346,7 @@ class ExerciseHistory extends Component {
 
     render() {
         console.log('------------- render.');
-        const { isLoading, viewPtSum, playSum, viewTimes } = this.state;
+        const { isLoading, } = this.state;
 
         return (
             <View style={styles.container}>
@@ -368,7 +368,7 @@ class ExerciseHistory extends Component {
                             <Text style={styles.pageTitle}>Burned Calorie History</Text>    
                         </View> */}
                     
-                        <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', alignItems: 'center', marginTop: Dimensions.get('window').height * 0.02, paddingHorizontal: Dimensions.get('window').width * 0.02}} >
+                        {/* <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', alignItems: 'center', marginTop: Dimensions.get('window').height * 0.02, paddingHorizontal: Dimensions.get('window').width * 0.02}} >
                             <View style={styles.tileItem}>
                                 <Ionicons name='ios-flame' size={22} style={styles.tileItemIcon}/>
                                 <Text style={styles.tileItemField}>{viewPtSum}</Text>    
@@ -386,10 +386,10 @@ class ExerciseHistory extends Component {
                                 <Text style={styles.tileItemField}>{viewTimes}</Text>  
                                 <Text style={styles.tileItemTitle}>Total Times Played</Text>
                             </View>      
-                        </View> 
+                        </View>  */}
 
                         {/* <SafeAreaView style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.01, flex:1 }}>  */}
-                        <SafeAreaView style={{ marginTop: Dimensions.get('window').height * 0.01, height: Dimensions.get('window').height - 200  }}>
+                        <SafeAreaView style={{ marginTop: Dimensions.get('window').height * 0.01, height: Dimensions.get('window').height -10  }}>
                             <FlatList
                                 style={styles.feed}
                                 data={this.state.postsExer}
