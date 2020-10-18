@@ -194,11 +194,40 @@ export default class ProfileScreen extends Component {
     console.log('------------- componentDidMount Profile started 80.');
     // console.log('firebase.auth().currentUser.uid: ', firebase.auth().currentUser.uid);
     console.log('this.state.ProfileEditId: ', this.state.ProfileEditId);
+    // console.log(this.props.navigation.getParam('nname'));
 
     
-    if (this.state.DidGetProfileData == false) {
-      await this._getUsers();
-    };
+    // if (this.state.DidGetProfileData == false) {
+    //   await this._getUsers();
+    // };
+
+    // to reduce calling Function, get param from Dashboard.js 20201018
+    if ( !this.props.navigation.getParam('nname') ) {
+      // console.log('NULL');
+      this.setState({ 
+        DidGetProfileData: true,
+        isNewUser: true,
+      });
+    } else {
+      // console.log('NOT NULL');
+      this.setState({ 
+        nname: this.props.navigation.getParam('nname'), 
+        wval: this.props.navigation.getParam('wval'), 
+        wunit: this.props.navigation.getParam('wunit'),  
+        hval: this.props.navigation.getParam('hval'),  
+        hunit: this.props.navigation.getParam('hunit'),                   
+        nat: this.props.navigation.getParam('nat'), //'Select Nationality'
+        byr: this.props.navigation.getParam('byr'), //'Select Birthyear'
+        gdr: this.props.navigation.getParam('gdr'), //'Select Gender'
+        bt0: this.props.navigation.getParam('bt0'), //'Select Body Part You Focus on'
+        bt1: this.props.navigation.getParam('bt1'), //'Select Body Part You Focus on'
+        ts: this.props.navigation.getParam('ts'),
+        llogin: this.props.navigation.getParam('llogin'),
+        lupdate: this.props.navigation.getParam('lupdate'),
+        DidGetProfileData: true,
+        isNewUser: false,
+       });      
+    }
 
     console.log('------------- componentDidMount Profile Completed.');
   }

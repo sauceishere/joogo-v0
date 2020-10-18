@@ -50,8 +50,19 @@ export default class DashboardScreen extends Component {
         scaler_scale: null,
         scaler_mean: null,
         model: null,
-        wval: null, // weight value
-        wunit: null, // weight unit
+        nname: null,
+        wval: null, 
+        wunit: null, 
+        hval: null, 
+        hunit: null, 
+        nat: null, 
+        byr: null,
+        gdr: null,
+        bt0: null,
+        bt1: null,
+        ts: null, // account created
+        llogin: null,
+        lupdate: null,
         // fillingNow: true, // control modal    
         vidViewLog: null,    
         model2: null,
@@ -363,10 +374,21 @@ export default class DashboardScreen extends Component {
               console.log('==== Dashboard.js New User and going to Profile.js for FIRST fill out');
               this.props.navigation.push('Profile', {isNewUser: true}); // navigate to Profile.js Edit mode by {isNewUser: true} for this.state.isEditing:true. 20200526
             } else if ( response["code"] == 'ok' ) {
-              // console.log('response.userProfile: ', response.userProfile);
+              console.log('response.userProfile: ', response.userProfile);
               this.setState({
-                wval: response.userProfile.WVAL,
-                wunit: response.userProfile.WUNIT,
+                nname: response["userProfile"].NNAME.toString(),
+                wval: response["userProfile"].WVAL.toString(), 
+                wunit: response["userProfile"].WUNIT.toString(), 
+                hval: response["userProfile"].HVAL.toString(), 
+                hunit: response["userProfile"].HUNIT.toString(), 
+                nat: response["userProfile"].NAT.toString(), 
+                byr: response["userProfile"].BYR.toString(),
+                gdr: response["userProfile"].GDR.toString(),
+                bt0: response["userProfile"].FAVTAG["0"].toString(),
+                bt1: response["userProfile"].FAVTAG["1"].toString(),
+                ts: response["userProfile"].TS,
+                llogin: response["userProfile"].LLOGIN,
+                lupdate: response["userProfile"].UPD_AT,
               });
               // console.log('this.state.vidViewLogTemp: ', this.state.vidViewLogTemp);
             } else { // response[code] is Error
@@ -924,7 +946,7 @@ export default class DashboardScreen extends Component {
 
   render() {
     console.log('---------------- render');
-    const { isLoading, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit, isGuest} = this.state;
+    const { isLoading, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, nname, wval, wunit, hval, hunit, nat, byr, gdr, bt0, bt1, ts, llogin, lupdate, isGuest} = this.state;
 
     return (
       <View style={styles.container}>
@@ -1020,7 +1042,7 @@ export default class DashboardScreen extends Component {
         :
           <View style={styles.footerContainer}>
             {/* https://docs.expo.io/versions/latest/sdk/linear-gradient/ */}
-            <Ionicons name='ios-person' size={28} color="white" style={styles.ProfileIcon} onPress={ () => this.props.navigation.push('Profile') } />  
+            <Ionicons name='ios-person' size={28} color="white" style={styles.ProfileIcon} onPress={ () => this.props.navigation.push('Profile', { nname, wval, wunit, hval, hunit, nat, byr, gdr, bt0, bt1, ts, llogin, lupdate } ) } />  
             {/* <Ionicons name="ios-add-circle-outline" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Post') }/> */}
             <MaterialIcons name='history' size={28} color="white" style={styles.HistoryIcon} onPress={ () => this.props.navigation.push('History') }/>
             {/* <Ionicons name="ios-medal" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Leaderboard') }/>  */}

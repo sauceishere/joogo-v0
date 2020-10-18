@@ -3,7 +3,7 @@
 // WebView referred to https://snack.expo.io/@wodin/webview-example
 import React from 'react';
 import {Component} from 'react';
-import { StyleSheet, View, Text, Dimensions} from 'react-native';
+import { StyleSheet, View, Text, Dimensions, ActivityIndicator} from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import * as firebase from 'firebase';
@@ -30,7 +30,8 @@ export default class Stats extends Component {
             playSumTtl: null,  // total duration played.
             playCnt: null, // total times played.
             dataByYearWeeks: null, // data for google chart
-            didLoadChartData: false, 
+            isLoading: true, 
+            didLoadChartData: false,
         }
     };
 
@@ -93,7 +94,8 @@ export default class Stats extends Component {
                                 playSumTtl: playSum,
                                 playCnt: viewTimes,
                                 dataByYearWeeks: chartData,
-                                didLoadChartData: true
+                                isLoading: false,
+                                didLoadChartData: true,
                             }); 
                         } 
             
@@ -223,7 +225,7 @@ export default class Stats extends Component {
         //             playCnt = parseInt(playCnt); 
         //         }
               
-        //         this.setState({ scoreTtl: scoreTtl, playSumTtl: playSumTtl, playCnt: playCnt, dataByYearWeeks: dataByYearWeeks, didLoadChartData: true });
+        //         this.setState({ scoreTtl: scoreTtl, playSumTtl: playSumTtl, playCnt: playCnt, dataByYearWeeks: dataByYearWeeks, isLoading: false });
         //     }
         //     );
         //   },
@@ -238,7 +240,7 @@ export default class Stats extends Component {
 
     render() {  
         console.log('--- render Stats');
-        const { scoreTtl, playSumTtl, playCnt, dataByYearWeeks, didLoadChartData } = this.state;
+        const { scoreTtl, playSumTtl, playCnt, dataByYearWeeks, isLoading, didLoadChartData } = this.state;
         console.log('scoreTtl, playSumTtl, playCnt: ', scoreTtl, playSumTtl, playCnt);
         console.log('dataByYearWeeks: ', dataByYearWeeks);
 
@@ -328,40 +330,49 @@ export default class Stats extends Component {
         return (
             <View style={styles.container}>
                 
-                <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', alignItems: 'center', marginVertical: Dimensions.get('window').height * 0.02, paddingHorizontal: Dimensions.get('window').height * 0.01}} >
-                    <View style={styles.tileItem}>
-                        <Ionicons name='ios-flame' size={22} style={styles.tileItemIcon}/>
-                        <Text style={styles.tileItemField}> {scoreTtl} </Text>    
-                        <Text style={styles.tileItemTitle}>Total Calories Burned</Text>
-                    </View>          
-
-                    <View style={styles.tileItem}>
-                        <Ionicons name='ios-time' size={22} style={styles.tileItemIcon}/>
-                        <Text style={styles.tileItemField}>{ playSumTtl }</Text>  
-                        <Text style={styles.tileItemTitle}>Total Hours Played</Text> 
+                { isLoading ?
+                    <View style={styles.loadingIndicator}>
+                        <ActivityIndicator size="large" color='#ffa500'/>
+                        <Text>Loading....</Text>
                     </View>
+                :
                     
-                    <View style={styles.tileItem}>
-                        <Ionicons name='logo-youtube' size={22} style={styles.tileItemIcon}/>
-                        <Text style={styles.tileItemField}> {playCnt} </Text>  
-                        <Text style={styles.tileItemTitle}>Total Times Played</Text>
-                    </View>      
-                </View> 
+                    <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', alignItems: 'center', marginVertical: Dimensions.get('window').height * 0.02, paddingHorizontal: Dimensions.get('window').height * 0.01}} >
+                        <View style={styles.tileItem}>
+                            <Ionicons name='ios-flame' size={22} style={styles.tileItemIcon}/>
+                            <Text style={styles.tileItemField}> {scoreTtl} </Text>    
+                            <Text style={styles.tileItemTitle}>Total Calories Burned</Text>
+                        </View>          
+
+                        <View style={styles.tileItem}>
+                            <Ionicons name='ios-time' size={22} style={styles.tileItemIcon}/>
+                            <Text style={styles.tileItemField}>{ playSumTtl }</Text>  
+                            <Text style={styles.tileItemTitle}>Total Hours Played</Text> 
+                        </View>
+                        
+                        <View style={styles.tileItem}>
+                            <Ionicons name='logo-youtube' size={22} style={styles.tileItemIcon}/>
+                            <Text style={styles.tileItemField}> {playCnt} </Text>  
+                            <Text style={styles.tileItemTitle}>Total Times Played</Text>
+                        </View>      
+                    </View> 
+                }
+
 
                 { didLoadChartData ?
                     <WebView
                         originWhitelist={['*']}
                         javaScriptEnabled={true}
-                        domStorageEnabled={true}
+                        domStorageEnabled={false}
                         source={{
                         html: initialHTMLContent,
-                        // baseUrl: 'https://fcc3ddae59ed.us-west-2.playback.live-video.net',
                         }}
                         style={ styles.chartArea }
                     />
                 :
                     null
-                }
+                }   
+                
 
 
             </View>
@@ -439,6 +450,18 @@ const styles = StyleSheet.create({
     //     backgroundColor: '#DCDCDC',
     //     height: Dimensions.get('screen').width,
     // },
+    loadingIndicator: {
+        // position: 'absolute',
+        // top: 20,
+        // right: 20,
+        flexGrow: 1,
+        height: null,
+        width: null,    
+        alignItems: 'center',
+        justifyContent: 'center',    
+        // zIndex: 500, // removed 20200531
+        // backgroundColor: 'green',
+      },    
 });
 
 
