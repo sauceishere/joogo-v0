@@ -230,11 +230,11 @@ export default class LoginScreen extends Component {
                 />
               </TouchableOpacity>        
 
-              <TouchableOpacity onPress={() => this._signInWithGuest()}>
+              {/* <TouchableOpacity onPress={() => this._signInWithGuest()}>
                 <Image style={styles.google_signin} 
                   source={require('../assets/btn_guest_mode382x92.png')}  // 382 * 92
                 />
-              </TouchableOpacity>     
+              </TouchableOpacity>      */}
 
           </View>
 

@@ -69,6 +69,12 @@ export default class DashboardScreen extends Component {
         // dbName: 'db_' + firebase.auth().currentUser.uid,
         // dbSQLite: null,
         isGuest: this.props.navigation.getParam('isGuest'), // navigated from LoginScreen.js or LoadingScreen.js 20201017
+        scoreTtl: null, // for Stats.js
+        playSumTtl: null, // for Stats.js
+        playCnt: null, // for Stats.js
+        dataByYearWeeks: null, // for Stats.js chartData
+        StatsDataLoadedAt: null, // for Stats.js 
+        lastPlayEnded: this.props.navigation.getParam('lastPlayEnded') || 0, // to control if load _getStats-py or not 
     }
     // this.allSnapShot = this.allSnapShot.bind(this);
     this._sendVidViewLog = this._sendVidViewLog.bind(this);
@@ -419,6 +425,95 @@ export default class DashboardScreen extends Component {
 
     this._checkVidViewLogDirectory();
     this._sendVidViewLog();    
+
+
+
+
+    const _getStats= (idTokenCopied) => {
+        console.log('----- Dashboard _getStats.');
+        //   console.log('this.oldestLogTs: ', this.oldestLogTs);
+        const ts = Date.now() / 1000;
+        
+        fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/getStats-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+            method: 'POST',
+            headers: {
+                // 'Accept': 'application/json', 
+                'Content-Type' : 'application/json' // text/html text/plain application/json
+            },
+                // mode: "no-cors", // no-cors, cors, *same-origin
+                body: JSON.stringify({
+                id_token: idTokenCopied,
+                time_diff: new Date().getTimezoneOffset(), // in minutes, eg. bkk = -420
+            })
+        }).then( result => result.json() )
+            .then( response => { 
+            // console.log('------------------ _getStats response: ', response);
+
+                if( response["code"] == 'ok'){
+                    console.log('---------------- ok');
+                    console.log('_getStats response.detail: ', response.detail );
+
+                    var viewPtSum = response.detail.VIEW_PTSUM;
+                    viewPtSum = parseInt(viewPtSum); // convert to int
+                    var playSum = response.detail.PLAYSUM;
+                    if ( playSum < 60 * 60 ) { // less than 1 hour
+                        playSum = parseFloat(playSum / 60 / 60 / 10).toFixed(2); // show like 0.1
+                    } else { // over 1 hour
+                        playSum = parseInt(playSum / 60 / 60); // convert from second to hour
+                    }
+                    var viewTimes = response.detail.VIEW_TIMES;
+
+
+                    var chartData = JSON.stringify( response.chartData ); // convert from object to json to match google chart data structure.
+                    // chartData = chartData.replace(/"/g, ""); // remove double quotations
+                    // chartData.shift(); // rmeove the first array
+                    // chartData.unshift( ["Year_Week", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]  ); // add array on top
+                    console.log('chartData: ', chartData);
+
+                    // var dataByYearWeeks = [ ["Year_Week", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] ];   
+                    // chartData.map(ind => {
+                    //     // console.log('ind: ', ind);
+                    //     dataByYearWeeks.push( [ ind ] ); // data array for google chart like ['2020-01', 1,3,2,5,4,6,3]
+                    // });
+                    // console.log('dataByYearWeeks: ', dataByYearWeeks);
+
+                    this.setState({
+                        // isLoading: false,
+                        scoreTtl: viewPtSum,
+                        playSumTtl: playSum,
+                        playCnt: viewTimes,
+                        dataByYearWeeks: chartData,
+                        // isLoading: false,
+                        // didLoadChartData: true,
+                        StatsDataLoadedAt: ts,
+                    }); 
+                
+                } else {
+                  console.log('Error or no_data from getStats-py');
+                 
+            } 
+    
+        }).catch((error) => {
+            this.setState({ isLoading: false, });
+            console.log('Error _getStats: ', error);
+            alert('Error _getStats. Please try again later.');
+        });
+
+    }
+
+    await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then( function(idToken) {
+        const idTokenCopied = idToken;
+    
+        _getStats(idTokenCopied);
+    
+    }).catch(function(error) {
+        console.log('Error xxxxxxxxxxxxxxxx Could not get idToken _getStats : ', error);
+        alert('Error, Could not get idToken _getStats. please try again later.')
+    });      
+
+
+
+
 
     this.setState({ doneComponentDidMount: true, isLoading: false });
     console.log('------------- componentDidMount Dashboard completed');
@@ -946,7 +1041,8 @@ export default class DashboardScreen extends Component {
 
   render() {
     console.log('---------------- render');
-    const { isLoading, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, nname, wval, wunit, hval, hunit, nat, byr, gdr, bt0, bt1, ts, llogin, lupdate, isGuest} = this.state;
+    const { isLoading, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, nname, wval, wunit, hval, hunit, nat, byr, gdr, bt0, bt1, ts, llogin, lupdate, isGuest, scoreTtl, playSumTtl, playCnt, dataByYearWeeks, StatsDataLoadedAt, lastPlayEnded} = this.state;
+
 
     return (
       <View style={styles.container}>
@@ -1047,7 +1143,7 @@ export default class DashboardScreen extends Component {
             <MaterialIcons name='history' size={28} color="white" style={styles.HistoryIcon} onPress={ () => this.props.navigation.push('History') }/>
             {/* <Ionicons name="ios-medal" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Leaderboard') }/>  */}
             {/* <Ionicons name='ios-flame' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Live', { const_exer, scaler_scale, scaler_mean, model } ) }/> */}
-            <Ionicons name='ios-stats' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Stats', { const_exer } ) }/>
+            <Ionicons name='ios-stats' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Stats', { const_exer, scoreTtl, playSumTtl, playCnt, dataByYearWeeks, StatsDataLoadedAt, lastPlayEnded } ) }/>
             {/* <Ionicons name='logo-youtube' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('LiveYT', { const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit } ) }/> */}
           </View>
         }

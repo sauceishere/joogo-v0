@@ -442,6 +442,7 @@ export default class Live extends Component {
 
   _goBackToHome = async () => {
     console.log('------------------------------------------------------ Go back to Home');
+    const ts = Date.now() / 1000;
     // this.setState({ shouldPlay : false, flagUpdateScore: true }); // added 20200523
     this.setState({ shouldPlay : false, flagUpdateScore: false  });
     // this.setState({ shouldPlay : false});
@@ -449,7 +450,7 @@ export default class Live extends Component {
     // clearInterval(videoCountDown); // did NOT work 20200603
     ScreenOrientation.unlockAsync(); // back to portrait
     // ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
-    this.props.navigation.goBack();
+    this.props.navigation.goBack({ lastPlayEnded: ts });
     // await this._saveVidViewLog(); // removed because this process is duplicated with componentWillUnmount
   }  
 
@@ -2261,11 +2262,11 @@ const styles = StyleSheet.create({
   },
   initialPostureImage: {
     position: 'absolute',
-    // left: Dimensions.get('window').height / 2 - 310 / 2, // when Landscape //  centering the image in consideration with android navigation bar. 20200816 
+    left: Dimensions.get('window').height / 2 - 310 / 2, // when Landscape //  centering the image in consideration with android navigation bar. 20200816 
     width: Dimensions.get('window').width, // when Landscape // photo size = 475*310
     height: Dimensions.get('window').width, // when Landscape
     bottom: Dimensions.get('window').width * 0.1, // when Landscape
-    left: Dimensions.get('window').width / 2 - 310 / 2, // when Portrait
+    // left: Dimensions.get('window').width / 2 - 310 / 2, // when Portrait
     // width: Dimensions.get('window').width, // when Portrait
     // height: Dimensions.get('window').width * 370/310, // when Portrait
     // bottom: Dimensions.get('window').height * 0.1, // when Portrait

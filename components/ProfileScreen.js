@@ -61,6 +61,7 @@ export default class ProfileScreen extends Component {
       hval: null, 
       hunit: null, 
       isNewUser: null, //this.props.navigation.getParam('isNewUser') ?? false,
+      isIos: Platform.OS === 'ios' ? true : false,
     };
     this._onWValChange = this._onWValChange.bind(this);
     this._onWUnitValueChange = this._onWUnitValueChange.bind(this);
@@ -239,8 +240,8 @@ export default class ProfileScreen extends Component {
 
     if (!this.state.nname) { // if nickname NOT filled out, then alert and block phasing out
       this.props.navigation.push('Profile', {isNewUser :true}); // block phasing out and back to Edit mode by {isNewUser:true}
-      console.log('Please fill out Nickname.');
-      alert('Please fill out Nickname.');
+      console.log('Please fill out Nickname, Weight, Weight Unit.');
+      alert('Please fill out Nickname, Weight, Weight Unit.');
     }
   }
 
@@ -314,59 +315,118 @@ export default class ProfileScreen extends Component {
   }; // closing SignOut
 
 
-  _onNNameValueChange = async (nickname) =>  {
+  // For iOS
+  _onNNameValueChange_ios = async (nickname) =>  {
     await this.setState({ nname: nickname.toString() });
     console.log( 'this.state.nname: ', this.state.nname );
   }
 
-  _onWValChange = async (weightVal) =>  {
+  _onWValChange_ios = async (weightVal) =>  {
     await this.setState({ wval: weightVal.toString() });
     console.log( 'this.state.wval: ', this.state.wval );
   }
 
-  _onWUnitValueChange = async (unit) =>  {
+  _onWUnitValueChange_ios = async (unit) =>  {
     // console.log( 'unit: ', unit.key );
     await this.setState({ wunit: unit.key.toString() });
     console.log( 'this.state.wunit: ', this.state.wunit );
   }
 
-  _onHValChange = async (heightVal) =>  {
+  _onHValChange_ios = async (heightVal) =>  {
     await this.setState({ hval: heightVal.toString() });
     console.log( 'this.state.hval: ', this.state.hval );
   }
 
-  _onHUnitValueChange = async (unit) =>  {
+  _onHUnitValueChange_ios = async (unit) =>  {
     await this.setState({ hunit: unit.key.toString() });
     console.log( 'this.state.hunit: ', this.state.hunit );
   }
 
-  _onGenderValueChange = async (gender) =>  {
+  _onGenderValueChange_ios = async (gender) =>  {
     // console.log( 'gender: ', gender );
     await this.setState({ gdr: gender.key.toString() });
     console.log( 'this.state.gdr: ', this.state.gdr );
   }
 
-  _onCountryValueChange = async (country) =>  {
+  _onCountryValueChange_ios = async (country) =>  {
     // console.log( 'country: ', country );
     await this.setState({ nat: country.key.toString() });
     console.log( 'this.state.nat: ', this.state.nat );
   }
 
-  _onYearValueChange = async (year) =>  {
+  _onYearValueChange_ios = async (year) =>  {
     // console.log( 'year: ', year );
     await this.setState({ byr: year.key.toString() });
     console.log( 'this.state.byr: ', this.state.byr );
   }
 
-  _onBodytags0ValueChange = async (bt) =>  {
+  _onBodytags0ValueChange_ios = async (bt) =>  {
     // console.log( 'bt: ', bt );
     await this.setState({ bt0: bt.toString() });
     console.log( 'this.state.bt0: ', this.state.bt0 );
   }
 
-  _onBodytags1ValueChange = async (bt) =>  {
+  _onBodytags1ValueChange_ios = async (bt) =>  {
     // console.log( 'bt: ', bt );
     await this.setState({ bt1: bt.toString() });
+    console.log( 'this.state.bt1: ', this.state.bt1 );
+  }
+
+
+  // for Android
+  _onNNameValueChange = async (nickname) =>  {
+    await this.setState({ nname: nickname });
+    console.log( 'this.state.nname: ', this.state.nname );
+  }
+
+  _onWValChange = async (weightVal) =>  {
+    await this.setState({ wval: weightVal });
+    console.log( 'this.state.wval: ', this.state.wval );
+  }
+
+  _onWUnitValueChange = async (unit) =>  {
+    // console.log( 'unit: ', unit.key );
+    await this.setState({ wunit: unit });
+    console.log( 'this.state.wunit: ', this.state.wunit );
+  }
+
+  _onHValChange = async (heightVal) =>  {
+    await this.setState({ hval: heightVal });
+    console.log( 'this.state.hval: ', this.state.hval );
+  }
+
+  _onHUnitValueChange = async (unit) =>  {
+    await this.setState({ hunit: unit });
+    console.log( 'this.state.hunit: ', this.state.hunit );
+  }
+
+  _onGenderValueChange = async (gender) =>  {
+    // console.log( 'gender: ', gender );
+    await this.setState({ gdr: gender });
+    console.log( 'this.state.gdr: ', this.state.gdr );
+  }
+
+  _onCountryValueChange = async (country) =>  {
+    // console.log( 'country: ', country );
+    await this.setState({ nat: country });
+    console.log( 'this.state.nat: ', this.state.nat );
+  }
+
+  _onYearValueChange = async (year) =>  {
+    // console.log( 'year: ', year );
+    await this.setState({ byr: year });
+    console.log( 'this.state.byr: ', this.state.byr );
+  }
+
+  _onBodytags0ValueChange = async (bt) =>  {
+    // console.log( 'bt: ', bt );
+    await this.setState({ bt0: bt });
+    console.log( 'this.state.bt0: ', this.state.bt0 );
+  }
+
+  _onBodytags1ValueChange = async (bt) =>  {
+    // console.log( 'bt: ', bt );
+    await this.setState({ bt1: bt });
     console.log( 'this.state.bt1: ', this.state.bt1 );
   }
 
@@ -569,7 +629,7 @@ export default class ProfileScreen extends Component {
 
 
   render() {
-    const { isUploading, allComplete, isEditing, DidGetProfileData, nname, gdr, byr, nat, bt0, bt1, ts, llogin, lupdate, isSigningOut, wval, wunit, hval, hunit, isNewUser } = this.state;
+    const { isUploading, allComplete, isEditing, DidGetProfileData, nname, gdr, byr, nat, bt0, bt1, ts, llogin, lupdate, isSigningOut, wval, wunit, hval, hunit, isNewUser, isIos } = this.state;
     // console.log('ts: ', ts);
 
     // from here, creating master for drop down menu. 20201006
@@ -639,205 +699,261 @@ export default class ProfileScreen extends Component {
 
             { isEditing ?
               <View style={styles.inputContainer}>
+
                 <View style={{width: '100%', marginTop: Dimensions.get('window').height * 0.02, marginBottom: Dimensions.get('window').height * 0.03,}}>
                   
+                 { isIos ?
 
+                  <View>
 
-                    <Text style={styles.itemTitle10}><Text style={styles.itemMandatory}>* </Text>Nickname (Max 25 charactors)</Text>
-                    <TextInput
-                      multiline={false}
-                      numberOfLines={1}
-                      maxLength={25}
-                      style={styles.itemField10}
-                      defaultValue={nname}
-                      onChangeText={text => this._onNNameValueChange(text) }
-                      value={this.state.nname}
-                    >
-                    </TextInput>
+                      <Text style={styles.itemTitle10}><Text style={styles.itemMandatory}>* </Text>Nickname (Max 25 charactors)</Text>
+                      <TextInput
+                        multiline={false}
+                        numberOfLines={1}
+                        maxLength={25}
+                        style={styles.itemField10}
+                        defaultValue={nname}
+                        onChangeText={text => this._onNNameValueChange_ios(text) }
+                        value={this.state.nname}
+                      >
+                      </TextInput>
 
-                    <Text style={styles.itemTitle10}><Text style={styles.itemMandatory}>* </Text>Weight</Text>
-                    <TextInput
-                      multiline={false}
-                      numberOfLines={1}
-                      maxLength={10}
-                      style={styles.itemField10}
-                      defaultValue={wval}
-                      onChangeText={text => this._onWValChange(text) }
-                      value={this.state.wval}
-                      keyboardType='numeric'
-                    >
-                    </TextInput>  
-
-           
-                    {/* <Text style={styles.itemTitle}><Text style={styles.itemMandatory}>* </Text>Weight Unit</Text>
-                    <View style={styles.pickerView}>
-                    <Picker
-                      selectedValue= {wunit}
-                      onValueChange = {(itemValue) => this._onWUnitValueChange(itemValue) }
-                      style={styles.picker}
-                      itemStyle={styles.pickerItem}
-                      mode="dialog"
-                    >
-                      <Picker.Item label={wunit} value={wunit} key={wunit}/>
-                      <Picker.Item label="kg" value="kg" key="kg"/>
-                      <Picker.Item label="lb" value="lb" key="lb" />
-                    </Picker>
-                    </View> */}
-                    <Text style={styles.itemTitle}><Text style={styles.itemMandatory}>* </Text>Weight Unit</Text>
-                    <View style={styles.pickerView}>
-                    <ModalSelector
-                      data = {master_weight_unit}
-                      initValue={wunit}
-                      onChange={ (option) => this._onWUnitValueChange(option) } 
-                      style={styles.picker}
-                    />
-                    </View>
-
-
-                    <Text style={styles.itemTitle10}>Height</Text>
+                      <Text style={styles.itemTitle10}><Text style={styles.itemMandatory}>* </Text>Weight</Text>
                       <TextInput
                         multiline={false}
                         numberOfLines={1}
                         maxLength={10}
                         style={styles.itemField10}
-                        defaultValue= {hval}
-                        onChangeText={text => this._onHValChange(text) }
-                        value={this.state.hval}
+                        defaultValue={wval}
+                        onChangeText={text => this._onWValChange_ios(text) }
+                        value={this.state.wval}
                         keyboardType='numeric'
                       >
-                    </TextInput>   
+                      </TextInput>  
 
-                    {/* <Text style={styles.itemTitle}>Height Unit</Text>
-                    <View style={styles.pickerView}>
-                      <Picker
-                          selectedValue= {hunit}
-                          onValueChange = {(itemValue) => this._onHUnitValueChange(itemValue) }
+                      <Text style={styles.itemTitle}><Text style={styles.itemMandatory}>* </Text>Weight Unit</Text>
+                      <View style={styles.pickerView}>
+                      <ModalSelector
+                        data = {master_weight_unit}
+                        initValue={wunit}
+                        onChange={ (option) => this._onWUnitValueChange_ios(option) } 
+                        style={styles.picker}
+                      />
+                      </View>
+
+                      <Text style={styles.itemTitle10}>Height</Text>
+                        <TextInput
+                          multiline={false}
+                          numberOfLines={1}
+                          maxLength={10}
+                          style={styles.itemField10}
+                          defaultValue= {hval}
+                          onChangeText={text => this._onHValChange_ios(text) }
+                          value={this.state.hval}
+                          keyboardType='numeric'
+                        >
+                      </TextInput>   
+
+                      <Text style={styles.itemTitle}>Height Unit</Text>
+                      <View style={styles.pickerView}>
+                      <ModalSelector
+                        data = {master_height_unit}
+                        initValue={hunit}
+                        onChange={ (option) => this._onHUnitValueChange_ios(option) } 
+                        style={styles.picker}
+                      />
+                      </View> 
+
+                      <Text style={styles.itemTitle}>Gender</Text>
+                      <View style={styles.pickerView}>
+                      <ModalSelector
+                        data = {master_gender}
+                        initValue={gdr}
+                        onChange={ (option) => this._onGenderValueChange_ios(option) } 
+                        style={styles.picker}
+                      />
+                      </View> 
+
+                      <Text style={styles.itemTitle}>Nationality</Text>
+                      <View style={styles.pickerView}>
+                      <ModalSelector
+                        data = {master_countrylist}
+                        initValue={nat}
+                        onChange={ (option) => this._onCountryValueChange_ios(option) } 
+                        style={styles.picker}
+                      />
+                      </View> 
+
+                      <Text style={styles.itemTitle}>Birth Year</Text>
+                      <View style={styles.pickerView}>
+                      <ModalSelector
+                        data = {master_byr}
+                        initValue={byr}
+                        onChange={ (option) => this._onYearValueChange_ios(option) } 
+                        style={styles.picker}
+                      />
+                      </View> 
+
+                    </View>
+
+                  : 
+
+                    <View>
+
+                      <Text style={styles.itemTitle10}><Text style={styles.itemMandatory}>* </Text>Nickname (Max 25 charactors)</Text>
+                      <TextInput
+                        multiline={false}
+                        numberOfLines={1}
+                        maxLength={25}
+                        style={styles.itemField10}
+                        defaultValue={nname}
+                        onChangeText={text => this._onNNameValueChange(text) }
+                        value={this.state.nname}
+                      >
+                      </TextInput>
+
+                      <Text style={styles.itemTitle10}><Text style={styles.itemMandatory}>* </Text>Weight</Text>
+                      <TextInput
+                        multiline={false}
+                        numberOfLines={1}
+                        maxLength={10}
+                        style={styles.itemField10}
+                        defaultValue={wval}
+                        onChangeText={text => this._onWValChange(text) }
+                        value={this.state.wval}
+                        keyboardType='numeric'
+                      >
+                      </TextInput>  
+
+                      <Text style={styles.itemTitle}><Text style={styles.itemMandatory}>* </Text>Weight Unit</Text>
+                      <View style={styles.pickerView}>
+                        <Picker
+                          selectedValue= {wunit}
+                          onValueChange = {(itemValue) => this._onWUnitValueChange(itemValue) }
+                          style={styles.picker}
+                          itemStyle={styles.pickerItem}
+                          mode="dialog"
+                        >
+                          <Picker.Item label={wunit} value={wunit} key={wunit}/>
+                          <Picker.Item label="kg" value="kg" key="kg"/>
+                          <Picker.Item label="lb" value="lb" key="lb" />
+                        </Picker>
+                      </View>
+
+                      <Text style={styles.itemTitle10}>Height</Text>
+                        <TextInput
+                          multiline={false}
+                          numberOfLines={1}
+                          maxLength={10}
+                          style={styles.itemField10}
+                          defaultValue= {hval}
+                          onChangeText={text => this._onHValChange(text) }
+                          value={this.state.hval}
+                          keyboardType='numeric'
+                        >
+                      </TextInput>   
+
+                      <Text style={styles.itemTitle}>Height Unit</Text>
+                      <View style={styles.pickerView}>
+                        <Picker
+                            selectedValue= {hunit}
+                            onValueChange = {(itemValue) => this._onHUnitValueChange(itemValue) }
+                            style={styles.picker}
+                            itemStyle={styles.pickerItem}
+                            mode="dialog">
+                            <Picker.Item label={hunit} value={hunit} key={hunit}/>
+                            <Picker.Item label="cm" value="cm" key="cm"/>
+                            <Picker.Item label="ft" value="ft" key="ft" />
+                        </Picker>
+                      </View> 
+
+                      <Text style={styles.itemTitle10}>Gender</Text>
+                      <View style={styles.pickerView}>
+                        <Picker
+                          selectedValue= {gdr}
+                          onValueChange = {(itemValue) => this._onGenderValueChange(itemValue) }
+                          style={styles.picker}
+                          itemStylestyle={styles.pickerItem}
+                          mode="dialog">
+                          <Picker.Item label={gdr} value={gdr} key={gdr}/>
+                          <Picker.Item label="Male" value="Male" key="Male"/>
+                          <Picker.Item label="Female" value="Female" key="Female"/>
+                          <Picker.Item label="Other" value="Other" key="Other"/>
+                          <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
+                        </Picker>
+                      </View>
+
+                      <Text style={styles.itemTitle10}>Nationality</Text>
+                      <View style={styles.pickerView}>
+                        <Picker
+                          selectedValue= {nat}
+                          // onValueChange={country => this.setState({ nat: country }), console.log( this.state.country ) }
+                          // onValueChange = {(country) => this.setState({ nat: country })}
+                          onValueChange = {(itemValue) => this._onCountryValueChange(itemValue) }
+                          style={styles.picker}
+                          Style={styles.pickerItem}
+                          mode="dialog">
+                          <Picker.Item label={nat} value={nat}  key={nat} />
+                          {this.cnlist.countrylist.map( (obj) => 
+                            <Picker.Item label={obj["Name"]} value ={obj["Name"]} key={obj["Name"]}/>
+                          )}
+                          <Picker.Item label="Other" value="Other" key="Other"/>
+                          <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
+                        </Picker>
+                      </View>
+
+                      <Text style={styles.itemTitle10}>Birth Year</Text>
+                      <View style={styles.pickerView}>
+                        <Picker
+                          selectedValue= {byr}
+                          onValueChange = {(itemValue) => this._onYearValueChange(itemValue) }
                           style={styles.picker}
                           itemStyle={styles.pickerItem}
                           mode="dialog">
-                          <Picker.Item label={hunit} value={hunit} key={hunit}/>
-                          <Picker.Item label="cm" value="cm" key="cm"/>
-                          <Picker.Item label="ft" value="ft" key="ft" />
-                      </Picker>
-                    </View>  */}
-                    <Text style={styles.itemTitle}>Height Unit</Text>
-                    <View style={styles.pickerView}>
-                    <ModalSelector
-                      data = {master_height_unit}
-                      initValue={hunit}
-                      onChange={ (option) => this._onHUnitValueChange(option) } 
-                      style={styles.picker}
-                    />
-                    </View> 
+                          <Picker.Item label={byr} value={byr} key={byr}/>
+                            {this.yrlist.map( (obj) => 
+                              <Picker.Item label={obj} value ={obj} key={obj}/>
+                            )}
+                          <Picker.Item label="Other" value="Other" key="Other"/>
+                          <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
+                        </Picker>
+                      </View>
+      
 
-                    {/* <Text style={styles.itemTitle10}>Gender</Text>
-                    <View style={styles.pickerView}>
-                      <Picker
-                        selectedValue= {gdr}
-                        onValueChange = {(itemValue) => this._onGenderValueChange(itemValue) }
-                        style={styles.picker}
-                        itemStylestyle={styles.pickerItem}
-                        mode="dialog">
-                        <Picker.Item label={gdr} value={gdr} key={gdr}/>
-                        <Picker.Item label="Male" value="Male" key="Male"/>
-                        <Picker.Item label="Female" value="Female" key="Female"/>
-                        <Picker.Item label="Other" value="Other" key="Other"/>
-                        <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
-                      </Picker>
-                    </View> */}
-                    <Text style={styles.itemTitle}>Gender</Text>
-                    <View style={styles.pickerView}>
-                    <ModalSelector
-                      data = {master_gender}
-                      initValue={gdr}
-                      onChange={ (option) => this._onGenderValueChange(option) } 
-                      style={styles.picker}
-                    />
-                    </View> 
+                      {/* <Text style={styles.itemTitle10}>Focus Body Parts (Max 2 tags)</Text>
+                      <View style={styles.pickerView}>
+                        <Picker
+                          selectedValue= {bt0}
+                          onValueChange = {(itemValue) => this._onBodytags0ValueChange(itemValue) }
+                          style={styles.picker}
+                          itemStyle={styles.pickerItem}
+                          mode="dialog">
+                          <Picker.Item label={bt0} value={bt0} key={bt0} />
+                            {this.btlist.bodytags.map( (obj) => 
+                              <Picker.Item label={obj} value ={obj} key={obj}/>
+                            )}
+                          <Picker.Item label="Not Specified" value="Not specified" key="Not specified" />  
+                        </Picker>
+                      </View>
+                      <View style={styles.pickerViewBt1}>
+                        <Picker
+                          selectedValue= {bt1}
+                          onValueChange = {(itemValue) => this._onBodytags1ValueChange(itemValue) }
+                          style={styles.picker}
+                          itemStyle={styles.pickerItem}
+                          mode="dialog">
+                          <Picker.Item label={bt1} value={bt1} key={bt1} />
+                            {this.btlist.bodytags.map( (obj) => 
+                              <Picker.Item label={obj} value ={obj} key={obj}/>
+                            )}
+                          <Picker.Item label="Not Specified" value="Not specified." key="Not specified." />  
+                        </Picker>
+                      </View>                   */}
 
-                    {/* <Text style={styles.itemTitle10}>Nationality</Text>
-                    <View style={styles.pickerView}>
-                      <Picker
-                        selectedValue= {nat}
-                        // onValueChange={country => this.setState({ nat: country }), console.log( this.state.country ) }
-                        // onValueChange = {(country) => this.setState({ nat: country })}
-                        onValueChange = {(itemValue) => this._onCountryValueChange(itemValue) }
-                        style={styles.picker}
-                        Style={styles.pickerItem}
-                        mode="dialog">
-                        <Picker.Item label={nat} value={nat}  key={nat} />
-                        {this.cnlist.countrylist.map( (obj) => 
-                          <Picker.Item label={obj["Name"]} value ={obj["Name"]} key={obj["Name"]}/>
-                        )}
-                        <Picker.Item label="Other" value="Other" key="Other"/>
-                        <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
-                      </Picker>
-                    </View> */}
-                    <Text style={styles.itemTitle}>Nationality</Text>
-                    <View style={styles.pickerView}>
-                    <ModalSelector
-                      data = {master_countrylist}
-                      initValue={nat}
-                      onChange={ (option) => this._onCountryValueChange(option) } 
-                      style={styles.picker}
-                    />
-                    </View> 
 
-                    {/* <Text style={styles.itemTitle10}>Birth Year</Text>
-                    <View style={styles.pickerView}>
-                      <Picker
-                        selectedValue= {byr}
-                        onValueChange = {(itemValue) => this._onYearValueChange(itemValue) }
-                        style={styles.picker}
-                        itemStyle={styles.pickerItem}
-                        mode="dialog">
-                        <Picker.Item label={byr} value={byr} key={byr}/>
-                          {this.yrlist.map( (obj) => 
-                            <Picker.Item label={obj} value ={obj} key={obj}/>
-                          )}
-                        <Picker.Item label="Other" value="Other" key="Other"/>
-                        <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
-                      </Picker>
-                    </View> */}
-                    <Text style={styles.itemTitle}>Birth Year</Text>
-                    <View style={styles.pickerView}>
-                    <ModalSelector
-                      data = {master_byr}
-                      initValue={byr}
-                      onChange={ (option) => this._onYearValueChange(option) } 
-                      style={styles.picker}
-                    />
-                    </View> 
-
-                    {/* <Text style={styles.itemTitle10}>Focus Body Parts (Max 2 tags)</Text>
-                    <View style={styles.pickerView}>
-                      <Picker
-                        selectedValue= {bt0}
-                        onValueChange = {(itemValue) => this._onBodytags0ValueChange(itemValue) }
-                        style={styles.picker}
-                        itemStyle={styles.pickerItem}
-                        mode="dialog">
-                        <Picker.Item label={bt0} value={bt0} key={bt0} />
-                          {this.btlist.bodytags.map( (obj) => 
-                            <Picker.Item label={obj} value ={obj} key={obj}/>
-                          )}
-                        <Picker.Item label="Not Specified" value="Not specified" key="Not specified" />  
-                      </Picker>
                     </View>
-                    <View style={styles.pickerViewBt1}>
-                      <Picker
-                        selectedValue= {bt1}
-                        onValueChange = {(itemValue) => this._onBodytags1ValueChange(itemValue) }
-                        style={styles.picker}
-                        itemStyle={styles.pickerItem}
-                        mode="dialog">
-                        <Picker.Item label={bt1} value={bt1} key={bt1} />
-                          {this.btlist.bodytags.map( (obj) => 
-                            <Picker.Item label={obj} value ={obj} key={obj}/>
-                          )}
-                        <Picker.Item label="Not Specified" value="Not specified." key="Not specified." />  
-                      </Picker>
-                    </View>                   */}
+
+                  }
               
 
 
@@ -1042,10 +1158,10 @@ const styles = StyleSheet.create({
     borderRadius: 5, 
     fontSize: 17,
     height: 35,
-    color: 'lightgray', //'dimgray',
+    color: 'darkgray', //'dimgray',
     textAlignVertical: 'center',
-    textAlign: 'center',
-    // paddingLeft: 10,
+    textAlign: 'left',
+    paddingLeft: 10,
     backgroundColor: 'white',
     // textAlign: 'right',
     width: '80%',
@@ -1067,10 +1183,10 @@ const styles = StyleSheet.create({
     height: 35, 
     // width: 200, 
     backgroundColor: 'white',
-    borderWidth: 1, 
+    borderWidth: 2, 
     borderColor: 'lightgray', 
     borderRadius: 5, 
-    textAlignVertical: 'top',
+    // textAlignVertical: 'top',
     // fontSize: 18,
     // color: 'dimgray',
     paddingBottom: 10,
@@ -1101,21 +1217,20 @@ const styles = StyleSheet.create({
   picker: {
     // height: Dimensions.get('window').height * 0.7, 
     // width: 200, 
-    // backgroundColor: 'white',
-    // borderWidth: 0.5, 
-    borderColor: 'lightgray',
-    // borderColor: 'lightgray', 
+    backgroundColor: 'white',
+    borderWidth: 0.5, 
+    borderColor: 'lightgray', 
     borderRadius: 5, 
     // padding: 10, 
     // fontSize: 18,
-    // color: 'dimgray',
+    color: 'darkgray',
     // textAlign: 'center',
     // textAlignVertical: 'bottom',
     // paddingBottom: 10,
     // backgroundColor: 'pink',
     // paddingLeft: 10,
     // paddingVertical: 0,
-    height: 35,
+    height: 30,
     padding: 0,
 
   },  

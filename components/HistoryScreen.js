@@ -171,7 +171,7 @@ class ExerciseHistory extends Component {
               } else if (response["code"] == 'no_more_data') {
                 this.setState({ isLoading: false,});
                 console.log('No more history by _loadExerHist.');
-                // alert('No more history.'); 
+                alert('No data to be shown.'); 
                
               }
     

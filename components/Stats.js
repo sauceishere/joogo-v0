@@ -32,6 +32,8 @@ export default class Stats extends Component {
             dataByYearWeeks: null, // data for google chart
             isLoading: true, 
             didLoadChartData: false,
+            StatsDataLoadedAt: this.props.navigation.getParam('StatsDataLoadedAt') || null,
+            lastPlayEnded: this.props.navigation.getParam('lastPlayEnded') || null,
         }
     };
 
@@ -39,7 +41,12 @@ export default class Stats extends Component {
     async componentDidMount() {
         // const { dbName, } = this.state;
         console.log('------------- componentDidMount Stats started');
+        console.log('this.state.StatsDataLoadedAt: ', this.state.StatsDataLoadedAt);
+        console.log('this.state.lastPlayEnded: ', this.state.lastPlayEnded);
+        const ts = Date.now() / 1000;
 
+        if ( !this.state.StatsDataLoadedAt || this.state.StatsDataLoadedAt < this.state.lastPlayEnded ) { // to laod data again if never loaded OR last load datetime is earlier than last played datetime. 
+            console.log('--------------------- Loading on Stats.js');
 
             const _getStats= (idTokenCopied) => {
                 console.log('----- Stats _getStats.');
@@ -96,8 +103,12 @@ export default class Stats extends Component {
                                 dataByYearWeeks: chartData,
                                 isLoading: false,
                                 didLoadChartData: true,
+                                StatsDataLoadedAt: ts,
                             }); 
-                        } 
+                        } else {
+                            console.log('Error or no_data from getStats-py');
+                            alert('Error or no_data from getStats-py');
+                        }
             
                 }).catch((error) => {
                     this.setState({ isLoading: false, });
@@ -117,6 +128,19 @@ export default class Stats extends Component {
                 alert('Error, Could not get idToken _getStats. please try again later.')
             });  
 
+
+        } else { // if already loaded on Dashboard.js.
+            console.log('--------------------- No loading on Stats.js');
+            this.setState({
+                // isLoading: false,
+                scoreTtl: this.props.navigation.getParam('scoreTtl') ,
+                playSumTtl: this.props.navigation.getParam('playSumTtl') ,
+                playCnt: this.props.navigation.getParam('playCnt') ,
+                dataByYearWeeks: this.props.navigation.getParam('dataByYearWeeks') ,
+                isLoading: false,
+                didLoadChartData: true,
+            });  
+        }
 
         
 
@@ -295,7 +319,7 @@ export default class Stats extends Component {
                         height: 400,
                         width: '94%',
                         legend: {position: 'top', maxLines: 2},
-                        vAxis: {title: 'Calories', minValue: 0},
+                        vAxis: {title: 'Calories', minValue: 0, format: 'short'},
                         hAxis: {title: 'Year_Week',  titleTextStyle: {color: '#333'}, slantedText: true, slantedTextAngle:90},
                         // colors: ['red', 'yellow', 'orange', 'blue', 'green', 'purple', 'pink'],
                         // colors: ['#b37400', '#cc8400', '#ffa500', '#ffae1a', '#ffc04d', '#ffc967', '#ffdb9a'], // '#e69500', '#ffb733', '#ffd280',
