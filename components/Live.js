@@ -20,7 +20,7 @@ import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake'; //http
 import { Constants, Accelerometer } from 'expo-sensors'; // https://docs.expo.io/versions/latest/sdk/accelerometer/ # https://snack.expo.io/@professorxii/expo-accelerometer-example
 
 import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
-import Svg, { Circle, Rect,} from 'react-native-svg';
+// import Svg, { Circle, Rect,} from 'react-native-svg';
 import * as SQLite from 'expo-sqlite';
 
 // import {slow1} from '../assets/octopus';
@@ -93,6 +93,7 @@ export default class Live extends Component {
       // },
       wval: this.props.navigation.getParam('wval'), 
       wunit: this.props.navigation.getParam('wunit'),
+      lastPlayEnded: null,
     }
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);  
     // this._handlePlayAndPause = this._handlePlayAndPause.bind(this);
@@ -444,13 +445,16 @@ export default class Live extends Component {
     console.log('------------------------------------------------------ Go back to Home');
     const ts = Date.now() / 1000;
     // this.setState({ shouldPlay : false, flagUpdateScore: true }); // added 20200523
-    this.setState({ shouldPlay : false, flagUpdateScore: false  });
+    this.setState({ shouldPlay : false, flagUpdateScore: false, lastPlayEnded: ts  });
     // this.setState({ shouldPlay : false});
     // clearInterval(_updateScore); // did NOT work 20200603
     // clearInterval(videoCountDown); // did NOT work 20200603
     ScreenOrientation.unlockAsync(); // back to portrait
     // ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
-    this.props.navigation.goBack({ lastPlayEnded: ts });
+    
+    this.props.navigation.goBack();
+    // this.props.navigation.navigate('DashboardScreen', { lastPlayEnded });
+
     // await this._saveVidViewLog(); // removed because this process is duplicated with componentWillUnmount
   }  
 
@@ -821,8 +825,8 @@ export default class Live extends Component {
     jsonContents["startAt"] = this.vidState.vidStartAt;
     jsonContents["endAt"] = this.vidState.vidEndAt;
     jsonContents["nTa"] = this.state.noseToAnkle;
-    jsonContents["pt"] = this.state.mdCumTtlNow;
-    jsonContents["score"] = this.state.scoreNow; 
+    jsonContents["pt"] = this.state.mdCumTtlNow; // METS
+    jsonContents["score"] = this.state.scoreNow; // Calorie
     jsonContents["mdCumAll"] = this.mdCumAll; // this is an Array
 
     jsonContents["playSum"] = this.vidState.vidPlayedSum; // 
@@ -908,32 +912,32 @@ export default class Live extends Component {
 
 
 
-    //// Create & Insert into SQLite vidViewLog. 20201015
-    const dbSQLite = SQLite.openDatabase( 'db_' + firebase.auth().currentUser.uid); // initiate SQLite 20201013
+    // //// Create & Insert into SQLite vidViewLog. 20201015
+    // const dbSQLite = SQLite.openDatabase( 'db_' + firebase.auth().currentUser.uid); // initiate SQLite 20201013
 
-    // create table 'vidViewLog' if not exist
-    dbSQLite.transaction(tx => {
-        tx.executeSql(
-        'create table if not exists vidViewLog (id integer primary key not null, ts real, vidId blob, viewId blob, startAt real, endAt real, score real, playSum real, wval blob, wunit text);', // uid blob, nTa real, pt blob,  実行したいSQL文
-        null, // SQL文の引数
-        () => {console.log('success in creating sqllite0')}, // 成功時のコールバック関数
-        () => {console.log('fail in creating sqllite0')} // 失敗時のコールバック関数
-        );
-    },
-      () => {console.log('fail in creating sqllite1')}, // 失敗時のコールバック関数
-      () => {console.log('success in creating sqllite1')} // 成功時のコールバック関数
-    );    
+    // // create table 'vidViewLog' if not exist
+    // dbSQLite.transaction(tx => {
+    //     tx.executeSql(
+    //     'create table if not exists vidViewLog (id integer primary key not null, ts real, vidId blob, viewId blob, startAt real, endAt real, score real, playSum real, wval blob, wunit text);', // uid blob, nTa real, pt blob,  実行したいSQL文
+    //     null, // SQL文の引数
+    //     () => {console.log('success in creating sqllite0')}, // 成功時のコールバック関数
+    //     () => {console.log('fail in creating sqllite0')} // 失敗時のコールバック関数
+    //     );
+    // },
+    //   () => {console.log('fail in creating sqllite1')}, // 失敗時のコールバック関数
+    //   () => {console.log('success in creating sqllite1')} // 成功時のコールバック関数
+    // );    
 
-    // Insert into SQLite vidViewLog.
-    dbSQLite.transaction(tx => {
-      tx.executeSql(
-        `insert into vidViewLog (ts, vidId, viewId, startAt, endAt, score, playSum, wval, wunit) values (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-        [ts, vidId, viewId, this.vidState.vidStartAt, this.vidState.vidEndAt, this.state.scoreNow, this.vidState.vidPlayedSum, this.state.wval, this.state.wunit]
-      );
-    },
-      () => {console.log('fail in inserting sqllite')},
-      () => {console.log('success in inserting sqllite')},
-    );
+    // // Insert into SQLite vidViewLog.
+    // dbSQLite.transaction(tx => {
+    //   tx.executeSql(
+    //     `insert into vidViewLog (ts, vidId, viewId, startAt, endAt, score, playSum, wval, wunit) values (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+    //     [ts, vidId, viewId, this.vidState.vidStartAt, this.vidState.vidEndAt, this.state.scoreNow, this.vidState.vidPlayedSum, this.state.wval, this.state.wunit]
+    //   );
+    // },
+    //   () => {console.log('fail in inserting sqllite')},
+    //   () => {console.log('success in inserting sqllite')},
+    // );
 
 
   }
@@ -2003,7 +2007,7 @@ export default class Live extends Component {
                 null
               :
                 <View style={styles.initialPostureContainer}>
-                  <Image style={styles.initialPostureImage} source={require('../assets/initialPosture310x370dotted.png')} />
+                  <Image style={styles.initialPostureImage} source={require('../assets/initialPosture_310x310dotted.png')} />  
                 </View>
               }
 
@@ -2012,9 +2016,9 @@ export default class Live extends Component {
                 // null
                 // TEMPORARY DISPLAY METS. 20200823
                 <View style={styles.attentionContainer}>
-                  <Text style={styles.attentionText}>
+                  {/* <Text style={styles.attentionText}>
                     { parseFloat(mdCumTtlNow).toFixed(1) }
-                  </Text>
+                  </Text> */}
                 </View>
               :
                 <View style={styles.attentionContainer}>
@@ -2263,9 +2267,9 @@ const styles = StyleSheet.create({
   initialPostureImage: {
     position: 'absolute',
     left: Dimensions.get('window').height / 2 - 310 / 2, // when Landscape //  centering the image in consideration with android navigation bar. 20200816 
-    width: Dimensions.get('window').width, // when Landscape // photo size = 475*310
-    height: Dimensions.get('window').width, // when Landscape
-    bottom: Dimensions.get('window').width * 0.1, // when Landscape
+    width: Dimensions.get('window').width * 0.95, // when Landscape // photo size = 475*310
+    height: Dimensions.get('window').width * 0.95, // when Landscape
+    bottom: Dimensions.get('window').width * 0.05, // when Landscape
     // left: Dimensions.get('window').width / 2 - 310 / 2, // when Portrait
     // width: Dimensions.get('window').width, // when Portrait
     // height: Dimensions.get('window').width * 370/310, // when Portrait
@@ -2298,7 +2302,7 @@ const styles = StyleSheet.create({
   attentionText: {
     // textShadowColor: 'black',
     // textShadowRadius: 5,
-    fontSize: 35,
+    fontSize: 33,
     color: '#ffa500',
     textAlign: 'center',
     paddingHorizontal: 10,

@@ -265,8 +265,8 @@ export default class Stats extends Component {
     render() {  
         console.log('--- render Stats');
         const { scoreTtl, playSumTtl, playCnt, dataByYearWeeks, isLoading, didLoadChartData } = this.state;
-        console.log('scoreTtl, playSumTtl, playCnt: ', scoreTtl, playSumTtl, playCnt);
-        console.log('dataByYearWeeks: ', dataByYearWeeks);
+        // console.log('scoreTtl, playSumTtl, playCnt: ', scoreTtl, playSumTtl, playCnt);
+        // console.log('dataByYearWeeks: ', dataByYearWeeks);
 
 
         const initialHTMLContent = `

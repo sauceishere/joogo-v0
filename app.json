@@ -4,10 +4,9 @@
     "slug": "joogo-fit",
     "platforms": [
       "ios",
-      "android",
-      "web"
+      "android"
     ],
-    "version": "1.0.8",
+    "version": "1.0.9",
     "orientation": "portrait",
     "icon": "./assets/icon1024x1024.png",
     "splash": {
@@ -30,10 +29,10 @@
         }
       },
       "bundleIdentifier": "io.joogo.joogofit",
-      "buildNumber": "1.0.1"
+      "buildNumber": "1.0.2"
     },
     "android": {
-      "versionCode": 17,
+      "versionCode": 18,
       "package": "io.joogofit",
       "config": {
         "googleMobileAdsAppId":"ca-app-pub-9079750066587969~3344414378",

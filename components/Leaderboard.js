@@ -24,8 +24,9 @@ export default class Leaderboard extends Component {
             // param: this.props.navigation.getParam('greeting'),
             AVE_PLAYSUM_MIN_WK: null,
             AVE_PLAYSUM_SEC_WK: null,
-            AVE_PT_WK: null,
+            // AVE_PT_WK: null,
             AVE_VIEW_WK: null,
+            AVE_SCORE_WK: null,
             posts: null, // assign response from loadLeaderboard-py
             within_top: null,
             // oldestLogTs: Date.now() / 1000,
@@ -87,8 +88,9 @@ export default class Leaderboard extends Component {
                                 // isLoading: false,
                                 AVE_PLAYSUM_MIN_WK: response.detail.AVE_PLAYSUM_MIN_WK,
                                 AVE_PLAYSUM_SEC_WK: response.detail.AVE_PLAYSUM_SEC_WK,
-                                AVE_PT_WK: response.detail.AVE_PT_WK,
+                                // AVE_PT_WK: response.detail.AVE_PT_WK,
                                 AVE_VIEW_WK: response.detail.AVE_VIEW_WK,
+                                AVE_SCORE_WK: response.detail.AVE_SCORE_WK,
                                 within_top: response.detail.within_top,
                                 posts: response.detail.data,
                             }); 
@@ -129,19 +131,19 @@ export default class Leaderboard extends Component {
         console.log('------ renderpost: ');
       
 
-        if (post.PTSUM == '') {
-            this.PTSUM = '0'; // force to Zero if none
-        } else if (post.PTSUM > 0) {   
-            this.PTSUM = post.PTSUM.toFixed().toString(); // omit decimal place // convert to string for rendering 
+        if (post.SCORESUM == '') {
+            this.SCORESUM = '0'; // force to Zero if none
+        } else if (post.SCORESUM > 0) {   
+            this.SCORESUM = post.SCORESUM.toFixed().toString(); // omit decimal place // convert to string for rendering 
         } else {
-            this.PTSUM = '0'; // force to Zero if none
+            this.SCORESUM = '0'; // force to Zero if none
         }
         // this.PTSUM = this.PTSUM.toString() // convert to string for rendering 
 
 
 
         // (() => {
-        console.log('-- post: ' , post.rank, post.UID, post.NNAME, typeof(post.PTSUM) ,post.PTSUM, typeof(this.PTSUM), this.PTSUM, post.USERSELF );
+        console.log('-- post: ' , post.rank, post.UID, post.NNAME, this.SCORESUM, post.USERSELF );
     
         // } )(); 
     
@@ -170,7 +172,7 @@ export default class Leaderboard extends Component {
 
                 {/* right pane */}   
                 <View style={{ width: Dimensions.get('window').width * 0.20, }}> 
-                    <Text style={styles.point}>{this.PTSUM}</Text> 
+                    <Text style={styles.point}>{this.SCORESUM}</Text> 
                 </View>
                 
             </View>
@@ -181,7 +183,7 @@ export default class Leaderboard extends Component {
 
     render() {
         console.log('------------- render.');
-        const { isLoading, AVE_PLAYSUM_MIN_WK, AVE_PLAYSUM_SEC_WK, AVE_PT_WK, AVE_VIEW_WK, within_top, } = this.state;
+        const { isLoading, AVE_PLAYSUM_MIN_WK, AVE_PLAYSUM_SEC_WK, AVE_SCORE_WK, AVE_VIEW_WK, within_top, } = this.state;
 
         return (
             <View style={styles.container}>
@@ -199,16 +201,16 @@ export default class Leaderboard extends Component {
                 : 
                     <View style={{width: '100%', flexDirection: 'column', flexWrap: 'nowrap' }}>
 
-                        <View style={{width: '100%', flex: 1, marginTop: Dimensions.get('window').height * 0.05, }}>
-                            <Text style={styles.pageTitle}>Gold Medalists' weekly Average</Text>    
+                        <View style={{width: '100%', flex: 1, marginTop: Dimensions.get('window').height * 0.02, }}>
+                            <Text style={styles.pageTitle}>Top Rankers' weekly Average</Text>    
                         </View>
                     
                         <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', alignItems: 'center', marginTop: Dimensions.get('window').height * 0.05, paddingHorizontal: Dimensions.get('window').width * 0.02}} >
                             <View style={styles.tileItem}>
                                 {/* <Text style={styles.tileItemTitle}> <Ionicons name='ios-body' size={18} style={styles.tileItemIcon}/> {' '} Movage Earned</Text> */}
-                                <Ionicons name='ios-body' size={22} style={styles.tileItemIcon}/>
-                                <Text style={styles.tileItemField}>{AVE_PT_WK}</Text>  
-                                <Text style={styles.tileItemTitle}>Movage Earned</Text>  
+                                <Ionicons name='ios-flame' size={22} style={styles.tileItemIcon}/>
+                                <Text style={styles.tileItemField}>{AVE_SCORE_WK}</Text>  
+                                <Text style={styles.tileItemTitle}>Calorie Burned</Text>  
                             </View>          
 
                             <View style={styles.tileItem}>
@@ -227,7 +229,7 @@ export default class Leaderboard extends Component {
                         </View> 
 
                         <View style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.03, paddingHorizontal: Dimensions.get('window').width * 0.02}}> 
-                            <Text style={styles.pageTitle}>Leaderboard</Text> 
+                            <Text style={styles.pageTitle}>Leaders by Total Calories Burned</Text> 
                             <FlatList
                                 style={styles.feed}
                                 data={this.state.posts}
@@ -339,7 +341,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#FFF",
         borderRadius: 3, // 10
         paddingHorizontal: 10,
-        paddingVertical: 10,
+        paddingVertical: 5,
         flexDirection: "row",
         flex: 3,
         marginVertical: 2,

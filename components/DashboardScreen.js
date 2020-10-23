@@ -32,7 +32,7 @@ export default class DashboardScreen extends Component {
         // VidViewLogFileName: null, // vidViewLog filenames that sent to Firestore
         flagSentVidViewLog: false, // flag true when completed sending 
         vidViewLogTemp: 'vidViewLogTemp_' + firebase.auth().currentUser.uid, //UID will be assigned during componentDidMount // {vidViewLogTemp}['vidViewLogTemp'], // Local storage directory name to keep vidViewLog
-        isLoading: false,
+        isLoading: true,
         nname: null, // nickname inp
         flpage: 0, // page of flat list to control loadDashboardFlatList-py. 20200527
         loading: false,
@@ -1138,12 +1138,33 @@ export default class DashboardScreen extends Component {
         :
           <View style={styles.footerContainer}>
             {/* https://docs.expo.io/versions/latest/sdk/linear-gradient/ */}
-            <Ionicons name='ios-person' size={28} color="white" style={styles.ProfileIcon} onPress={ () => this.props.navigation.push('Profile', { nname, wval, wunit, hval, hunit, nat, byr, gdr, bt0, bt1, ts, llogin, lupdate } ) } />  
+            <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('Profile', { nname, wval, wunit, hval, hunit, nat, byr, gdr, bt0, bt1, ts, llogin, lupdate } ) } >
+              <Ionicons name='ios-person' size={26} color="white" />  
+              <Text style={styles.footerContainerText}>Profile</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('History') } >                     
+              <MaterialIcons name='history' size={26} color="white" />
+              <Text style={styles.footerContainerText}>History</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('Stats', { const_exer, scoreTtl, playSumTtl, playCnt, dataByYearWeeks, StatsDataLoadedAt, lastPlayEnded } ) }>            
+              <Ionicons name='ios-stats' size={26} color="white" />
+              <Text style={styles.footerContainerText}>Stats</Text>
+            </TouchableOpacity>              
+
+            <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('Leaderboard') }>            
+              <Ionicons name='ios-medal' size={26} color="white" />
+              {/* <MaterialIcons name='military_tech' size={26} color="white" /> */}
+              {/* <Image style={{ width: 26, height: 26 }} source={require('../assets/leaderboard_icon.png')}/> */}
+              <Text style={styles.footerContainerText}>Leaderboard</Text>
+            </TouchableOpacity>  
+
             {/* <Ionicons name="ios-add-circle-outline" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Post') }/> */}
-            <MaterialIcons name='history' size={28} color="white" style={styles.HistoryIcon} onPress={ () => this.props.navigation.push('History') }/>
+
             {/* <Ionicons name="ios-medal" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Leaderboard') }/>  */}
             {/* <Ionicons name='ios-flame' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Live', { const_exer, scaler_scale, scaler_mean, model } ) }/> */}
-            <Ionicons name='ios-stats' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('Stats', { const_exer, scoreTtl, playSumTtl, playCnt, dataByYearWeeks, StatsDataLoadedAt, lastPlayEnded } ) }/>
+
             {/* <Ionicons name='logo-youtube' size={28} color="white" style={styles.NotificationIcon} onPress={ () => this.props.navigation.push('LiveYT', { const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit } ) }/> */}
           </View>
         }
@@ -1179,9 +1200,21 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     justifyContent: 'space-between',
-    paddingHorizontal: 80,
+    paddingHorizontal: 30,
     // marginTop: 50,
   },  
+  footerContainerButton: { 
+    flex: 2, 
+    flexDirection: "column" ,
+    alignItems: 'center',
+    justifyContent: 'center',    
+  },
+  footerContainerText: {
+    alignItems: 'center',
+    justifyContent: 'center',    
+    fontSize: 10,
+    color: "white",
+  },
   feed: {
     // marginHorizontal: 0, // 8, 16
     backgroundColor: "#DCDCDC", // feed background
