@@ -64,6 +64,7 @@ export default class Live extends Component {
       countdownTxt: null, 
       scoreNow: 0, // score to show on top right of screen
       mdCumTtlNow: 0, 
+      // mdCumTtlBeforeModel2: 0, // test puspose only 20201025
       noseToAnkle: 0, // initiate as null  
       flagNoseToAnkle: false, // flag 1 when noseToAnkle is fixed , before video starts. 
       rightToLeft: 0, // initiate as null  
@@ -93,7 +94,10 @@ export default class Live extends Component {
       // },
       wval: this.props.navigation.getParam('wval'), 
       wunit: this.props.navigation.getParam('wunit'),
-      lastPlayEnded: null,
+      lastPlayEnded: null, // to control reload Stas.js and Leaderboard.js
+      outNTAFlag: false, // to control if user is too close to camera, then show attention 20201025
+      // frameOutFlag: false, // to control if user is out of screen. 20201025
+      outAccelFlag: false, // to control if device is moving. 20201025
     }
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);  
     // this._handlePlayAndPause = this._handlePlayAndPause.bind(this);
@@ -171,6 +175,10 @@ export default class Live extends Component {
   
   // // when Landscape
   initialPositions = {
+    x0Min: this.inputTensorWidth * 2/5, // nose
+    x0Max: this.inputTensorWidth * 3/5, // nose
+    y0Min: this.inputTensorHeight * 0/4, // nose
+    y0Max: this.inputTensorHeight * 2/4, // nose
     x9Min: this.inputTensorWidth * 0/5, // leftWrist
     x9Max: this.inputTensorWidth * 2/5, // leftWrist
     y9Min: this.inputTensorHeight * 1/4, // leftWrist
@@ -183,8 +191,8 @@ export default class Live extends Component {
     xBothAnkleMax: this.inputTensorWidth * 4/5,                           
     yBothAnkleMin: this.inputTensorHeight * 3/4, 
     yBothAnkleMax: this.inputTensorHeight * 4/4,       
-    NoseToAnkleMin: this.inputTensorHeight * 1/4, // y distance between nose to ankle should be more than this  
-    xRightToLeftMin: this.inputTensorWidth * 1/5, // x distance between right to left wrist should be more than this.    
+    NoseToAnkleMin: this.inputTensorHeight * 1.5/4, // y distance between nose to ankle should be more than this  
+    RightToLeftMin: this.inputTensorWidth * 1/5, // x distance between right to left wrist should be more than this.    
   };
 
   // // when Portrait 20201004
@@ -202,7 +210,7 @@ export default class Live extends Component {
   //   yBothAnkleMin: this.inputTensorHeight * 3/5, 
   //   yBothAnkleMax: this.inputTensorHeight * 5/5,       
   //   NoseToAnkleMin: this.inputTensorHeight * 1.5/5, // y distance between nose to ankle should be more than this  
-  //   // xRightToLeftMin: this.inputTensorWidth * 2/4, // x distance between right to left wrist should be more than this.    
+  //   // RightToLeftMin: this.inputTensorWidth * 2/4, // x distance between right to left wrist should be more than this.    
   // };
 
 
@@ -364,7 +372,7 @@ export default class Live extends Component {
   cntLoopUpdateScore = 0; //to control if the first loop to updateScore. 20200812
   flag_mdCum = 1; // flag to switch 20200814
 
-  attentionTxt = 'Fit your body'; //'Move yourself inside orange below'; 
+  // attentionTxt = 'Fit your body'; //'Move yourself inside orange below'; 
 
   // countdownTxt = '';
   frameOutCntCriteria = this.props.navigation.getParam('const_exer')['frameOutCntCriteria']; // if accumulate count of out times of Frame is more than X times, then shower borderColor. 
@@ -424,21 +432,21 @@ export default class Live extends Component {
 
 
 
-  // _subscribeToAccelerometer = () => {
-  //   console.log('_subscribeToAccelerometer');
-  //   this._subscription = Accelerometer.addListener(
-  //     // setData(accelerometerData);
-  //     accelerometerData => this.setState({ accelerometerData })      
-  //   );
-  //   Accelerometer.setUpdateInterval(1 * 1000); // update very X miliseconds
-  // };
+  _subscribeToAccelerometer = () => {
+    console.log('_subscribeToAccelerometer');
+    this._subscription = Accelerometer.addListener(
+      // setData(accelerometerData);
+      accelerometerData => this.setState({ accelerometerData })      
+    );
+    Accelerometer.setUpdateInterval(1 * 1000); // update every X miliseconds
+  };
 
 
-  // _unsubscribeFromAccelerometer = () => {
-  //   console.log('_unsubscribeFromAccelerometer');
-  //   this._subscription && this._subscription.remove();
-  //   this._subscription = null;
-  // };
+  _unsubscribeFromAccelerometer = () => {
+    console.log('_unsubscribeFromAccelerometer');
+    this._subscription && this._subscription.remove();
+    this._subscription = null;
+  };
 
 
   _goBackToHome = async () => {
@@ -496,7 +504,7 @@ export default class Live extends Component {
     this.vidState.vidEndAt = Date.now()/1000;
     // console.log('------------------- componentWillUnmount Live 1');
 
-    // await this._unsubscribeFromAccelerometer();
+    await this._unsubscribeFromAccelerometer();
     // console.log('------------------- componentWillUnmount Live 2');
 
     deactivateKeepAwake();
@@ -513,7 +521,7 @@ export default class Live extends Component {
 
 
   async componentDidMount() {
-    console.log('------------------- componentDidMount Live started 82');
+    console.log('------------------- componentDidMount Live started 87');
     // console.log('this.props.navigation.getParam: ', this.props.navigation.getParam('wval') );
     // console.log('------ this.mets_per_part: ', this.mets_per_part);
     // console.log('------ this.camState: ', this.camState);
@@ -533,9 +541,9 @@ export default class Live extends Component {
 
 
     if (this.state.wunit == 'kg') {
-      this.WEIGHT_KG = this.state.wval
+      this.WEIGHT_KG = this.state.wval;
     } else { // wunit = 'lb'
-      this.WEIGHT_KG = this.state.wval / LB_PER_KG
+      this.WEIGHT_KG = this.state.wval / LB_PER_KG;
     }
     console.log('this.WEIGHT_KG: ', this.WEIGHT_KG);
   
@@ -949,7 +957,7 @@ export default class Live extends Component {
     console.log('-------- renderPose.: ', this.vidState.renderPoseTimes);
     const time0 = Date.now() / 1000; 
 
-    const {pose, vidLength, flagAllPosOk, noseToAnkle, flagNoseToAnkle, rightToLeft, flagRightToLeft ,vidFullUrl, shouldPlay, flagUpdateScore } = this.state;
+    const {pose, vidLength, flagAllPosOk, noseToAnkle, flagNoseToAnkle, rightToLeft, flagRightToLeft ,vidFullUrl, shouldPlay, flagUpdateScore, outNTAFlag } = this.state;
     // console.log('-------- pose: ', pose);
 
 
@@ -980,11 +988,10 @@ export default class Live extends Component {
         Accelerometer.isAvailableAsync().then( () => { 
           console.log('----------- AccelerometerIsAvailable');
           this.setState({ flagAccelerometerIsAvailable: true }); 
-          // this._subscribeToAccelerometer(); // run Accelerometer
+          this._subscribeToAccelerometer(); // run Accelerometer
         }).catch(error => {
           console.log('Accelerometer is NOT Available: ', error);
         });
-
 
       }
 
@@ -1014,6 +1021,7 @@ export default class Live extends Component {
 
             // this.mdCumNow = this.mdCum; // This is measure to avoid this,mdCumPrev duplicate issue. 20200814
             var mdCumTtlNow = 0; // initial assign
+            // var mdCumTtlBeforeModel2 = 0; // validation purpose nly 20201025
             this.scorePrev = 0; // initial assign
             var scoreNow = 0.0;  // initial assign
             console.log('--- this.scorePrev: ', this.scorePrev.toFixed(3));
@@ -1180,18 +1188,29 @@ export default class Live extends Component {
             //   mdCumTtlNow = 1.3; // force to change METS 1.3. This is METS of 'Rest position'. 20200824 
             //   console.log('--- mdCumTtlNow FORCED');
             // }; 
-            if ( mdCumTtlNow > 18) {
+
+            console.log('--- METS mdCumTtlNow RAW: ', mdCumTtlNow.toFixed(2) );
+
+
+            if ( mdCumTtlNow > 18) { // if METS becomes impossibly large
               mdCumTtlNow = 18; // force NOT to go too high, because it is impossible. 20201001
+              console.log('xxxxxxxxxx METS is too large. Forcing METS to 18');
             } else {
               mdCumTtlNow = mdCumTtlNow * this.model2.coef + this.model2.intercept; // final adjust model 20201001
             };
 
-            console.log('--- mdCumTtlNow: ', mdCumTtlNow.toFixed(6));
+            if ( this.state.outNTAFlag === true) { // if user is too close to camera, 
+              mdCumTtlNow = 0.000001; // then NOT to increment. making it not zero to avoid division error
+              console.log('xxxxxxxxxx outNTAFlag. Forcing METS to 0.0000001');
+            }
 
-            console.log('--- this.scorePrev: ', this.scorePrev.toFixed(3));
+            // console.log('--- mdCumTtlBeforeModel2: ', mdCumTtlBeforeModel2.toFixed(2) );
+            console.log('--- METS mdCumTtlNow: ', mdCumTtlNow.toFixed(2) );
+
+            // console.log('--- CALORIE last time,  this.scorePrev: ', this.scorePrev.toFixed(3));
             scoreNow = this.scorePrev + ( mdCumTtlNow / 60 / 60 * this.WEIGHT_KG * 1.05 ); // Calculate calorie & increment. 
-            console.log('---       scoreNow: ', scoreNow.toFixed(3));
-            console.log('---score this time: ', (scoreNow - this.scorePrev).toFixed(3));
+            console.log('--- CALORIE accumlateive,     scoreNow: ', scoreNow.toFixed(3));
+            console.log('--- CALORIE this time, score this time: ', (scoreNow - this.scorePrev).toFixed(3));
             this.scorePrev = scoreNow; // duplicate to compare prev vs. current at the next loop. 20200810
 
             this.cntLoopUpdateScore++; // increment
@@ -1252,8 +1271,9 @@ export default class Live extends Component {
 
             console.log(k.part, ' : ', Math.round(k.position.x), Math.round(k.position.y), 's:', k.score.toFixed(2) )
 
-////////// check if exerciser is out of camera range. 20200127 ////////////////////      
-            if (k.position.x > this.inputTensorWidth * 0.95 ) { 
+
+////////// check if user is out of camera range. 20200127 ////////////////////      
+            if (k.position.x > this.inputTensorWidth * 0.95) { 
               this.frameOutCnt.right += 1; 
               this.frameOutCntCum.right += 1;
               console.log('out on observers Right > > > > > > > > > > ', this.frameOutCnt.right);
@@ -1268,7 +1288,7 @@ export default class Live extends Component {
               this.frameOutCntCum.top += 1;
               console.log('out on observers Top ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ', this.frameOutCnt.top);
             }
-            if (k.position.y > this.inputTensorHeight * 0.95 - StatusBar.currentHeight) { // added StatusBar.currentHeight since frame out to bottom often seen. 20200531
+            if (k.position.y > this.inputTensorHeight * 0.98 ) { // added StatusBar.currentHeight since frame out to bottom often seen. 20200531
               this.frameOutCnt.bottom += 1;
               this.frameOutCntCum.bottom += 1;
               console.log('out on observers Bottom v v v v v v v v v v v ', this.frameOutCnt.bottom);
@@ -1520,26 +1540,18 @@ export default class Live extends Component {
           if (shouldPlay == true )  { // check if video is playing
             if (this.pos.y0 != null && this.pos.y15 != null && this.pos.y16 != null) { // check if all necessary position data exist
               // if ( ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0 > noseToAnkle * this.outNTA.DistMoveCriteria) { // check if data is out of criteria
-              if ( Math.max(this.pos.y15 + this.pos.y16) - this.pos.y0 > noseToAnkle * this.outNTA.DistMoveCriteria) { // check if data is out of criteria
-                console.log('---------- out NoseToAnkle');
+              if ( Math.max(this.pos.y15, this.pos.y16) - this.pos.y0 > noseToAnkle * this.outNTA.DistMoveCriteria) { // check if data is out of criteria
                 this.outNTA.cnt++; // increment
-                if (this.outNTA.cnt > this.outNTA.outTimesCriteria && this.outNTA.flag == false) { // check if count of out times more than criteria
-                  console.log('xxxxxxxxxxxxxxxxxxxxxx You moved too close to Camera.');
-                  this.outNTA.flag = true; // to control to go in only one time.
-                  
-                  
-                  // this.setState({shouldPlay : false, flagShowGoBackIcon : false, flagVidEnd : true }); // to stop playing video, and hide goBackIcon
-                  // console.log('xxxxxxxxxxxxxxxxxxxxxx You moved too close to Camera. Video will stop');
-                  // alert('You moved too close to Camera. Video will stop.');
-                  
-                  // ////// set timer X seconds and then isEditing: false
-                  // var countSec = 0;
-                  // var countup = async function(){
-                  //   console.log(countSec++);
-                  //   this._goBackToHome(); // move back to home
-                  // } 
-                  // setTimeout(countup, 5 * 1000); // run after XX millisecond
-
+                console.log('---------- out NoseToAnkle this.outNTA.cnt: ', this.outNTA.cnt );
+                if (this.outNTA.cnt > this.outNTA.outTimesCriteria && this.state.outNTAFlag == false) { // check if count of out times more than criteria
+                  console.log('xxxxxxxxxxxxxxxxxxxxxx You moved too close to Camera. Step Back');
+                  // this.outNTA.flag = true; // to control to go in only one time.
+                  this.setState({ outNTAFlag: true }); // show attention                
+                }
+              } else {
+                if (this.state.outNTAFlag == true) {
+                  this.outNTA.cnt = 0; // reset count
+                  this.setState({ outNTAFlag: false }); // remove attention 
                 }
               }
             }   
@@ -1583,29 +1595,29 @@ export default class Live extends Component {
 
               if (this.pos.y0 != null && this.pos.y15 != null && this.pos.y16 != null) {
                 // if ( ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0 > noseToAnkle) { // average of leftAnkle and rightAnkle
-                if ( Math.max(this.pos.y15 + this.pos.y16) - this.pos.y0 > noseToAnkle) { // max of leftAnkle and rightAnkle 20200920
-                  console.log('this.pos.x0, y0: ', this.pos.x0, this.pos.y0);
+                if ( Math.max(this.pos.y15, this.pos.y16) - this.pos.y0 > noseToAnkle) { // max of leftAnkle and rightAnkle 20200920
+                  console.log('----- this.pos.x0 y0 y15 y16: ', this.pos.x0, this.pos.y0, this.pos.y15, this.pos.y16);
                   // this.noseToAnkle = ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0 ;
                   this.setState({ 
                     // noseToAnkle: ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0, // average of leftAnkle and rightAnkle
-                    noseToAnkle: Math.max(this.pos.y15 + this.pos.y16) - this.pos.y0, // max of leftAnkle and rightAnkle 20200920
+                    noseToAnkle: Math.max(this.pos.y15, this.pos.y16) - this.pos.y0, // max of leftAnkle and rightAnkle 20200920
                     flagNoseToAnkle: true,
                   });
-                  console.log('noseToAnkle updated: ', noseToAnkle);
+                  console.log('----- noseToAnkle updated: ', this.state.noseToAnkle);
                   // flagNoseToAnkle = 1; // flag 1 to stop assigning noseToAnkle
                   // this.setState({ flagNoseToAnkle: true});
                 }
               }            
 
               // // assign rightToLeft
-              if (this.pos.x10  != null && this.pos.x9 != null) {
+              if (this.pos.x10 != null && this.pos.x9 != null) {
                 if ( this.pos.x9 - this.pos.x10 > rightToLeft) {
-                  console.log('this.pos.x10, x9: ', this.pos.x10, this.pos.x9);
+                  console.log('----- this.pos.x10, x9: ', this.pos.x10, this.pos.x9);
                     this.setState({ 
                       rightToLeft: this.pos.x9 - this.pos.x10, 
                       flagRightToLeft: true, 
                     });
-                    console.log('rightToLeft updated: ', rightToLeft);
+                    console.log('----- rightToLeft updated: ', this.state.rightToLeft);
                 }
               }  
 
@@ -1637,13 +1649,18 @@ export default class Live extends Component {
                     this.pos.y14 != null && 
                     this.pos.y15 != null && 
                     this.pos.y16 != null) { // all the positions is within camera range 20200114 
+
+                  console.log('got all positions ------------------------ ');
                 
 
                   // // to check initialPositions       
-                  if (this.pos.x9 > this.initialPositions.x9Min && this.pos.x9 < this.initialPositions.x9Max &&
-                      this.pos.y9 > this.initialPositions.y9Min && this.pos.y9 < this.initialPositions.y9Max &&
-                      this.pos.x10 > this.initialPositions.x10Min && this.pos.x10 < this.initialPositions.x10Max &&
-                      this.pos.y10 > this.initialPositions.y10Min && this.pos.y10 < this.initialPositions.y10Max &&
+                  if (
+                      this.pos.x0 > this.initialPositions.x0Min && this.pos.x0 < this.initialPositions.x0Max &&
+                      this.pos.y0 > this.initialPositions.y0Min && this.pos.y0 < this.initialPositions.y0Max &&
+                      // this.pos.x9 > this.initialPositions.x9Min && this.pos.x9 < this.initialPositions.x9Max &&
+                      // this.pos.y9 > this.initialPositions.y9Min && this.pos.y9 < this.initialPositions.y9Max &&
+                      // this.pos.x10 > this.initialPositions.x10Min && this.pos.x10 < this.initialPositions.x10Max &&
+                      // this.pos.y10 > this.initialPositions.y10Min && this.pos.y10 < this.initialPositions.y10Max &&
                       this.pos.x15 > this.initialPositions.xBothAnkleMin && this.pos.x15 < this.initialPositions.xBothAnkleMax &&
                       this.pos.y15 > this.initialPositions.yBothAnkleMin &&
                       this.pos.x16 > this.initialPositions.xBothAnkleMin && this.pos.x16 < this.initialPositions.xBothAnkleMax &&
@@ -1652,8 +1669,7 @@ export default class Live extends Component {
                   
               ////////////////////////////////////////////////////////////       
               
-              
-
+            
                     this.cntIniPos += 1;
                     console.log('---------- this.cntIniPos: ', this.cntIniPos);
 
@@ -1753,7 +1769,7 @@ export default class Live extends Component {
         if (this.frameOutCnt.top > this.frameOutCntCriteria) {
             if (this.frameOutCntPrev.top < this.frameOutCnt.top) { // increased from previous assignment
               this.ULBColor.top = 'red';
-              console.log('RED RED RED RED RED RED RED RED RED RED RED RED RED ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^. ');
+              console.log('RED RED RED RED RED ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^. ');
               // this.setState({ ULBColorTop: 'red' });
             } else if (this.frameOutCntPrev.top === this.frameOutCnt.top) {// compare with previous assignment
               this.ULBColor.top = 'transparent';   
@@ -1766,7 +1782,7 @@ export default class Live extends Component {
         if (this.frameOutCnt.bottom > this.frameOutCntCriteria) {
             if (this.frameOutCntPrev.bottom < this.frameOutCnt.bottom) { // increased from previous assignment
               this.ULBColor.bottom = 'red';
-              console.log('RED RED RED RED RED RED RED RED RED RED RED RED RED vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv ');
+              console.log('RED RED RED RED RED vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv ');
               // this.setState({ ULBColorBottom: 'red' });
             } else if (this.frameOutCntPrev.bottom === this.frameOutCnt.bottom) {// compare with previous assignment
               this.ULBColor.bottom = 'transparent';
@@ -1779,7 +1795,7 @@ export default class Live extends Component {
         if (this.frameOutCnt.left > this.frameOutCntCriteria) {
           if (this.frameOutCntPrev.left < this.frameOutCnt.left) { // increased from previous assignment
             this.ULBColor.left = 'red';
-            console.log('RED RED RED RED RED RED RED RED RED RED RED RED RED <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<. ');
+            console.log('RED RED RED RED RED <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<. ');
             // this.setState({ ULBColorLeft: 'red' });
           } else if (this.frameOutCntPrev.left === this.frameOutCnt.left) {// compare with previous assignment
             this.ULBColor.left = 'transparent'; 
@@ -1792,7 +1808,7 @@ export default class Live extends Component {
         if (this.frameOutCnt.right > this.frameOutCntCriteria) {
           if (this.frameOutCntPrev.right < this.frameOutCnt.right) { // increased from previous assignment
             this.ULBColor.right = 'red';
-            console.log('RED RED RED RED RED RED RED RED RED RED RED RED RED >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>. ');
+            console.log('RED RED RED RED RED >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>. ');
             // this.setState({ ULBColorRight: 'red' });
           } else if (this.frameOutCntPrev.right === this.frameOutCnt.right) {// compare with previous assignment
             this.ULBColor.right = 'transparent';   
@@ -1829,7 +1845,7 @@ export default class Live extends Component {
     console.log('----------------- render --------------------');
     var time1 = Date.now() / 1000; 
 
-    const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, scoreNow, vidStartAt, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon, octopusLoc } = this.state;
+    const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, scoreNow, vidStartAt, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon, octopusLoc, outNTAFlag, outAccelFlag } = this.state;
 
     if (shouldPlay == true) { // increment only shouldPlay=true. this means not incremented whe video is paused.
       this.vidState.vidPlayedSum = this.vidState.vidPlayedSum + (Date.now()/1000 - this.vidState.loopStartAt); // add increment time
@@ -1847,7 +1863,7 @@ export default class Live extends Component {
         this.prevAccelData.x = accelerometerData.x; // assign only
         this.prevAccelData.y = accelerometerData.y; // assign only
         this.prevAccelData.z = accelerometerData.z; // assign only
-      } else {
+      } else { // after 2nd loop
         // console.log('accelerometerData move from previous x,y,z: ', Math.abs(this.prevAccelData.x - accelerometerData.x).toFixed(2), Math.abs(this.prevAccelData.y - accelerometerData.y).toFixed(2), Math.abs(this.prevAccelData.z - accelerometerData.z).toFixed(2),)
         if ( Math.abs(this.prevAccelData.x - accelerometerData.x) > this.outCriteriaAccel.x || Math.abs(this.prevAccelData.y - accelerometerData.y) > this.outCriteriaAccel.y || Math.abs(this.prevAccelData.z - accelerometerData.z) > this.outCriteriaAccel.z) { // if any of x,y,z is out of criteria
           console.log('xxxxxxxxxx OutAccel');
@@ -1855,6 +1871,12 @@ export default class Live extends Component {
           if (this.cntOutAccel % 3 == 0) { // if divided by x == 0 , means it will alert when every X cntOutAccel.
             console.log('Please fix and Do not move your device. this.cntOutAccel: ', this.cntOutAccel);
             alert('Please fix and Do not move your device.');
+            this.setState( {outAccelFlag: true}); // to NOT to increment METS
+          }
+        } else {
+          if (outAccelFlag == true) {
+            this.setState( {outAccelFlag: false}); // to resume to increment METS
+            console.log('resume outAccelFlag')
           }
         }
         this.prevAccelData.x = accelerometerData.x; // assign only
@@ -1956,7 +1978,7 @@ export default class Live extends Component {
                 <View style={styles.scoreContainer}>
                   { flagCountdownFinished ? 
                     <Text style={styles.scoreText}>
-                      {scoreNow >= 10 ? parseInt(scoreNow).toFixed(0) : scoreNow } {/* Remove decimal when scoreNow is larger than X */}
+                      {scoreNow >= 100 ? parseInt(scoreNow).toFixed(0) : scoreNow } {/* Remove decimal when scoreNow is larger than X */}
                     </Text>
                   :
                     <Text style={styles.scoreText}>
@@ -2002,8 +2024,6 @@ export default class Live extends Component {
                
 
               { flagAllPosOk ?  
-                // <View style={[styles.initialPostureContainer, {height: 0, width: 0}]}>
-                // </View>
                 null
               :
                 <View style={styles.initialPostureContainer}>
@@ -2011,21 +2031,34 @@ export default class Live extends Component {
                 </View>
               }
 
-
               { flagAllPosOk ?
-                // null
-                // TEMPORARY DISPLAY METS. 20200823
                 <View style={styles.attentionContainer}>
-                  {/* <Text style={styles.attentionText}>
-                    { parseFloat(mdCumTtlNow).toFixed(1) }
-                  </Text> */}
+                  { outNTAFlag ?
+                    <Text style={[styles.attentionText, {color: 'red'} ]}>
+                      {'Step Back'}
+                    </Text>
+                  :
+                    null
+                  }
                 </View>
               :
                 <View style={styles.attentionContainer}>
                   <Text style={styles.attentionText}>
-                    {this.attentionTxt}
+                    {'Fit Your Body'}
                   </Text>
                 </View>
+              }
+
+
+              { flagAllPosOk ?
+                // TEMPORARY DISPLAY METS. 20200823
+                <View style={styles.metsContainer}>
+                  <Text style={styles.metsText}>
+                    { parseFloat(mdCumTtlNow).toFixed(1) }
+                  </Text>
+                </View>
+              :
+                null
               }
 
 
@@ -2206,8 +2239,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: Dimensions.get('window').width * 0.07, // when Landscape
     right: Dimensions.get('window').height * 0.12, // when Landscape
-    height: Dimensions.get('window').width * 0.22, // when Landscape
-    width: Dimensions.get('window').height * 0.21, // when Landscape
+    height: Dimensions.get('window').width * 0.24, // when Landscape
+    width: Dimensions.get('window').height * 0.26, // when Landscape
     // top: Dimensions.get('window').width * 0.08, // when Portrait
     // right: Dimensions.get('window').height * 0.02, // when Portrait
     // height: Dimensions.get('window').width * 0.22, // when Portrait
@@ -2306,6 +2339,37 @@ const styles = StyleSheet.create({
     color: '#ffa500',
     textAlign: 'center',
     paddingHorizontal: 10,
+    paddingVertical: 5,
+    // backgroundColor: 'rgba(220, 220, 220, 0.7)', 
+  },
+
+  metsContainer: {
+    // zIndex: 301, // removed 20200531
+    // flex: 1,
+    flexGrow:1,
+    position: 'absolute',
+    bottom: Dimensions.get('window').width * 0.02, // when Landscape 
+    left: Dimensions.get('window').height * 0.02, // when Landscape 
+    // bottom: Dimensions.get('window').height * 0.13, // when Portrait 
+    // left: Dimensions.get('window').width * 0.04, // when Portrait 
+    // width: Dimensions.get('window').width * 0.9,
+    // height: null,
+    // width: null,    
+    alignItems: 'center',
+    justifyContent: 'center',   
+    // marginHorizontal: Dimensions.get('window').width * 0.2,
+    backgroundColor: 'rgba(20, 20, 20, 0.7)', 
+    borderRadius: 10,
+    // borderColor: 'pink',
+    // borderWidth: 1,    
+  },
+  metsText: {
+    // textShadowColor: 'black',
+    // textShadowRadius: 5,
+    fontSize: 45,
+    color: '#ffa500',
+    textAlign: 'center',
+    paddingHorizontal: 5,
     paddingVertical: 5,
     // backgroundColor: 'rgba(220, 220, 220, 0.7)', 
   },

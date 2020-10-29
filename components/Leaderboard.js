@@ -160,14 +160,13 @@ export default class Leaderboard extends Component {
                 <View style={{ width: Dimensions.get('window').width * 0.10, }}>
                     { post.MEDAL == 'GOLD' ?
                         <Image style={{width: Dimensions.get('window').width * 0.06, height: Dimensions.get('window').width * 0.06,}} source={require('../assets/goldMedal100x100.png')} />
-                        // <Image resizeMode="contain" source={require('../assets/goldMedal100x100.png')} />
                     :
                         null    
                     }
                 </View>                
 
                 <View style={{ width: Dimensions.get('window').width * 0.50, }}>
-                    <Text style={styles.name, {color: post.USERSELF == 1 ? '#ffa500': '#454D65', fontWeight: post.USERSELF == 1 ? 'bold': '100%'  }}>{post.NNAME}</Text>
+                    <Text style={styles.name, {color: post.USERSELF == 1 ? '#ffa500': '#454D65', fontWeight: post.USERSELF == 1 ? 'bold': 'normal'  }}>{post.NNAME}</Text>
                 </View>    
 
                 {/* right pane */}   
@@ -202,7 +201,7 @@ export default class Leaderboard extends Component {
                     <View style={{width: '100%', flexDirection: 'column', flexWrap: 'nowrap' }}>
 
                         <View style={{width: '100%', flex: 1, marginTop: Dimensions.get('window').height * 0.02, }}>
-                            <Text style={styles.pageTitle}>Top Rankers' weekly Average</Text>    
+                            <Text style={styles.pageTitle}>Top Calorie Burners' Weekly Average</Text>    
                         </View>
                     
                         <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', alignItems: 'center', marginTop: Dimensions.get('window').height * 0.05, paddingHorizontal: Dimensions.get('window').width * 0.02}} >
@@ -228,8 +227,8 @@ export default class Leaderboard extends Component {
                             </View>      
                         </View> 
 
-                        <View style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.03, paddingHorizontal: Dimensions.get('window').width * 0.02}}> 
-                            <Text style={styles.pageTitle}>Leaders by Total Calories Burned</Text> 
+                        <View style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.03, paddingHorizontal: Dimensions.get('window').width * 0.03}}> 
+                            <Text style={styles.pageTitle}>Burned Calorie Ranking</Text> 
                             <FlatList
                                 style={styles.feed}
                                 data={this.state.posts}
@@ -340,7 +339,7 @@ const styles = StyleSheet.create({
     feedItem: {
         backgroundColor: "#FFF",
         borderRadius: 3, // 10
-        paddingHorizontal: 10,
+        paddingHorizontal: 5,
         paddingVertical: 5,
         flexDirection: "row",
         flex: 3,

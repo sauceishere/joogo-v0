@@ -408,8 +408,8 @@ export default class Stats extends Component {
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#DCDCDC',
-        // alignItems: 'center',
-        // justifyContent: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
         // padding: 24,
         top: 0, //StatusBar.currentHeight,
         // height: Dimensions.get('screen').width, // when Landscape 
@@ -470,10 +470,12 @@ const styles = StyleSheet.create({
         // borderColor: 'green',
         // borderWidth: 2,
     },
-    // chartArea :{
-    //     backgroundColor: '#DCDCDC',
-    //     height: Dimensions.get('screen').width,
-    // },
+    chartArea: {
+        // backgroundColor: '#DCDCDC',
+        // height: Dimensions.get('screen').width,
+        // height: '100%',
+        width: Dimensions.get('screen').width * 0.98,
+    },
     loadingIndicator: {
         // position: 'absolute',
         // top: 20,

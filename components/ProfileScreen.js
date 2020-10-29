@@ -780,7 +780,7 @@ export default class ProfileScreen extends Component {
                       />
                       </View> 
 
-                      <Text style={styles.itemTitle}>Nationality</Text>
+                      {/* <Text style={styles.itemTitle}>Nationality</Text>
                       <View style={styles.pickerView}>
                       <ModalSelector
                         data = {master_countrylist}
@@ -788,7 +788,7 @@ export default class ProfileScreen extends Component {
                         onChange={ (option) => this._onCountryValueChange_ios(option) } 
                         style={styles.picker}
                       />
-                      </View> 
+                      </View>  */}
 
                       <Text style={styles.itemTitle}>Birth Year</Text>
                       <View style={styles.pickerView}>
@@ -889,7 +889,7 @@ export default class ProfileScreen extends Component {
                         </Picker>
                       </View>
 
-                      <Text style={styles.itemTitle10}>Nationality</Text>
+                      {/* <Text style={styles.itemTitle10}>Nationality</Text>
                       <View style={styles.pickerView}>
                         <Picker
                           selectedValue= {nat}
@@ -906,7 +906,7 @@ export default class ProfileScreen extends Component {
                           <Picker.Item label="Other" value="Other" key="Other"/>
                           <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
                         </Picker>
-                      </View>
+                      </View> */}
 
                       <Text style={styles.itemTitle10}>Birth Year</Text>
                       <View style={styles.pickerView}>
@@ -976,7 +976,7 @@ export default class ProfileScreen extends Component {
                         </View>
                       :
                         <View>
-                          <TouchableOpacity onPress={this._handlePost} style={styles.postButton} >
+                          <TouchableOpacity onPress={ this._handlePost} style={styles.postButton} >
                             <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold',}}> Save </Text>
                           </TouchableOpacity>
         
@@ -1030,12 +1030,12 @@ export default class ProfileScreen extends Component {
                     <Text style={styles.itemField00}>{gdr}</Text>
                   </View>
 
-                  <View style={styles.tableRow}>
+                  {/* <View style={styles.tableRow}>
                     <Text style={styles.itemTitle}>Nationality</Text>
                     <Text style={styles.itemField00}>
                       {nat}
                     </Text>
-                  </View>
+                  </View> */}
 
                   <View style={styles.tableRow}>
                     <Text style={styles.itemTitle}>Birth Year</Text>
@@ -1058,7 +1058,7 @@ export default class ProfileScreen extends Component {
                     <Text style={styles.itemField00}>{moment.unix(lupdate).fromNow()}</Text>
                   </View>
 
-                  <TouchableOpacity onPress={this._pressEdit} style={styles.postButton} >
+                  <TouchableOpacity onPress={ this._pressEdit} style={styles.postButton} >
                     <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold',}}> Edit </Text>
                   </TouchableOpacity>
 
