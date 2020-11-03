@@ -2286,7 +2286,7 @@ export default class Live extends Component {
               }
 
 
-              { flagAllPosOk ?
+              {/* { flagAllPosOk ?
                 // TEMPORARY DISPLAY METS. 20200823
                 <View style={styles.metsContainer}>
                   <Text style={styles.metsText}>
@@ -2303,7 +2303,7 @@ export default class Live extends Component {
                     }
                   </Text>
                 </View>
-              }
+              } */}
 
 
               {/* { flagVidEnd && 
