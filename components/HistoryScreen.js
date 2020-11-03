@@ -68,7 +68,7 @@ class ExerciseHistory extends Component {
             
         }; // closing if 
 
-        this.setState({doneComponentDidMount: true, isLoading: false});
+        this.setState({doneComponentDidMount: true});
 
         console.log('------------- componentDidMount ExerciseHistory done');
     } // closing componentDidMount
@@ -104,7 +104,7 @@ class ExerciseHistory extends Component {
                 this.setState({
                   postsExer: page === 1 ? response.detail.vidViewedLogs  : [ ...this.state.postsExer, ...response.detail.vidViewedLogs ],
                   refreshing: false,
-                //   isLoading: false,
+                  isLoading: false,
                 //   flagMastersLoaded: true, // this to identify its downloaded
                 //   isFlatlistLoaded: true,
                 }); 

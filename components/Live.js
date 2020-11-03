@@ -25,6 +25,8 @@ import * as SQLite from 'expo-sqlite';
 
 // import {slow1} from '../assets/octopus';
 import {LB_PER_KG} from '../shared/Consts';
+import { NonMaxSuppressionV5 } from '@tensorflow/tfjs';
+import { isNonNullExpression } from 'typescript';
 
 
 
@@ -98,6 +100,13 @@ export default class Live extends Component {
       outNTAFlag: false, // to control if user is too close to camera, then show attention 20201025
       // frameOutFlag: false, // to control if user is out of screen. 20201025
       outAccelFlag: false, // to control if device is moving. 20201025
+      missingPos: null, // DEBUGGING PURPOSE ONLY. to show which body parts is missing, 20201102 
+      outOfIniPos: null, // DEBUGGING PURPOSE ONLY. to show which body parts is out of Initial Position, 20201102 
+      iP_f: false, // to control whether display red circle 20201102
+      iP_lw: false, // to control whether display red circle 20201102
+      iP_rw: false, // to control whether display red circle 20201102
+      iP_la: false, // to control whether display red circle 20201102
+      iP_ra: false, // to control whether display red circle 20201102
     }
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);  
     // this._handlePlayAndPause = this._handlePlayAndPause.bind(this);
@@ -115,7 +124,7 @@ export default class Live extends Component {
 
   // resize Width & Height, Smaller is faster
   inputTensorWidth = Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
-  inputTensorHeight = Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height']  ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //Dimensions.get('window').height / 3; // 200
+  inputTensorHeight = Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //Dimensions.get('window').height / 3; // 200
 
 
   // DON'T CHANGE OR ADJUST textureDims because Posenet can not scan whole screen. 
@@ -410,9 +419,9 @@ export default class Live extends Component {
   };
 
   prevAccelData = { // for compare this.state.accelerometerData previous vs latest to detect if camera moved
-    x: null,
-    y: null,
-    z: null,    
+    x: 0,
+    y: 0,
+    z: 0,    
   };
   
   cntOutAccel = 0; // count up if over outCriteriaAccel out of Accelerometer standard to detect if camera moved
@@ -429,14 +438,25 @@ export default class Live extends Component {
   coefNTA = this.props.navigation.getParam('const_exer')['coefNTA']; // 20200614
 
 
+  missingPos = []; // DEBUGGING PURPOSE ONLY. to show which body parts is missing, 20201102 
+  outOfIniPos = []; // DEBUGGING PURPOSE ONLY. to show which body parts is out of Initial Position, 20201102 
+  updateMissingPosTiming = 0; // to control update timing for updateMissingPosTiming 20201102
+  flagIp = {
+    f: false,
+    lw: false,
+    rw: false,
+    la: false,
+    ra: false,
+  } // to control whether display red circle on initialPosture 20201102
 
 
 
   _subscribeToAccelerometer = () => {
-    console.log('_subscribeToAccelerometer');
-    this._subscription = Accelerometer.addListener(
+    console.log('_subscribeToAccelerometer --------- ');
+    this._subscription = Accelerometer.addListener( accelerometerData => 
       // setData(accelerometerData);
-      accelerometerData => this.setState({ accelerometerData })      
+      // console.log('accelerometerData subscribe: ', accelerometerData);
+      this.setState({ accelerometerData })
     );
     Accelerometer.setUpdateInterval(1 * 1000); // update every X miliseconds
   };
@@ -492,6 +512,7 @@ export default class Live extends Component {
   }
 
 
+
   async componentWillUnmount() {
     console.log('------------------- componentWillUnmount Live started');
 
@@ -502,17 +523,13 @@ export default class Live extends Component {
     }
 
     this.vidState.vidEndAt = Date.now()/1000;
-    // console.log('------------------- componentWillUnmount Live 1');
 
     await this._unsubscribeFromAccelerometer();
-    // console.log('------------------- componentWillUnmount Live 2');
 
     deactivateKeepAwake();
-    // console.log('------------------- componentWillUnmount Live 3');
 
     ScreenOrientation.unlockAsync(); // back to portrait
     // ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
-    console.log('------------------- componentWillUnmount Live 4');
 
     await this._saveVidViewLog();
 
@@ -520,8 +537,9 @@ export default class Live extends Component {
   }
 
 
+
   async componentDidMount() {
-    console.log('------------------- componentDidMount Live started 87');
+    console.log('------------------- componentDidMount Live started 114');
     // console.log('this.props.navigation.getParam: ', this.props.navigation.getParam('wval') );
     // console.log('------ this.mets_per_part: ', this.mets_per_part);
     // console.log('------ this.camState: ', this.camState);
@@ -957,7 +975,7 @@ export default class Live extends Component {
     console.log('-------- renderPose.: ', this.vidState.renderPoseTimes);
     const time0 = Date.now() / 1000; 
 
-    const {pose, vidLength, flagAllPosOk, noseToAnkle, flagNoseToAnkle, rightToLeft, flagRightToLeft ,vidFullUrl, shouldPlay, flagUpdateScore, outNTAFlag } = this.state;
+    const {pose, vidLength, flagAllPosOk, noseToAnkle, flagNoseToAnkle, rightToLeft, flagRightToLeft ,vidFullUrl, shouldPlay, flagUpdateScore, outNTAFlag, accelerometerData, missingPos, outOfIniPos } = this.state;
     // console.log('-------- pose: ', pose);
 
 
@@ -1199,7 +1217,7 @@ export default class Live extends Component {
               mdCumTtlNow = mdCumTtlNow * this.model2.coef + this.model2.intercept; // final adjust model 20201001
             };
 
-            if ( this.state.outNTAFlag === true) { // if user is too close to camera, 
+            if ( this.state.outNTAFlag === true || this.state.outAccelFlag === true) { // if user is too close to camera OR camera is not fixed. 
               mdCumTtlNow = 0.000001; // then NOT to increment. making it not zero to avoid division error
               console.log('xxxxxxxxxx outNTAFlag. Forcing METS to 0.0000001');
             }
@@ -1218,6 +1236,46 @@ export default class Live extends Component {
             // console.log('1 this.mdCum.x10, y13, y15: ', this.mdCum.x10, this.mdCum.y13, this.mdCum.y15 );
             // console.log('1 this.mdCumA.x10, y13, y15: ', this.mdCumA.x10, this.mdCumA.y13, this.mdCumA.y15 );
             // console.log('1 this.mdCumB.x10, y13, y15: ', this.mdCumB.x10, this.mdCumB.y13, this.mdCumB.y15 );
+
+
+            ////////// to check if mobile devices is fixed & no move by Accelerometer
+            if (shouldPlay == true ) { // this runs only when video is playing after countdown until video ends
+              console.log('this.state.accelerometerData -- : ', this.state.accelerometerData);
+              // console.log('this.prevAccelData -- : ', this.prevAccelData.x);
+              // console.log('this.outCriteriaAccel: ', this.outCriteriaAccel.x);
+              console.log(' Diff x, y, z): ', Math.abs(this.prevAccelData.x - this.state.accelerometerData.x).toFixed(2), Math.abs(this.prevAccelData.y - this.state.accelerometerData.y).toFixed(2), Math.abs(this.prevAccelData.z - this.state.accelerometerData.z).toFixed(2) );
+              if (this.prevAccelData.x == null || this.prevAccelData.y == null || this.prevAccelData.z == null) { // only 1st loop, Do assign only, 
+                // console.log('---- will check accelerometerData -- 1st loop');
+                this.prevAccelData.x = this.state.accelerometerData.x.toFixed(3); // assign only
+                this.prevAccelData.y = this.state.accelerometerData.y.toFixed(3); // assign only
+                this.prevAccelData.z = this.state.accelerometerData.z.toFixed(3); // assign only
+              } else { // after 2nd loop
+                // console.log('---- will check accelerometerData -- After 2nd loop');
+                // console.log('accelerometerData move from previous x,y,z: ', Math.abs(this.prevAccelData.x - accelerometerData.x).toFixed(2), Math.abs(this.prevAccelData.y - accelerometerData.y).toFixed(2), Math.abs(this.prevAccelData.z - accelerometerData.z).toFixed(2),)
+                if ( Math.abs(this.prevAccelData.x - this.state.accelerometerData.x) > this.outCriteriaAccel.x || Math.abs(this.prevAccelData.y - this.state.accelerometerData.y) > this.outCriteriaAccel.y || Math.abs(this.prevAccelData.z - this.state.accelerometerData.z) > this.outCriteriaAccel.z) { // if any of x,y,z is out of criteria
+                  // console.log('here if');
+                  this.cntOutAccel += 1; // increment
+                  console.log('xxxxxxxxxx OutAccel, this.cntOutAccel: ', this.cntOutAccel);
+                  if (this.cntOutAccel % 2 == 0) { // if divided by x == 0 , means it will alert when every X cntOutAccel.
+                    console.log('Please fix and Do not move your device. this.cntOutAccel: ', this.cntOutAccel);
+                    // alert('Please fix and Do not move your device.');
+                    this.setState( {outAccelFlag: true}); // to NOT to increment METS
+                  }
+                } else {
+                  // console.log('here else');
+                  if (this.state.outAccelFlag == true) {
+                    this.setState( {outAccelFlag: false}); // to resume to increment METS
+                    console.log('reset outAccelFlag')
+                  }
+                }
+                this.prevAccelData.x = this.state.accelerometerData.x.toFixed(3); // assign only
+                this.prevAccelData.y = this.state.accelerometerData.y.toFixed(3); // assign only
+                this.prevAccelData.z = this.state.accelerometerData.z.toFixed(3); // assign only        
+              }
+            } 
+
+
+
         
           }
           
@@ -1259,11 +1317,11 @@ export default class Live extends Component {
       
       if ( pose != null ) {
         // console.log('-------- pose.keypoints: ', pose.keypoints)
-    
-
         // console.log('time0c: ', Date.now() / 1000 - time0); 
 
         var identifiedBpartsEach = []; // reset at each loop 20200520
+
+        var posPerloop = {}; // reset at every single loop 20201029
 
         const keypoints = pose.keypoints
           .filter(k => k.score > this.MIN_KEYPOINT_SCORE)
@@ -1307,6 +1365,7 @@ export default class Live extends Component {
                 console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x0 nose');
               }      
               this.pos.x0 = Math.round(k.position.x); // update present position 
+              posPerloop.x0 = Math.round(k.position.x); // update
 
               if (this.pos.y0 != null) { // after 2nd loop
                 this.mdCum.y0 = Math.abs( this.pos.y0 - Math.round(k.position.y) ) + this.mdCum.y0;
@@ -1314,16 +1373,21 @@ export default class Live extends Component {
                 this.pos.y0 = Math.round(k.position.y); // assign position
                 console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y0 nose');
               }      
-              this.pos.y0 = Math.round(k.position.y); // update present position               
+              this.pos.y0 = Math.round(k.position.y); // update present position   
+              posPerloop.y0 = Math.round(k.position.y); // update            
               
             } else if (k.part == 'leftEye') {
               // this.pos.x1 = Math.round(k.position.x);
             //   this.pos.y1 = Math.round(k.position.y);
               // identifiedBpartsEach.push( { 'p': '1', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
+              posPerloop.x1 = Math.round(k.position.x); // update
+              posPerloop.y1 = Math.round(k.position.y); // update
             } else if (k.part== 'rightEye') {
               // this.pos.x2 = Math.round(k.position.x);
             //   this.pos.y2 = Math.round(k.position.y);
               // identifiedBpartsEach.push( { 'p': '2', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
+              posPerloop.x2 = Math.round(k.position.x); // update
+              posPerloop.y2 = Math.round(k.position.y); // update
             } else if (k.part == 'leftElbow') {
                 // identifiedBpartsEach.push( { 'p': '7', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x7 != null) { // after 2nd loop
@@ -1333,6 +1397,7 @@ export default class Live extends Component {
                   console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x7 leftElbow');
                 }      
                 this.pos.x7 = Math.round(k.position.x); // update present position 
+                posPerloop.x7 = Math.round(k.position.x); // update
     
                 if (this.pos.y7 != null) { // after 2nd loop
                     this.mdCum.y7 = Math.abs( this.pos.y7 - Math.round(k.position.y) ) + this.mdCum.y7;
@@ -1340,7 +1405,8 @@ export default class Live extends Component {
                     this.pos.y7 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y7 leftElbow');
                 }      
-                this.pos.y7 = Math.round(k.position.y); // update present position                    
+                this.pos.y7 = Math.round(k.position.y); // update present position  
+                posPerloop.y7 = Math.round(k.position.y); // update                  
             } else if (k.part == 'rightElbow') {
                 // identifiedBpartsEach.push( { 'p': '8', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x8 != null) { // after 2nd loop
@@ -1350,6 +1416,7 @@ export default class Live extends Component {
                   console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x8 rightElbow');
                 }      
                 this.pos.x8 = Math.round(k.position.x); // update present position 
+                posPerloop.x8 = Math.round(k.position.x); // update
     
                 if (this.pos.y8 != null) { // after 2nd loop
                     this.mdCum.y8 = Math.abs( this.pos.y8 - Math.round(k.position.y) ) + this.mdCum.y8;
@@ -1357,7 +1424,8 @@ export default class Live extends Component {
                     this.pos.y8 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y8 rightElbow');
                 }      
-                this.pos.y8 = Math.round(k.position.y); // update present position     
+                this.pos.y8 = Math.round(k.position.y); // update present position 
+                posPerloop.y8 = Math.round(k.position.y); // update    
             } else if (k.part == 'leftWrist') {
                 // identifiedBpartsEach.push( { 'p': '9', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x9 != null) { // after 2nd loop
@@ -1367,6 +1435,7 @@ export default class Live extends Component {
                   console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x9 leftWrist');
                 }      
                 this.pos.x9 = Math.round(k.position.x); // update present position 
+                posPerloop.x9 = Math.round(k.position.x); // update
     
                 if (this.pos.y9 != null) { // after 2nd loop
                     this.mdCum.y9 = Math.abs( this.pos.y9 - Math.round(k.position.y) ) + this.mdCum.y9;
@@ -1374,7 +1443,8 @@ export default class Live extends Component {
                     this.pos.y9 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y9 leftWrist');
                 }      
-                this.pos.y9 = Math.round(k.position.y); // update present position  
+                this.pos.y9 = Math.round(k.position.y); // update present position 
+                posPerloop.y9 = Math.round(k.position.y); // update 
             } else if (k.part == 'rightWrist') {
                 // identifiedBpartsEach.push( { 'p': '10', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x10 != null) { // after 2nd loop
@@ -1384,6 +1454,7 @@ export default class Live extends Component {
                   console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x10 rightWrist');
                 }      
                 this.pos.x10 = Math.round(k.position.x); // update present position 
+                posPerloop.x10 = Math.round(k.position.x); // update
     
                 if (this.pos.y10 != null) { // after 2nd loop
                     this.mdCum.y10 = Math.abs( this.pos.y10 - Math.round(k.position.y) ) + this.mdCum.y10;
@@ -1391,7 +1462,8 @@ export default class Live extends Component {
                     this.pos.y10 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y10 rightWrist');
                 }      
-                this.pos.y10 = Math.round(k.position.y); // update present position   
+                this.pos.y10 = Math.round(k.position.y); // update present position  
+                posPerloop.y10 = Math.round(k.position.y); // update 
             } else if (k.part == 'leftShoulder') {
                 // identifiedBpartsEach.push( { 'p': '5', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x5 != null) { // after 2nd loop
@@ -1401,6 +1473,7 @@ export default class Live extends Component {
                   console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x5 leftShoulder');
                 }      
                 this.pos.x5 = Math.round(k.position.x); // update present position 
+                posPerloop.x5 = Math.round(k.position.x); // update
     
                 if (this.pos.y5 != null) { // after 2nd loop
                     this.mdCum.y5 = Math.abs( this.pos.y5 - Math.round(k.position.y) ) + this.mdCum.y5;
@@ -1408,7 +1481,8 @@ export default class Live extends Component {
                     this.pos.y5 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y5 leftShoulder');
                 }      
-                this.pos.y5 = Math.round(k.position.y); // update present position                  
+                this.pos.y5 = Math.round(k.position.y); // update present position 
+                posPerloop.y5 = Math.round(k.position.y); // update                 
             } else if (k.part == 'rightShoulder') {
                 // identifiedBpartsEach.push( { 'p': '6', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x6 != null) { // after 2nd loop
@@ -1418,6 +1492,7 @@ export default class Live extends Component {
                   console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x6 rightShoulder');
                 }      
                 this.pos.x6 = Math.round(k.position.x); // update present position 
+                posPerloop.x6 = Math.round(k.position.x); // update
     
                 if (this.pos.y6 != null) { // after 2nd loop
                     this.mdCum.y6 = Math.abs( this.pos.y6 - Math.round(k.position.y) ) + this.mdCum.y6;
@@ -1425,7 +1500,8 @@ export default class Live extends Component {
                     this.pos.y6 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y6 rightShoulder');
                 }      
-                this.pos.y6 = Math.round(k.position.y); // update present position 
+                this.pos.y6 = Math.round(k.position.y); // update present position
+                posPerloop.y6 = Math.round(k.position.y); // update 
             } else if (k.part == 'leftHip') {
                 // identifiedBpartsEach.push( { 'p': '11', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x11 != null) { // after 2nd loop
@@ -1435,6 +1511,7 @@ export default class Live extends Component {
                   console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x11 leftHip');
                 }      
                 this.pos.x11 = Math.round(k.position.x); // update present position 
+                posPerloop.x11 = Math.round(k.position.x); // update
     
                 if (this.pos.y11 != null) { // after 2nd loop
                     this.mdCum.y11 = Math.abs( this.pos.y11 - Math.round(k.position.y) ) + this.mdCum.y11;
@@ -1442,7 +1519,8 @@ export default class Live extends Component {
                     this.pos.y11 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y11 leftHip');
                 }      
-                this.pos.y11 = Math.round(k.position.y); // update present position   
+                this.pos.y11 = Math.round(k.position.y); // update present position  
+                posPerloop.y11 = Math.round(k.position.y); // update 
             } else if (k.part == 'rightHip') {
                 // identifiedBpartsEach.push( { 'p': '12', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x12 != null) { // after 2nd loop
@@ -1452,6 +1530,7 @@ export default class Live extends Component {
                   console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x12 rightHip');
                 }      
                 this.pos.x12 = Math.round(k.position.x); // update present position 
+                posPerloop.x12 = Math.round(k.position.x); // update
     
                 if (this.pos.y12 != null) { // after 2nd loop
                     this.mdCum.y12 = Math.abs( this.pos.y12 - Math.round(k.position.y) ) + this.mdCum.y12;
@@ -1460,6 +1539,7 @@ export default class Live extends Component {
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y12 rightHip');
                 }      
                 this.pos.y12 = Math.round(k.position.y); // update present position 
+                posPerloop.y12 = Math.round(k.position.y); // update
             } else if (k.part == 'leftKnee') {
                 // identifiedBpartsEach.push( { 'p': '13', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x13 != null) { // after 2nd loop
@@ -1469,6 +1549,7 @@ export default class Live extends Component {
                   console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x13 leftKnee');
                 }      
                 this.pos.x13 = Math.round(k.position.x); // update present position 
+                posPerloop.x13 = Math.round(k.position.x); // update
     
                 if (this.pos.y13 != null) { // after 2nd loop
                     this.mdCum.y13 = Math.abs( this.pos.y13 - Math.round(k.position.y) ) + this.mdCum.y13;
@@ -1476,7 +1557,8 @@ export default class Live extends Component {
                     this.pos.y13 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y13 leftKnee');
                 }      
-                this.pos.y13 = Math.round(k.position.y); // update present position                     
+                this.pos.y13 = Math.round(k.position.y); // update present position 
+                posPerloop.y13 = Math.round(k.position.y); // update                    
             } else if (k.part == 'rightKnee') {
                 // identifiedBpartsEach.push( { 'p': '14', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x14 != null) { // after 2nd loop
@@ -1485,7 +1567,8 @@ export default class Live extends Component {
                   this.pos.x14 = Math.round(k.position.x); // assign position
                   console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x14 rightKnee');
                 }      
-                this.pos.x14 = Math.round(k.position.x); // update present position 
+                this.pos.x14 = Math.round(k.position.x); // update present position
+                posPerloop.x14 = Math.round(k.position.x); // update 
     
                 if (this.pos.y14 != null) { // after 2nd loop
                     this.mdCum.y14 = Math.abs( this.pos.y14 - Math.round(k.position.y) ) + this.mdCum.y14;
@@ -1493,7 +1576,8 @@ export default class Live extends Component {
                     this.pos.y14 = Math.round(k.position.y); // assign position
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y14 rightKnee');
                 }      
-                this.pos.y14 = Math.round(k.position.y); // update present position 
+                this.pos.y14 = Math.round(k.position.y); // update present position
+                posPerloop.y14 = Math.round(k.position.y); // update 
             } else if (k.part == 'leftAnkle') {
                 // identifiedBpartsEach.push( { 'p': '15', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x15 != null) { // after 2nd loop
@@ -1503,6 +1587,7 @@ export default class Live extends Component {
                   console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x15 leftAnkle');
                 }      
                 this.pos.x15 = Math.round(k.position.x); // update present position 
+                posPerloop.x15 = Math.round(k.position.x); // update
     
                 if (this.pos.y15 != null) { // after 2nd loop
                     this.mdCum.y15 = Math.abs( this.pos.y15 - Math.round(k.position.y) ) + this.mdCum.y15;
@@ -1511,6 +1596,7 @@ export default class Live extends Component {
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y15 leftAnkle');
                 }      
                 this.pos.y15 = Math.round(k.position.y); // update present position 
+                posPerloop.y15 = Math.round(k.position.y); // update
             } else if (k.part == 'rightAnkle') {
                 // identifiedBpartsEach.push( { 'p': '16', 'x': Math.round(k.position.x), 'y': Math.round(k.position.y), 'sc': k.score.toFixed(2) } );
                 if (this.pos.x16 != null) { // after 2nd loop
@@ -1519,7 +1605,8 @@ export default class Live extends Component {
                   this.pos.x16 = Math.round(k.position.x); // assign position
                   console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv x16 rightAnkle');
                 }      
-                this.pos.x16 = Math.round(k.position.x); // update present position 
+                this.pos.x16 = Math.round(k.position.x); // update present position
+                posPerloop.x16 = Math.round(k.position.x); // update 
     
                 if (this.pos.y16 != null) { // after 2nd loop
                     this.mdCum.y16 = Math.abs( this.pos.y16 - Math.round(k.position.y) ) + this.mdCum.y16;
@@ -1528,6 +1615,7 @@ export default class Live extends Component {
                     console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv y16 rightAnkle');
                 }      
                 this.pos.y16 = Math.round(k.position.y); // update present position 
+                posPerloop.y16 = Math.round(k.position.y); // update
 
             };
 
@@ -1535,12 +1623,15 @@ export default class Live extends Component {
 
           // console.log('time0e: ', Date.now() / 1000 - time0); 
 
+          // console.log(' pos pos pos pos posPerloop: ', posPerloop , ' / 30' );
+
 
 ///////// check if User moves towards Camera by noseToAnkle. 20200523 //////////// 
           if (shouldPlay == true )  { // check if video is playing
-            if (this.pos.y0 != null && this.pos.y15 != null && this.pos.y16 != null) { // check if all necessary position data exist
-              // if ( ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0 > noseToAnkle * this.outNTA.DistMoveCriteria) { // check if data is out of criteria
-              if ( Math.max(this.pos.y15, this.pos.y16) - this.pos.y0 > noseToAnkle * this.outNTA.DistMoveCriteria) { // check if data is out of criteria
+            // if (this.pos.y0 != null && this.pos.y15 != null && this.pos.y16 != null) { // check if all necessary position data exist
+            //   if ( Math.max(this.pos.y15, this.pos.y16) - this.pos.y0 > noseToAnkle * this.outNTA.DistMoveCriteria) { // check if data is out of criteria
+            if ( posPerloop.y0 != null && posPerloop.y15 != null && posPerloop.y16 != null) { // check if all necessary position data exist
+              if ( Math.max( posPerloop.y15, posPerloop.y16 ) - posPerloop.y0 > noseToAnkle * this.outNTA.DistMoveCriteria) { // check if data is out of criteria
                 this.outNTA.cnt++; // increment
                 console.log('---------- out NoseToAnkle this.outNTA.cnt: ', this.outNTA.cnt );
                 if (this.outNTA.cnt > this.outNTA.outTimesCriteria && this.state.outNTAFlag == false) { // check if count of out times more than criteria
@@ -1592,15 +1683,13 @@ export default class Live extends Component {
               // }
               ///////////////////////////////////
 
-
-              if (this.pos.y0 != null && this.pos.y15 != null && this.pos.y16 != null) {
-                // if ( ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0 > noseToAnkle) { // average of leftAnkle and rightAnkle
-                if ( Math.max(this.pos.y15, this.pos.y16) - this.pos.y0 > noseToAnkle) { // max of leftAnkle and rightAnkle 20200920
-                  console.log('----- this.pos.x0 y0 y15 y16: ', this.pos.x0, this.pos.y0, this.pos.y15, this.pos.y16);
-                  // this.noseToAnkle = ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0 ;
+              if ( posPerloop.y0 != null && posPerloop.y15 != null && posPerloop.y16 != null) { // check if all necessary position data exist
+                if ( Math.max( posPerloop.y15, posPerloop.y16 ) - posPerloop.y0 > noseToAnkle) { // check if data is out of criteria
+              // if (this.pos.y0 != null && this.pos.y15 != null && this.pos.y16 != null) {
+              //   if ( Math.max(this.pos.y15, this.pos.y16) - this.pos.y0 > noseToAnkle) { // max of leftAnkle and rightAnkle 20200920
+                  console.log('----- posPerloop y0 y15 y16: ', posPerloop.y0, posPerloop.y15, posPerloop.y16);
                   this.setState({ 
-                    // noseToAnkle: ( (this.pos.y15 + this.pos.y16) / 2 ) - this.pos.y0, // average of leftAnkle and rightAnkle
-                    noseToAnkle: Math.max(this.pos.y15, this.pos.y16) - this.pos.y0, // max of leftAnkle and rightAnkle 20200920
+                    noseToAnkle: Math.max( posPerloop.y15, posPerloop.y16) - posPerloop.y0, // max of leftAnkle and rightAnkle 20200920
                     flagNoseToAnkle: true,
                   });
                   console.log('----- noseToAnkle updated: ', this.state.noseToAnkle);
@@ -1610,11 +1699,11 @@ export default class Live extends Component {
               }            
 
               // // assign rightToLeft
-              if (this.pos.x10 != null && this.pos.x9 != null) {
-                if ( this.pos.x9 - this.pos.x10 > rightToLeft) {
-                  console.log('----- this.pos.x10, x9: ', this.pos.x10, this.pos.x9);
+              if ( posPerloop.x10 != null && posPerloop.x9 != null) {
+                if ( posPerloop.x9 - posPerloop.x10 > rightToLeft) {
+                  console.log('----- posPerloop.x10, x9: ', posPerloop.x10, posPerloop.x9);
                     this.setState({ 
-                      rightToLeft: this.pos.x9 - this.pos.x10, 
+                      rightToLeft: posPerloop.x9 - posPerloop.x10, 
                       flagRightToLeft: true, 
                     });
                     console.log('----- rightToLeft updated: ', this.state.rightToLeft);
@@ -1629,10 +1718,94 @@ export default class Live extends Component {
 
             if (flagAllPosOk == false) { // Go into this block unitl countdown starts.
 
-              ///////////////////////////////////////////////////////////
-              // // DUMMY TESTMODE == 1
-                // if ( this.pos.y0 != null && this.pos.y5 != null && this.pos.y6 != null) { //  TEST PURPOSE ONLY 
-              ////////////////////////////////////////////////////////////
+              if (this.updateMissingPosTiming != parseInt(Date.now() / 1000) ) {
+                
+                this.missingPos = []; // reset to none
+                this.outOfIniPos = []; // reset to none
+                this.flagIp.f = false; // nose // reset to false
+                this.flagIp.lw = false; // reset to false
+                this.flagIp.rw = false; // reset to false
+                this.flagIp.la = false; // reset to false
+                this.flagIp.ra = false; // reset to false
+
+
+
+                // DEBUGGING PURPOSE, to show which body parts are missing or out of initial posisitons. 20201102
+                if (posPerloop.y0 != null) {
+                  if (posPerloop.x0 <= this.initialPositions.x0Min || posPerloop.x0 >= this.initialPositions.x0Max ||
+                    posPerloop.y0 <= this.initialPositions.y0Min || posPerloop.y0 >= this.initialPositions.y0Max ) {
+                      this.outOfIniPos.push('Nose');
+                  } else {
+                    this.flagIp.f = true;
+                  }
+                } else {
+                  this.missingPos.push('Nose');
+                };
+
+                if (posPerloop.y9 != null) {
+                  if (posPerloop.x9 <= this.initialPositions.x9Min || posPerloop.x9 >= this.initialPositions.x9Max ||
+                    posPerloop.y9 <= this.initialPositions.y9Min || posPerloop.y9 >= this.initialPositions.y9Max) {
+                      this.outOfIniPos.push('LW');
+                  } else {
+                    this.flagIp.lw = true;
+                  }
+                } else {                  
+                  this.missingPos.push('lW');
+                };           
+
+                if (posPerloop.y10 != null) {
+                  if (posPerloop.x10 <= this.initialPositions.x10Min || posPerloop.x10 >= this.initialPositions.x10Max ||
+                    posPerloop.y10 <= this.initialPositions.y10Min || posPerloop.y10 >= this.initialPositions.y10Max) {
+                      this.outOfIniPos.push('RW');
+                  } else {
+                    this.flagIp.rw = true;
+                  }
+                } else {
+                  this.missingPos.push('rW');
+                };
+
+                if (posPerloop.y15 != null) {
+                  if (posPerloop.x15 <= this.initialPositions.xBothAnkleMin || posPerloop.x15 >= this.initialPositions.xBothAnkleMax ||
+                    posPerloop.y15 <= this.initialPositions.yBothAnkleMin) {
+                      this.outOfIniPos.push('LA');
+                  } else {
+                    this.flagIp.la = true;
+                  }
+                } else {
+                  this.missingPos.push('lA');
+                };
+
+                if (posPerloop.y16 != null) {
+                  if (posPerloop.x16 <= this.initialPositions.xBothAnkleMin || posPerloop.x16 >= this.initialPositions.xBothAnkleMax ||
+                    posPerloop.y16 <= this.initialPositions.yBothAnkleMin) {
+                      this.outOfIniPos.push('rA');
+                  } else {
+                    this.flagIp.ra = true;
+                  }
+                } else {
+                  this.missingPos.push('RA');
+                };
+
+
+                // to update this.state to render 20201102
+                if ( this.missingPos.length > 0 && this.outOfIniPos.length > 0 ) {
+                  this.setState({ missingPos: this.missingPos, outOfIniPos: this.outOfIniPos });
+                } else if ( this.missingPos.length > 0 ) {
+                  this.setState({ missingPos: this.missingPos, outOfIniPos: null });
+                } else if ( this.outOfIniPos.length > 0 ) {
+                  this.setState({ missingPos: null, outOfIniPos: this.outOfIniPos });
+                };
+                console.log('this.state.missingPos: ', this.state.missingPos, this.state.outOfIniPos);
+
+
+                this.setState({ iP_f: this.flagIp.f, iP_lw: this.flagIp.lw, iP_rw: this.flagIp.rw, iP_la: this.flagIp.la, iP_ra: this.flagIp.ra  });
+                 
+
+              };
+
+              this.updateMissingPosTiming = parseInt(Date.now() / 1000); // update updateMissingPosTiming 20201102
+
+
 
 
                 if ( flagNoseToAnkle == true && 
@@ -1655,17 +1828,31 @@ export default class Live extends Component {
 
                   // // to check initialPositions       
                   if (
-                      this.pos.x0 > this.initialPositions.x0Min && this.pos.x0 < this.initialPositions.x0Max &&
-                      this.pos.y0 > this.initialPositions.y0Min && this.pos.y0 < this.initialPositions.y0Max &&
-                      // this.pos.x9 > this.initialPositions.x9Min && this.pos.x9 < this.initialPositions.x9Max &&
-                      // this.pos.y9 > this.initialPositions.y9Min && this.pos.y9 < this.initialPositions.y9Max &&
-                      // this.pos.x10 > this.initialPositions.x10Min && this.pos.x10 < this.initialPositions.x10Max &&
-                      // this.pos.y10 > this.initialPositions.y10Min && this.pos.y10 < this.initialPositions.y10Max &&
-                      this.pos.x15 > this.initialPositions.xBothAnkleMin && this.pos.x15 < this.initialPositions.xBothAnkleMax &&
-                      this.pos.y15 > this.initialPositions.yBothAnkleMin &&
-                      this.pos.x16 > this.initialPositions.xBothAnkleMin && this.pos.x16 < this.initialPositions.xBothAnkleMax &&
-                      this.pos.y16 > this.initialPositions.yBothAnkleMin 
+                      // this.pos.x0 > this.initialPositions.x0Min && this.pos.x0 < this.initialPositions.x0Max &&
+                      // this.pos.y0 > this.initialPositions.y0Min && this.pos.y0 < this.initialPositions.y0Max &&
+                      // // this.pos.x9 > this.initialPositions.x9Min && this.pos.x9 < this.initialPositions.x9Max &&
+                      // // this.pos.y9 > this.initialPositions.y9Min && this.pos.y9 < this.initialPositions.y9Max &&
+                      // // this.pos.x10 > this.initialPositions.x10Min && this.pos.x10 < this.initialPositions.x10Max &&
+                      // // this.pos.y10 > this.initialPositions.y10Min && this.pos.y10 < this.initialPositions.y10Max &&
+                      // this.pos.x15 > this.initialPositions.xBothAnkleMin && this.pos.x15 < this.initialPositions.xBothAnkleMax &&
+                      // this.pos.y15 > this.initialPositions.yBothAnkleMin &&
+                      // this.pos.x16 > this.initialPositions.xBothAnkleMin && this.pos.x16 < this.initialPositions.xBothAnkleMax &&
+                      // this.pos.y16 > this.initialPositions.yBothAnkleMin 
+
+                      posPerloop.x0 > this.initialPositions.x0Min && posPerloop.x0 < this.initialPositions.x0Max &&
+                      posPerloop.y0 > this.initialPositions.y0Min && posPerloop.y0 < this.initialPositions.y0Max &&
+                      posPerloop.x9 > this.initialPositions.x9Min && posPerloop.x9 < this.initialPositions.x9Max &&
+                      posPerloop.y9 > this.initialPositions.y9Min && posPerloop.y9 < this.initialPositions.y9Max &&
+                      posPerloop.x10 > this.initialPositions.x10Min && posPerloop.x10 < this.initialPositions.x10Max &&
+                      posPerloop.y10 > this.initialPositions.y10Min && posPerloop.y10 < this.initialPositions.y10Max &&
+                      posPerloop.x15 > this.initialPositions.xBothAnkleMin && posPerloop.x15 < this.initialPositions.xBothAnkleMax &&
+                      posPerloop.y15 > this.initialPositions.yBothAnkleMin &&
+                      posPerloop.x16 > this.initialPositions.xBothAnkleMin && posPerloop.x16 < this.initialPositions.xBothAnkleMax &&
+                      posPerloop.y16 > this.initialPositions.yBothAnkleMin 
+
                       ) {
+
+                        
                   
               ////////////////////////////////////////////////////////////       
               
@@ -1845,7 +2032,7 @@ export default class Live extends Component {
     console.log('----------------- render --------------------');
     var time1 = Date.now() / 1000; 
 
-    const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, scoreNow, vidStartAt, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon, octopusLoc, outNTAFlag, outAccelFlag } = this.state;
+    const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, scoreNow, vidStartAt, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon, octopusLoc, outNTAFlag, outAccelFlag, missingPos, outOfIniPos, iP_f, iP_lw, iP_rw, iP_la, iP_ra } = this.state;
 
     if (shouldPlay == true) { // increment only shouldPlay=true. this means not incremented whe video is paused.
       this.vidState.vidPlayedSum = this.vidState.vidPlayedSum + (Date.now()/1000 - this.vidState.loopStartAt); // add increment time
@@ -1855,35 +2042,38 @@ export default class Live extends Component {
 
     // console.log('time1a: ', Date.now() / 1000 - time1);
 
+    console.log('iP_f, iP_lw, iP_rw, iP_la, iP_ra: ', iP_f, iP_lw, iP_rw, iP_la, iP_ra);
 
 
-////////// to check if mobile devices is fixed & no move by Accelerometer
-    if (shouldPlay == true ) { // this runs only when video is playing after countdown until video ends
-      if (this.prevAccelData.x == null || this.prevAccelData.y == null || this.prevAccelData.z == null) { // only 1st loop, Do assign only, 
-        this.prevAccelData.x = accelerometerData.x; // assign only
-        this.prevAccelData.y = accelerometerData.y; // assign only
-        this.prevAccelData.z = accelerometerData.z; // assign only
-      } else { // after 2nd loop
-        // console.log('accelerometerData move from previous x,y,z: ', Math.abs(this.prevAccelData.x - accelerometerData.x).toFixed(2), Math.abs(this.prevAccelData.y - accelerometerData.y).toFixed(2), Math.abs(this.prevAccelData.z - accelerometerData.z).toFixed(2),)
-        if ( Math.abs(this.prevAccelData.x - accelerometerData.x) > this.outCriteriaAccel.x || Math.abs(this.prevAccelData.y - accelerometerData.y) > this.outCriteriaAccel.y || Math.abs(this.prevAccelData.z - accelerometerData.z) > this.outCriteriaAccel.z) { // if any of x,y,z is out of criteria
-          console.log('xxxxxxxxxx OutAccel');
-          this.cntOutAccel += 1; // increment
-          if (this.cntOutAccel % 3 == 0) { // if divided by x == 0 , means it will alert when every X cntOutAccel.
-            console.log('Please fix and Do not move your device. this.cntOutAccel: ', this.cntOutAccel);
-            alert('Please fix and Do not move your device.');
-            this.setState( {outAccelFlag: true}); // to NOT to increment METS
-          }
-        } else {
-          if (outAccelFlag == true) {
-            this.setState( {outAccelFlag: false}); // to resume to increment METS
-            console.log('resume outAccelFlag')
-          }
-        }
-        this.prevAccelData.x = accelerometerData.x; // assign only
-        this.prevAccelData.y = accelerometerData.y; // assign only
-        this.prevAccelData.z = accelerometerData.z; // assign only        
-      }
-    } 
+
+// ////////// to check if mobile devices is fixed & no move by Accelerometer
+//     if (shouldPlay == true ) { // this runs only when video is playing after countdown until video ends
+//       console.log('this.state.accelerometerData: ', this.state.accelerometerData);
+//       if (this.prevAccelData.x == null || this.prevAccelData.y == null || this.prevAccelData.z == null) { // only 1st loop, Do assign only, 
+//         this.prevAccelData.x = accelerometerData.x; // assign only
+//         this.prevAccelData.y = accelerometerData.y; // assign only
+//         this.prevAccelData.z = accelerometerData.z; // assign only
+//       } else { // after 2nd loop
+//         // console.log('accelerometerData move from previous x,y,z: ', Math.abs(this.prevAccelData.x - accelerometerData.x).toFixed(2), Math.abs(this.prevAccelData.y - accelerometerData.y).toFixed(2), Math.abs(this.prevAccelData.z - accelerometerData.z).toFixed(2),)
+//         if ( Math.abs(this.prevAccelData.x - accelerometerData.x) > this.outCriteriaAccel.x || Math.abs(this.prevAccelData.y - accelerometerData.y) > this.outCriteriaAccel.y || Math.abs(this.prevAccelData.z - accelerometerData.z) > this.outCriteriaAccel.z) { // if any of x,y,z is out of criteria
+//           this.cntOutAccel += 1; // increment
+//           console.log('xxxxxxxxxx OutAccel, this.cntOutAccel: ', this.cntOutAccel);
+//           if (this.cntOutAccel % 3 == 0) { // if divided by x == 0 , means it will alert when every X cntOutAccel.
+//             console.log('Please fix and Do not move your device. this.cntOutAccel: ', this.cntOutAccel);
+//             alert('Please fix and Do not move your device.');
+//             this.setState( {outAccelFlag: true}); // to NOT to increment METS
+//           }
+//         } else {
+//           if (outAccelFlag == true) {
+//             this.setState( {outAccelFlag: false}); // to resume to increment METS
+//             console.log('resume outAccelFlag')
+//           }
+//         }
+//         this.prevAccelData.x = accelerometerData.x; // assign only
+//         this.prevAccelData.y = accelerometerData.y; // assign only
+//         this.prevAccelData.z = accelerometerData.z; // assign only        
+//       }
+//     } 
 
     // console.log('time1b: ', Date.now() / 1000 - time1);
 
@@ -2027,7 +2217,38 @@ export default class Live extends Component {
                 null
               :
                 <View style={styles.initialPostureContainer}>
-                  <Image style={styles.initialPostureImage} source={require('../assets/initialPosture_310x310dotted.png')} />  
+                  <Image style={styles.initialPostureImage} source={require('../assets/initialPosture_310x310dotted.png')} /> 
+                  {/* <Image style={styles.initialPostureImageBodyPart} source={require('../assets/iP_f_g.png')} /> */}
+
+                  { iP_f ?
+                    <Image style={styles.initialPostureImage} source={require('../assets/iP_f_g.png')} />
+                  :
+                    null
+                  }
+
+                  { iP_lw ?
+                    <Image style={styles.initialPostureImage} source={require('../assets/iP_lw_g.png')} />
+                  :
+                    null
+                  }
+
+                  { iP_rw ?
+                    <Image style={styles.initialPostureImage} source={require('../assets/iP_rw_g.png')} />
+                  :
+                    null
+                  }
+
+                  { iP_la ?
+                    <Image style={styles.initialPostureImage} source={require('../assets/iP_la_g.png')} />
+                  :
+                    null
+                  }
+
+                  { iP_ra ?
+                    <Image style={styles.initialPostureImage} source={require('../assets/iP_ra_g.png')} />
+                  :
+                    null
+                  }
                 </View>
               }
 
@@ -2035,8 +2256,16 @@ export default class Live extends Component {
                 <View style={styles.attentionContainer}>
                   { outNTAFlag ?
                     <Text style={[styles.attentionText, {color: 'red'} ]}>
-                      {'Step Back'}
+                      Step{"\n"}Back
                     </Text>
+                  :
+                    null
+                  }
+
+                  { outAccelFlag ?
+                    <Text style={[styles.attentionText, {color: 'red'} ]}>
+                      Fix{"\n"}Smartphone
+                    </Text>                    
                   :
                     null
                   }
@@ -2044,8 +2273,15 @@ export default class Live extends Component {
               :
                 <View style={styles.attentionContainer}>
                   <Text style={styles.attentionText}>
-                    {'Fit Your Body'}
+                    Fit{"\n"}Your Body
                   </Text>
+                  {/* <Text style={styles.attentionTextRed}>
+                    {!outOfIniPos ?
+                      null
+                    :
+                      outOfIniPos + ' are Out' 
+                    }
+                  </Text> */}
                 </View>
               }
 
@@ -2058,7 +2294,15 @@ export default class Live extends Component {
                   </Text>
                 </View>
               :
-                null
+                <View style={styles.metsContainer}>
+                  <Text style={styles.metsText}>
+                    {!missingPos ?
+                      null
+                    :
+                    　missingPos 
+                    }
+                  </Text>
+                </View>
               }
 
 
@@ -2287,7 +2531,7 @@ const styles = StyleSheet.create({
   }, 
 
   initialPostureContainer: {
-    flexGrow:1,
+    // flexGrow:1,
     position: 'absolute',
     bottom: 0,
     width: '100%', //Dimensions.get('window').width * 1,
@@ -2309,7 +2553,7 @@ const styles = StyleSheet.create({
     // bottom: Dimensions.get('window').height * 0.1, // when Portrait
     // justifyContent: 'center',
     // borderColor: 'green',
-    // borderWidth: 1,
+    // borderWidth: 6,
   }, 
 
   attentionContainer: {
@@ -2335,13 +2579,23 @@ const styles = StyleSheet.create({
   attentionText: {
     // textShadowColor: 'black',
     // textShadowRadius: 5,
-    fontSize: 33,
+    fontSize: 38,
     color: '#ffa500',
     textAlign: 'center',
     paddingHorizontal: 10,
     paddingVertical: 5,
     // backgroundColor: 'rgba(220, 220, 220, 0.7)', 
   },
+  attentionTextRed: {
+    // textShadowColor: 'black',
+    // textShadowRadius: 5,
+    fontSize: 28,
+    color: 'red',
+    textAlign: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    // backgroundColor: 'rgba(220, 220, 220, 0.7)', 
+  },  
 
   metsContainer: {
     // zIndex: 301, // removed 20200531
@@ -2366,7 +2620,7 @@ const styles = StyleSheet.create({
   metsText: {
     // textShadowColor: 'black',
     // textShadowRadius: 5,
-    fontSize: 45,
+    fontSize: 30,
     color: '#ffa500',
     textAlign: 'center',
     paddingHorizontal: 5,

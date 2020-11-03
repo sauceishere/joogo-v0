@@ -32,8 +32,8 @@ export default class Stats extends Component {
             dataByYearWeeks: null, // data for google chart
             isLoading: true, 
             didLoadChartData: false,
-            StatsDataLoadedAt: this.props.navigation.getParam('StatsDataLoadedAt') || null,
-            lastPlayEnded: this.props.navigation.getParam('lastPlayEnded') || null,
+            // StatsDataLoadedAt: this.props.navigation.getParam('StatsDataLoadedAt') || null,
+            // lastPlayEnded: this.props.navigation.getParam('lastPlayEnded') || null,
         }
     };
 
@@ -45,8 +45,8 @@ export default class Stats extends Component {
         console.log('this.state.lastPlayEnded: ', this.state.lastPlayEnded);
         const ts = Date.now() / 1000;
 
-        if ( !this.state.StatsDataLoadedAt || this.state.StatsDataLoadedAt < this.state.lastPlayEnded ) { // to laod data again if never loaded OR last load datetime is earlier than last played datetime. 
-            console.log('--------------------- Loading on Stats.js');
+        // if ( !this.state.StatsDataLoadedAt || this.state.StatsDataLoadedAt < this.state.lastPlayEnded ) { // to laod data again if never loaded OR last load datetime is earlier than last played datetime. 
+        //     console.log('--------------------- Loading on Stats.js');
 
             const _getStats= (idTokenCopied) => {
                 console.log('----- Stats _getStats.');
@@ -96,14 +96,13 @@ export default class Stats extends Component {
                             // console.log('dataByYearWeeks: ', dataByYearWeeks);
 
                             this.setState({
-                                // isLoading: false,
+                                isLoading: false,
                                 scoreTtl: viewPtSum,
                                 playSumTtl: playSum,
                                 playCnt: viewTimes,
                                 dataByYearWeeks: chartData,
-                                isLoading: false,
                                 didLoadChartData: true,
-                                StatsDataLoadedAt: ts,
+                                // StatsDataLoadedAt: ts,
                             }); 
                         } else {
                             console.log('Error or no_data from getStats-py');
@@ -129,18 +128,17 @@ export default class Stats extends Component {
             });  
 
 
-        } else { // if already loaded on Dashboard.js.
-            console.log('--------------------- No loading on Stats.js');
-            this.setState({
-                // isLoading: false,
-                scoreTtl: this.props.navigation.getParam('scoreTtl') ,
-                playSumTtl: this.props.navigation.getParam('playSumTtl') ,
-                playCnt: this.props.navigation.getParam('playCnt') ,
-                dataByYearWeeks: this.props.navigation.getParam('dataByYearWeeks') ,
-                isLoading: false,
-                didLoadChartData: true,
-            });  
-        }
+        // } else { // if already loaded on Dashboard.js.
+        //     console.log('--------------------- No loading on Stats.js');
+        //     this.setState({
+        //         scoreTtl: this.props.navigation.getParam('scoreTtl') ,
+        //         playSumTtl: this.props.navigation.getParam('playSumTtl') ,
+        //         playCnt: this.props.navigation.getParam('playCnt') ,
+        //         dataByYearWeeks: this.props.navigation.getParam('dataByYearWeeks') ,
+        //         isLoading: false,
+        //         didLoadChartData: true,
+        //     });  
+        // }
 
         
 

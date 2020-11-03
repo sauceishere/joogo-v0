@@ -62,7 +62,7 @@ export default class ProfileScreen extends Component {
       hunit: null, 
       isNewUser: null, //this.props.navigation.getParam('isNewUser') ?? false,
       isIos: Platform.OS === 'ios' ? true : false,
-      doneMasterByr: false, // to avoid repear master_byr
+      // doneMasterByr: false, // to avoid repear master_byr
     };
     this._onWValChange = this._onWValChange.bind(this);
     this._onWUnitValueChange = this._onWUnitValueChange.bind(this);
@@ -88,6 +88,7 @@ export default class ProfileScreen extends Component {
   btlist = {bodytags}
   yrlist = []
   
+  doneMasterByr = false; // to avoid repear master_byr
 
 
   // // Get User Profile from Firestore
@@ -665,12 +666,13 @@ export default class ProfileScreen extends Component {
     let thisYear = new Date().getFullYear();
     var i;
     var master_byr = new Array();
-    if ( this.state.doneMasterByr == false ) { // to Avoid repeat 20201019
+    if ( this.doneMasterByr == false ) { // to Avoid repeat 20201019
       for (i = thisYear + 1; i > thisYear - 120; i--) { // current year - 120 yrlists
         this.yrlist.push( i.toString() ); // convert string for parsing array & append to array
         master_byr.push( {key: i.toString(), label: i.toString()})
         // console.log(i);
-        this.setState({ doneMasterByr: true });
+        // this.setState({ doneMasterByr: true });
+        this.doneMasterByr = true;
       }
     };
 

@@ -85,7 +85,7 @@ export default class Leaderboard extends Component {
                             }
 
                             this.setState({
-                                // isLoading: false,
+                                isLoading: false,
                                 AVE_PLAYSUM_MIN_WK: response.detail.AVE_PLAYSUM_MIN_WK,
                                 AVE_PLAYSUM_SEC_WK: response.detail.AVE_PLAYSUM_SEC_WK,
                                 // AVE_PT_WK: response.detail.AVE_PT_WK,
@@ -119,7 +119,7 @@ export default class Leaderboard extends Component {
             
         }; // closing if 
 
-        this.setState({doneComponentDidMount: true, isLoading: false});
+        this.setState({doneComponentDidMount: true});
 
         console.log('------------- componentDidMount Leaderboard.js done');
     } // closing componentDidMount
