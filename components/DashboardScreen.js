@@ -2,7 +2,7 @@
 // import * as React from 'react';
 import React, { Component, useState } from 'react';
 import { View, Text, StyleSheet, Button, FlatList, Dimensions, TouchableOpacity, Image, StatusBar, SafeAreaView, ScrollView, RefreshControl, ActivityIndicator, Modal, Keyboard, TouchableWithoutFeedback, Picker,TextInput  } from 'react-native';
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import moment from "moment"; // for flatlist
 import {GlobalStyles} from '../shared/GlobalStyles';
 import * as firebase from 'firebase';
@@ -1144,7 +1144,7 @@ export default class DashboardScreen extends Component {
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('History') } >                     
-              <MaterialIcons name='history' size={26} color="white" />
+              <FontAwesome5 name='history' size={24} color="white" />
               <Text style={styles.footerContainerText}>History</Text>
             </TouchableOpacity>
 
@@ -1154,7 +1154,8 @@ export default class DashboardScreen extends Component {
             </TouchableOpacity>              
 
             <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('Leaderboard') }>            
-              <Ionicons name='ios-medal' size={26} color="white" />
+              {/* <Ionicons name='ios-medal' size={26} color="white" /> */}
+              <FontAwesome5 name="medal" size={23} color="white" />
               {/* <MaterialIcons name='military_tech' size={26} color="white" /> */}
               {/* <Image style={{ width: 26, height: 26 }} source={require('../assets/leaderboard_icon.png')}/> */}
               <Text style={styles.footerContainerText}>Leaderboard</Text>

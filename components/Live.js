@@ -1,9 +1,9 @@
 
 // import * as React from 'react';
 import React, { Component, useState, useEffect  } from 'react';
-import { Text, View, StyleSheet, Dimensions, StatusBar, Image, TouchableOpacity, SafeAreaView, ScrollView, Button, Platform, ActivityIndicator, } from 'react-native';
+import { Text, View, StyleSheet, Dimensions, StatusBar, Image, TouchableOpacity, SafeAreaView, ScrollView, Button, Platform, ActivityIndicator, Modal } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons, AntDesign } from "@expo/vector-icons";
 import * as firebase from 'firebase';
 // https://js.tensorflow.org/api_react_native/latest/å https://github.com/tensorflow/tfjs/tree/master/tfjs-react-native
 import { Camera } from 'expo-camera';
@@ -107,6 +107,12 @@ export default class Live extends Component {
       iP_rw: false, // to control whether display red circle 20201102
       iP_la: false, // to control whether display red circle 20201102
       iP_ra: false, // to control whether display red circle 20201102
+      showStepNotice: false, // show "A step forward or Back" to fit to Posture after a certain second 20201104
+      showLiveTipModal: true, // to control live tip modal 20201106 
+      liveTipImg: 1, // image number of live_tip 20201106
+      // liveTipImgName: '../assets/live_tip1.png'
+      // showPrevButton: false, // left < button 20201106
+      // showNextButton: true, // right > button 20201106
     }
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);  
     // this._handlePlayAndPause = this._handlePlayAndPause.bind(this);
@@ -116,6 +122,9 @@ export default class Live extends Component {
     this._goBackToHome = this._goBackToHome.bind(this);
     this._saveVidViewLog = this._saveVidViewLog.bind(this);
     this._sendVidViewLog = this._sendVidViewLog.bind(this);
+    // this._pressPrev = this._pressPrev.bind(this);
+    // this._pressNext = this._pressNext.bind(this);
+    // this._pressSkip = this._pressSkip.bind(this);
   }
 
   TESTMODE = 0; // 0 = Production, 1 = TESMODE by nose & shoulder,
@@ -448,7 +457,11 @@ export default class Live extends Component {
     la: false,
     ra: false,
   } // to control whether display red circle on initialPosture 20201102
+  startPosingTiming = 0; // to control showStepNotice 20201104
 
+  // liveTipImgName = '../assets/live_tip1.png';
+  showPrevButton = false;
+  showNextButton = true;  
 
 
   _subscribeToAccelerometer = () => {
@@ -539,7 +552,7 @@ export default class Live extends Component {
 
 
   async componentDidMount() {
-    console.log('------------------- componentDidMount Live started 114');
+    console.log('------------------- componentDidMount Live started 115');
     // console.log('this.props.navigation.getParam: ', this.props.navigation.getParam('wval') );
     // console.log('------ this.mets_per_part: ', this.mets_per_part);
     // console.log('------ this.camState: ', this.camState);
@@ -970,12 +983,28 @@ export default class Live extends Component {
 
 
 
+  _pressPrev = async() => {
+    console.log('---------- _pressPrev');
+    this.setState({liveTipImg: this.state.liveTipImg - 1 }); // 
+  };
+
+  _pressNext = async() => {
+    console.log('---------- _pressNext');
+    this.setState({liveTipImg: this.state.liveTipImg + 1 }); // 
+  };
+
+  _pressSkip = async() => {
+    console.log('---------- _pressSkip');
+    this.setState({showLiveTipModal: false, liveTipImg: 0}); // remove modal & reset image to 0
+  };  
+
+
 
   renderPose() {
     console.log('-------- renderPose.: ', this.vidState.renderPoseTimes);
     const time0 = Date.now() / 1000; 
 
-    const {pose, vidLength, flagAllPosOk, noseToAnkle, flagNoseToAnkle, rightToLeft, flagRightToLeft ,vidFullUrl, shouldPlay, flagUpdateScore, outNTAFlag, accelerometerData, missingPos, outOfIniPos } = this.state;
+    const {pose, vidLength, flagAllPosOk, noseToAnkle, flagNoseToAnkle, rightToLeft, flagRightToLeft ,vidFullUrl, shouldPlay, flagUpdateScore, outNTAFlag, accelerometerData, missingPos, outOfIniPos, showStepNotice, showLiveTipModal } = this.state;
     // console.log('-------- pose: ', pose);
 
 
@@ -1806,108 +1835,122 @@ export default class Live extends Component {
               this.updateMissingPosTiming = parseInt(Date.now() / 1000); // update updateMissingPosTiming 20201102
 
 
-
-
-                if ( flagNoseToAnkle == true && 
-                    this.pos.y0 != null && 
-                    this.pos.y5 != null && 
-                    this.pos.y6 != null && 
-                    this.pos.y7 != null && 
-                    this.pos.y8 != null && 
-                    this.pos.y9 != null && 
-                    this.pos.y10 != null && 
-                    this.pos.y11 != null && 
-                    this.pos.y12 != null && 
-                    this.pos.y13 != null && 
-                    this.pos.y14 != null && 
-                    this.pos.y15 != null && 
-                    this.pos.y16 != null) { // all the positions is within camera range 20200114 
-
-                  console.log('got all positions ------------------------ ');
-                
-
-                  // // to check initialPositions       
-                  if (
-                      // this.pos.x0 > this.initialPositions.x0Min && this.pos.x0 < this.initialPositions.x0Max &&
-                      // this.pos.y0 > this.initialPositions.y0Min && this.pos.y0 < this.initialPositions.y0Max &&
-                      // // this.pos.x9 > this.initialPositions.x9Min && this.pos.x9 < this.initialPositions.x9Max &&
-                      // // this.pos.y9 > this.initialPositions.y9Min && this.pos.y9 < this.initialPositions.y9Max &&
-                      // // this.pos.x10 > this.initialPositions.x10Min && this.pos.x10 < this.initialPositions.x10Max &&
-                      // // this.pos.y10 > this.initialPositions.y10Min && this.pos.y10 < this.initialPositions.y10Max &&
-                      // this.pos.x15 > this.initialPositions.xBothAnkleMin && this.pos.x15 < this.initialPositions.xBothAnkleMax &&
-                      // this.pos.y15 > this.initialPositions.yBothAnkleMin &&
-                      // this.pos.x16 > this.initialPositions.xBothAnkleMin && this.pos.x16 < this.initialPositions.xBothAnkleMax &&
-                      // this.pos.y16 > this.initialPositions.yBothAnkleMin 
-
-                      posPerloop.x0 > this.initialPositions.x0Min && posPerloop.x0 < this.initialPositions.x0Max &&
-                      posPerloop.y0 > this.initialPositions.y0Min && posPerloop.y0 < this.initialPositions.y0Max &&
-                      posPerloop.x9 > this.initialPositions.x9Min && posPerloop.x9 < this.initialPositions.x9Max &&
-                      posPerloop.y9 > this.initialPositions.y9Min && posPerloop.y9 < this.initialPositions.y9Max &&
-                      posPerloop.x10 > this.initialPositions.x10Min && posPerloop.x10 < this.initialPositions.x10Max &&
-                      posPerloop.y10 > this.initialPositions.y10Min && posPerloop.y10 < this.initialPositions.y10Max &&
-                      posPerloop.x15 > this.initialPositions.xBothAnkleMin && posPerloop.x15 < this.initialPositions.xBothAnkleMax &&
-                      posPerloop.y15 > this.initialPositions.yBothAnkleMin &&
-                      posPerloop.x16 > this.initialPositions.xBothAnkleMin && posPerloop.x16 < this.initialPositions.xBothAnkleMax &&
-                      posPerloop.y16 > this.initialPositions.yBothAnkleMin 
-
-                      ) {
-
-                        
-                  
-              ////////////////////////////////////////////////////////////       
-              
-            
-                    this.cntIniPos += 1;
-                    console.log('---------- this.cntIniPos: ', this.cntIniPos);
-
-                    // hide webCam, initialPosture.png & start countdown 
-                    if (flagAllPosOk == false && this.cntIniPos > 1) { // flag to control going through one time 
-                      //flagAllPosOk = 1; // flag to confirm all the positions are within camera range
-                      this.setState({ flagAllPosOk: true });
-                      console.log('oooooooooooooooooooooooooooooooooooooooooo All the positions confirmed ooooooooooooooooooooooooooooooooooooooooooooo ');
-                      
-                      this.vidState.numFrameAllPosOk = this.vidState.renderPoseTimes; // for record to Firestore vidViewLog. 20200524
-
-                      var videoCountDownSec = 1; // total countdown seconds until trainerVideo starts
-                      // console.log('------------------ 0002');
-
-                      var videoCountDown = setInterval( function(){
-                        // this.setState({countdownTxt: videoCountDownSec + ' ...'}); // assign 
-                        this.setState({countdownTxt: 'GO' }); // assign 
-                        // console.log('--------------------- videoCountDownSec... : ', videoCountDownSec);
-                        videoCountDownSec--; // decrement
-                        if (videoCountDownSec < 0) { // when becomes smaller than zero
-                          clearInterval(videoCountDown); // terminate interval
-                          // this.attentionTxt = ''; // emptize text
-                          _playVideoAtStart(); //  start video function
-                          // this._handlePlayAndPause;
-                          console.log('videoCountDown ends ');
-                        }
-
-                        // console.log('---- 1439   this.state.flagAllPosOk: ', this.state.flagAllPosOk );
-                        // console.log('---- 1439   this.state.flagCountdownFinished: ', this.state.flagCountdownFinished );
-                        // console.log('---- 1439   this.state.flagShowGoBackIcon: ', this.state.flagShowGoBackIcon );
-                        // console.log('---- 1439   this.state.flagUpdateScore: ', this.state.flagUpdateScore );
-                        // console.log('---- 1439   this.state.shouldPlay: ', this.state.shouldPlay );
-
-                        // if ( this.state.flagVidEnd === true ) { // this will force to stop setInterval(videoCountDown) when user press gobackhome DURING COUNTDOWN. 20200603
-                        //   console.log('this will force to stop setInterval(videoCountDown).');
-                        //   clearInterval(videoCountDown); 
-                        // }
-                       
-
-                      }.bind(this), 1000 ); // countdown interval in second  // add .bind(this) because https://stackoverflow.com/questions/31045716/react-this-setstate-is-not-a-function
-                      // console.log('------------------ 0003');
-
-                    } 
-
-                  } else { // if initialPositions not confirmed
-                    console.log('xxxxxxxxxxxxxxxxxxxxxxxxxx      initialPositions NOT confirmed       xxxxxxxxxxxxxxxxxxxxxxxxxx');
-                  }   
-                  
-                } else { // if all positions not confirmed 
-                  // console.log('All the positions NOT confirmed xxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+              // from here, to control show Notice 20201104
+              // if (this.outOfIniPos.length > 0 && this.startPosingTiming == 0) { 
+              if (showLiveTipModal == true) {
+                this.startPosingTiming = Date.now() / 1000; // this is start point.
+                console.log('----- showStepNotice: true');
+              }
+              if (this.state.showStepNotice == false) {
+                if ( Date.now() / 1000 - this.startPosingTiming > 3 ) { // if time elapsed over X seconds 
+                  console.log('----- showStepNotice: true');
+                  this.setState({ showStepNotice: true }); // to show Notice
                 }
+              }
+
+
+
+              if ( flagNoseToAnkle == true && 
+                  this.pos.y0 != null && 
+                  this.pos.y5 != null && 
+                  this.pos.y6 != null && 
+                  this.pos.y7 != null && 
+                  this.pos.y8 != null && 
+                  this.pos.y9 != null && 
+                  this.pos.y10 != null && 
+                  this.pos.y11 != null && 
+                  this.pos.y12 != null && 
+                  this.pos.y13 != null && 
+                  this.pos.y14 != null && 
+                  this.pos.y15 != null && 
+                  this.pos.y16 != null) { // all the positions is within camera range 20200114 
+
+                console.log('got all this.pos ------------------------ ');
+              
+
+                // // to check initialPositions       
+                if (
+                    noseToAnkle > this.initialPositions.NoseToAnkleMin &&
+                //     this.pos.x0 > this.initialPositions.x0Min && this.pos.x0 < this.initialPositions.x0Max &&
+                //     this.pos.y0 > this.initialPositions.y0Min && this.pos.y0 < this.initialPositions.y0Max &&
+                    this.pos.x9 > this.initialPositions.x9Min && this.pos.x9 < this.initialPositions.x9Max &&
+                    this.pos.y9 > this.initialPositions.y9Min && this.pos.y9 < this.initialPositions.y9Max &&
+                    this.pos.x10 > this.initialPositions.x10Min && this.pos.x10 < this.initialPositions.x10Max &&
+                    this.pos.y10 > this.initialPositions.y10Min && this.pos.y10 < this.initialPositions.y10Max &&
+                    this.pos.x15 > this.initialPositions.xBothAnkleMin && this.pos.x15 < this.initialPositions.xBothAnkleMax &&
+                    this.pos.y15 > this.initialPositions.yBothAnkleMin &&
+                    this.pos.x16 > this.initialPositions.xBothAnkleMin && this.pos.x16 < this.initialPositions.xBothAnkleMax &&
+                    this.pos.y16 > this.initialPositions.yBothAnkleMin 
+
+                    // posPerloop.x0 > this.initialPositions.x0Min && posPerloop.x0 < this.initialPositions.x0Max &&
+                    // posPerloop.y0 > this.initialPositions.y0Min && posPerloop.y0 < this.initialPositions.y0Max &&
+                    // posPerloop.x9 > this.initialPositions.x9Min && posPerloop.x9 < this.initialPositions.x9Max &&
+                    // posPerloop.y9 > this.initialPositions.y9Min && posPerloop.y9 < this.initialPositions.y9Max &&
+                    // posPerloop.x10 > this.initialPositions.x10Min && posPerloop.x10 < this.initialPositions.x10Max &&
+                    // posPerloop.y10 > this.initialPositions.y10Min && posPerloop.y10 < this.initialPositions.y10Max &&
+                    // posPerloop.x15 > this.initialPositions.xBothAnkleMin && posPerloop.x15 < this.initialPositions.xBothAnkleMax &&
+                    // posPerloop.y15 > this.initialPositions.yBothAnkleMin &&
+                    // posPerloop.x16 > this.initialPositions.xBothAnkleMin && posPerloop.x16 < this.initialPositions.xBothAnkleMax &&
+                    // posPerloop.y16 > this.initialPositions.yBothAnkleMin 
+
+                    ) {
+
+                      
+                
+            ////////////////////////////////////////////////////////////       
+            
+          
+                  this.cntIniPos += 1;
+                  console.log('---------- this.cntIniPos: ', this.cntIniPos);
+
+                  // hide webCam, initialPosture.png & start countdown 
+                  if (flagAllPosOk == false && this.cntIniPos > 2) { // flag to control going through one time 
+                    //flagAllPosOk = 1; // flag to confirm all the positions are within camera range
+                    this.setState({ flagAllPosOk: true });
+                    console.log('oooooooooooooooooooooooooooooooooooooooooo All the positions confirmed ooooooooooooooooooooooooooooooooooooooooooooo ');
+                    
+                    this.vidState.numFrameAllPosOk = this.vidState.renderPoseTimes; // for record to Firestore vidViewLog. 20200524
+
+                    var videoCountDownSec = 1; // total countdown seconds until trainerVideo starts
+                    // console.log('------------------ 0002');
+
+                    var videoCountDown = setInterval( function(){
+                      // this.setState({countdownTxt: videoCountDownSec + ' ...'}); // assign 
+                      this.setState({countdownTxt: 'GO' }); // assign 
+                      // console.log('--------------------- videoCountDownSec... : ', videoCountDownSec);
+                      videoCountDownSec--; // decrement
+                      if (videoCountDownSec < 0) { // when becomes smaller than zero
+                        clearInterval(videoCountDown); // terminate interval
+                        // this.attentionTxt = ''; // emptize text
+                        _playVideoAtStart(); //  start video function
+                        // this._handlePlayAndPause;
+                        console.log('videoCountDown ends ');
+                      }
+
+                      // console.log('---- 1439   this.state.flagAllPosOk: ', this.state.flagAllPosOk );
+                      // console.log('---- 1439   this.state.flagCountdownFinished: ', this.state.flagCountdownFinished );
+                      // console.log('---- 1439   this.state.flagShowGoBackIcon: ', this.state.flagShowGoBackIcon );
+                      // console.log('---- 1439   this.state.flagUpdateScore: ', this.state.flagUpdateScore );
+                      // console.log('---- 1439   this.state.shouldPlay: ', this.state.shouldPlay );
+
+                      // if ( this.state.flagVidEnd === true ) { // this will force to stop setInterval(videoCountDown) when user press gobackhome DURING COUNTDOWN. 20200603
+                      //   console.log('this will force to stop setInterval(videoCountDown).');
+                      //   clearInterval(videoCountDown); 
+                      // }
+                      
+
+                    }.bind(this), 1000 ); // countdown interval in second  // add .bind(this) because https://stackoverflow.com/questions/31045716/react-this-setstate-is-not-a-function
+                    // console.log('------------------ 0003');
+
+                  } 
+
+                } else { // if initialPositions not confirmed
+                  console.log('xxxxxxxxxxxxxxxxxxxxxxxxxx      initialPositions NOT confirmed       xxxxxxxxxxxxxxxxxxxxxxxxxx');
+                }   
+                
+              } else { // if all positions not confirmed 
+                // console.log('All the positions NOT confirmed xxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+              }
 
 
 
@@ -2032,7 +2075,7 @@ export default class Live extends Component {
     console.log('----------------- render --------------------');
     var time1 = Date.now() / 1000; 
 
-    const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, scoreNow, vidStartAt, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon, octopusLoc, outNTAFlag, outAccelFlag, missingPos, outOfIniPos, iP_f, iP_lw, iP_rw, iP_la, iP_ra } = this.state;
+    const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, scoreNow, vidStartAt, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon, octopusLoc, outNTAFlag, outAccelFlag, missingPos, outOfIniPos, iP_f, iP_lw, iP_rw, iP_la, iP_ra, showStepNotice, showLiveTipModal, liveTipImg } = this.state;
 
     if (shouldPlay == true) { // increment only shouldPlay=true. this means not incremented whe video is paused.
       this.vidState.vidPlayedSum = this.vidState.vidPlayedSum + (Date.now()/1000 - this.vidState.loopStartAt); // add increment time
@@ -2044,6 +2087,28 @@ export default class Live extends Component {
 
     console.log('iP_f, iP_lw, iP_rw, iP_la, iP_ra: ', iP_f, iP_lw, iP_rw, iP_la, iP_ra);
 
+    if (liveTipImg == 1) {
+      this.showPrevButton = false; // no show left
+      this.showNextButton = true;
+    } else if (liveTipImg == 4) {
+      this.showPrevButton = true;
+      this.showNextButton = false; // no show right   
+    } else {
+      this.showPrevButton = true;
+      this.showNextButton = true;
+    }
+    console.log(' this.showPrevButton, this.showNextButton: ', this.showPrevButton, this.showNextButton);
+
+    // if (liveTipImg == 1) {
+    //   this.liveTipImgName = '../assets/live_tip1.png';
+    // } else if (liveTipImg == 2) {
+    //   this.liveTipImgName = '../assets/live_tip2.png';
+    // } else if (liveTipImg == 3) {
+    //   this.liveTipImgName = '../assets/live_tip3.png';
+    // } else if (liveTipImg == 4) {
+    //   this.liveTipImgName = '../assets/live_tip4.png';
+    // }
+    console.log('showLiveTipModal, liveTipImg: ', showLiveTipModal, liveTipImg );
 
 
 // ////////// to check if mobile devices is fixed & no move by Accelerometer
@@ -2081,7 +2146,11 @@ export default class Live extends Component {
 
     return (
         <View style={styles.container}>
-          
+
+        { showLiveTipModal ?
+          null
+        :
+          <View>
 
           { isPosenetLoaded ?  
 
@@ -2272,9 +2341,17 @@ export default class Live extends Component {
                 </View>
               :
                 <View style={styles.attentionContainer}>
-                  <Text style={styles.attentionText}>
-                    Fit{"\n"}Your Body
-                  </Text>
+                  { showStepNotice ?
+                    <Text style={styles.attentionText}>
+                      Move A Step{"\n"} 
+                      Ahead or Back
+                    </Text>
+                  :
+                    <Text style={styles.attentionText}>
+                      Fit{"\n"}Your Body
+                    </Text>                 
+                  }
+
                   {/* <Text style={styles.attentionTextRed}>
                     {!outOfIniPos ?
                       null
@@ -2282,6 +2359,7 @@ export default class Live extends Component {
                       outOfIniPos + ' are Out' 
                     }
                   </Text> */}
+
                 </View>
               }
 
@@ -2351,11 +2429,70 @@ export default class Live extends Component {
           }
 
 
+
           <View style={styles.goBackIconContainer}>
             <TouchableOpacity onPress={ this._goBackToHome }  >
               <Ionicons name="md-arrow-back" size={goBackIconSize} color="#ffa500" style={styles.goBackIcon}/>
             </TouchableOpacity>   
           </View>
+
+          </View>
+        }
+
+
+          <Modal visible={showLiveTipModal} animationType='fade' transparent={true}>
+            <View style={styles.modal}>
+              
+                {/* left pane */}
+                <View style={styles.prevButtonContainer}>
+                  { this.showPrevButton == true &&
+                    <TouchableOpacity onPress={ this._pressPrev}  style={styles.prevButton}>
+                      <Ionicons name="ios-arrow-dropleft-circle" size={60} color="#ffa500" />
+                    </TouchableOpacity> 
+                  }
+                </View>
+
+                {/* center pane */}
+                <View style={styles.imgAndButtonContainer}>
+                  <View style={styles.liveTipImgContainer}>
+                    { liveTipImg == 1 &&
+                      <Image style={styles.liveTipImg} source={require( '../assets/live_tip1.png' )} resizeMode="cover" />
+                    }
+                    { liveTipImg == 2 &&
+                      <Image style={styles.liveTipImg} source={require( '../assets/live_tip2.png' )} resizeMode="cover"  />  
+                    } 
+                    { liveTipImg == 3 &&
+                      <Image style={styles.liveTipImg} source={require( '../assets/live_tip3.png' )} resizeMode="cover" />                     
+                    }
+                    { liveTipImg == 4 &&
+                      <Image style={styles.liveTipImg} source={require( '../assets/live_tip4.png' )} resizeMode="cover" /> 
+                    }
+                  </View>
+                  
+                  <View style={styles.skipButtonContainer}>
+                    <TouchableOpacity onPress={ this._pressSkip}  style={styles.skipButton}>
+                      { liveTipImg == 4 ?
+                        <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}> Go </Text>
+                        :
+                        <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}> Skip </Text>                     
+                      }
+                    </TouchableOpacity>   
+                  </View>
+
+                </View>  
+
+                {/* right pane */}
+                <View style={styles.nextButtonContainer}>
+                  { this.showNextButton == true && 
+                    <TouchableOpacity onPress={ this._pressNext}  style={styles.nextButton}>
+                      <Ionicons name="ios-arrow-dropright-circle" size={60} color="#ffa500" />
+                    </TouchableOpacity> 
+                  }
+                </View>   
+
+
+            </View>
+          </Modal>
 
 
       
@@ -2561,7 +2698,7 @@ const styles = StyleSheet.create({
     // flex: 1,
     flexGrow:1,
     position: 'absolute',
-    top: Dimensions.get('window').width * 0.25, // when Landscape 
+    bottom: Dimensions.get('window').width * 0.04, // when Landscape 
     left: Dimensions.get('window').height * 0.02, // when Landscape 
     // top: Dimensions.get('window').height * 0.13, // when Portrait 
     // left: Dimensions.get('window').width * 0.04, // when Portrait 
@@ -2579,7 +2716,7 @@ const styles = StyleSheet.create({
   attentionText: {
     // textShadowColor: 'black',
     // textShadowRadius: 5,
-    fontSize: 38,
+    fontSize: 35,
     color: '#ffa500',
     textAlign: 'center',
     paddingHorizontal: 10,
@@ -2735,5 +2872,121 @@ const styles = StyleSheet.create({
     // textShadowRadius: 5,
     textAlign: 'center',
   },   
+  modal: {
+    // flexGrow: 1,
+    flex: 3, 
+    flexDirection: "column",
+    justifyContent: 'center',
+    alignItems: 'center',  
+    // marginVertical: Dimensions.get('window').height * 0.05,     
+    // marginHorizontal: Dimensions.get('window').width * 0.05,
+    height: Dimensions.get('window').width - StatusBar.currentHeight,
+    width: Dimensions.get('window').height,
+    // backgroundColor: '#ffa500', 
+    // borderRadius: 10,
+    opacity: 1.0,
+    shadowColor: 'black', // iOS
+    shadowOffset: { width: 20, height: 20 }, // iOS
+    shadowOpacity: 0.4, // iOS
+    shadowRadius: 10, // iOS   
+    elevation: 10, // Android
+  },
+  // modalText: {
+  //   color: '#ffa500', 
+  //   fontSize: 20, 
+  //   fontWeight: 'bold', 
+  //   textAlign: 'center',
+  // },
+
+  prevButtonContainer: {
+    position: 'absolute',
+    // bottom: 0,
+    left: 0,
+    justifyContent: 'center',
+    alignItems: 'center',        
+    // backgroundColor: 'green',
+  },
+  prevButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: Dimensions.get('window').height * 0.15,
+    height: Dimensions.get('window').width - StatusBar.currentHeight, 
+    // backgroundColor: 'pink', 
+    // borderColor: 'pink',
+    // borderWidth: 2,    
+  },  
+
+  imgAndButtonContainer: {
+    flex: 2, 
+    flexDirection: "row",
+    position: 'absolute',
+    top: 0,
+    width: Dimensions.get('window').height * 0.7,
+    height: Dimensions.get('window').width - StatusBar.currentHeight,    
+  },
+
+  liveTipImgContainer: {
+    position: 'absolute',
+    top: 0,
+    width: Dimensions.get('window').height * 0.7,  
+    height: (Dimensions.get('window').width - StatusBar.currentHeight) * 0.8,  
+    // borderColor: 'purple',
+    // borderWidth: 2,
+  },  
+  liveTipImg: {
+    justifyContent: 'center',
+    alignItems: 'center',  
+    width: Dimensions.get('window').height * 0.7,
+    height: (Dimensions.get('window').height * 0.7) * (1080 / 1920), 
+    // resizeMode: 'center',
+  },
+  skipButtonContainer: {
+    position: 'absolute',
+    bottom: 0,
+    width: Dimensions.get('window').height * 0.7, 
+    height: (Dimensions.get('window').width - StatusBar.currentHeight) * 0.2, 
+    justifyContent: 'center',
+    alignItems: 'center',    
+    // backgroundColor: 'purple',
+  },
+  skipButton: {
+    // flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',    
+    backgroundColor: '#ffa500',
+    // width: Dimensions.get('window').width * 0.7,
+    borderRadius: 5,
+    // height: 40,
+    shadowColor: 'black', // iOS
+    shadowOffset: { width: 5, height: 5 }, // iOS
+    shadowOpacity: 0.4, // iOS
+    shadowRadius: 5, // iOS   
+    elevation: 5, // Android
+    // marginTop: 0,
+    position: 'relative',
+    top: 0,
+    // right: Dimensions.get('window').height * 0.03,
+    // bottom: Dimensions.get('window').height * 0.03,
+    width: Dimensions.get('window').height * 0.3,
+    height: Dimensions.get('window').height * 0.05,    
+  },
+
+  nextButtonContainer: {
+    position: 'absolute',
+    // bottom: 0,
+    right: 0,
+    justifyContent: 'center',
+    alignItems: 'center',        
+    // backgroundColor: 'blue',
+  },
+  nextButton: {
+    justifyContent: 'center',
+    alignItems: 'center', 
+    width: Dimensions.get('window').height * 0.15,
+    height: Dimensions.get('window').width  - StatusBar.currentHeight,     
+    // backgroundColor: 'pink',
+    // borderColor: 'purple',
+    // borderWidth: 2,
+  },
 
 });
