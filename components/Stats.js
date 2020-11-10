@@ -412,9 +412,9 @@ const styles = StyleSheet.create({
         top: 0, //StatusBar.currentHeight,
         // height: Dimensions.get('screen').width, // when Landscape 
         // width: Dimensions.get('screen').height, // when Landscape 
-        height: Dimensions.get('screen').height, // when Portrait 
-        width: Dimensions.get('screen').width, // when Portrait     
-        position: 'absolute',
+        // height: Dimensions.get('screen').height, // when Portrait 
+        // width: Dimensions.get('screen').width, // when Portrait     
+        // position: 'absolute',
         flex: 1,
         // zindex: 0, // 20200531
         // borderColor: 'green',

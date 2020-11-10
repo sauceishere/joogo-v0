@@ -6,7 +6,7 @@
       "ios",
       "android"
     ],
-    "version": "1.0.11",
+    "version": "1.0.12",
     "orientation": "portrait",
     "icon": "./assets/icon1024x1024.png",
     "splash": {
@@ -29,10 +29,10 @@
         }
       },
       "bundleIdentifier": "io.joogo.joogofit",
-      "buildNumber": "1.0.4"
+      "buildNumber": "1.0.5"
     },
     "android": {
-      "versionCode": 20,
+      "versionCode": 21,
       "package": "io.joogofit",
       "config": {
         "googleMobileAdsAppId":"ca-app-pub-9079750066587969~3344414378",

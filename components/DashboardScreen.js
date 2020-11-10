@@ -601,7 +601,7 @@ export default class DashboardScreen extends Component {
               adUnitID: response.const_exer.adUnitID,
               model2: response.reg2, // 20200824
             }); 
-            // console.log('this.state.const_exer: ', this.state.const_exer );
+            console.log('this.state.const_exer: ', this.state.const_exer );
             // console.log('this.state.mets_per_part: ', this.state.mets_per_part );
             // console.log('this.state.scaler_scale: ', this.state.scaler_scale );
             // console.log('this.state.scaler_mean: ', this.state.scaler_mean );
