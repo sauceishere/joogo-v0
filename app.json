@@ -6,7 +6,7 @@
       "ios",
       "android"
     ],
-    "version": "1.0.12",
+    "version": "1.0.14",
     "orientation": "portrait",
     "icon": "./assets/icon1024x1024.png",
     "splash": {
@@ -22,22 +22,23 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "requireFullScreen": true, 
+      "requireFullScreen": true,
       "config": {
         "googleSignIn": {
           "reservedClientId": "com.googleusercontent.apps.399964185668-0mb6rijfn1c24etqjkrhpt48f31cgdag"
         }
       },
       "bundleIdentifier": "io.joogo.joogofit",
-      "buildNumber": "1.0.5"
+      "buildNumber": "1.0.7"
     },
     "android": {
-      "versionCode": 21,
+      "versionCode": 23,
       "package": "io.joogofit",
       "config": {
-        "googleMobileAdsAppId":"ca-app-pub-9079750066587969~3344414378",
-        "googleSignIn": { "apiKey": "AIzaSyD7S2g8CqFfzE-4CiXdlqRhkMYtfJghFoI",
-                          "certificateHash": "9D57F940AA0B663D7C21A496371DB7DCEFA74921"
+        "googleMobileAdsAppId": "ca-app-pub-9079750066587969~3344414378",
+        "googleSignIn": {
+          "apiKey": "AIzaSyD7S2g8CqFfzE-4CiXdlqRhkMYtfJghFoI",
+          "certificateHash": "9D57F940AA0B663D7C21A496371DB7DCEFA74921"
         }
       },
       "permissions": [
