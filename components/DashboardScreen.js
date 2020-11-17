@@ -345,7 +345,7 @@ export default class DashboardScreen extends Component {
 
 
   async componentDidMount() {
-    console.log('------------- componentDidMount Dashboard started 09');
+    console.log('------------- componentDidMount Dashboard started 10');
 
     if (this.state.doneComponentDidMount == false) { // if variable is null. this if to prevent repeated loop.
       // console.log('this.state.vidFullUrl started ');
@@ -601,10 +601,11 @@ export default class DashboardScreen extends Component {
               adUnitID: response.const_exer.adUnitID,
               model2: response.reg2, // 20200824
             }); 
-            console.log('this.state.const_exer: ', this.state.const_exer );
+            // console.log('this.state.const_exer: ', this.state.const_exer );
             // console.log('this.state.mets_per_part: ', this.state.mets_per_part );
             // console.log('this.state.scaler_scale: ', this.state.scaler_scale );
             // console.log('this.state.scaler_mean: ', this.state.scaler_mean );
+            console.log('this.state.model: ', this.state.model );
             console.log('this.state.model2: ', this.state.model2 );
 
           } else if (response["code"] == 'ok') { // after the second load, no need to load ["flagMastersLoaded"]
@@ -727,7 +728,7 @@ export default class DashboardScreen extends Component {
 
 
   renderPost = post => {
-      const {  const_exer, wval, wunit, scaler_scale, scaler_mean, model, vidViewLogTemp , adUnitID, model2} = this.state;
+      const {  const_exer, wval, wunit, scaler_scale, scaler_mean, model, vidViewLogTemp, adUnitID, model2} = this.state;
       // num_post++; // increment var num_post
       console.log('====== post ====== post_num:' , post_num);
 
@@ -1041,7 +1042,7 @@ export default class DashboardScreen extends Component {
 
   render() {
     console.log('---------------- render');
-    const { isLoading, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, nname, wval, wunit, hval, hunit, nat, byr, gdr, bt0, bt1, ts, llogin, lupdate, isGuest, } = this.state; // scoreTtl, playSumTtl, playCnt, dataByYearWeeks, StatsDataLoadedAt, lastPlayEnded
+    const { isLoading, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, nname, wval, wunit, hval, hunit, nat, byr, gdr, bt0, bt1, ts, llogin, lupdate, isGuest, model2 } = this.state; // scoreTtl, playSumTtl, playCnt, dataByYearWeeks, StatsDataLoadedAt, lastPlayEnded
 
 
     return (
@@ -1159,6 +1160,10 @@ export default class DashboardScreen extends Component {
               {/* <MaterialIcons name='military_tech' size={26} color="white" /> */}
               {/* <Image style={{ width: 26, height: 26 }} source={require('../assets/leaderboard_icon.png')}/> */}
               <Text style={styles.footerContainerText}>Leaderboard</Text>
+            </TouchableOpacity>  
+
+            <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('Live1016', { const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit, model2 } ) }>            
+              <Text style={styles.footerContainerText}>1.0.16</Text>
             </TouchableOpacity>  
 
             {/* <Ionicons name="ios-add-circle-outline" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Post') }/> */}

@@ -561,7 +561,7 @@ export default class Live extends Component {
 
 
   async componentDidMount() {
-    console.log('------------------- componentDidMount Live started 115-4');
+    console.log('------------------- componentDidMount Live started 121');
     // console.log('this.props.navigation.getParam: ', this.props.navigation.getParam('wval') );
     // console.log('------ this.mets_per_part: ', this.mets_per_part);
     // console.log('------ this.camState: ', this.camState);
@@ -2156,7 +2156,10 @@ export default class Live extends Component {
     return (
         <View style={styles.container}>
 
-       
+        { showLiveTipModal ?
+          null
+        :
+          <View>       
 
           { isPosenetLoaded ?  
 
@@ -2440,6 +2443,10 @@ export default class Live extends Component {
               <Ionicons name="md-arrow-back" size={goBackIconSize} color="#ffa500" style={styles.goBackIcon}/>
             </TouchableOpacity>   
           </View>
+
+          </View>
+
+        }
 
     
 

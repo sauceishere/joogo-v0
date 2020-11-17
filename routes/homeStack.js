@@ -13,7 +13,7 @@ import PostScreen from "../components/PostScreen";
 import HistoryScreen from "../components/HistoryScreen";
 import LeaderboardScreen from "../components/Leaderboard";
 import Live from "../components/Live";
-import LiveYT from "../components/LiveYT";
+import Live1016 from "../components/Live1016";
 import Stats from "../components/Stats";
 
 import { LinearGradient } from 'expo-linear-gradient';
@@ -186,8 +186,8 @@ const screens = {
       }
     }, 
   },  
-  LiveYT: {
-    screen: LiveYT,
+  Live1016: {
+    screen: Live1016,
     navigationOptions: ({ navigation }) => { //https://www.youtube.com/watch?v=C3oDJdlrEKE&list=PL4cUxeGkcC9ixPU-QkScoRBVxtPPzVjrQ&index=25
       return {
         // headerTitle: () => <Header title='Search' navigation={navigation} style={styles.Header}/>,

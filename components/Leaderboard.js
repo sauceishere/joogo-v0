@@ -36,15 +36,82 @@ export default class Leaderboard extends Component {
             // refreshing: false,
             // isFlatlistLoaded: false,
         }
-        // this._getExerHistSummary = this._getExerHistSummary.bind(this);
-        // this._requestLoadExerHist = this._requestLoadExerHist.bind(this);
-        // this._handleLoadMore = this._handleLoadMore.bind(this);
-        // this._handleRefresh = this._handleRefresh.bind(this);
+        this._requestLoadLeaderboard = this._requestLoadLeaderboard.bind(this);
+        this._handleLoadMore = this._handleLoadMore.bind(this);
     }
 
     // oldestLogTs =  Date.now() / 1000;
 
     post_num = 1; // this actually is rank.
+
+
+    _requestLoadLeaderboard = async () => {
+        console.log('------------- _requestLoadLeaderboard');
+        const { page } = this.state;
+
+        const _loadLeaderboard =  (idTokenCopied) => {
+            console.log('----- History _loadLeaderboard.');
+            //   console.log('this.oldestLogTs: ', this.oldestLogTs);
+            
+            fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/loadLeaderboard-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+                method: 'POST',
+                headers: {
+                    // 'Accept': 'application/json', 
+                    'Content-Type' : 'application/json' // text/html text/plain application/json
+                },
+                    // mode: "no-cors", // no-cors, cors, *same-origin
+                    body: JSON.stringify({
+                        id_token: idTokenCopied,
+                })
+            }).then( result => result.json() )
+                .then( response => { 
+                // console.log('------------------ _getExerHistSummary response: ', response);
+
+                    if( response["code"] == 'ok'){
+                        console.log('---------------- ok');
+                        console.log('_loadLeaderboard response.detail: ', response.detail );
+
+                        // to control when to display 'ad'. 20200623
+                        var i;
+                        for (i = 0; i < response.detail.data.length; i++) {
+                            console.log('this.post_num: ', this.post_num);
+                            response.detail.data[i]['rank'] = this.post_num;  // assign rank
+                            this.post_num++; // increment
+                        }
+
+                        this.setState({
+                            isLoading: false,
+                            AVE_PLAYSUM_MIN_WK: response.detail.AVE_PLAYSUM_MIN_WK,
+                            AVE_PLAYSUM_SEC_WK: response.detail.AVE_PLAYSUM_SEC_WK,
+                            // AVE_PT_WK: response.detail.AVE_PT_WK,
+                            AVE_VIEW_WK: response.detail.AVE_VIEW_WK,
+                            AVE_SCORE_WK: response.detail.AVE_SCORE_WK,
+                            within_top: response.detail.within_top,
+                            posts: response.detail.data,
+                        }); 
+                        // console.log('this.state.posts: ', this.state.posts);
+                    } 
+        
+            }).catch((error) => {
+                this.setState({ isLoading: false, });
+                console.log('Error _loadLeaderboard: ', error);
+                alert('Error _loadLeaderboard. Please try again later.');
+            });
+
+        }
+
+        await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then( function(idToken) {
+            const idTokenCopied = idToken;
+        
+            _loadLeaderboard(idTokenCopied);
+        
+        }).catch(function(error) {
+            console.log('Error xxxxxxxxxxxxxxxx Could not get idToken _loadLeaderboard : ', error);
+            alert('Error, Could not get idToken _loadLeaderboard. please try again later.')
+        });  
+
+    }
+
 
 
     async componentDidMount() {
@@ -53,69 +120,7 @@ export default class Leaderboard extends Component {
         if (this.state.doneComponentDidMount === false) { // if variable is null. this if to prevent repeated loop.
             console.log('this.state.doneComponentDidMount === false');
             // this.setState({isLoading: true});
-    
-            const _loadLeaderboard = (idTokenCopied) => {
-                console.log('----- History _loadLeaderboard.');
-                //   console.log('this.oldestLogTs: ', this.oldestLogTs);
-                
-                fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/loadLeaderboard-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
-                    method: 'POST',
-                    headers: {
-                        // 'Accept': 'application/json', 
-                        'Content-Type' : 'application/json' // text/html text/plain application/json
-                    },
-                        // mode: "no-cors", // no-cors, cors, *same-origin
-                        body: JSON.stringify({
-                            id_token: idTokenCopied,
-                    })
-                }).then( result => result.json() )
-                    .then( response => { 
-                    // console.log('------------------ _getExerHistSummary response: ', response);
-        
-                        if( response["code"] == 'ok'){
-                            console.log('---------------- ok');
-                            console.log('_loadLeaderboard response.detail: ', response.detail );
-
-                            // to control when to display 'ad'. 20200623
-                            var i;
-                            for (i = 0; i < response.detail.data.length; i++) {
-                                console.log('this.post_num: ', this.post_num);
-                                response.detail.data[i]['rank'] = this.post_num;  // assign rank
-                                this.post_num++; // increment
-                            }
-
-                            this.setState({
-                                isLoading: false,
-                                AVE_PLAYSUM_MIN_WK: response.detail.AVE_PLAYSUM_MIN_WK,
-                                AVE_PLAYSUM_SEC_WK: response.detail.AVE_PLAYSUM_SEC_WK,
-                                // AVE_PT_WK: response.detail.AVE_PT_WK,
-                                AVE_VIEW_WK: response.detail.AVE_VIEW_WK,
-                                AVE_SCORE_WK: response.detail.AVE_SCORE_WK,
-                                within_top: response.detail.within_top,
-                                posts: response.detail.data,
-                            }); 
-                            // console.log('this.state.posts: ', this.state.posts);
-                        } 
-            
-                }).catch((error) => {
-                    this.setState({ isLoading: false, });
-                    console.log('Error _loadLeaderboard: ', error);
-                    alert('Error _loadLeaderboard. Please try again later.');
-                });
-        
-            }
-        
-            await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then( function(idToken) {
-                const idTokenCopied = idToken;
-            
-                _loadLeaderboard(idTokenCopied);
-            
-            }).catch(function(error) {
-                console.log('Error xxxxxxxxxxxxxxxx Could not get idToken _loadLeaderboard : ', error);
-                alert('Error, Could not get idToken _loadLeaderboard. please try again later.')
-            });  
-    
-            // await this._requestLoadExerHist(); // kick 
+            await this._requestLoadLeaderboard(); // kick 
             
         }; // closing if 
 
@@ -123,6 +128,15 @@ export default class Leaderboard extends Component {
 
         console.log('------------- componentDidMount Leaderboard.js done');
     } // closing componentDidMount
+
+
+
+    _handleLoadMore = async () => {
+        console.log('------------- _handleLoadMore: ', this.oldestLogTs);
+        this.setState({ page: this.state.page + 1 }, () => {
+            this._requestLoadLeaderboard();
+        });
+    };    
 
 
 
@@ -229,6 +243,7 @@ export default class Leaderboard extends Component {
 
                         <View style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.03, paddingHorizontal: Dimensions.get('window').width * 0.03}}> 
                             <Text style={styles.pageTitle}>Burned Calorie Ranking</Text> 
+                            <SafeAreaView style={{ marginTop: Dimensions.get('window').height * 0.01, height: Dimensions.get('window').height * 0.6 }}>
                             <FlatList
                                 style={styles.feed}
                                 data={this.state.posts}
@@ -242,6 +257,7 @@ export default class Leaderboard extends Component {
                                 // onEndReachedThreshold={1}
                             >
                             </FlatList>
+                            </SafeAreaView>
                         </View>
 
                     </View>

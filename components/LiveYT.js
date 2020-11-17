@@ -50,7 +50,7 @@ export default class Live extends Component {
       cameraType: Camera.Constants.Type.front,
       modelName: 'posenet',
       vidFullUrl: 'https://www.youtube.com/embed/llNFfJPyNvI?fullscreen=1', //'https://www.youtube.com/watch?v=-wtIMTCHWuI', // 'https://www.youtube.com/embed/llNFfJPyNvI',  -wtIMTCHWuI // autoplay=1&showinfo=0&controls=1&fullscreen=1', //?mute=1&autoplay=1&showinfo=0&controls=1&fullscreen=1', // &mute=0&showinfo=1&controls=0&fullscreen=1//'https://www.youtube.com/watch?v=sDhqARXot8Y', // // get from Firebase Storage
-      vidLength: 10,//this.props.navigation.getParam('post')['LEN'], // length of video navigated from Dashboard.js
+      vidLength: 10, //this.props.navigation.getParam('post')['LEN'], // length of video navigated from Dashboard.js
       // isVidMetaLoaded: false,
       // isWPartLoaded: false,
       isReadyToCD: false, // not used 

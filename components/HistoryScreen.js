@@ -342,7 +342,7 @@ class ExerciseHistory extends Component {
                                 // onRefresh={this._handleRefresh}
                                 // refreshing={this.state.refreshing}
                                 onEndReached={this._handleLoadMore}
-                                onEndReachedThreshold={0}
+                                onEndReachedThreshold={1}
                             >
                             </FlatList>
                         </SafeAreaView>

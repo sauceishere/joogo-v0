@@ -1,5 +1,3 @@
-
-// import * as React from 'react';
 import React, { Component, useState, useEffect  } from 'react';
 import { Text, View, StyleSheet, Dimensions, StatusBar, Image, TouchableOpacity, SafeAreaView, ScrollView, Button, Platform, ActivityIndicator, Modal } from 'react-native';
 import { WebView } from 'react-native-webview';
@@ -54,8 +52,8 @@ export default class Live extends Component {
       isPosenetLoaded: false, 
       cameraType: Camera.Constants.Type.front,
       modelName: 'posenet',
-      // vidFullUrl: '', // get from Firebase Storage
-      // vidLength: this.props.navigation.getParam('post')['LEN'], // length of video navigated from Dashboard.js
+      vidFullUrl: 'https://www.youtube.com/embed/llNFfJPyNvI?fullscreen=1', //'https://www.youtube.com/watch?v=-wtIMTCHWuI', // 'https://www.youtube.com/embed/llNFfJPyNvI',  -wtIMTCHWuI // autoplay=1&showinfo=0&controls=1&fullscreen=1', //?mute=1&autoplay=1&showinfo=0&controls=1&fullscreen=1', // &mute=0&showinfo=1&controls=0&fullscreen=1//'https://www.youtube.com/watch?v=sDhqARXot8Y', // // get from Firebase Storage
+      vidLength: 10, //this.props.navigation.getParam('post')['LEN'], // length of video navigated from Dashboard.js
       // isVidMetaLoaded: false,
       // isWPartLoaded: false,
       isReadyToCD: false, // not used 
@@ -132,8 +130,14 @@ export default class Live extends Component {
   viewId = uuidv4();
 
   // resize Width & Height, Smaller is faster
-  inputTensorWidth = Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
-  inputTensorHeight = Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //Dimensions.get('window').height / 3; // 200
+  // inputTensorWidth = Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
+  // inputTensorHeight = Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //Dimensions.get('window').height / 3; // 200
+  
+  // // this below is action for warning 20201117 "[Unhandled promise rejection: Error: When using targetShape.depth=3, targetShape.width must be a multiple of 4. Alternatively do not call detectGLCapabilities()]" 
+  // https://techacademy.jp/magazine/35944
+  inputTensorWidth = ( Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ) - ( Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
+  inputTensorHeight = ( Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ) - ( Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //Dimensions.get('window').height / 3; // 200
+
 
 
   // DON'T CHANGE OR ADJUST textureDims because Posenet can not scan whole screen. 
@@ -474,7 +478,6 @@ export default class Live extends Component {
 
 
 
-
   _subscribeToAccelerometer = () => {
     console.log('_subscribeToAccelerometer --------- ');
     this._subscription = Accelerometer.addListener( accelerometerData => 
@@ -563,7 +566,7 @@ export default class Live extends Component {
 
 
   async componentDidMount() {
-    console.log('------------------- componentDidMount Live started 119 ');
+    console.log('------------------- componentDidMount Live started 121');
     // console.log('this.props.navigation.getParam: ', this.props.navigation.getParam('wval') );
     // console.log('------ this.mets_per_part: ', this.mets_per_part);
     // console.log('------ this.camState: ', this.camState);
@@ -699,19 +702,19 @@ export default class Live extends Component {
 
   async _vidDefault () {
     console.log('=============== _vidDefault ===============');
-    // await this.webviewRef.injectJavaScript(`
-    // document.getElementsByTagName("video")[0].pause();
-    // document.getElementsByTagName("video")[0].setAttribute("preload", "auto"); 
-    // document.getElementsByTagName("video")[0].setAttribute("muted", "true"); 
-    // document.getElementsByTagName("video")[0].removeAttribute('controls'); // hide control panels
-    // document.getElementsByTagName("video")[0].style.objectFit = 'fill'; // fill to widnow screen 
-    // document.getElementsByTagName("video")[0].style.height = '100%';
-    // document.getElementsByTagName("video")[0].style.width = '100%'; 
-    // // document.body.style.border = '5px solid red';
-    // // document.getElementsByTagName("video")[0].onended = (event) => {
-    // //   window.alert('1）動画が終了した、または 2）それ以上データがない' + 'ため、動画が停止しました。');
-    // // };
-    // `);
+    await this.webviewRef.injectJavaScript(`
+    document.getElementsByTagName("video")[0].pause();
+    document.getElementsByTagName("video")[0].setAttribute("preload", "auto"); 
+    document.getElementsByTagName("video")[0].setAttribute("muted", "true"); 
+    document.getElementsByTagName("video")[0].removeAttribute('controls'); // hide control panels
+    document.getElementsByTagName("video")[0].style.objectFit = 'fill'; // fill to widnow screen 
+    document.getElementsByTagName("video")[0].style.height = '100%';
+    document.getElementsByTagName("video")[0].style.width = '100%'; 
+    // document.body.style.border = '5px solid red';
+    // document.getElementsByTagName("video")[0].onended = (event) => {
+    //   window.alert('1）動画が終了した、または 2）それ以上データがない' + 'ため、動画が停止しました。');
+    // };
+    `);
     console.log('_vidDefault this.state.shouldPlay: ', this.state.shouldPlay);
   }      
 
@@ -1708,8 +1711,20 @@ export default class Live extends Component {
 
 ////////// assign noseToAnkle & rightToLeft until this.state.flagCountdownFinished becomes true////////////////////
             // // assign noseToAnkle
-
             if (this.state.flagCountdownFinished == false) { // go into this block until countdown finish 
+
+              // ///////////////////////////////////
+              // // // TESTMODE DUMMY 
+              // if (this.TESTMODE == 1) { // when test
+              //   if (flagNoseToAnkle == false) { 
+              //     this.setState({ 
+              //       noseToAnkle: 100, 
+              //       flagNoseToAnkle: true,
+              //     });       
+              //     console.log('8888888888 TESTMODE 8888888888888 DUMMY all pos confirmed.');     
+              //   }
+              // }
+              ///////////////////////////////////
 
               if ( posPerloop.y0 != null && posPerloop.y15 != null && posPerloop.y16 != null) { // check if all necessary position data exist
                 if ( Math.max( posPerloop.y15, posPerloop.y16 ) - posPerloop.y0 > noseToAnkle) { // check if data is out of criteria
@@ -1739,7 +1754,6 @@ export default class Live extends Component {
               }  
 
             }
-
 
             // console.log('time0f: ', Date.now() / 1000 - time0);         
 
@@ -1870,24 +1884,23 @@ export default class Live extends Component {
 
                 // // to check initialPositions       
                 if (
-                //     noseToAnkle > this.initialPositions.NoseToAnkleMin &&
-                // //     this.pos.x0 > this.initialPositions.x0Min && this.pos.x0 < this.initialPositions.x0Max &&
-                // //     this.pos.y0 > this.initialPositions.y0Min && this.pos.y0 < this.initialPositions.y0Max &&
-                //     this.pos.x9 > this.initialPositions.x9Min && this.pos.x9 < this.initialPositions.x9Max &&
-                //     this.pos.y9 > this.initialPositions.y9Min && this.pos.y9 < this.initialPositions.y9Max &&
-                //     this.pos.x10 > this.initialPositions.x10Min && this.pos.x10 < this.initialPositions.x10Max &&
-                //     this.pos.y10 > this.initialPositions.y10Min && this.pos.y10 < this.initialPositions.y10Max &&
-                //     this.pos.x15 > this.initialPositions.xBothAnkleMin && this.pos.x15 < this.initialPositions.xBothAnkleMax &&
-                //     this.pos.y15 > this.initialPositions.yBothAnkleMin &&
-                //     this.pos.x16 > this.initialPositions.xBothAnkleMin && this.pos.x16 < this.initialPositions.xBothAnkleMax &&
-                //     this.pos.y16 > this.initialPositions.yBothAnkleMin 
+                    noseToAnkle > this.initialPositions.NoseToAnkleMin &&
+                //     this.pos.x0 > this.initialPositions.x0Min && this.pos.x0 < this.initialPositions.x0Max &&
+                //     this.pos.y0 > this.initialPositions.y0Min && this.pos.y0 < this.initialPositions.y0Max &&
+                    // this.pos.x9 > this.initialPositions.x9Min && this.pos.x9 < this.initialPositions.x9Max &&
+                    // this.pos.y9 > this.initialPositions.y9Min && this.pos.y9 < this.initialPositions.y9Max &&
+                    // this.pos.x10 > this.initialPositions.x10Min && this.pos.x10 < this.initialPositions.x10Max &&
+                    // this.pos.y10 > this.initialPositions.y10Min && this.pos.y10 < this.initialPositions.y10Max &&
+                    // this.pos.x15 > this.initialPositions.xBothAnkleMin && this.pos.x15 < this.initialPositions.xBothAnkleMax &&
+                    // this.pos.y15 > this.initialPositions.yBothAnkleMin &&
+                    // this.pos.x16 > this.initialPositions.xBothAnkleMin && this.pos.x16 < this.initialPositions.xBothAnkleMax &&
+                    // this.pos.y16 > this.initialPositions.yBothAnkleMin 
 
-                    // noseToAnkle > this.initialPositions.NoseToAnkleMin &&
                     posPerloop.x0 > this.initialPositions.x0Min && posPerloop.x0 < this.initialPositions.x0Max &&
-                    // posPerloop.y0 > this.initialPositions.y0Min && posPerloop.y0 < this.initialPositions.y0Max &&
-                    posPerloop.x9 > this.initialPositions.x9Min && posPerloop.x9 < this.initialPositions.x9Max &&
+                    posPerloop.y0 > this.initialPositions.y0Min && posPerloop.y0 < this.initialPositions.y0Max &&
+                    // posPerloop.x9 > this.initialPositions.x9Min && posPerloop.x9 < this.initialPositions.x9Max &&
                     // posPerloop.y9 > this.initialPositions.y9Min && posPerloop.y9 < this.initialPositions.y9Max &&
-                    posPerloop.x10 > this.initialPositions.x10Min && posPerloop.x10 < this.initialPositions.x10Max &&
+                    // posPerloop.x10 > this.initialPositions.x10Min && posPerloop.x10 < this.initialPositions.x10Max &&
                     // posPerloop.y10 > this.initialPositions.y10Min && posPerloop.y10 < this.initialPositions.y10Max &&
                     posPerloop.x15 > this.initialPositions.xBothAnkleMin && posPerloop.x15 < this.initialPositions.xBothAnkleMax &&
                     posPerloop.y15 > this.initialPositions.yBothAnkleMin &&
@@ -2151,12 +2164,11 @@ export default class Live extends Component {
         { showLiveTipModal ?
           null
         :
-          <View>
+          <View>       
 
           { isPosenetLoaded ?  
 
             <View style={styles.layerOneContainer}>
-
 
               { flagAllPosOk ?
 
@@ -2181,16 +2193,16 @@ export default class Live extends Component {
                     />
                   </View>
 
-                  {/* <View style={styles.trainerVideoContainer}> */}
+                  <View style={styles.trainerVideoContainer}>
                   {/* <View style={[ {zindex: 400 }, styles.trainerVideoContainer ]}> */}
-                    {/* <WebView
+                    <WebView
                       ref={r => (this.webviewRef = r)}
                       source={{ uri: this.state.vidFullUrl }}
                       // style={[ {zindex: 400 }, styles.trainerVideo]} 
                       style={ styles.trainerVideo } 
-                      onNavigationStateChange={this._vidDefault}
+                      onNavigationStateChange={ () => this._vidDefault}
                     /> 
-                  </View>  */}
+                  </View> 
 
                 </View>
 
@@ -2198,14 +2210,14 @@ export default class Live extends Component {
 
                 <View style={{ height: '100%', width: '100%',}}>
 
-                  {/* <View style={styles.trainerVideoContainer}>
+                  <View style={styles.trainerVideoContainer}>
                     <WebView
                       ref={r => (this.webviewRef = r)}
                       source={{ uri: this.state.vidFullUrl }}
                       style={ styles.trainerVideo } 
-                      onNavigationStateChange={this._vidDefault}
+                      onNavigationStateChange={ () => this._vidDefault}
                     /> 
-                  </View>   */}
+                  </View>  
 
                   <View style={ styles.webCamContainer }> 
                     <TensorCamera
@@ -2438,8 +2450,10 @@ export default class Live extends Component {
           </View>
 
           </View>
+
         }
 
+    
 
           <Modal visible={showLiveTipModal} animationType='fade' transparent={true}>
             <View style={styles.modal}>
@@ -2542,7 +2556,7 @@ const styles = StyleSheet.create({
     flexGrow: 1, // added 20200530
     // height: '100%',
     // width: '100%' ,
-    height: Dimensions.get('window').height,
+    height: Dimensions.get('window').width,
     // width: Dimensions.get('window').width,
     // height: 800, 
     // width: 300,
@@ -2561,7 +2575,7 @@ const styles = StyleSheet.create({
     // position: 'relative',
     // height: '100%',
     // width: '100%',
-    height: Dimensions.get('window').height, 
+    height: Dimensions.get('window').width, 
     // width: Dimensions.get('window').width,    
     alignItems: 'center',
     justifyContent: 'center',  
@@ -2740,8 +2754,8 @@ const styles = StyleSheet.create({
     // flex: 1,
     flexGrow:1,
     position: 'absolute',
-    bottom: Dimensions.get('window').width * 0.04, // when Landscape 
-    right: Dimensions.get('window').height * 0.02, // when Landscape 
+    bottom: Dimensions.get('window').width * 0.02, // when Landscape 
+    left: Dimensions.get('window').height * 0.02, // when Landscape 
     // bottom: Dimensions.get('window').height * 0.13, // when Portrait 
     // left: Dimensions.get('window').width * 0.04, // when Portrait 
     // width: Dimensions.get('window').width * 0.9,
@@ -2758,7 +2772,7 @@ const styles = StyleSheet.create({
   metsText: {
     // textShadowColor: 'black',
     // textShadowRadius: 5,
-    fontSize: 35,
+    fontSize: 30,
     color: '#ffa500',
     textAlign: 'center',
     paddingHorizontal: 5,
@@ -2883,7 +2897,7 @@ const styles = StyleSheet.create({
     // marginHorizontal: Dimensions.get('window').width * 0.05,
     height: Dimensions.get('window').width - StatusBar.currentHeight,
     width: Dimensions.get('window').height,
-    // backgroundColor: '#ffa500', 
+    backgroundColor: 'white', 
     // borderRadius: 10,
     opacity: 1.0,
     shadowColor: 'black', // iOS
@@ -2905,7 +2919,7 @@ const styles = StyleSheet.create({
     left: 0,
     justifyContent: 'center',
     alignItems: 'center',        
-    // backgroundColor: 'green',
+    backgroundColor: 'white',
   },
   prevButton: {
     justifyContent: 'center',
@@ -2923,7 +2937,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     width: Dimensions.get('window').height * 0.7,
-    height: Dimensions.get('window').width - StatusBar.currentHeight,    
+    height: Dimensions.get('window').width - StatusBar.currentHeight, 
+    backgroundColor: 'white',   
   },
 
   liveTipImgContainer: {
@@ -2948,7 +2963,7 @@ const styles = StyleSheet.create({
     height: (Dimensions.get('window').width - StatusBar.currentHeight) * 0.2, 
     justifyContent: 'center',
     alignItems: 'center',    
-    // backgroundColor: 'purple',
+    backgroundColor: 'white',
   },
   skipButton: {
     // flex: 1,
@@ -2978,14 +2993,14 @@ const styles = StyleSheet.create({
     right: 0,
     justifyContent: 'center',
     alignItems: 'center',        
-    // backgroundColor: 'blue',
+    backgroundColor: 'white',
   },
   nextButton: {
     justifyContent: 'center',
     alignItems: 'center', 
     width: Dimensions.get('window').height * 0.15,
     height: Dimensions.get('window').width  - StatusBar.currentHeight,     
-    // backgroundColor: 'pink',
+    // backgroundColor: 'white',
     // borderColor: 'purple',
     // borderWidth: 2,
   },
