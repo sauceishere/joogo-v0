@@ -131,8 +131,13 @@ export default class Live extends Component {
   viewId = uuidv4();
 
   // resize Width & Height, Smaller is faster
-  inputTensorWidth = Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
-  inputTensorHeight = Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //Dimensions.get('window').height / 3; // 200
+  // inputTensorWidth = Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
+  // inputTensorHeight = Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //Dimensions.get('window').height / 3; // 200
+  
+  // // this below is action for warning 20201117 "[Unhandled promise rejection: Error: When using targetShape.depth=3, targetShape.width must be a multiple of 4. Alternatively do not call detectGLCapabilities()]" 
+  // https://techacademy.jp/magazine/35944
+  inputTensorWidth = ( Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ) - ( Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
+  inputTensorHeight = ( Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ) - ( Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //Dimensions.get('window').height / 3; // 200
 
 
   // DON'T CHANGE OR ADJUST textureDims because Posenet can not scan whole screen. 
@@ -499,8 +504,8 @@ export default class Live extends Component {
     // this.setState({ shouldPlay : false});
     // clearInterval(_updateScore); // did NOT work 20200603
     // clearInterval(videoCountDown); // did NOT work 20200603
-    ScreenOrientation.unlockAsync(); // back to portrait
-    // ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
+    // ScreenOrientation.unlockAsync(); // back to portrait
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
     
     this.props.navigation.goBack();
     // this.props.navigation.navigate('DashboardScreen', { lastPlayEnded });
@@ -550,8 +555,8 @@ export default class Live extends Component {
 
     deactivateKeepAwake();
 
-    ScreenOrientation.unlockAsync(); // back to portrait
-    // ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
+    // ScreenOrientation.unlockAsync(); // back to portrait
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
 
     await this._saveVidViewLog();
 
@@ -562,6 +567,11 @@ export default class Live extends Component {
 
   async componentDidMount() {
     console.log('------------------- componentDidMount Live started 121');
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE); // to landscape
+    // console.log( 'ScreenOrientation.ScreenOrientationInfo: ', ScreenOrientation.ScreenOrientationInfo(orientation) );
+    // console.log( 'ScreenOrientation.PlatformOrientationInfo: ', ScreenOrientation.PlatformOrientationInfo(screenOrientationArrayIOS) );
+    
+
     // console.log('this.props.navigation.getParam: ', this.props.navigation.getParam('wval') );
     // console.log('------ this.mets_per_part: ', this.mets_per_part);
     // console.log('------ this.camState: ', this.camState);
@@ -588,10 +598,7 @@ export default class Live extends Component {
     console.log('this.WEIGHT_KG: ', this.WEIGHT_KG);
   
     
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE); // to landscape
-    // console.log( 'ScreenOrientation.ScreenOrientationInfo: ', ScreenOrientation.ScreenOrientationInfo(orientation) );
-    // console.log( 'ScreenOrientation.PlatformOrientationInfo: ', ScreenOrientation.PlatformOrientationInfo(screenOrientationArrayIOS) );
-    
+
 
     activateKeepAwake();
 
@@ -2099,7 +2106,7 @@ export default class Live extends Component {
     if (liveTipImg == 1) {
       this.showPrevButton = false; // no show left
       this.showNextButton = true;
-    } else if (liveTipImg == 4) {
+    } else if (liveTipImg == 5) {
       this.showPrevButton = true;
       this.showNextButton = false; // no show right   
     } else {
@@ -2499,6 +2506,13 @@ export default class Live extends Component {
                     </TouchableOpacity> 
                   }
                 </View>   
+
+
+                <View style={styles.goBackIconContainer}>
+                  <TouchableOpacity onPress={ this._goBackToHome }  >
+                    <Ionicons name="md-arrow-back" size={goBackIconSize} color="#ffa500" style={styles.goBackIcon}/>
+                  </TouchableOpacity>   
+                </View>
 
 
             </View>

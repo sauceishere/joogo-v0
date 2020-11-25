@@ -14,6 +14,7 @@ import * as SQLite from 'expo-sqlite';
 import moment from 'moment'; // https://momentjs.com/docs/
 
 // import {dbSQLite, dbName} from './DashboardScreen';
+import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
 
 
 // export default function App() {
@@ -41,6 +42,7 @@ export default class Stats extends Component {
     async componentDidMount() {
         // const { dbName, } = this.state;
         console.log('------------- componentDidMount Stats started');
+        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
         console.log('this.state.StatsDataLoadedAt: ', this.state.StatsDataLoadedAt);
         console.log('this.state.lastPlayEnded: ', this.state.lastPlayEnded);
         const ts = Date.now() / 1000;

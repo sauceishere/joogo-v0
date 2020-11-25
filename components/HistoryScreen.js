@@ -7,6 +7,7 @@ import moment from "moment";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { convertCompilerOptionsFromJson } from 'typescript';
 import * as SQLite from 'expo-sqlite';
+import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
 
 
 
@@ -59,6 +60,7 @@ class ExerciseHistory extends Component {
 
     async componentDidMount() {
         console.log('------------- componentDidMount ExerciseHistory started');
+        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
     
         if (this.state.doneComponentDidMount === false) { // if variable is null. this if to prevent repeated loop.
             console.log('this.state.doneComponentDidMount === false');

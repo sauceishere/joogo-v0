@@ -17,6 +17,7 @@ import ThreeAxisSensor from 'expo-sensors/build/ThreeAxisSensor';
 
 import {LB_PER_KG} from '../shared/Consts';
 
+import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
 
 
 
@@ -346,6 +347,8 @@ export default class DashboardScreen extends Component {
 
   async componentDidMount() {
     console.log('------------- componentDidMount Dashboard started 10');
+
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
 
     if (this.state.doneComponentDidMount == false) { // if variable is null. this if to prevent repeated loop.
       // console.log('this.state.vidFullUrl started ');
@@ -1163,6 +1166,7 @@ export default class DashboardScreen extends Component {
             </TouchableOpacity>  
 
             <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('Live1016', { const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit, model2 } ) }>            
+              <Ionicons name='logo-youtube' size={28} color="white" />
               <Text style={styles.footerContainerText}>1.0.16</Text>
             </TouchableOpacity>  
 
@@ -1189,6 +1193,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#DCDCDC',
+    // width: Dimensions.get('window').width,
   },
   // scrollview: {
   //   width: '100%',

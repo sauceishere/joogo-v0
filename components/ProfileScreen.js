@@ -20,6 +20,7 @@ import ModalSelector from 'react-native-modal-selector';
 
 import {LB_PER_KG} from '../shared/Consts';
 // export const LB_PER_KG = 2.205; // pounds devided by kilograms
+import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
 
 
 
@@ -195,6 +196,7 @@ export default class ProfileScreen extends Component {
 
   async componentDidMount() {
     console.log('------------- componentDidMount Profile started 80.');
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
     // console.log('firebase.auth().currentUser.uid: ', firebase.auth().currentUser.uid);
     console.log('this.state.ProfileEditId: ', this.state.ProfileEditId);
     // console.log(this.props.navigation.getParam('nname'));
