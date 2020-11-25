@@ -14,23 +14,27 @@ export default class Live extends Component {
       shouldPlay: false,
       flagUpdateScore: false,
       vidFullUrl: 'https://www.youtube.com/embed/llNFfJPyNvI?autoplay=1',// 'https://www.youtube.com/embed/llNFfJPyNvI?autoplay=1', //'https://www.youtube.com/watch?v=-wtIMTCHWuI', // 'https://www.youtube.com/embed/llNFfJPyNvI',  -wtIMTCHWuI // autoplay=1&showinfo=0&controls=1&fullscreen=1', //?mute=1&autoplay=1&showinfo=0&controls=1&fullscreen=1', // &mute=0&showinfo=1&controls=0&fullscreen=1//'https://www.youtube.com/watch?v=sDhqARXot8Y', // // get from Firebase Storage
+      playAt: 0,
+      endAt: 0,
     }  
-    this._handlePlayAndPause = this._handlePlayAndPause.bind(this);
-    this._vidDefault = this._vidDefault.bind(this);
+    // this._handlePlayAndPause = this._handlePlayAndPause.bind(this);
+    // this._vidDefault = this._vidDefault.bind(this);
     // this._showPausedVid = this._showPausedVid.bind(this);
     // this._showPlayingVid = this._showPlayingVid.bind(this); 
     this._goBackToHome = this._goBackToHome.bind(this);
   }
 
-  playAt = 0;
-  pauseAt = 0;
-  unmountAt = 0;
+  // playAt = 0;
+  // endAt = 0;
+  // unmountAt = 0;
 
 
   async componentWillUnmount() {
     console.log('------------------- componentWillUnmount YTonly started');
     this.setState({ shouldPlay: false });
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
+
+    console.log('playedtime: ', Date.now() / 1000 - this.state.playAt);
     console.log('------------------- componentWillUnmount YTonly completed');
   }  
 
@@ -61,155 +65,155 @@ export default class Live extends Component {
   }  
 
 
-  async _vidDefault () {
-    console.log('=============== _vidDefault ===============');
-    // await this.webviewRef.injectJavaScript(`
+  // async _vidDefault () {
+  //   console.log('=============== _vidDefault ===============');
+  //   // await this.webviewRef.injectJavaScript(`
 
-    // // // https://developers.google.com/youtube/iframe_api_reference?hl=ja
-    // // 2. This code loads the IFrame Player API code asynchronously.
-    // // var tag = document.createElement('script');
+  //   // // // https://developers.google.com/youtube/iframe_api_reference?hl=ja
+  //   // // 2. This code loads the IFrame Player API code asynchronously.
+  //   // // var tag = document.createElement('script');
 
-    // // document.getElementById("log0").innerHTML = tag;
+  //   // // document.getElementById("log0").innerHTML = tag;
 
-    // // tag.src = "https://www.youtube.com/iframe_api";
-    // // var firstScriptTag = document.getElementsByTagName('script')[0];
+  //   // // tag.src = "https://www.youtube.com/iframe_api";
+  //   // // var firstScriptTag = document.getElementsByTagName('script')[0];
     
-    // // document.getElementById("log1").innerHTML = firstScriptTag;
-    // // document.getElementById("player").style.border = '5px solid yellow';
+  //   // // document.getElementById("log1").innerHTML = firstScriptTag;
+  //   // // document.getElementById("player").style.border = '5px solid yellow';
 
-    // // firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);  // tag を　firstScriptTag　の前に挿入する
+  //   // // firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);  // tag を　firstScriptTag　の前に挿入する
 
-    // document.getElementById("player").style.border = '5px solid orange';
+  //   // document.getElementById("player").style.border = '5px solid orange';
 
     
 
-    // // // 3. This function creates an <iframe> (and YouTube player)
-    // // //    after the API code downloads.
-    // var player;
-    // // document.getElementById("log2").innerHTML = player;
-    // function onYouTubeIframeAPIReady() {
-    //   player = new YT.Player('player', {
-    //     height: '360',
-    //     width: '640',
-    //     videoId: 'M7lc1UVf-VE',
-    //     events: {
-    //       'onReady': onPlayerReady,
-    //       'onStateChange': onPlayerStateChange
-    //     }
-    //   });
-    // }
+  //   // // // 3. This function creates an <iframe> (and YouTube player)
+  //   // // //    after the API code downloads.
+  //   // var player;
+  //   // // document.getElementById("log2").innerHTML = player;
+  //   // function onYouTubeIframeAPIReady() {
+  //   //   player = new YT.Player('player', {
+  //   //     height: '360',
+  //   //     width: '640',
+  //   //     videoId: 'M7lc1UVf-VE',
+  //   //     events: {
+  //   //       'onReady': onPlayerReady,
+  //   //       'onStateChange': onPlayerStateChange
+  //   //     }
+  //   //   });
+  //   // }
 
-    // document.getElementById("player").style.border = '5px solid pink';
+  //   // document.getElementById("player").style.border = '5px solid pink';
 
-    // // document.getElementById("log3").innerHTML = player;
-
-
-    // // // document.getElementsByTagName("iframe").play();
-    // // // document.getElementsByTagName("video")[0].click();
-    // // // document.getElementsByTagName("video")[0].body.style.border = '5px solid red';
-    // // // document.getElementsByTagName("video")[0].setAttribute("preload", "auto"); 
-    // // // document.getElementsByTagName("video")[0].setAttribute("muted", "true"); 
-    // // // document.getElementsByTagName("video")[0].removeAttribute('controls'); // hide control panels
-    // // // document.getElementsByTagName("video")[0].style.objectFit = 'fill'; // fill to widnow screen 
-    // // // document.getElementsByTagName("video")[0].style.height = '100%';
-    // // // document.getElementsByTagName("video")[0].style.width = '100%'; 
-    // // // // document.body.style.border = '5px solid red';
-    // // // // document.getElementsByTagName("video")[0].onended = (event) => {
-    // // // //   window.alert('1）動画が終了した、または 2）それ以上データがない' + 'ため、動画が停止しました。');
-    // // // // };
-    // `);
+  //   // // document.getElementById("log3").innerHTML = player;
 
 
+  //   // // // document.getElementsByTagName("iframe").play();
+  //   // // // document.getElementsByTagName("video")[0].click();
+  //   // // // document.getElementsByTagName("video")[0].body.style.border = '5px solid red';
+  //   // // // document.getElementsByTagName("video")[0].setAttribute("preload", "auto"); 
+  //   // // // document.getElementsByTagName("video")[0].setAttribute("muted", "true"); 
+  //   // // // document.getElementsByTagName("video")[0].removeAttribute('controls'); // hide control panels
+  //   // // // document.getElementsByTagName("video")[0].style.objectFit = 'fill'; // fill to widnow screen 
+  //   // // // document.getElementsByTagName("video")[0].style.height = '100%';
+  //   // // // document.getElementsByTagName("video")[0].style.width = '100%'; 
+  //   // // // // document.body.style.border = '5px solid red';
+  //   // // // // document.getElementsByTagName("video")[0].onended = (event) => {
+  //   // // // //   window.alert('1）動画が終了した、または 2）それ以上データがない' + 'ため、動画が停止しました。');
+  //   // // // // };
+  //   // `);
 
-    console.log('_vidDefault this.state.shouldPlay: ', this.state.shouldPlay);
-  }      
 
 
-  _handlePlayAndPause = async () =>  {
-    console.log('=============== _handlePlayAndPause ===============');
-    const _playVideo = () => {
-      // this.videoState.cntPressPlayButton += 1; // increment to count 
-      this.setState({ shouldPlay: true });
-    }
-    const _pauseVideo = () => {
-      // this.videoState.cntPressPauseButton += 1; // increment to count
-      this.setState({ shouldPlay: false });
-    }
+  //   console.log('_vidDefault this.state.shouldPlay: ', this.state.shouldPlay);
+  // }      
 
-    if (this.state.shouldPlay == false) { // Go into this block when video is NOT playing
-      console.log('=========================== play ================================');
-      // this.vidState.loopStartAt = Date.now()/1000;
-      // this.setState({ loopStartAt : Date.now()/1000 });
-      await _playVideo(); 
-      await this.webviewRef.injectJavaScript(`
+
+  // _handlePlayAndPause = async () =>  {
+  //   console.log('=============== _handlePlayAndPause ===============');
+  //   const _playVideo = () => {
+  //     // this.videoState.cntPressPlayButton += 1; // increment to count 
+  //     this.setState({ shouldPlay: true });
+  //   }
+  //   const _pauseVideo = () => {
+  //     // this.videoState.cntPressPauseButton += 1; // increment to count
+  //     this.setState({ shouldPlay: false });
+  //   }
+
+  //   if (this.state.shouldPlay == false) { // Go into this block when video is NOT playing
+  //     console.log('=========================== play ================================');
+  //     // this.vidState.loopStartAt = Date.now()/1000;
+  //     // this.setState({ loopStartAt : Date.now()/1000 });
+  //     await _playVideo(); 
+  //     await this.webviewRef.injectJavaScript(`
         
-        function f2playVideo() {
-          document.getElementById("player").style.border = '5px solid green';
-          player.playVideo();
-          // event.target.playVideo();
-        }
-        f2playVideo();
+  //       function f2playVideo() {
+  //         document.getElementById("player").style.border = '5px solid green';
+  //         player.playVideo();
+  //         // event.target.playVideo();
+  //       }
+  //       f2playVideo();
 
 
-      //   // event.target.playVideo();
-        // player.playVideo();
-      //   // document.getElementById("player").play();
-        // $("#playvideo").click(function(){
-        //   $("#player").src += "?autoplay=1";
-        // });
+  //     //   // event.target.playVideo();
+  //       // player.playVideo();
+  //     //   // document.getElementById("player").play();
+  //       // $("#playvideo").click(function(){
+  //       //   $("#player").src += "?autoplay=1";
+  //       // });
 
-        //   // document.getElementById("player")[0].style.border = '5px solid purple';
-        //   // document.getElementsByTagName("script")[0].style.border = '5px solid purple';
-        //   // document.getElementById("ytplayer").style.border = '5px solid blue';
-        //   // document.getElementById("ytplayer").play();
-        //   // document.getElementById("ytplayer")[0].play();
-        //   // document.getElementsByTagName("iframe").style.border = '5px solid red';
-        //   // document.getElementsByTagName("iframe")[0].click();
-        //   // document.getElementsByTagName("iframe")[0].play();
-        //   // document.getElementsByTagName("body")[0].click();
-        //   // document.getElementsByTagName("body")[0].style.border = '5px solid red';
-        //   // document.getElementsByTagName("video").play();
-        //   // document.getElementsByTagName("video").click();
-        //   // document.getElementsByTagName("body").play();
-        //   // document.getElementsByTagName("body").click();
-        //   // <iframe width="560" height="315" src="https://www.youtube.com/embed/videoseries?list=PLx0sYbCqOb8TBPRdmBHs5Iftvv9TPboYG" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-        //   // document.getElementsByTagName("video")[0].setAttribute("muted", "false"); 
-      `)
-      // INJECTED_JS = `(
-      //   document.getElementById("player").style.border = '5px solid green';
-      // )`      
-    } else { // when video is playing
-      console.log('=========================== pause ================================');
-      // this.vidState.vidPlayedSum = this.vidState.vidPlayedSum + (Date.now()/1000 - this.vidState.loopStartAt); // add increment time
-      await _pauseVideo();
-      await this.webviewRef.injectJavaScript(`
+  //       //   // document.getElementById("player")[0].style.border = '5px solid purple';
+  //       //   // document.getElementsByTagName("script")[0].style.border = '5px solid purple';
+  //       //   // document.getElementById("ytplayer").style.border = '5px solid blue';
+  //       //   // document.getElementById("ytplayer").play();
+  //       //   // document.getElementById("ytplayer")[0].play();
+  //       //   // document.getElementsByTagName("iframe").style.border = '5px solid red';
+  //       //   // document.getElementsByTagName("iframe")[0].click();
+  //       //   // document.getElementsByTagName("iframe")[0].play();
+  //       //   // document.getElementsByTagName("body")[0].click();
+  //       //   // document.getElementsByTagName("body")[0].style.border = '5px solid red';
+  //       //   // document.getElementsByTagName("video").play();
+  //       //   // document.getElementsByTagName("video").click();
+  //       //   // document.getElementsByTagName("body").play();
+  //       //   // document.getElementsByTagName("body").click();
+  //       //   // <iframe width="560" height="315" src="https://www.youtube.com/embed/videoseries?list=PLx0sYbCqOb8TBPRdmBHs5Iftvv9TPboYG" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  //       //   // document.getElementsByTagName("video")[0].setAttribute("muted", "false"); 
+  //     `)
+  //     // INJECTED_JS = `(
+  //     //   document.getElementById("player").style.border = '5px solid green';
+  //     // )`      
+  //   } else { // when video is playing
+  //     console.log('=========================== pause ================================');
+  //     // this.vidState.vidPlayedSum = this.vidState.vidPlayedSum + (Date.now()/1000 - this.vidState.loopStartAt); // add increment time
+  //     await _pauseVideo();
+  //     await this.webviewRef.injectJavaScript(`
 
-        function f2stopVideo() {
-          document.getElementById("player").style.border = '5px solid red';
-          player.pauseVideo();
-        }
-        f2stopVideo();
+  //       function f2stopVideo() {
+  //         document.getElementById("player").style.border = '5px solid red';
+  //         player.pauseVideo();
+  //       }
+  //       f2stopVideo();
 
-        // player.stopVideo();
-        //   // $("#playvideo").click(function(){
-        //   //   $("#player").src += "?autoplay=0";
-        //   // });
+  //       // player.stopVideo();
+  //       //   // $("#playvideo").click(function(){
+  //       //   //   $("#player").src += "?autoplay=0";
+  //       //   // });
 
-        //   // document.getElementsById("player")[0].style.border = '5px solid purple';
-        //   // document.getElementsByTagName("script")[0].style.border = '5px solid purple';
-        //   // document.getElementsByTagName("iframe").style.border = '5px solid purple';
-        //   // document.getElementsByTagName("video")[0].pause();
-        //   // document.getElementsByTagName("video")[0].click();
-        //   // document.getElementsByTagName("body")[0].style.border = '5px solid purple';
-        //   // document.getElementsByTagName("video").click();
-        //   // document.getElementsByTagName("body").click();
-      `)
+  //       //   // document.getElementsById("player")[0].style.border = '5px solid purple';
+  //       //   // document.getElementsByTagName("script")[0].style.border = '5px solid purple';
+  //       //   // document.getElementsByTagName("iframe").style.border = '5px solid purple';
+  //       //   // document.getElementsByTagName("video")[0].pause();
+  //       //   // document.getElementsByTagName("video")[0].click();
+  //       //   // document.getElementsByTagName("body")[0].style.border = '5px solid purple';
+  //       //   // document.getElementsByTagName("video").click();
+  //       //   // document.getElementsByTagName("body").click();
+  //     `)
 
-      // INJECTED_JS = `(
-      //   document.getElementById("player").style.border = '5px solid red';
-      // )`;
-    }
-  }  
+  //     // INJECTED_JS = `(
+  //     //   document.getElementById("player").style.border = '5px solid red';
+  //     // )`;
+  //   }
+  // }  
 
 
 
@@ -217,7 +221,7 @@ export default class Live extends Component {
   render() {
     console.log('----------------- render --------------------');
 
-    const { shouldPlay, vidFullUrl } = this.state;
+    const { shouldPlay, vidFullUrl, playAt, endAt } = this.state;
 
     // const INJECTED_JS_ONLOAD = `
     //   function fireInjectedJs() {
@@ -237,24 +241,29 @@ export default class Live extends Component {
 
         <View style={styles.trainerVideoContainer}>
           <WebView
-            ref={r => (this.webviewRef = r)}
+            // ref={r => (this.webviewRef = r)}
             // source={{ uri: this.state.vidFullUrl }}
             // source={{ html: '<iframe id="player" type="text/html" width="100%" height="100%" src="https://www.youtube.com/embed/llNFfJPyNvI?enablejsapi=1" frameborder="0" allow="autoplay" allowfullscreen></iframe>' }}
             // source={{ html: '<iframe id="player" width="100%" height="100%" frameborder="0" allow="autoplay" allowfullscreen allowtransparency="true"></iframe>' }}
             // source={{ html: '<iframe id="player" width="100%" height="100%" src="https://www.youtube.com/embed/llNFfJPyNvI?enablejsapi=1?autoplay=1" frameborder="0" allow="autoplay" allowfullscreen allowtransparency="true"></iframe><a href="#" id="playvideo" width="100" height="100" style="background-color:blue;" >Play buttonGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG</a><' }}
             // source={{ html: '<div width="100px" height="100px" id="player"></div> <div id="log0"></div> <div id="log1"></div> <div id="log2"></div> <div id="log3"></div>' }}
             style={ styles.trainerVideo } 
-            onNavigationStateChange={this._vidDefault}
+            // onNavigationStateChange={this._vidDefault}
             // injectedJavaScriptBeforeContentLoaded={INJECTED_JS_ONLOAD}
             // injectedJavaScript={INJECTED_JS_ONLOAD}
             // onMessage={onMessage}
             // onMessage={(event) => {event.nativeEvent.data}}
             onMessage={(event) => {
-              if (this.playAt == 0) { // to assign only once at the fisrt play
-                this.playAt = JSON.parse(event.nativeEvent.data)["playAt"];
+              if (playAt == 0 && endAt == 0) { // to assign only once at the fisrt play
+                this.setState({ playAt: JSON.parse(event.nativeEvent.data)["playAt"] });
+                console.log('playAt: ', this.state.playAt, JSON.parse(event.nativeEvent.data)["playAt"] );
+                // alert('playAt');
               }
-              // alert( JSON.parse(event.nativeEvent.data)["playAt"] );
-              // alert( this.playAt );
+              if (endAt == 0 && playAt != 0) { // to assign only once at the fisrt play
+                this.setState({ endAt: JSON.parse(event.nativeEvent.data)["endAt"] });
+                console.log('endAt: ', this.state.endAt, JSON.parse(event.nativeEvent.data)["endAt"] );
+                // alert('endAt');
+              }
             }}
 
             source={{ html: `<!DOCTYPE html>
@@ -266,8 +275,8 @@ export default class Live extends Component {
               <body style="margin: 0px;background-color:#000;">
                 <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
                 <div id="player"></div>
-                <input type="button" name="playbutton" value="v-play" onclick="fplayVideo();"/>
-                <input type="button" name="stopbutton" value="v-stop" onclick="fstopVideo();"/>
+                <!-- <input type="button" name="playbutton" value="v-play" onclick="fplayVideo();"/>  -->
+                <!-- <input type="button" name="stopbutton" value="v-stop" onclick="fstopVideo();"/>  -->
             
                 <script>
                   // 2. This code loads the IFrame Player API code asynchronously.
@@ -284,7 +293,7 @@ export default class Live extends Component {
                     player = new YT.Player('player', {
                       height: '300',
                       width: '640',
-                      videoId: 'R-BFosRw_oU', //'llNFfJPyNvI', //'R-BFosRw_oU', 
+                      videoId: 'llNFfJPyNvI', //'llNFfJPyNvI', //'R-BFosRw_oU', 
                       events: {
                         'onReady': onPlayerReady,
                         'onStateChange': onPlayerStateChange,
@@ -296,36 +305,34 @@ export default class Live extends Component {
                   // 4. The API will call this function when the video player is ready.
                   function onPlayerReady(event) {
                     // document.getElementById("player").style.border = '5px solid orange';
-                    // setTimeout(fplayVideo, 2000); // milisecond
-                    // setTimeout(event.target.playVideo(), 2000); 
-                    ;
                   }
 
                   // 5. The API calls this function when the player's state changes.
                   //    The function indicates that when playing a video (state=1),
                   //    the player should play for six seconds and then stop.
-                  var done = false;
+                  var playing = false;
 
                   function onPlayerStateChange(event) {
-                    if (event.data == YT.PlayerState.PLAYING && !done) {
-                      // setTimeout(fstopVideo, 3000); // milisecond
-                      // fireInjectedJs();
-
+                    if (event.data == YT.PlayerState.PLAYING && !playing) {
                       setTimeout(function () {
-                        window.ReactNativeWebView.postMessage( JSON.stringify( {"playAt": Date.now() } ) )
-                      }, 1000)
+                        window.ReactNativeWebView.postMessage( JSON.stringify( {"playAt": Date.now() / 1000 } ) )
+                      }, 100)
 
-                      done = true;
-                    } else {
-                      // setTimeout(fplayVideo, 5000); // milisecond
-                      done = false;
+                      playing = true;
+                    } 
+                    
+                    if (event.data == YT.PlayerState.ENDED && playing) {
+                      setTimeout(function () {
+                        window.ReactNativeWebView.postMessage( JSON.stringify( {"endAt": Date.now() / 1000 } ) )
+                      }, 100)
+
+                      playing = false;
                     }
                   }
 
                   function fplayVideo() {
                     document.getElementById("player").style.border = '5px dotted green';
                     player.playVideo();
-                    // event.target.playVideo();
                   }
 
                   function fstopVideo() {
@@ -343,19 +350,18 @@ export default class Live extends Component {
         </View>  
 
 
-        { shouldPlay ?
-          <View style={ styles.playButtonContainer }>
+        {/* { shouldPlay ? */}
+          {/* <View style={ styles.playButtonContainer }>
             <TouchableOpacity onPress={ this._handlePlayAndPause } style={{height: Dimensions.get('screen').width * 0.7, width: Dimensions.get('screen').width * 0.7, }} > 
-            {/* <Ionicons name="ios-play-circle" color="#ffa500" size={100} style={styles.playButton} />  */}
             </TouchableOpacity>
-          </View>
-        :
-          <View style={ styles.playButtonContainer }>
+          </View> */}
+        {/* : */}
+          {/* <View style={ styles.playButtonContainer }>
             <TouchableOpacity onPress={ this._handlePlayAndPause } style={{height: Dimensions.get('screen').width * 0.7, width: Dimensions.get('screen').width * 0.7, }} > 
             <Ionicons name="ios-play-circle" color="#ffa500" size={150} style={styles.playButton} /> 
             </TouchableOpacity>
-          </View>  
-        }
+          </View>   */}
+        {/* } */}
         
 
         <View style={styles.goBackIconContainer}>
