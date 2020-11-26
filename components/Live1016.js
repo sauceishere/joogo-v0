@@ -4,8 +4,6 @@ import { WebView, WebViewMessageEvent } from 'react-native-webview';
 import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
 import { Ionicons, MaterialIcons, AntDesign } from "@expo/vector-icons";
 
-
-
 export default class Live extends Component {
 
   constructor(props) {
@@ -13,9 +11,9 @@ export default class Live extends Component {
     this.state = {
       shouldPlay: false,
       flagUpdateScore: false,
-      vidFullUrl: 'https://www.youtube.com/embed/llNFfJPyNvI?autoplay=1',// 'https://www.youtube.com/embed/llNFfJPyNvI?autoplay=1', //'https://www.youtube.com/watch?v=-wtIMTCHWuI', // 'https://www.youtube.com/embed/llNFfJPyNvI',  -wtIMTCHWuI // autoplay=1&showinfo=0&controls=1&fullscreen=1', //?mute=1&autoplay=1&showinfo=0&controls=1&fullscreen=1', // &mute=0&showinfo=1&controls=0&fullscreen=1//'https://www.youtube.com/watch?v=sDhqARXot8Y', // // get from Firebase Storage
-      playAt: 0,
-      endAt: 0,
+      vidFullUrl: 'llNFfJPyNvI', //'R-BFosRw_oU',// 'llNFfJPyNvI',// 'https://www.youtube.com/embed/llNFfJPyNvI?autoplay=1', //'https://www.youtube.com/watch?v=-wtIMTCHWuI', // 'https://www.youtube.com/embed/llNFfJPyNvI',  -wtIMTCHWuI // autoplay=1&showinfo=0&controls=1&fullscreen=1', //?mute=1&autoplay=1&showinfo=0&controls=1&fullscreen=1', // &mute=0&showinfo=1&controls=0&fullscreen=1//'https://www.youtube.com/watch?v=sDhqARXot8Y', // // get from Firebase Storage
+      vidPlayAt: 0,
+      vidEndAt: 0,
     }  
     // this._handlePlayAndPause = this._handlePlayAndPause.bind(this);
     // this._vidDefault = this._vidDefault.bind(this);
@@ -24,17 +22,12 @@ export default class Live extends Component {
     this._goBackToHome = this._goBackToHome.bind(this);
   }
 
-  // playAt = 0;
-  // endAt = 0;
-  // unmountAt = 0;
-
-
   async componentWillUnmount() {
     console.log('------------------- componentWillUnmount YTonly started');
     this.setState({ shouldPlay: false });
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
 
-    console.log('playedtime: ', Date.now() / 1000 - this.state.playAt);
+    console.log('vidPlayedtime: ', Date.now() / 1000, this.state.vidPlayAt, Date.now() / 1000 - this.state.vidPlayAt);
     console.log('------------------- componentWillUnmount YTonly completed');
   }  
 
@@ -221,17 +214,90 @@ export default class Live extends Component {
   render() {
     console.log('----------------- render --------------------');
 
-    const { shouldPlay, vidFullUrl, playAt, endAt } = this.state;
+    const { shouldPlay, vidFullUrl, vidPlayAt, vidEndAt } = this.state;
+    console.log( 'vidFullUrl: ', vidFullUrl);
 
-    // const INJECTED_JS_ONLOAD = `
-    //   function fireInjectedJs() {
-    //     window.ReactNativeWebView.postMessage('this is t');
-    //   };
-    //   `;
 
-    // const onMessage = ( WebViewMessageEvent) => {
-    //   console.log("dd");
-    // }
+    var htmlContents = `<!DOCTYPE html>
+      <html>
+      <head>
+
+      <meta name="viewport" content="initial-scale=1.0">
+      </head>
+        <body style="margin: 0px; background-color:#000;">
+          <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+          <div id="player" style="width: '100%'; height: '100%';"></div>
+          <!-- <input type="button" name="playbutton" value="v-play" onclick="fplayVideo();"/>  -->
+          <!-- <input type="button" name="stopbutton" value="v-stop" onclick="fstopVideo();"/>  -->
+
+          <script>
+            // 2. This code loads the IFrame Player API code asynchronously.
+            var tag = document.createElement('script');
+
+            tag.src = "https://www.youtube.com/iframe_api";
+            var firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+            // 3. This function creates an <iframe> (and YouTube player)
+            //    after the API code downloads.
+            var player;
+            function onYouTubeIframeAPIReady() {
+              player = new YT.Player('player', {
+                // height: '100%',
+                // width: '100%',
+                videoId: '${vidFullUrl}', //'llNFfJPyNvI', //'R-BFosRw_oU', 
+                events: {
+                  'onReady': onPlayerReady,
+                  'onStateChange': onPlayerStateChange,
+                },
+                playerVars: {rel:0, playsinline:0  }, // https://developers.google.com/youtube/player_parameters?hl=ja
+              });
+            }
+
+            // 4. The API will call this function when the video player is ready.
+            function onPlayerReady(event) {
+              // document.getElementById("player").style.border = '5px solid orange';
+            }
+
+            // 5. The API calls this function when the player's state changes.
+            //    The function indicates that when playing a video (state=1),
+            //    the player should play for six seconds and then stop.
+            var vidPlaying = false;
+            var vidPlayAt = 0;
+
+            function onPlayerStateChange(event) {
+              if (event.data == YT.PlayerState.PLAYING && !vidPlaying) {
+                setTimeout(function () {
+                  vidPlayAt = Date.now() / 1000;
+                  window.ReactNativeWebView.postMessage( JSON.stringify( {"vidPlayAt": vidPlayAt } ) );
+                }, 100)
+
+                vidPlaying = true;
+              } 
+              
+              if (event.data == YT.PlayerState.ENDED && vidPlaying) {
+                setTimeout(function () {
+                  window.ReactNativeWebView.postMessage( JSON.stringify( {"vidEndAt": Date.now() / 1000 , "vidPlayedTime": (Date.now() / 1000 - vidPlayAt).toFixed(1) } ) );
+                }, 100)
+
+                vidPlaying = false;
+              }
+            }
+
+            function fplayVideo() {
+              document.getElementById("player").style.border = '5px dotted green';
+              player.playVideo();
+            }
+
+            function fstopVideo() {
+              document.getElementById("player").style.border = '5px dotted red';
+              player.pauseVideo();
+            }
+
+          </script>
+        </body>
+      </html>`
+
 
     return (
       
@@ -254,98 +320,18 @@ export default class Live extends Component {
             // onMessage={onMessage}
             // onMessage={(event) => {event.nativeEvent.data}}
             onMessage={(event) => {
-              if (playAt == 0 && endAt == 0) { // to assign only once at the fisrt play
-                this.setState({ playAt: JSON.parse(event.nativeEvent.data)["playAt"] });
-                console.log('playAt: ', this.state.playAt, JSON.parse(event.nativeEvent.data)["playAt"] );
-                // alert('playAt');
+              if (vidPlayAt == 0 && vidEndAt == 0) { // to assign only once at the fisrt play
+                this.setState({ vidPlayAt: JSON.parse(event.nativeEvent.data)["vidPlayAt"] });
+                console.log('vidPlayAt: ', this.state.vidPlayAt );
               }
-              if (endAt == 0 && playAt != 0) { // to assign only once at the fisrt play
-                this.setState({ endAt: JSON.parse(event.nativeEvent.data)["endAt"] });
-                console.log('endAt: ', this.state.endAt, JSON.parse(event.nativeEvent.data)["endAt"] );
-                // alert('endAt');
+              if (vidEndAt == 0 && vidPlayAt != 0) { // to assign only once at the fisrt play
+                this.setState({ vidEndAt: JSON.parse(event.nativeEvent.data)["vidEndAt"], vidPlayedTime: JSON.parse(event.nativeEvent.data)["vidPlayedTime"] });
+                console.log('endAt: ', this.state.vidEndAt );
+                console.log('vidPlayedTime: ', this.state.vidPlayedTime );
+
               }
             }}
-
-            source={{ html: `<!DOCTYPE html>
-            <html>
-            <head>
-            
-            <meta name="viewport" content="initial-scale=1.0">
-            </head>
-              <body style="margin: 0px;background-color:#000;">
-                <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
-                <div id="player"></div>
-                <!-- <input type="button" name="playbutton" value="v-play" onclick="fplayVideo();"/>  -->
-                <!-- <input type="button" name="stopbutton" value="v-stop" onclick="fstopVideo();"/>  -->
-            
-                <script>
-                  // 2. This code loads the IFrame Player API code asynchronously.
-                  var tag = document.createElement('script');
-            
-                  tag.src = "https://www.youtube.com/iframe_api";
-                  var firstScriptTag = document.getElementsByTagName('script')[0];
-                  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-            
-                  // 3. This function creates an <iframe> (and YouTube player)
-                  //    after the API code downloads.
-                  var player;
-                  function onYouTubeIframeAPIReady() {
-                    player = new YT.Player('player', {
-                      height: '300',
-                      width: '640',
-                      videoId: 'llNFfJPyNvI', //'llNFfJPyNvI', //'R-BFosRw_oU', 
-                      events: {
-                        'onReady': onPlayerReady,
-                        'onStateChange': onPlayerStateChange,
-                      }
-                      // playerVars: {rel:0}
-                    });
-                  }
- 
-                  // 4. The API will call this function when the video player is ready.
-                  function onPlayerReady(event) {
-                    // document.getElementById("player").style.border = '5px solid orange';
-                  }
-
-                  // 5. The API calls this function when the player's state changes.
-                  //    The function indicates that when playing a video (state=1),
-                  //    the player should play for six seconds and then stop.
-                  var playing = false;
-
-                  function onPlayerStateChange(event) {
-                    if (event.data == YT.PlayerState.PLAYING && !playing) {
-                      setTimeout(function () {
-                        window.ReactNativeWebView.postMessage( JSON.stringify( {"playAt": Date.now() / 1000 } ) )
-                      }, 100)
-
-                      playing = true;
-                    } 
-                    
-                    if (event.data == YT.PlayerState.ENDED && playing) {
-                      setTimeout(function () {
-                        window.ReactNativeWebView.postMessage( JSON.stringify( {"endAt": Date.now() / 1000 } ) )
-                      }, 100)
-
-                      playing = false;
-                    }
-                  }
-
-                  function fplayVideo() {
-                    document.getElementById("player").style.border = '5px dotted green';
-                    player.playVideo();
-                  }
-
-                  function fstopVideo() {
-                    document.getElementById("player").style.border = '5px dotted red';
-                    player.pauseVideo();
-                  }
-
-                </script>
-              </body>
-            </html>`
-          }}
-
-
+            source={{ html: htmlContents }}
           /> 
         </View>  
 

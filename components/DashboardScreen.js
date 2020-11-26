@@ -914,7 +914,7 @@ export default class DashboardScreen extends Component {
                   
                   {/* bottom right pane */}
                   <View style={{ }}>
-                    <TouchableOpacity onPress={ () => this.props.navigation.push('Live', {post, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit, model2} ) } >
+                    <TouchableOpacity onPress={ () => this.props.navigation.push('Live', {post, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit, model2, adUnitID} ) } >
                         <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
                     </TouchableOpacity>
                   </View>
@@ -1018,7 +1018,7 @@ export default class DashboardScreen extends Component {
   
                     {/* bottom right pane */}
                     <View style={{ }}>
-                      <TouchableOpacity onPress={ () => this.props.navigation.push('Live', { post, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit, model2} ) } >
+                      <TouchableOpacity onPress={ () => this.props.navigation.push('Live', { post, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit, model2, adUnitID} ) } >
                           <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
                       </TouchableOpacity>
                     </View>
@@ -1045,7 +1045,7 @@ export default class DashboardScreen extends Component {
 
   render() {
     console.log('---------------- render');
-    const { isLoading, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, nname, wval, wunit, hval, hunit, nat, byr, gdr, bt0, bt1, ts, llogin, lupdate, isGuest, model2 } = this.state; // scoreTtl, playSumTtl, playCnt, dataByYearWeeks, StatsDataLoadedAt, lastPlayEnded
+    const { isLoading, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, nname, wval, wunit, hval, hunit, nat, byr, gdr, bt0, bt1, ts, llogin, lupdate, isGuest, model2, adUnitID } = this.state; // scoreTtl, playSumTtl, playCnt, dataByYearWeeks, StatsDataLoadedAt, lastPlayEnded
 
 
     return (
@@ -1147,17 +1147,17 @@ export default class DashboardScreen extends Component {
               <Text style={styles.footerContainerText}>Profile</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('History') } >                     
+            <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('History', {adUnitID}) } >                     
               <FontAwesome5 name='history' size={24} color="white" />
               <Text style={styles.footerContainerText}>History</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('Stats', { const_exer, } ) }> 
+            <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('Stats', { const_exer, adUnitID} ) }> 
               <Ionicons name='ios-stats' size={26} color="white" />
               <Text style={styles.footerContainerText}>Stats</Text>
             </TouchableOpacity>              
 
-            <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('Leaderboard') }>            
+            <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('Leaderboard', {adUnitID}) }>            
               {/* <Ionicons name='ios-medal' size={26} color="white" /> */}
               <FontAwesome5 name="medal" size={23} color="white" />
               {/* <MaterialIcons name='military_tech' size={26} color="white" /> */}
@@ -1165,7 +1165,7 @@ export default class DashboardScreen extends Component {
               <Text style={styles.footerContainerText}>Leaderboard</Text>
             </TouchableOpacity>  
 
-            <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('Live1016', { const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit, model2 } ) }>            
+            <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('Live1016', { const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit, model2, adUnitID } ) }>            
               <Ionicons name='logo-youtube' size={28} color="white" />
               <Text style={styles.footerContainerText}>1.0.16</Text>
             </TouchableOpacity>  
