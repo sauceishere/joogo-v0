@@ -15,7 +15,7 @@ import moment from 'moment'; // https://momentjs.com/docs/
 
 // import {dbSQLite, dbName} from './DashboardScreen';
 import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
-
+import { AdMobBanner } from 'expo-ads-admob'; 
 
 // export default function App() {
 export default class Stats extends Component {
@@ -35,6 +35,7 @@ export default class Stats extends Component {
             didLoadChartData: false,
             // StatsDataLoadedAt: this.props.navigation.getParam('StatsDataLoadedAt') || null,
             // lastPlayEnded: this.props.navigation.getParam('lastPlayEnded') || null,
+            adUnitID: this.props.navigation.getParam('adUnitID'),
         }
     };
 
@@ -264,7 +265,7 @@ export default class Stats extends Component {
 
     render() {  
         console.log('--- render Stats');
-        const { scoreTtl, playSumTtl, playCnt, dataByYearWeeks, isLoading, didLoadChartData } = this.state;
+        const { scoreTtl, playSumTtl, playCnt, dataByYearWeeks, isLoading, didLoadChartData, adUnitID } = this.state;
         // console.log('scoreTtl, playSumTtl, playCnt: ', scoreTtl, playSumTtl, playCnt);
         // console.log('dataByYearWeeks: ', dataByYearWeeks);
 
@@ -398,6 +399,14 @@ export default class Stats extends Component {
                 }   
                 
 
+                <View style={styles.ads}>
+                    <AdMobBanner
+                    bannerSize="smartBanner"
+                    adUnitID = {adUnitID} //'ca-app-pub-9079750066587969/4230406044' // {this.state.adUnitID} // Banner ID ca-app-pub-9079750066587969/4230406044 // Test ID ca-app-pub-3940256099942544/6300978111
+                    servePersonalizedAds // true or false
+                    onDidFailToReceiveAdWithError={(error) => console.log('AdMob error: ', error)} />
+                </View>
+
 
             </View>
         );
@@ -472,7 +481,7 @@ const styles = StyleSheet.create({
     },
     chartArea: {
         // backgroundColor: '#DCDCDC',
-        // height: Dimensions.get('screen').width,
+        height: Dimensions.get('screen').width ,
         // height: '100%',
         width: Dimensions.get('screen').width * 0.98,
     },
@@ -488,6 +497,15 @@ const styles = StyleSheet.create({
         // zIndex: 500, // removed 20200531
         // backgroundColor: 'green',
       },    
+    ads: {
+        position: 'absolute',
+        bottom: 0,
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',  
+        // borderColor: 'green',
+        // borderWidth: 2,        
+    },  
 });
 
 

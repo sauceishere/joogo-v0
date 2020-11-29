@@ -8,6 +8,7 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { convertCompilerOptionsFromJson } from 'typescript';
 import * as SQLite from 'expo-sqlite';
 import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
+import { AdMobBanner } from 'expo-ads-admob'; 
 
 
 
@@ -49,6 +50,7 @@ class ExerciseHistory extends Component {
             error: null,
             refreshing: false,
             // isFlatlistLoaded: false,
+            adUnitID: this.props.navigation.getParam('adUnitID'),
         }
         // this._getExerHistSummary = this._getExerHistSummary.bind(this);
         this._requestLoadExerHist = this._requestLoadExerHist.bind(this);
@@ -290,7 +292,7 @@ class ExerciseHistory extends Component {
 
     render() {
         console.log('------------- render.');
-        const { isLoading, } = this.state;
+        const { isLoading, adUnitID } = this.state;
 
         return (
             <View style={styles.container}>
@@ -306,34 +308,10 @@ class ExerciseHistory extends Component {
                         <Text>Loading....</Text>
                     </View>
                 : 
-                    <View style={{width: '100%', flexDirection: 'column', flexWrap: 'nowrap' }}>
-
-                        {/* <View style={{width: '100%', flex: 1, marginTop: Dimensions.get('window').height * 0.05, }}>
-                            <Text style={styles.pageTitle}>Burned Calorie History</Text>    
-                        </View> */}
-                    
-                        {/* <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', alignItems: 'center', marginTop: Dimensions.get('window').height * 0.02, paddingHorizontal: Dimensions.get('window').width * 0.02}} >
-                            <View style={styles.tileItem}>
-                                <Ionicons name='ios-flame' size={22} style={styles.tileItemIcon}/>
-                                <Text style={styles.tileItemField}>{viewPtSum}</Text>    
-                                <Text style={styles.tileItemTitle}>Total Calories Burned</Text>
-                            </View>          
-
-                            <View style={styles.tileItem}>
-                                <Ionicons name='ios-time' size={22} style={styles.tileItemIcon}/>
-                                <Text style={styles.tileItemField}>{playSum}</Text>  
-                                <Text style={styles.tileItemTitle}>Total Hours Played</Text> 
-                            </View>
-                            
-                            <View style={styles.tileItem}>
-                                <Ionicons name='logo-youtube' size={22} style={styles.tileItemIcon}/>
-                                <Text style={styles.tileItemField}>{viewTimes}</Text>  
-                                <Text style={styles.tileItemTitle}>Total Times Played</Text>
-                            </View>      
-                        </View>  */}
+                    <View style={{width: '100%',  flexDirection: 'column', flexWrap: 'nowrap' }}>
 
                         {/* <SafeAreaView style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.01, flex:1 }}>  */}
-                        <SafeAreaView style={{ marginTop: Dimensions.get('window').height * 0.01, height: Dimensions.get('window').height -10  }}>
+                        <SafeAreaView style={{ marginTop: Dimensions.get('screen').height * 0.01, height: Dimensions.get('window').height - (Dimensions.get('screen').height - Dimensions.get('window').height) - 60, }}>
                             <FlatList
                                 style={styles.feed}
                                 data={this.state.postsExer}
@@ -351,6 +329,15 @@ class ExerciseHistory extends Component {
 
                     </View>
                 } 
+
+
+                <View style={styles.ads}>
+                <AdMobBanner
+                    bannerSize="smartBanner"
+                    adUnitID = {adUnitID} //'ca-app-pub-9079750066587969/4230406044' // {this.state.adUnitID} // Banner ID ca-app-pub-9079750066587969/4230406044 // Test ID ca-app-pub-3940256099942544/6300978111
+                    servePersonalizedAds // true or false
+                    onDidFailToReceiveAdWithError={(error) => console.log('AdMob error: ', error)} />
+                </View>
 
             </View>
         );
@@ -385,7 +372,7 @@ const AppContainer = createAppContainer(Stack);
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flex: 2,
         // paddingHorizontal: 10,
         // marginTop: 5,
         backgroundColor: '#DCDCDC',
@@ -568,5 +555,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',    
     },
+    ads: {
+        position: 'absolute',
+        bottom: 0,
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',  
+        // borderColor: 'green',
+        // borderWidth: 2,
+    },  
 
 })

@@ -7,7 +7,7 @@ import moment from "moment";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { convertCompilerOptionsFromJson } from 'typescript';
 import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
-
+import { AdMobBanner } from 'expo-ads-admob'; 
 
 const str_pad_left = function (string,pad,length) { // convert from sec to min:sec // https://stackoverflow.com/questions/3733227/javascript-seconds-to-minutes-and-seconds
     return (new Array(length+1).join(pad)+string).slice(-length);
@@ -36,6 +36,7 @@ export default class Leaderboard extends Component {
             // error: null,
             // refreshing: false,
             // isFlatlistLoaded: false,
+            adUnitID: this.props.navigation.getParam('adUnitID'),
         }
         this._requestLoadLeaderboard = this._requestLoadLeaderboard.bind(this);
         this._handleLoadMore = this._handleLoadMore.bind(this);
@@ -198,7 +199,7 @@ export default class Leaderboard extends Component {
 
     render() {
         console.log('------------- render.');
-        const { isLoading, AVE_PLAYSUM_MIN_WK, AVE_PLAYSUM_SEC_WK, AVE_SCORE_WK, AVE_VIEW_WK, within_top, } = this.state;
+        const { isLoading, AVE_PLAYSUM_MIN_WK, AVE_PLAYSUM_SEC_WK, AVE_SCORE_WK, AVE_VIEW_WK, within_top, adUnitID } = this.state;
 
         return (
             <View style={styles.container}>
@@ -214,7 +215,7 @@ export default class Leaderboard extends Component {
                         <Text>Loading....</Text>
                     </View>
                 : 
-                    <View style={{width: '100%', flexDirection: 'column', flexWrap: 'nowrap' }}>
+                    <View style={{width: '100%', flexDirection: 'column', flexWrap: 'nowrap', }}>
 
                         <View style={{width: '100%', flex: 1, marginTop: Dimensions.get('window').height * 0.02, }}>
                             <Text style={styles.pageTitle}>Top Calorie Burners' Weekly Average</Text>    
@@ -245,7 +246,7 @@ export default class Leaderboard extends Component {
 
                         <View style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.03, paddingHorizontal: Dimensions.get('window').width * 0.03}}> 
                             <Text style={styles.pageTitle}>Burned Calorie Ranking</Text> 
-                            <SafeAreaView style={{ marginTop: Dimensions.get('window').height * 0.01, height: Dimensions.get('window').height * 0.6 }}>
+                            <SafeAreaView style={{ marginTop: Dimensions.get('window').height * 0.01, height: Dimensions.get('window').height * 0.5 }}>
                             <FlatList
                                 style={styles.feed}
                                 data={this.state.posts}
@@ -264,6 +265,16 @@ export default class Leaderboard extends Component {
 
                     </View>
                 } 
+
+
+                <View style={styles.ads}>
+                    <AdMobBanner
+                    bannerSize="smartBanner"
+                    adUnitID = {adUnitID} //'ca-app-pub-9079750066587969/4230406044' // {this.state.adUnitID} // Banner ID ca-app-pub-9079750066587969/4230406044 // Test ID ca-app-pub-3940256099942544/6300978111
+                    servePersonalizedAds // true or false
+                    onDidFailToReceiveAdWithError={(error) => console.log('AdMob error: ', error)} />
+                </View>
+
 
             </View>
         );
@@ -425,5 +436,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',    
     },
-
+    ads: {
+        position: 'absolute',
+        bottom: 0,
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',  
+        // borderColor: 'green',
+        // borderWidth: 2,        
+    },  
 })

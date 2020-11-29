@@ -928,7 +928,7 @@ export default class DashboardScreen extends Component {
                   bannerSize="mediumRectangle"
                   adUnitID = {adUnitID} //'ca-app-pub-9079750066587969/4230406044' // {this.state.adUnitID} // Banner ID ca-app-pub-9079750066587969/4230406044 // Test ID ca-app-pub-3940256099942544/6300978111
                   servePersonalizedAds // true or false
-                  onDidFailToReceiveAdWithError={this.bannerError} />
+                  onDidFailToReceiveAdWithError={(error) => console.log('AdMob error: ', error)} />
               </View>  
 
             </View>          
@@ -1137,7 +1137,7 @@ export default class DashboardScreen extends Component {
         }
 
 
-        { isGuest ?
+        { isLoading ?
           null
         :
           <View style={styles.footerContainer}>

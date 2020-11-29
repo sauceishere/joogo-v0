@@ -21,7 +21,7 @@ import ModalSelector from 'react-native-modal-selector';
 import {LB_PER_KG} from '../shared/Consts';
 // export const LB_PER_KG = 2.205; // pounds devided by kilograms
 import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
-
+import { AdMobBanner } from 'expo-ads-admob'; 
 
 
 export default class ProfileScreen extends Component {
@@ -64,6 +64,7 @@ export default class ProfileScreen extends Component {
       isNewUser: null, //this.props.navigation.getParam('isNewUser') ?? false,
       isIos: Platform.OS === 'ios' ? true : false,
       // doneMasterByr: false, // to avoid repear master_byr
+      adUnitID: this.props.navigation.getParam('adUnitID'),
     };
     this._onWValChange = this._onWValChange.bind(this);
     this._onWUnitValueChange = this._onWUnitValueChange.bind(this);
@@ -633,7 +634,7 @@ export default class ProfileScreen extends Component {
 
 
   render() {
-    const { isUploading, allComplete, isEditing, DidGetProfileData, nname, gdr, byr, nat, bt0, bt1, ts, llogin, lupdate, isSigningOut, wval, wunit, hval, hunit, isNewUser, isIos } = this.state;
+    const { isUploading, allComplete, isEditing, DidGetProfileData, nname, gdr, byr, nat, bt0, bt1, ts, llogin, lupdate, isSigningOut, wval, wunit, hval, hunit, isNewUser, isIos, adUnitID } = this.state;
     // console.log('ts: ', ts);
 
     // from here, creating master for drop down menu. 20201006
@@ -696,406 +697,419 @@ export default class ProfileScreen extends Component {
 
 
 
-        { DidGetProfileData ?
-          <View>
+          { DidGetProfileData ?
+            <View>
 
-            {isNewUser ?
-              <View style={styles.newUserAnnouncementContainer}>
-                <Text style={styles.newUserAnnouncement}>Please fill out Nickname, Weight, Weight Unit. {"\n"}Please do NOT use your REAL name.</Text>
-              </View>
-            : 
-              null
-            }
+              {isNewUser ?
+                <View style={styles.newUserAnnouncementContainer}>
+                  <Text style={styles.newUserAnnouncement}>Please fill out Nickname, Weight, Weight Unit. {"\n"}Please do NOT use your REAL name.</Text>
+                </View>
+              : 
+                null
+              }
 
-            { isEditing ?
-              <View style={styles.inputContainer}>
+              { isEditing ?
+                <View style={styles.inputContainer}>
 
-                <View style={{width: '100%', marginTop: Dimensions.get('window').height * 0.02, marginBottom: Dimensions.get('window').height * 0.03,}}>
-                  
-                 { isIos ?
-
-                  <View>
-
-                      <Text style={styles.itemTitle10}><Text style={styles.itemMandatory}>* </Text>Nickname (Max 25 charactors)</Text>
-                      <TextInput
-                        multiline={false}
-                        numberOfLines={1}
-                        maxLength={25}
-                        style={styles.itemField10}
-                        defaultValue={nname}
-                        onChangeText={text => this._onNNameValueChange_ios(text) }
-                        value={this.state.nname}
-                      >
-                      </TextInput>
-
-                      <Text style={styles.itemTitle10}><Text style={styles.itemMandatory}>* </Text>Weight</Text>
-                      <TextInput
-                        multiline={false}
-                        numberOfLines={1}
-                        maxLength={10}
-                        style={styles.itemField10}
-                        defaultValue={wval}
-                        onChangeText={text => this._onWValChange_ios(text) }
-                        value={this.state.wval}
-                        keyboardType='numeric'
-                      >
-                      </TextInput>  
-
-                      <Text style={styles.itemTitle}><Text style={styles.itemMandatory}>* </Text>Weight Unit</Text>
-                      <View style={styles.pickerView}>
-                      <ModalSelector
-                        data = {master_weight_unit}
-                        initValue={wunit}
-                        onChange={ (option) => this._onWUnitValueChange_ios(option) } 
-                        style={styles.picker}
-                      />
-                      </View>
-
-                      <Text style={styles.itemTitle10}>Height</Text>
-                        <TextInput
-                          multiline={false}
-                          numberOfLines={1}
-                          maxLength={10}
-                          style={styles.itemField10}
-                          defaultValue= {hval}
-                          onChangeText={text => this._onHValChange_ios(text) }
-                          value={this.state.hval}
-                          keyboardType='numeric'
-                        >
-                      </TextInput>   
-
-                      <Text style={styles.itemTitle}>Height Unit</Text>
-                      <View style={styles.pickerView}>
-                      <ModalSelector
-                        data = {master_height_unit}
-                        initValue={hunit}
-                        onChange={ (option) => this._onHUnitValueChange_ios(option) } 
-                        style={styles.picker}
-                      />
-                      </View> 
-
-                      <Text style={styles.itemTitle}>Gender</Text>
-                      <View style={styles.pickerView}>
-                      <ModalSelector
-                        data = {master_gender}
-                        initValue={gdr}
-                        onChange={ (option) => this._onGenderValueChange_ios(option) } 
-                        style={styles.picker}
-                      />
-                      </View> 
-
-                      {/* <Text style={styles.itemTitle}>Nationality</Text>
-                      <View style={styles.pickerView}>
-                      <ModalSelector
-                        data = {master_countrylist}
-                        initValue={nat}
-                        onChange={ (option) => this._onCountryValueChange_ios(option) } 
-                        style={styles.picker}
-                      />
-                      </View>  */}
-
-                      <Text style={styles.itemTitle}>Birth Year</Text>
-                      <View style={styles.pickerView}>
-                      <ModalSelector
-                        data = {master_byr}
-                        initValue={byr}
-                        onChange={ (option) => this._onYearValueChange_ios(option) } 
-                        style={styles.picker}
-                      />
-                      </View> 
-
-                    </View>
-
-                  : 
+                  <View style={{width: '100%', marginTop: Dimensions.get('window').height * 0.02, marginBottom: Dimensions.get('window').height * 0.03,}}>
+                    
+                  { isIos ?
 
                     <View>
 
-                      <Text style={styles.itemTitle10}><Text style={styles.itemMandatory}>* </Text>Nickname (Max 25 charactors)</Text>
-                      <TextInput
-                        multiline={false}
-                        numberOfLines={1}
-                        maxLength={25}
-                        style={styles.itemField10}
-                        defaultValue={nname}
-                        onChangeText={text => this._onNNameValueChange(text) }
-                        value={this.state.nname}
-                      >
-                      </TextInput>
-
-                      <Text style={styles.itemTitle10}><Text style={styles.itemMandatory}>* </Text>Weight</Text>
-                      <TextInput
-                        multiline={false}
-                        numberOfLines={1}
-                        maxLength={10}
-                        style={styles.itemField10}
-                        defaultValue={wval}
-                        onChangeText={text => this._onWValChange(text) }
-                        value={this.state.wval}
-                        keyboardType='numeric'
-                      >
-                      </TextInput>  
-
-                      <Text style={styles.itemTitle}><Text style={styles.itemMandatory}>* </Text>Weight Unit</Text>
-                      <View style={styles.pickerView}>
-                        <Picker
-                          selectedValue= {wunit}
-                          onValueChange = {(itemValue) => this._onWUnitValueChange(itemValue) }
-                          style={styles.picker}
-                          itemStyle={styles.pickerItem}
-                          mode="dialog"
+                        <Text style={styles.itemTitle10}><Text style={styles.itemMandatory}>* </Text>Nickname (Max 25 charactors)</Text>
+                        <TextInput
+                          multiline={false}
+                          numberOfLines={1}
+                          maxLength={25}
+                          style={styles.itemField10}
+                          defaultValue={nname}
+                          onChangeText={text => this._onNNameValueChange_ios(text) }
+                          value={this.state.nname}
                         >
-                          <Picker.Item label={wunit} value={wunit} key={wunit}/>
-                          <Picker.Item label="kg" value="kg" key="kg"/>
-                          <Picker.Item label="lb" value="lb" key="lb" />
-                        </Picker>
-                      </View>
+                        </TextInput>
 
-                      <Text style={styles.itemTitle10}>Height</Text>
+                        <Text style={styles.itemTitle10}><Text style={styles.itemMandatory}>* </Text>Weight</Text>
                         <TextInput
                           multiline={false}
                           numberOfLines={1}
                           maxLength={10}
                           style={styles.itemField10}
-                          defaultValue= {hval}
-                          onChangeText={text => this._onHValChange(text) }
-                          value={this.state.hval}
+                          defaultValue={wval}
+                          onChangeText={text => this._onWValChange_ios(text) }
+                          value={this.state.wval}
                           keyboardType='numeric'
                         >
-                      </TextInput>   
+                        </TextInput>  
 
-                      <Text style={styles.itemTitle}>Height Unit</Text>
-                      <View style={styles.pickerView}>
-                        <Picker
-                            selectedValue= {hunit}
-                            onValueChange = {(itemValue) => this._onHUnitValueChange(itemValue) }
+                        <Text style={styles.itemTitle}><Text style={styles.itemMandatory}>* </Text>Weight Unit</Text>
+                        <View style={styles.pickerView}>
+                        <ModalSelector
+                          data = {master_weight_unit}
+                          initValue={wunit}
+                          onChange={ (option) => this._onWUnitValueChange_ios(option) } 
+                          style={styles.picker}
+                        />
+                        </View>
+
+                        <Text style={styles.itemTitle10}>Height</Text>
+                          <TextInput
+                            multiline={false}
+                            numberOfLines={1}
+                            maxLength={10}
+                            style={styles.itemField10}
+                            defaultValue= {hval}
+                            onChangeText={text => this._onHValChange_ios(text) }
+                            value={this.state.hval}
+                            keyboardType='numeric'
+                          >
+                        </TextInput>   
+
+                        <Text style={styles.itemTitle}>Height Unit</Text>
+                        <View style={styles.pickerView}>
+                        <ModalSelector
+                          data = {master_height_unit}
+                          initValue={hunit}
+                          onChange={ (option) => this._onHUnitValueChange_ios(option) } 
+                          style={styles.picker}
+                        />
+                        </View> 
+
+                        <Text style={styles.itemTitle}>Gender</Text>
+                        <View style={styles.pickerView}>
+                        <ModalSelector
+                          data = {master_gender}
+                          initValue={gdr}
+                          onChange={ (option) => this._onGenderValueChange_ios(option) } 
+                          style={styles.picker}
+                        />
+                        </View> 
+
+                        {/* <Text style={styles.itemTitle}>Nationality</Text>
+                        <View style={styles.pickerView}>
+                        <ModalSelector
+                          data = {master_countrylist}
+                          initValue={nat}
+                          onChange={ (option) => this._onCountryValueChange_ios(option) } 
+                          style={styles.picker}
+                        />
+                        </View>  */}
+
+                        <Text style={styles.itemTitle}>Birth Year</Text>
+                        <View style={styles.pickerView}>
+                        <ModalSelector
+                          data = {master_byr}
+                          initValue={byr}
+                          onChange={ (option) => this._onYearValueChange_ios(option) } 
+                          style={styles.picker}
+                        />
+                        </View> 
+
+                      </View>
+
+                    : 
+
+                      <View>
+
+                        <Text style={styles.itemTitle10}><Text style={styles.itemMandatory}>* </Text>Nickname (Max 25 charactors)</Text>
+                        <TextInput
+                          multiline={false}
+                          numberOfLines={1}
+                          maxLength={25}
+                          style={styles.itemField10}
+                          defaultValue={nname}
+                          onChangeText={text => this._onNNameValueChange(text) }
+                          value={this.state.nname}
+                        >
+                        </TextInput>
+
+                        <Text style={styles.itemTitle10}><Text style={styles.itemMandatory}>* </Text>Weight</Text>
+                        <TextInput
+                          multiline={false}
+                          numberOfLines={1}
+                          maxLength={10}
+                          style={styles.itemField10}
+                          defaultValue={wval}
+                          onChangeText={text => this._onWValChange(text) }
+                          value={this.state.wval}
+                          keyboardType='numeric'
+                        >
+                        </TextInput>  
+
+                        <Text style={styles.itemTitle}><Text style={styles.itemMandatory}>* </Text>Weight Unit</Text>
+                        <View style={styles.pickerView}>
+                          <Picker
+                            selectedValue= {wunit}
+                            onValueChange = {(itemValue) => this._onWUnitValueChange(itemValue) }
+                            style={styles.picker}
+                            itemStyle={styles.pickerItem}
+                            mode="dialog"
+                          >
+                            <Picker.Item label={wunit} value={wunit} key={wunit}/>
+                            <Picker.Item label="kg" value="kg" key="kg"/>
+                            <Picker.Item label="lb" value="lb" key="lb" />
+                          </Picker>
+                        </View>
+
+                        <Text style={styles.itemTitle10}>Height</Text>
+                          <TextInput
+                            multiline={false}
+                            numberOfLines={1}
+                            maxLength={10}
+                            style={styles.itemField10}
+                            defaultValue= {hval}
+                            onChangeText={text => this._onHValChange(text) }
+                            value={this.state.hval}
+                            keyboardType='numeric'
+                          >
+                        </TextInput>   
+
+                        <Text style={styles.itemTitle}>Height Unit</Text>
+                        <View style={styles.pickerView}>
+                          <Picker
+                              selectedValue= {hunit}
+                              onValueChange = {(itemValue) => this._onHUnitValueChange(itemValue) }
+                              style={styles.picker}
+                              itemStyle={styles.pickerItem}
+                              mode="dialog">
+                              <Picker.Item label={hunit} value={hunit} key={hunit}/>
+                              <Picker.Item label="cm" value="cm" key="cm"/>
+                              <Picker.Item label="ft" value="ft" key="ft" />
+                          </Picker>
+                        </View> 
+
+                        <Text style={styles.itemTitle10}>Gender</Text>
+                        <View style={styles.pickerView}>
+                          <Picker
+                            selectedValue= {gdr}
+                            onValueChange = {(itemValue) => this._onGenderValueChange(itemValue) }
+                            style={styles.picker}
+                            itemStylestyle={styles.pickerItem}
+                            mode="dialog">
+                            <Picker.Item label={gdr} value={gdr} key={gdr}/>
+                            <Picker.Item label="Male" value="Male" key="Male"/>
+                            <Picker.Item label="Female" value="Female" key="Female"/>
+                            <Picker.Item label="Other" value="Other" key="Other"/>
+                            <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
+                          </Picker>
+                        </View>
+
+                        {/* <Text style={styles.itemTitle10}>Nationality</Text>
+                        <View style={styles.pickerView}>
+                          <Picker
+                            selectedValue= {nat}
+                            // onValueChange={country => this.setState({ nat: country }), console.log( this.state.country ) }
+                            // onValueChange = {(country) => this.setState({ nat: country })}
+                            onValueChange = {(itemValue) => this._onCountryValueChange(itemValue) }
+                            style={styles.picker}
+                            Style={styles.pickerItem}
+                            mode="dialog">
+                            <Picker.Item label={nat} value={nat}  key={nat} />
+                            {this.cnlist.countrylist.map( (obj) => 
+                              <Picker.Item label={obj["Name"]} value ={obj["Name"]} key={obj["Name"]}/>
+                            )}
+                            <Picker.Item label="Other" value="Other" key="Other"/>
+                            <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
+                          </Picker>
+                        </View> */}
+
+                        <Text style={styles.itemTitle10}>Birth Year</Text>
+                        <View style={styles.pickerView}>
+                          <Picker
+                            selectedValue= {byr}
+                            onValueChange = {(itemValue) => this._onYearValueChange(itemValue) }
                             style={styles.picker}
                             itemStyle={styles.pickerItem}
                             mode="dialog">
-                            <Picker.Item label={hunit} value={hunit} key={hunit}/>
-                            <Picker.Item label="cm" value="cm" key="cm"/>
-                            <Picker.Item label="ft" value="ft" key="ft" />
-                        </Picker>
-                      </View> 
-
-                      <Text style={styles.itemTitle10}>Gender</Text>
-                      <View style={styles.pickerView}>
-                        <Picker
-                          selectedValue= {gdr}
-                          onValueChange = {(itemValue) => this._onGenderValueChange(itemValue) }
-                          style={styles.picker}
-                          itemStylestyle={styles.pickerItem}
-                          mode="dialog">
-                          <Picker.Item label={gdr} value={gdr} key={gdr}/>
-                          <Picker.Item label="Male" value="Male" key="Male"/>
-                          <Picker.Item label="Female" value="Female" key="Female"/>
-                          <Picker.Item label="Other" value="Other" key="Other"/>
-                          <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
-                        </Picker>
-                      </View>
-
-                      {/* <Text style={styles.itemTitle10}>Nationality</Text>
-                      <View style={styles.pickerView}>
-                        <Picker
-                          selectedValue= {nat}
-                          // onValueChange={country => this.setState({ nat: country }), console.log( this.state.country ) }
-                          // onValueChange = {(country) => this.setState({ nat: country })}
-                          onValueChange = {(itemValue) => this._onCountryValueChange(itemValue) }
-                          style={styles.picker}
-                          Style={styles.pickerItem}
-                          mode="dialog">
-                          <Picker.Item label={nat} value={nat}  key={nat} />
-                          {this.cnlist.countrylist.map( (obj) => 
-                            <Picker.Item label={obj["Name"]} value ={obj["Name"]} key={obj["Name"]}/>
-                          )}
-                          <Picker.Item label="Other" value="Other" key="Other"/>
-                          <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
-                        </Picker>
-                      </View> */}
-
-                      <Text style={styles.itemTitle10}>Birth Year</Text>
-                      <View style={styles.pickerView}>
-                        <Picker
-                          selectedValue= {byr}
-                          onValueChange = {(itemValue) => this._onYearValueChange(itemValue) }
-                          style={styles.picker}
-                          itemStyle={styles.pickerItem}
-                          mode="dialog">
-                          <Picker.Item label={byr} value={byr} key={byr}/>
-                            {this.yrlist.map( (obj) => 
-                              <Picker.Item label={obj} value ={obj} key={obj}/>
-                            )}
-                          <Picker.Item label="Other" value="Other" key="Other"/>
-                          <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
-                        </Picker>
-                      </View>
-      
-
-                      {/* <Text style={styles.itemTitle10}>Focus Body Parts (Max 2 tags)</Text>
-                      <View style={styles.pickerView}>
-                        <Picker
-                          selectedValue= {bt0}
-                          onValueChange = {(itemValue) => this._onBodytags0ValueChange(itemValue) }
-                          style={styles.picker}
-                          itemStyle={styles.pickerItem}
-                          mode="dialog">
-                          <Picker.Item label={bt0} value={bt0} key={bt0} />
-                            {this.btlist.bodytags.map( (obj) => 
-                              <Picker.Item label={obj} value ={obj} key={obj}/>
-                            )}
-                          <Picker.Item label="Not Specified" value="Not specified" key="Not specified" />  
-                        </Picker>
-                      </View>
-                      <View style={styles.pickerViewBt1}>
-                        <Picker
-                          selectedValue= {bt1}
-                          onValueChange = {(itemValue) => this._onBodytags1ValueChange(itemValue) }
-                          style={styles.picker}
-                          itemStyle={styles.pickerItem}
-                          mode="dialog">
-                          <Picker.Item label={bt1} value={bt1} key={bt1} />
-                            {this.btlist.bodytags.map( (obj) => 
-                              <Picker.Item label={obj} value ={obj} key={obj}/>
-                            )}
-                          <Picker.Item label="Not Specified" value="Not specified." key="Not specified." />  
-                        </Picker>
-                      </View>                   */}
-
-
-                    </View>
-
-                  }
-              
-
-
-                  { allComplete ?
-                    <View>
-                    </View>  
-                  :
-                    <View>
-                      { isUploading ?
-               
-                        <View style={styles.uploadingIndicator}>
-                            <ActivityIndicator size="large" color='#ffa500'/>
-                            <Text>Uploading....</Text>
+                            <Picker.Item label={byr} value={byr} key={byr}/>
+                              {this.yrlist.map( (obj) => 
+                                <Picker.Item label={obj} value ={obj} key={obj}/>
+                              )}
+                            <Picker.Item label="Other" value="Other" key="Other"/>
+                            <Picker.Item label="Not specified" value="Not specified" key="Not specified" />
+                          </Picker>
                         </View>
-                      :
-                        <View>
-                          <TouchableOpacity onPress={ this._handlePost} style={styles.postButton} >
-                            <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold',}}> Save </Text>
-                          </TouchableOpacity>
         
-                          <TouchableOpacity onPress={ this._pressCancelEdit }  style={styles.cancelEditButton}>
-                            <Text style={{color: 'gray', fontSize: 16, paddingBottom: 20}}> Cancel </Text>
-                          </TouchableOpacity>   
+
+                        {/* <Text style={styles.itemTitle10}>Focus Body Parts (Max 2 tags)</Text>
+                        <View style={styles.pickerView}>
+                          <Picker
+                            selectedValue= {bt0}
+                            onValueChange = {(itemValue) => this._onBodytags0ValueChange(itemValue) }
+                            style={styles.picker}
+                            itemStyle={styles.pickerItem}
+                            mode="dialog">
+                            <Picker.Item label={bt0} value={bt0} key={bt0} />
+                              {this.btlist.bodytags.map( (obj) => 
+                                <Picker.Item label={obj} value ={obj} key={obj}/>
+                              )}
+                            <Picker.Item label="Not Specified" value="Not specified" key="Not specified" />  
+                          </Picker>
                         </View>
-                      }
-                    </View>
-                  } 
+                        <View style={styles.pickerViewBt1}>
+                          <Picker
+                            selectedValue= {bt1}
+                            onValueChange = {(itemValue) => this._onBodytags1ValueChange(itemValue) }
+                            style={styles.picker}
+                            itemStyle={styles.pickerItem}
+                            mode="dialog">
+                            <Picker.Item label={bt1} value={bt1} key={bt1} />
+                              {this.btlist.bodytags.map( (obj) => 
+                                <Picker.Item label={obj} value ={obj} key={obj}/>
+                              )}
+                            <Picker.Item label="Not Specified" value="Not specified." key="Not specified." />  
+                          </Picker>
+                        </View>                   */}
 
-                </View>
 
+                      </View>
 
-
-              </View>
-            : 
-              <View style={styles.inputContainer}>
-
-              <TouchableOpacity onPress={ () => this._SignOut() } style={styles.signOutButton} >
-                <Text style={{color: '#ffa500', fontSize: 16, fontWeight: 'bold',}}> Sign Out </Text>
-              </TouchableOpacity>
-
-
-                <View style={{width: '100%', marginTop: Dimensions.get('window').height * 0.05, marginBottom: Dimensions.get('window').height * 0.03,}}>
-                
-                  {/* <Image source={{uri: profileData.avatarFullUrl }} style={} resizeMode="cover" />  */}
-
-                  
-                  <Text style={styles.itemTitle}>Nickname</Text>
-                  <Text style={styles.itemField00}>
-                    { ((nname).length > 50) ? 
-                        (((nname).substring(0, 50-3)) + '...') 
-                    : 
-                      nname 
                     }
-                  </Text>
+                
 
-                  <View style={styles.tableRow}>
-                    <Text style={styles.itemTitle}>Weight</Text>
-                    <Text style={styles.itemField00}>{wval} {wunit}</Text>
+
+                    { allComplete ?
+                      <View>
+                      </View>  
+                    :
+                      <View>
+                        { isUploading ?
+                
+                          <View style={styles.uploadingIndicator}>
+                              <ActivityIndicator size="large" color='#ffa500'/>
+                              <Text>Uploading....</Text>
+                          </View>
+                        :
+                          <View>
+                            <TouchableOpacity onPress={ this._handlePost} style={styles.postButton} >
+                              <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold',}}> Save </Text>
+                            </TouchableOpacity>
+          
+                            <TouchableOpacity onPress={ this._pressCancelEdit }  style={styles.cancelEditButton}>
+                              <Text style={{color: 'gray', fontSize: 16, paddingBottom: 20}}> Cancel </Text>
+                            </TouchableOpacity>   
+                          </View>
+                        }
+                      </View>
+                    } 
+
                   </View>
 
-                  <View style={styles.tableRow}>
-                    <Text style={styles.itemTitle}>Height</Text>
-                    <Text style={styles.itemField00}>{hval} {hunit}</Text>
-                  </View>
-
-                  <View style={styles.tableRow}>
-                    <Text style={styles.itemTitle}>Gender</Text>
-                    <Text style={styles.itemField00}>{gdr}</Text>
-                  </View>
-
-                  {/* <View style={styles.tableRow}>
-                    <Text style={styles.itemTitle}>Nationality</Text>
-                    <Text style={styles.itemField00}>
-                      {nat}
-                    </Text>
-                  </View> */}
-
-                  <View style={styles.tableRow}>
-                    <Text style={styles.itemTitle}>Birth Year</Text>
-                    <Text style={styles.itemField00}>{byr}</Text>                  
-                  </View>
-
-                  {/* <View style={styles.tableRow}>
-                    <Text style={styles.itemTitle}>Focus Body Parts</Text>
-                    <Text style={styles.itemField00}>{bt0}</Text>
-                    <Text style={styles.itemField00}>{bt1}</Text>
-                  </View> */}
-
-                  <View style={styles.tableRow}>
-                    <Text style={styles.itemTitle}>Account Created</Text>
-                    <Text style={styles.itemField00}>{moment.unix(ts).fromNow()}</Text>
-                  </View>
-
-                  <View style={styles.tableRow}>
-                    <Text style={styles.itemTitle}>Last Update</Text>
-                    <Text style={styles.itemField00}>{moment.unix(lupdate).fromNow()}</Text>
-                  </View>
-
-                  <TouchableOpacity onPress={ this._pressEdit} style={styles.postButton} >
-                    <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold',}}> Edit </Text>
-                  </TouchableOpacity>
 
                 </View>
-              </View>        
+              : 
+                <View style={styles.inputContainer}>
 
-            }
-
-          </View>
-
-        :
-
-          <View style={styles.loadingIndicator}>
-            <ActivityIndicator size='large' color='orange' />
-            { isSigningOut ?
-              <View>
-                <Text> Signing Out...</Text>
-              </View>
-            :
-              <View>
-                <Text> Loading Data...</Text>
-              </View>
-            }
-          </View> 
+                <TouchableOpacity onPress={ () => this._SignOut() } style={styles.signOutButton} >
+                  <Text style={{color: '#ffa500', fontSize: 16, fontWeight: 'bold',}}> Sign Out </Text>
+                </TouchableOpacity>
 
 
-        }
+                  <View style={{width: '100%', marginTop: Dimensions.get('window').height * 0.05, marginBottom: Dimensions.get('window').height * 0.03,}}>
+                  
+                    {/* <Image source={{uri: profileData.avatarFullUrl }} style={} resizeMode="cover" />  */}
+
+                    
+                    <Text style={styles.itemTitle}>Nickname</Text>
+                    <Text style={styles.itemField00}>
+                      { ((nname).length > 50) ? 
+                          (((nname).substring(0, 50-3)) + '...') 
+                      : 
+                        nname 
+                      }
+                    </Text>
+
+                    <View style={styles.tableRow}>
+                      <Text style={styles.itemTitle}>Weight</Text>
+                      <Text style={styles.itemField00}>{wval} {wunit}</Text>
+                    </View>
+
+                    <View style={styles.tableRow}>
+                      <Text style={styles.itemTitle}>Height</Text>
+                      <Text style={styles.itemField00}>{hval} {hunit}</Text>
+                    </View>
+
+                    <View style={styles.tableRow}>
+                      <Text style={styles.itemTitle}>Gender</Text>
+                      <Text style={styles.itemField00}>{gdr}</Text>
+                    </View>
+
+                    {/* <View style={styles.tableRow}>
+                      <Text style={styles.itemTitle}>Nationality</Text>
+                      <Text style={styles.itemField00}>
+                        {nat}
+                      </Text>
+                    </View> */}
+
+                    <View style={styles.tableRow}>
+                      <Text style={styles.itemTitle}>Birth Year</Text>
+                      <Text style={styles.itemField00}>{byr}</Text>                  
+                    </View>
+
+                    {/* <View style={styles.tableRow}>
+                      <Text style={styles.itemTitle}>Focus Body Parts</Text>
+                      <Text style={styles.itemField00}>{bt0}</Text>
+                      <Text style={styles.itemField00}>{bt1}</Text>
+                    </View> */}
+
+                    <View style={styles.tableRow}>
+                      <Text style={styles.itemTitle}>Account Created</Text>
+                      <Text style={styles.itemField00}>{moment.unix(ts).fromNow()}</Text>
+                    </View>
+
+                    <View style={styles.tableRow}>
+                      <Text style={styles.itemTitle}>Last Update</Text>
+                      <Text style={styles.itemField00}>{moment.unix(lupdate).fromNow()}</Text>
+                    </View>
+
+                    <TouchableOpacity onPress={ this._pressEdit} style={styles.postButton} >
+                      <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold',}}> Edit </Text>
+                    </TouchableOpacity>   
+
+                  </View>
+
+
+                </View>        
+
+              }
+
+
+
+
+            </View>
+
+            
+
+          :
+
+            <View style={styles.loadingIndicator}>
+              <ActivityIndicator size='large' color='orange' />
+              { isSigningOut ?
+                <View>
+                  <Text> Signing Out...</Text>
+                </View>
+              :
+                <View>
+                  <Text> Loading Data...</Text>
+                </View>
+              }
+            </View> 
+
+
+          }
+
+
 
 
 
 
         </ScrollView>
         {/* </SafeAreaView> */}
+
+
+
+
+
       </TouchableWithoutFeedback>  
     );
   }
@@ -1333,5 +1347,15 @@ const styles = StyleSheet.create({
     shadowRadius: 10, // iOS   
     elevation: 10, // Android
   },
+  ads: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    // height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',  
+    // borderColor: 'green',
+    // borderWidth: 2,
+},  
 
 });
