@@ -29,7 +29,8 @@ import {LB_PER_KG} from '../shared/Consts';
 import { NonMaxSuppressionV5 } from '@tensorflow/tfjs';
 import { isNonNullExpression } from 'typescript';
 import { greaterThan } from 'react-native-reanimated';
-
+import { scrW, scrH, winW, winH, sBarH, vButtonH } from './DashboardScreen'; // get screen size & window size from DashboardScreen.js
+import YoutubePlayer from "react-native-youtube-iframe"; // 20201202
 
 
 
@@ -118,7 +119,9 @@ export default class Live extends Component {
       vidPlayAt: 0,
       vidEndAt: 0,
       vidPlaying: false,
-      flagYTstarted: false, // to control start of initial posture 20201127
+      vidStatus: null, 
+      // flagYTstarted: false, // to control start of initial posture 20201127
+      isScanningIniPos: false, // to manipulate YouTube screen size 20201201
     }
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);  
     // this._handlePlayAndPause = this._handlePlayAndPause.bind(this);
@@ -139,12 +142,14 @@ export default class Live extends Component {
 
   // resize Width & Height, Smaller is faster
   // inputTensorWidth = Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
-  // inputTensorHeight = Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //Dimensions.get('window').height / 3; // 200
+  // inputTensorHeight = {{winH}} * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //{winH} / 3; // 200
   
   // // this below is action for warning 20201117 "[Unhandled promise rejection: Error: When using targetShape.depth=3, targetShape.width must be a multiple of 4. Alternatively do not call detectGLCapabilities()]" 
   // https://techacademy.jp/magazine/35944
-  inputTensorWidth = ( Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ) - ( Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
-  inputTensorHeight = ( Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ) - ( Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //Dimensions.get('window').height / 3; // 200
+  // inputTensorWidth = ( Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ) - ( Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
+  // inputTensorHeight = ( winH * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ) - ( winH * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //{winH} / 3; // 200
+  inputTensorWidth = ( (scrH - vButtonH) * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ) - ( scrW * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
+  inputTensorHeight = ( (scrH - vButtonH) * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ) - ( (scrH - vButtonH) * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //{winH} / 3; // 200
 
 
 
@@ -152,23 +157,23 @@ export default class Live extends Component {
   textureDims = Platform.OS === 'ios' ? 
     { // https://github.com/tensorflow/tfjs/blob/master/tfjs-react-native/integration_rn59/components/webcam/realtime_demo.tsx
       width: this.props.navigation.getParam('const_exer')['textureDimsIos']['width'], // 1800, //960, //Dimensions.get('window').width, // 960, // 1024, //768, //512, // 540, //256, // 1080, //videoSize, 
-      height: this.props.navigation.getParam('const_exer')['textureDimsIos']['height'] , // 1200, //960, //Dimensions.get('window').height, // 960, // 1024, //768, //512, //960, //453, // 1920, //videoSize,
+      height: this.props.navigation.getParam('const_exer')['textureDimsIos']['height'] , // 1200, //960, //{winH}, // 960, // 1024, //768, //512, //960, //453, // 1920, //videoSize,
     }
    : //  For Android
     { // https://github.com/tensorflow/tfjs/blob/master/tfjs-react-native/integration_rn59/components/webcam/realtime_demo.tsx
       width: this.props.navigation.getParam('const_exer')['textureDims']['width'], // 1800, //960, //Dimensions.get('window').width, // 960, // 1024, //768, //512, // 540, //256, // 1080, //videoSize, 
-      height: this.props.navigation.getParam('const_exer')['textureDims']['height'], // 1200, //960, //Dimensions.get('window').height, // 960, // 1024, //768, //512, //960, //453, // 1920, //videoSize,
+      height: this.props.navigation.getParam('const_exer')['textureDims']['height'], // 1200, //960, //{winH}, // 960, // 1024, //768, //512, //960, //453, // 1920, //videoSize,
     }; 
 
   // textureDims = { // https://github.com/tensorflow/tfjs/blob/master/tfjs-react-native/integration_rn59/components/webcam/realtime_demo.tsx
   //   width: this.props.navigation.getParam('const_exer')['textureDims']['width'], // 1800, //960, //Dimensions.get('window').width, // 960, // 1024, //768, //512, // 540, //256, // 1080, //videoSize, 
-  //   height: this.props.navigation.getParam('const_exer')['textureDims']['height'], // 1200, //960, //Dimensions.get('window').height, // 960, // 1024, //768, //512, //960, //453, // 1920, //videoSize,
+  //   height: this.props.navigation.getParam('const_exer')['textureDims']['height'], // 1200, //960, //{winH}, // 960, // 1024, //768, //512, //960, //453, // 1920, //videoSize,
   // };
 
   MIN_KEYPOINT_SCORE = this.props.navigation.getParam('const_exer')['minKeypointScore'];
 
 
-  playButtonSize = Dimensions.get('window').width * 0.4;
+  playButtonSize = scrW * 0.4;
 
   vidState = {
     LOOPTIMES: 0,
@@ -187,10 +192,10 @@ export default class Live extends Component {
   } 
 
   camState = {
-    screenHeight: Dimensions.get('screen').height,
-    screenWidth: Dimensions.get('screen').width,
-    windowHeight: Dimensions.get('window').height,
-    windowWidth: Dimensions.get('window').width,    
+    screenHeight: scrH,
+    screenWidth: scrW,
+    windowHeight: winH,
+    windowWidth: winW,    
   }
 
   cntIniPos = 0; // to count how many times exercisers fit into initialPoistions to control NOT to start countdown too early. 20200516
@@ -508,12 +513,12 @@ export default class Live extends Component {
     console.log('------------------------------------------------------ Go back to Home');
     const ts = Date.now() / 1000;
     // this.setState({ shouldPlay : false, flagUpdateScore: true }); // added 20200523
-    this.setState({ shouldPlay : false, flagUpdateScore: false, lastPlayEnded: ts  });
+    this.setState({ shouldPlay : false, flagUpdateScore: false, lastPlayEnded: ts, isScanningIniPos: false  });
     // this.setState({ shouldPlay : false});
     // clearInterval(_updateScore); // did NOT work 20200603
     // clearInterval(videoCountDown); // did NOT work 20200603
     // ScreenOrientation.unlockAsync(); // back to portrait
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
+    // ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
     
     this.props.navigation.goBack();
     // this.props.navigation.navigate('DashboardScreen', { lastPlayEnded });
@@ -551,21 +556,20 @@ export default class Live extends Component {
   async componentWillUnmount() {
     console.log('------------------- componentWillUnmount Live started');
 
-    this.setState({ shouldPlay: false });
+    // this.setState({ shouldPlay: false, isScanningIniPos: false });
 
     if(this.rafId) {  // this is for Tensorflow
       cancelAnimationFrame(this.rafId);
     }
 
     this.vidState.vidEndAt = Date.now()/1000;
-    
+
+    // ScreenOrientation.unlockAsync(); // back to portrait
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
 
     await this._unsubscribeFromAccelerometer();
 
     deactivateKeepAwake();
-
-    // ScreenOrientation.unlockAsync(); // back to portrait
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
 
     await this._saveVidViewLog();
 
@@ -589,8 +593,8 @@ export default class Live extends Component {
     // console.log('this.scaler_scale: ', this.scaler_scale );
     // console.log('this.scaler_mean: ', this.scaler_mean );
     // console.log('this.model: ', this.model );
-    console.log('screen width, height: ', Dimensions.get('screen').width, Dimensions.get('screen').height);
-    console.log('window width, height: ', Dimensions.get('window').width, Dimensions.get('window').height);
+    // console.log('screen width, height: ', Dimensions.get('screen').width, Dimensions.get('screen').height);
+    // console.log('window width, height: ', Dimensions.get('window').width, winH);
     console.log('inputTensorWidth, inputTensorHeight: ', this.inputTensorWidth, this.inputTensorHeight );
     console.log('textureDims.width .height: ', this.textureDims.width, this.textureDims.height );    
     // console.log('LB_PER_KG: ', LB_PER_KG);
@@ -1058,9 +1062,9 @@ export default class Live extends Component {
 
         console.log('======================= _playVideoAtStart ========= ', Date.now()/1000);
 
-        this._virtuallyPlayVideo(); // 20201129
+        // this._virtuallyPlayVideo(); // 20201129
 
-        this.setState({ flagCountdownFinished: true, shouldPlay: true, flagUpdateScore: true});
+        this.setState({ flagCountdownFinished: true, shouldPlay: true, flagUpdateScore: true, isScanningIniPos: false});
         // this.webviewRef.injectJavaScript(`
         //     document.getElementsByTagName("video")[0].play();
         // `)
@@ -2114,7 +2118,7 @@ export default class Live extends Component {
       setTimeout(function () {
         document.getElementById("player").style.border = '5px dotted green';
         player.unMute();     
-        // player.playVideo();        
+        // player.playVideo();     
         document.getElementById("player").style.border = '5px solid green';
       }, 1000)
 
@@ -2144,7 +2148,7 @@ export default class Live extends Component {
     console.log('----------------- render --------------------');
     var time1 = Date.now() / 1000; 
 
-    const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, scoreNow, vidStartAt, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon, octopusLoc, outNTAFlag, outAccelFlag, missingPos, outOfIniPos, iP_f, iP_lw, iP_rw, iP_la, iP_ra, showStepNotice, showLiveTipModal, liveTipImg, vidFullUrl, vidPlayAt, vidEndAt, vidPlaying, flagYTstarted } = this.state;
+    const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, scoreNow, vidStartAt, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon, octopusLoc, outNTAFlag, outAccelFlag, missingPos, outOfIniPos, iP_f, iP_lw, iP_rw, iP_la, iP_ra, showStepNotice, showLiveTipModal, liveTipImg, vidFullUrl, vidPlayAt, vidEndAt, vidPlaying, isScanningIniPos, vidStatus } = this.state;
 
     if (shouldPlay == true) { // increment only shouldPlay=true. this means not incremented whe video is paused.
       this.vidState.vidPlayedSum = this.vidState.vidPlayedSum + (Date.now()/1000 - this.vidState.loopStartAt); // add increment time
@@ -2178,6 +2182,8 @@ export default class Live extends Component {
     //   this.liveTipImgName = '../assets/live_tip4.png';
     // }
     console.log('showLiveTipModal, liveTipImg: ', showLiveTipModal, liveTipImg );
+
+    console.log('vidStatus: ', vidStatus);
 
 
 // ////////// to check if mobile devices is fixed & no move by Accelerometer
@@ -2219,20 +2225,19 @@ export default class Live extends Component {
         <meta name="viewport" content="initial-scale=1.0">
         </head>
 
-        <body style="margin: 0px; background-color:#000;">
+        <body style="margin: 0px; background-color:#000; ">
           <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
-          <div id="player" style="width: '100%'; height: '100%';"></div>
+          <div id="player" style="width: '98%'; height: '98%'; "></div>
 
           <script>
-            // 2. This code loads the IFrame Player API code asynchronously.
+            //// 2. This code loads the IFrame Player API code asynchronously.
             var tag = document.createElement('script');
 
             tag.src = "https://www.youtube.com/iframe_api";
             var firstScriptTag = document.getElementsByTagName('script')[0];
             firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-            // 3. This function creates an <iframe> (and YouTube player)
-            //    after the API code downloads.
+            //// 3. This function creates an <iframe> (and YouTube player) after the API code downloads.
             var player;
             function onYouTubeIframeAPIReady() {
               player = new YT.Player('player', {
@@ -2245,14 +2250,12 @@ export default class Live extends Component {
               });
             }
 
-            // 4. The API will call this function when the video player is ready.
+            //// 4. The API will call this function when the video player is ready.
             // function onPlayerReady(event) {
-              // document.getElementById("player").style.border = '5px solid orange';
+            //   document.getElementById("player").style.border = '5px solid orange';
             // }
 
-            // 5. The API calls this function when the player's state changes.
-            //    The function indicates that when playing a video (state=1),
-            //    the player should play for six seconds and then stop.
+            //// 5. The API calls this function when the player's state changes. The function indicates that when playing a video (state=1), 
             var vidPlaying = false;
             // var vidPlayAt = 0;
 
@@ -2260,24 +2263,25 @@ export default class Live extends Component {
               if (event.data == YT.PlayerState.PLAYING && !vidPlaying) {
                 if ( ${vidPlayAt} == 0) {
                   setTimeout(function () {
-                    // player.mute();               
-                    document.getElementById("player").style.border = '5px dotted red';
+                    // player.mute();  
+                    // player.pauseVideo();             
+                    // document.getElementById("player").style.border = '5px dotted red';
                     // vidPlayAt = Date.now() / 1000;
                     window.ReactNativeWebView.postMessage( JSON.stringify( {"vidPlayAt": Date.now() / 1000 } ) );
-                  }, 3000)
+                  }, 1000)
                 }
 
                 vidPlaying = true;
               } 
               
-              if (event.data == YT.PlayerState.PAUSED && vidPlaying) {
-                // setTimeout(function () {
-                //   document.getElementById("player").style.border = '5px solid red';
-                //   window.ReactNativeWebView.postMessage( JSON.stringify( {"vidEndAt": Date.now() / 1000 , "vidPlayedTime": (Date.now() / 1000 - ${vidPlayAt} ).toFixed(1) } ) );
-                // }, 10)
+              // if (event.data == YT.PlayerState.PAUSED && vidPlaying) {
+              //   // setTimeout(function () {
+              //   //   document.getElementById("player").style.border = '5px solid red';
+              //   //   window.ReactNativeWebView.postMessage( JSON.stringify( {"vidEndAt": Date.now() / 1000 , "vidPlayedTime": (Date.now() / 1000 - ${vidPlayAt} ).toFixed(1) } ) );
+              //   // }, 10)
 
-                vidPlaying = false;
-              }
+              //   vidPlaying = false;
+              // }
 
             }
 
@@ -2306,13 +2310,13 @@ export default class Live extends Component {
         :
           <View>       
 
-            { flagYTstarted ?
-              <View>
+            {/* { flagYTstarted ? */}
+              {/* <View> */}
 
                 { isPosenetLoaded ?  
                   <View style={styles.layerOneContainer}>
 
-                    { flagAllPosOk ?
+                    {/* { flagAllPosOk ?
                       <View style={{ height: '100%', width: '100%', }}>
 
                         <View style={ styles.webCamContainer }>
@@ -2332,12 +2336,12 @@ export default class Live extends Component {
                           />
                         </View>
 
-                        <View style={styles.trainerVideoContainer}>
+                        <View style={ [styles.trainerVideoContainer, { height: Dimensions.get('screen').width, width: Dimensions.get('screen').height,}] }>
                           <WebView
                             ref={r => (this.webviewRef = r)}
                             // source={{ uri: this.state.vidFullUrl }}
                             // style={[ {zindex: 400 }, styles.trainerVideo]} 
-                            style={styles.trainerVideo}
+                            style={ [styles.trainerVideo, { height: Dimensions.get('screen').width, width: Dimensions.get('screen').height,}] }
                             // onNavigationStateChange={ this._vidAtInitial}
                             // onMessage={(event) => {
                             //   console.log('got event from webview');
@@ -2358,33 +2362,9 @@ export default class Live extends Component {
 
                       </View>
 
-                    :  
+                    :   */}
 
                       <View style={{ height: '100%', width: '100%',}}>
-
-                        <View style={styles.trainerVideoContainer}>
-                          <WebView
-                            ref={r => (this.webviewRef = r)}
-                            // source={{ uri: this.state.vidFullUrl }}
-                            // style={[ {zindex: 400 }, styles.trainerVideo]} 
-                            style={styles.trainerVideo}
-                            // onNavigationStateChange={ this._vidAtInitial}
-                            // onMessage={(event) => {
-                            //   console.log('got event from webview');
-                            //   if (vidPlayAt == 0 && vidEndAt == 0) { // to assign only once at the fisrt play
-                            //     this.setState({ vidPlayAt: JSON.parse(event.nativeEvent.data)["vidPlayAt"], vidPlaying: true, flagYTstarted: true  });
-                            //     console.log('vidPlayAt: ', this.state.vidPlayAt );
-                            //   }
-                            //   if (vidEndAt == 0 && vidPlayAt != 0) { // to assign only once at the fisrt play
-                            //     this.setState({ vidEndAt: JSON.parse(event.nativeEvent.data)["vidEndAt"], vidPlaying: false  });
-                            //     console.log('endAt: ', this.state.vidEndAt );
-                            //     console.log('vidPlayedTime: ', this.state.vidPlayedTime );
-                
-                            //   }
-                            // }}
-                            source={{ html: htmlContents }}                      
-                          /> 
-                        </View>
 
                         <View style={ styles.webCamContainer }> 
                           <TensorCamera
@@ -2402,9 +2382,68 @@ export default class Live extends Component {
                           />
                         </View>   
 
+                        <View style={ [styles.trainerVideoContainer, isScanningIniPos ? { height: scrW * 0.3, width: (scrH - vButtonH) * 0.3, position: 'absolute', bottom: scrW * 0.05, right: (scrH - vButtonH) * 0.02 } : { height: scrW, width: (scrH - vButtonH), } ] }>
+                        {/* <View style={ [styles.trainerVideoContainer, { height: Dimensions.get('screen').width, width: Dimensions.get('screen').height, }  ]}> */}
+                          {/* <WebView
+                            ref={r => (this.webviewRef = r)}
+                            // source={{ uri: this.state.vidFullUrl }}
+                            // style={ [styles.trainerVideo, isScanningIniPos ? { height: Dimensions.get('screen').width * 0.1, width: Dimensions.get('screen').height * 0.1 } : { height: Dimensions.get('screen').width, width: Dimensions.get('screen').height, } ] }
+                            style={ [styles.trainerVideo, { height: Dimensions.get('screen').width, width: Dimensions.get('screen').height, }  ] }
+                            // onNavigationStateChange={ this._vidAtInitial}
+                            onMessage={(event) => {
+                              console.log('got event from webview');
+                              if (vidPlayAt == 0 && vidEndAt == 0) { // to assign only once at the fisrt play
+                                this.setState({ vidPlayAt: JSON.parse(event.nativeEvent.data)["vidPlayAt"], vidPlaying: true, isScanningIniPos: true  });
+                                console.log('vidPlayAt: ', this.state.vidPlayAt );
+                              }
+                            //   if (vidEndAt == 0 && vidPlayAt != 0) { // to assign only once at the fisrt play
+                            //     this.setState({ vidEndAt: JSON.parse(event.nativeEvent.data)["vidEndAt"], vidPlaying: false  });
+                            //     console.log('endAt: ', this.state.vidEndAt );
+                            //     console.log('vidPlayedTime: ', this.state.vidPlayedTime );
+                
+                            //   }
+                            }}
+                            source={{ html: htmlContents }}                      
+                          />  */}
+
+
+
+                        
+                          <YoutubePlayer
+                            height={isScanningIniPos ? scrW * 0.3 : scrW} 
+                            width={isScanningIniPos ? (scrH - vButtonH) * 0.3: (scrH - vButtonH) }
+                            play={vidPlaying}
+                            videoId={vidFullUrl} //{"iee2TATGMyI"}
+                            // onChangeState={onStateChange}
+                            onChangeState = {
+                              (state) => {
+                                if (state === "playing") {
+                                  if (vidPlayAt == 0) { // for first click on play button
+                                    this.setState({ vidPlaying: true, vidStatus: state, vidPlayAt: Date.now() / 1000, isScanningIniPos: true });
+                                  } else {
+                                    this.setState({ vidPlaying: true, vidStatus: state });
+                                  }
+                                } else if (state === "ended") {
+                                  this.setState({ vidPlaying: false, vidStatus: state, vidEndAt: Date.now() / 1000, });   
+                                } else {
+                                  this.setState({ vidPlaying: false, vidStatus: state }); 
+                                }
+                              }
+                            }
+                          />
+                          {/* <Button title={vidPlaying ? "pause" : "play"} onPress={togglePlaying} /> */}
+
+
+
+
+
+                        </View>
+
+                  
+
                       </View>
 
-                    } 
+                    {/* }  */}
 
 
           
@@ -2436,44 +2475,44 @@ export default class Live extends Component {
                       //   borderBottomColor: this.ULBColor.bottom,
                       //   borderLeftColor: this.ULBColor.left,
                       //   borderRightColor: this.ULBColor.right,
-                      //   borderWidth: Dimensions.get('window').height * 0.03} ]}>
+                      //   borderWidth: {winH} * 0.03} ]}>
                       // </View>
                       <View>
 
                         <View style={[styles.upperLayerContainer, {
                           backgroundColor: this.ULBColor.top,
                           top: 0,
-                          width: Dimensions.get('window').height,
-                          height: Dimensions.get('window').width * 0.03,
+                          width: {scrH} - {vButtonH},
+                          height: {scrW} * 0.03,
                           }
                           ]}>
                         </View>
                         <View style={[styles.upperLayerContainer, {
                           backgroundColor: this.ULBColor.bottom,
                           bottom: 0,
-                          width: Dimensions.get('window').height,
-                          height: Dimensions.get('window').width * 0.03,
+                          width: {scrH} - {vButtonH},
+                          height: {scrW} * 0.03,
                           }
                           ]}>
                         </View>
                         <View style={[styles.upperLayerContainer, {
                           backgroundColor: this.ULBColor.left,
                           left: 0,
-                          width: Dimensions.get('window').width * 0.03,
-                          height: Dimensions.get('window').width,
+                          width: {scrW} * 0.03,
+                          height: {scrW},
                           }
                           ]}>
                         </View>  
                         <View style={[styles.upperLayerContainer, {
                           backgroundColor: this.ULBColor.right,
                           right: 0,
-                          width: Dimensions.get('window').width * 0.03,
-                          height: Dimensions.get('window').width,
+                          width: {scrW} * 0.03,
+                          height: {scrW},
                           }
                           ]}>
                         </View>  
 
-                        <View style={[styles.progressBar, {width: Dimensions.get('window').height * 0.4} ]}>
+                        <View style={[styles.progressBar, {width: ( {scrH} - {vButtonH} ) * 0.4} ]}>
                         </View>
 
                       </View>                                          
@@ -2487,41 +2526,46 @@ export default class Live extends Component {
                     { flagAllPosOk ?  
                       null
                     :
-                      <View style={styles.initialPostureContainer}>
-                        <Image style={styles.initialPostureImage} source={require('../assets/initialPosture_310x310dotted.png')} /> 
-                        {/* <Image style={styles.initialPostureImageBodyPart} source={require('../assets/iP_f_g.png')} /> */}
+                      <View>
+                      { isScanningIniPos &&
+                        <View style={styles.initialPostureContainer}>
+                          <Image style={styles.initialPostureImage} source={require('../assets/initialPosture_310x310dotted.png')} /> 
+                          {/* <Image style={styles.initialPostureImageBodyPart} source={require('../assets/iP_f_g.png')} /> */}
 
-                        { iP_f ?
-                          <Image style={styles.initialPostureImage} source={require('../assets/iP_f_g.png')} />
-                        :
-                          null
-                        }
+                          { iP_f ?
+                            <Image style={styles.initialPostureImage} source={require('../assets/iP_f_g.png')} />
+                          :
+                            null
+                          }
 
-                        { iP_lw ?
-                          <Image style={styles.initialPostureImage} source={require('../assets/iP_lw_g.png')} />
-                        :
-                          null
-                        }
+                          { iP_lw ?
+                            <Image style={styles.initialPostureImage} source={require('../assets/iP_lw_g.png')} />
+                          :
+                            null
+                          }
 
-                        { iP_rw ?
-                          <Image style={styles.initialPostureImage} source={require('../assets/iP_rw_g.png')} />
-                        :
-                          null
-                        }
+                          { iP_rw ?
+                            <Image style={styles.initialPostureImage} source={require('../assets/iP_rw_g.png')} />
+                          :
+                            null
+                          }
 
-                        { iP_la ?
-                          <Image style={styles.initialPostureImage} source={require('../assets/iP_la_g.png')} />
-                        :
-                          null
-                        }
+                          { iP_la ?
+                            <Image style={styles.initialPostureImage} source={require('../assets/iP_la_g.png')} />
+                          :
+                            null
+                          }
 
-                        { iP_ra ?
-                          <Image style={styles.initialPostureImage} source={require('../assets/iP_ra_g.png')} />
-                        :
-                          null
-                        }
+                          { iP_ra ?
+                            <Image style={styles.initialPostureImage} source={require('../assets/iP_ra_g.png')} />
+                          :
+                            null
+                          }
+                        </View>
+                      }
                       </View>
                     }
+
 
                     { flagAllPosOk ?
                       <View style={styles.attentionContainer}>
@@ -2542,26 +2586,30 @@ export default class Live extends Component {
                         }
                       </View>
                     :
-                      <View style={styles.attentionContainer}>
-                        { showStepNotice ?
-                          <Text style={styles.attentionText}>
-                            Move A Step{"\n"} 
-                            Ahead or Back
-                          </Text>
-                        :
-                          <Text style={styles.attentionText}>
-                            Fit{"\n"}Your Body
-                          </Text>                 
-                        }
+                      <View>
+                      { isScanningIniPos &&
+                          <View style={styles.attentionContainer}>
+                            { showStepNotice ?
+                              <Text style={styles.attentionText}>
+                                Move A Step{"\n"} 
+                                Ahead or Back
+                              </Text>
+                            :
+                              <Text style={styles.attentionText}>
+                                Fit{"\n"}Your Body
+                              </Text>                 
+                            }
 
-                        {/* <Text style={styles.attentionTextRed}>
-                          {!outOfIniPos ?
-                            null
-                          :
-                            outOfIniPos + ' are Out' 
-                          }
-                        </Text> */}
+                            {/* <Text style={styles.attentionTextRed}>
+                              {!outOfIniPos ?
+                                null
+                              :
+                                outOfIniPos + ' are Out' 
+                              }
+                            </Text> */}
 
+                          </View>
+                      }
                       </View>
                     }
 
@@ -2601,34 +2649,34 @@ export default class Live extends Component {
                 } 
 
 
-              </View>
+              {/* </View> */}
 
-            :
+            {/* // :
 
-              <View style={styles.trainerVideoContainer}>
-                <WebView
-                  ref={r => (this.webviewRef = r)}
-                  // source={{ uri: 'https://www.youtube.com/embed/R1oCMW1gyOA' }}
-                  // style={[ {zindex: 400 }, styles.trainerVideo]} 
-                  style={styles.trainerVideo}
-                  // onNavigationStateChange={ this._vidDefault}
-                  onMessage={(event) => {
-                    if (vidPlayAt == 0 && vidEndAt == 0) { // to assign only once at the fisrt play
-                      this.setState({ vidPlayAt: JSON.parse(event.nativeEvent.data)["vidPlayAt"], vidPlaying: true, flagYTstarted: true });
-                      console.log('vidPlayAt: ', this.state.vidPlayAt );
-                    }
-                    // if (vidEndAt == 0 && vidPlayAt != 0) { // to assign only once at the fisrt play
-                    //   this.setState({ vidEndAt: JSON.parse(event.nativeEvent.data)["vidEndAt"], vidPlayedTime: JSON.parse(event.nativeEvent.data)["vidPlayedTime"], vidPlaying: false  });
-                    //   console.log('endAt: ', this.state.vidEndAt );
-                    //   console.log('vidPlayedTime: ', this.state.vidPlayedTime );
+              // <View style={ [styles.trainerVideoContainer, { height: Dimensions.get('screen').width, width: Dimensions.get('screen').height }] }>
+              //   <WebView
+              //     ref={r => (this.webviewRef = r)}
+              //     // source={{ uri: 'https://www.youtube.com/embed/R1oCMW1gyOA' }}
+              //     // style={[ {zindex: 400 }, styles.trainerVideo]} 
+              //     style={ [styles.trainerVideo, { height: Dimensions.get('screen').width, width: Dimensions.get('screen').height }] }
+              //     // onNavigationStateChange={ this._vidDefault}
+              //     onMessage={(event) => {
+              //       if (vidPlayAt == 0 && vidEndAt == 0) { // to assign only once at the fisrt play
+              //         this.setState({ vidPlayAt: JSON.parse(event.nativeEvent.data)["vidPlayAt"], vidPlaying: true, flagYTstarted: true });
+              //         console.log('vidPlayAt: ', this.state.vidPlayAt );
+              //       }
+              //       // if (vidEndAt == 0 && vidPlayAt != 0) { // to assign only once at the fisrt play
+              //       //   this.setState({ vidEndAt: JSON.parse(event.nativeEvent.data)["vidEndAt"], vidPlayedTime: JSON.parse(event.nativeEvent.data)["vidPlayedTime"], vidPlaying: false  });
+              //       //   console.log('endAt: ', this.state.vidEndAt );
+              //       //   console.log('vidPlayedTime: ', this.state.vidPlayedTime );
       
-                    // }
-                  }}
-                  source={{ html: htmlContents }}                      
-                /> 
-              </View>  
+              //       // }
+              //     }}
+              //     source={{ html: htmlContents }}                      
+              //   /> 
+              // </View>  
 
-            } 
+            // }  */}
 
 
             <View style={styles.goBackIconContainer}>
@@ -2707,7 +2755,7 @@ export default class Live extends Component {
           </Modal>
 
         
-      
+              
         </View> //close styles.Container,
       
 
@@ -2726,8 +2774,8 @@ const styles = StyleSheet.create({
     // justifyContent: 'center',
     // padding: 24,
     top: 0, //StatusBar.currentHeight,
-    height: Dimensions.get('screen').width, // when Landscape 
-    width: Dimensions.get('screen').height, // when Landscape 
+    height: scrW, //Dimensions.get('screen').width, // when Landscape 
+    width: scrH, //Dimensions.get('screen').height, // when Landscape 
     // height: Dimensions.get('screen').height, // when Portrait 
     // width: Dimensions.get('screen').width, // when Portrait     
     position: 'absolute',
@@ -2739,8 +2787,8 @@ const styles = StyleSheet.create({
   layerOneContainer: {
     // backgroundColor: 'blue',
     opacity: 1, // to see through trainerVideo 20200530
-    height: Dimensions.get('screen').width, // when Landscape 
-    width: Dimensions.get('screen').height, // when Landscape 
+    height: scrW, //Dimensions.get('screen').width, // when Landscape 
+    width: scrH - vButtonH, //Dimensions.get('screen').height, // when Landscape 
     // height: Dimensions.get('screen').height, // when Portrait 
     // width: Dimensions.get('screen').width, // when Portrait 
     position: 'absolute',
@@ -2754,37 +2802,42 @@ const styles = StyleSheet.create({
     //// flexGrow: 1, // added 20200530
     // height: '100%',
     // width: '100%' ,
-    height: Dimensions.get('screen').width,
-    width: Dimensions.get('screen').height,
+    // height: Dimensions.get('screen').width,
+    // width: Dimensions.get('screen').height,
     // height: 800, 
     // width: 300,
     //// width: null,
     // zindex: 100,
     alignItems: 'center',
     justifyContent: 'center',  
-    //// borderColor: 'white', // BORDER IS NECESSARY BUT DONT KNOW WHY. 20200531
+    //// borderColor: 'black', // BORDER IS NECESSARY BUT DONT KNOW WHY. 20200531
     //// borderWidth: 0.1, // BORDER IS NECESSARY BUT DONT KNOW WHY. 20200531
     // position: absolute, // DON'T ADD THIS, IT WILL BE BLUE EXPO ERROR SCREEN. 20200524
-    // borderColor: "blue",
-    // borderWidth: 2,
+    // borderColor: "black",
+    // borderWidth: 1,
+    // borderRadius: 20,
+    // left: 20,
+    // padding: 'auto',
   },
   trainerVideo: {
     //// flex: 0, //1
     // flexGrow: 1,
     // position: "absolute", // DON'T ADD THIS, EXPO WILL NOT START 20200530
-    position: 'relative',
+    // position: 'relative',
     // height: '100%',
     // width: '100%',
-    height: Dimensions.get('screen').width, 
-    width: Dimensions.get('screen').height,   
-    //// width: null, 
-    alignItems: 'center',
-    justifyContent: 'center',  
+    // height: Dimensions.get('screen').width, 
+    // width: Dimensions.get('screen').height,   
+    // width: null, 
+    // alignItems: 'center',
+    // justifyContent: 'center',  
     // zindex: 300,     
     //// top: 0,
     // borderColor: "blue",
     // borderWidth: 2,
     // left: 20,
+    // marginHorizontal: 'auto',
+    // paddingHorizontal: 'auto',
   },
 
   modelResults: {
@@ -2803,7 +2856,7 @@ const styles = StyleSheet.create({
     flex: 0,
     // flexGrow:1,
     // display: 'flex',
-    // height: Dimensions.get('window').height, // 200
+    // height: winH, // 200
     // width: Dimensions.get('window').width, // 152    
     height: '100%',
     width: '100%',      
@@ -2821,7 +2874,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     // height: null,
     // width: Dimensions.get('window').width,
-    // height: Dimensions.get('window').height,
+    // height: winH,
     height: '100%',
     width: '100%',      
     // zIndex: 201,
@@ -2837,14 +2890,14 @@ const styles = StyleSheet.create({
     // backgroundColor: 'white',
     // zIndex: 201, // removed 20200531
     position: 'absolute',
-    top: Dimensions.get('screen').width * 0.07, // when Landscape
-    right: Dimensions.get('screen').height * 0.12, // when Landscape
-    height: Dimensions.get('screen').width * 0.24, // when Landscape
-    width: Dimensions.get('screen').height * 0.26, // when Landscape
+    top: scrW * 0.07, // when Landscape
+    right: (scrH - vButtonH) * 0.12, // when Landscape
+    height: scrW * 0.24, // when Landscape
+    width: (scrH - vButtonH) * 0.26, // when Landscape
     // top: Dimensions.get('window').width * 0.08, // when Portrait
-    // right: Dimensions.get('window').height * 0.02, // when Portrait
+    // right: winH * 0.02, // when Portrait
     // height: Dimensions.get('window').width * 0.22, // when Portrait
-    // width: Dimensions.get('window').height * 0.21, // when Portrait    
+    // width: winH * 0.21, // when Portrait    
     backgroundColor: 'rgba(20, 20, 20, 0.7)', // darkgray seethrough background
     borderRadius: 5,  
     justifyContent: 'center',
@@ -2864,15 +2917,15 @@ const styles = StyleSheet.create({
   },   
   playButtonContainer: {
     // flexGrow:1,
-    height: Dimensions.get('screen').width * 0.7, // null,
-    width: Dimensions.get('screen').width * 0.7, // null,    
+    height: scrW* 0.7, // null,
+    width: scrW * 0.7, // null,    
     alignItems: 'center',
     justifyContent: 'center', 
     // zIndex: 202, // removed 20200531
     // backgroundColor: 'green',
     // alignItems: 'center',
     // justifyContent: 'center',
-    // top: Dimensions.get('window').height * 0.5 - (playButtonSize / 2),
+    // top: winH * 0.5 - (playButtonSize / 2),
     // left: Dimensions.get('window').width * 0.5 - (playButtonSize / 2),
     position: 'absolute',
     // textAlign: 'center',
@@ -2880,8 +2933,8 @@ const styles = StyleSheet.create({
     borderWidth: 5,
   },
   playButton: {
-    height: Dimensions.get('screen').width * 0.6,
-    width: Dimensions.get('screen').width * 0.6,
+    height: scrW * 0.6,
+    width: scrW * 0.6,
     // textAlign: 'center',
     alignItems: 'center',
     justifyContent: 'center', 
@@ -2903,14 +2956,14 @@ const styles = StyleSheet.create({
   },
   initialPostureImage: {
     position: 'absolute',
-    left: Dimensions.get('window').height / 2 - 310 / 2, // when Landscape //  centering the image in consideration with android navigation bar. 20200816 
-    width: Dimensions.get('window').width * 0.95, // when Landscape // photo size = 475*310
-    height: Dimensions.get('window').width * 0.95, // when Landscape
-    bottom: Dimensions.get('window').width * 0.05, // when Landscape
+    left: (scrH - vButtonH) / 2 - 310 / 2, // when Landscape //  centering the image in consideration with android navigation bar. 20200816 
+    width: scrW * 0.95, // when Landscape // photo size = 475*310
+    height: scrW * 0.95, // when Landscape
+    bottom: scrW * 0.05, // when Landscape
     // left: Dimensions.get('window').width / 2 - 310 / 2, // when Portrait
     // width: Dimensions.get('window').width, // when Portrait
     // height: Dimensions.get('window').width * 370/310, // when Portrait
-    // bottom: Dimensions.get('window').height * 0.1, // when Portrait
+    // bottom: winH * 0.1, // when Portrait
     // justifyContent: 'center',
     // borderColor: 'green',
     // borderWidth: 6,
@@ -2921,9 +2974,9 @@ const styles = StyleSheet.create({
     // flex: 1,
     flexGrow:1,
     position: 'absolute',
-    bottom: Dimensions.get('window').width * 0.04, // when Landscape 
-    left: Dimensions.get('window').height * 0.02, // when Landscape 
-    // top: Dimensions.get('window').height * 0.13, // when Portrait 
+    bottom: scrW * 0.04, // when Landscape 
+    left: (scrH - vButtonH) * 0.02, // when Landscape 
+    // top: winH * 0.13, // when Portrait 
     // left: Dimensions.get('window').width * 0.04, // when Portrait 
     // width: Dimensions.get('window').width * 0.9,
     // height: null,
@@ -2962,9 +3015,9 @@ const styles = StyleSheet.create({
     // flex: 1,
     flexGrow:1,
     position: 'absolute',
-    bottom: Dimensions.get('screen').width * 0.02, // when Landscape 
-    left: Dimensions.get('screen').height * 0.02, // when Landscape 
-    // bottom: Dimensions.get('window').height * 0.13, // when Portrait 
+    bottom: scrW * 0.02, // when Landscape 
+    left: scrH * 0.02, // when Landscape 
+    // bottom: winH * 0.13, // when Portrait 
     // left: Dimensions.get('window').width * 0.04, // when Portrait 
     // width: Dimensions.get('window').width * 0.9,
     // height: null,
@@ -3014,7 +3067,7 @@ const styles = StyleSheet.create({
     // top: 0, //StatusBar.currentHeight,
     // height: Dimensions.get('screen').width, // when Landscape // - StatusBar.currentHeight, // Dynamically get & summate screen height & statusbar height.
     // width: Dimensions.get('screen').height, // when Landscape // - StatusBar.currentHeight,
-    // height: Dimensions.get('window').height, // when Portrait
+    // height: winH, // when Portrait
     // width: Dimensions.get('window').width, // when Portrait
     // zIndex: 400, // removed 20200531
     opacity: 0.9,
@@ -3026,8 +3079,8 @@ const styles = StyleSheet.create({
     // flex: 1,
     position: 'absolute',
     left: 0,
-    height: Dimensions.get('window').width * 0.04,
-    bottom: Dimensions.get('window').width * 0.03,
+    height: scrH * 0.04,
+    bottom: scrH * 0.03,
     backgroundColor: 'orange',
   },
 
@@ -3035,10 +3088,10 @@ const styles = StyleSheet.create({
     // flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',  
-    marginVertical: Dimensions.get('screen').height * 0.3,     
-    marginHorizontal: Dimensions.get('screen').width * 0.1,
-    height: Dimensions.get('screen').height * 0.4,
-    width: Dimensions.get('screen').width * 0.8,
+    marginVertical: scrH * 0.3,     
+    marginHorizontal: scrW * 0.1,
+    height: scrH * 0.4,
+    width: scrW * 0.8,
     backgroundColor: '#ffa500', 
     borderRadius: 10,
     opacity: 1.0,
@@ -3082,9 +3135,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',   
     backgroundColor: 'rgba(20, 20, 20, 0.7)', // 'rgba(220, 220, 220, 0.5)'
     position: 'absolute',
-    top: Dimensions.get('window').width * 0.03, // when Landscape
-    left: Dimensions.get('window').height * 0.02, // when Landscape
-    // top: Dimensions.get('window').height * 0.04, // when Portrait
+    top: scrW * 0.03, // when Landscape
+    left: scrW * 0.03, // when Landscape
+    // top: winH * 0.04, // when Portrait
     // left: Dimensions.get('window').width * 0.04, // when Portrait
     height: goBackIconSize * 1.4,
     width: goBackIconSize * 1.4,
@@ -3101,10 +3154,10 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: 'center',
     alignItems: 'center',  
-    // marginVertical: Dimensions.get('window').height * 0.05,     
+    // marginVertical: winH * 0.05,     
     // marginHorizontal: Dimensions.get('window').width * 0.05,
-    height: Dimensions.get('window').width - StatusBar.currentHeight,
-    width: Dimensions.get('window').height,
+    height: scrW - sBarH,
+    width: (scrH - vButtonH),
     backgroundColor: 'white', 
     // borderRadius: 10,
     opacity: 1.0,
@@ -3134,8 +3187,8 @@ const styles = StyleSheet.create({
   prevButton: {
     justifyContent: 'center',
     alignItems: 'center',
-    width: Dimensions.get('window').height * 0.15,
-    height: Dimensions.get('window').width - StatusBar.currentHeight, 
+    width: scrH * 0.15,
+    height: scrW - sBarH, 
     // backgroundColor: 'pink', 
     // borderColor: 'pink',
     // borderWidth: 2,    
@@ -3146,31 +3199,33 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     position: 'absolute',
     top: 0,
-    width: Dimensions.get('window').height * 0.7,
-    height: Dimensions.get('window').width - StatusBar.currentHeight, 
+    width: (scrH - vButtonH) * 0.7,
+    height: scrW - sBarH, 
     backgroundColor: 'white',   
   },
 
   liveTipImgContainer: {
     position: 'absolute',
     top: 0,
-    width: Dimensions.get('window').height * 0.7,  
-    height: (Dimensions.get('window').width - StatusBar.currentHeight) * 0.8,  
+    width: scrH * 0.7,  
+    height: (scrW - sBarH) * 0.8,  
     // borderColor: 'purple',
     // borderWidth: 2,
   },  
   liveTipImg: {
     justifyContent: 'center',
     alignItems: 'center',  
-    width: Dimensions.get('window').height * 0.7,
-    height: (Dimensions.get('window').height * 0.65) * (1080 / 1920), 
+    width: (scrH - vButtonH) * 0.7,
+    height: ((scrH - vButtonH) * 0.65) * (1080 / 1920), 
     // resizeMode: 'center',
+    // borderColor: 'green',
+    // borderWidth: 2,    
   },
   skipButtonContainer: {
     position: 'absolute',
     bottom: 0,
-    width: Dimensions.get('window').height * 0.7, 
-    height: (Dimensions.get('window').width - StatusBar.currentHeight) * 0.2, 
+    width: (scrH - vButtonH) * 0.7, 
+    height: (scrW) * 0.2, 
     justifyContent: 'center',
     alignItems: 'center',    
     backgroundColor: 'white',
@@ -3191,10 +3246,10 @@ const styles = StyleSheet.create({
     // marginTop: 0,
     position: 'relative',
     top: 0,
-    // right: Dimensions.get('window').height * 0.03,
-    // bottom: Dimensions.get('window').height * 0.03,
-    width: Dimensions.get('window').height * 0.3,
-    height: Dimensions.get('window').height * 0.05,    
+    // right: winH * 0.03,
+    // bottom: winH * 0.03,
+    width: (scrH - vButtonH) * 0.3,
+    height: scrW * 0.1,    
   },
 
   nextButtonContainer: {
@@ -3210,8 +3265,8 @@ const styles = StyleSheet.create({
   nextButton: {
     justifyContent: 'center',
     alignItems: 'center', 
-    width: Dimensions.get('window').height * 0.15,
-    height: Dimensions.get('window').width  - StatusBar.currentHeight,     
+    width: scrH * 0.15,
+    height: scrW - sBarH,     
     // backgroundColor: 'white',
     // borderColor: 'purple',
     // borderWidth: 2,

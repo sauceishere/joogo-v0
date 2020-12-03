@@ -26,7 +26,7 @@ import * as SQLite from 'expo-sqlite';
 import {LB_PER_KG} from '../shared/Consts';
 import { NonMaxSuppressionV5 } from '@tensorflow/tfjs';
 import { isNonNullExpression } from 'typescript';
-
+// import { scrW, scrH, winW, winH } from '../DashboardScreen.js'; // get screen size & window size from DashboardScreen.js
 
 
 

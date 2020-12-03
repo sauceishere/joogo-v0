@@ -8,6 +8,8 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { convertCompilerOptionsFromJson } from 'typescript';
 import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
 import { AdMobBanner } from 'expo-ads-admob'; 
+import { scrW, scrH, winW, winH, sBarH, vButtonH } from './DashboardScreen'; // get screen size & window size from DashboardScreen.js
+console.log('scrW, scrH, winW, winH, sBarH, vButtonH: ', scrW, scrH, winW, winH, sBarH, vButtonH );
 
 const str_pad_left = function (string,pad,length) { // convert from sec to min:sec // https://stackoverflow.com/questions/3733227/javascript-seconds-to-minutes-and-seconds
     return (new Array(length+1).join(pad)+string).slice(-length);
@@ -169,25 +171,25 @@ export default class Leaderboard extends Component {
             <View style={styles.feedItem}>
                 
                 {/* left pane */}
-                <View style={{ width: Dimensions.get('window').width * 0.10, }}>
+                <View style={{ width: scrW * 0.10, }}>
                     <Text style={styles.rank}>{post.rank}</Text> 
                 </View>
 
                 {/* medal pane */}
-                <View style={{ width: Dimensions.get('window').width * 0.10, }}>
+                <View style={{ width: scrW * 0.10, }}>
                     { post.MEDAL == 'GOLD' ?
-                        <Image style={{width: Dimensions.get('window').width * 0.06, height: Dimensions.get('window').width * 0.06,}} source={require('../assets/goldMedal100x100.png')} />
+                        <Image style={{width: scrW * 0.06, height: scrW * 0.06,}} source={require('../assets/goldMedal100x100.png')} />
                     :
                         null    
                     }
                 </View>                
 
-                <View style={{ width: Dimensions.get('window').width * 0.50, }}>
+                <View style={{ width: scrW * 0.50, }}>
                     <Text style={styles.name, {color: post.USERSELF == 1 ? '#ffa500': '#454D65', fontWeight: post.USERSELF == 1 ? 'bold': 'normal'  }}>{post.NNAME}</Text>
                 </View>    
 
                 {/* right pane */}   
-                <View style={{ width: Dimensions.get('window').width * 0.20, }}> 
+                <View style={{ width: scrW * 0.20, }}> 
                     <Text style={styles.point}>{this.SCORESUM}</Text> 
                 </View>
                 
@@ -217,11 +219,11 @@ export default class Leaderboard extends Component {
                 : 
                     <View style={{width: '100%', flexDirection: 'column', flexWrap: 'nowrap', }}>
 
-                        <View style={{width: '100%', flex: 1, marginTop: Dimensions.get('window').height * 0.02, }}>
+                        <View style={{width: '100%', flex: 1, marginTop: (scrH - vButtonH) * 0.02, }}>
                             <Text style={styles.pageTitle}>Top Calorie Burners' Weekly Average</Text>    
                         </View>
                     
-                        <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', alignItems: 'center', marginTop: Dimensions.get('window').height * 0.05, paddingHorizontal: Dimensions.get('window').width * 0.02}} >
+                        <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', alignItems: 'center', marginTop: (scrH - vButtonH) * 0.05, paddingHorizontal: scrW * 0.02}} >
                             <View style={styles.tileItem}>
                                 {/* <Text style={styles.tileItemTitle}> <Ionicons name='ios-body' size={18} style={styles.tileItemIcon}/> {' '} Movage Earned</Text> */}
                                 <Ionicons name='ios-flame' size={22} style={styles.tileItemIcon}/>
@@ -244,9 +246,9 @@ export default class Leaderboard extends Component {
                             </View>      
                         </View> 
 
-                        <View style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.03, paddingHorizontal: Dimensions.get('window').width * 0.03}}> 
+                        <View style={{alignSelf: "stretch", marginTop: (scrH - vButtonH) * 0.03, paddingHorizontal: scrW * 0.03}}> 
                             <Text style={styles.pageTitle}>Burned Calorie Ranking</Text> 
-                            <SafeAreaView style={{ marginTop: Dimensions.get('window').height * 0.01, height: Dimensions.get('window').height * 0.5 }}>
+                            <SafeAreaView style={{ marginTop: (scrH - vButtonH) * 0.01, height: (scrH - vButtonH) * 0.5 }}>
                             <FlatList
                                 style={styles.feed}
                                 data={this.state.posts}
@@ -316,8 +318,8 @@ const styles = StyleSheet.create({
     tileItem: {
         // borderColor: 'red',
         // borderWidth: 2,
-        width: Dimensions.get('window').width * 0.3,
-        height: Dimensions.get('window').width * 0.3,
+        width: scrW * 0.3,
+        height: scrW * 0.3,
         // flex: 1, 
         flexDirection: 'column',
         justifyContent: 'space-around',
@@ -419,8 +421,8 @@ const styles = StyleSheet.create({
     //     bottom: 4,
     // },
     postImage: {
-        width: Dimensions.get('window').width * 0.43 * 0.8, // 150,
-        height: Dimensions.get('window').width * 0.43 * (225/150) * 0.8, // 225,
+        width: scrW* 0.43 * 0.8, // 150,
+        height: scrW * 0.43 * (225/150) * 0.8, // 225,
         // width: 200,
         borderRadius: 5,
         marginVertical: 5,

@@ -22,6 +22,7 @@ import {LB_PER_KG} from '../shared/Consts';
 // export const LB_PER_KG = 2.205; // pounds devided by kilograms
 import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
 import { AdMobBanner } from 'expo-ads-admob'; 
+import { scrW, scrH, winW, winH, sBarH, vButtonH } from './DashboardScreen'; // get screen size & window size from DashboardScreen.js
 
 
 export default class ProfileScreen extends Component {
@@ -711,7 +712,7 @@ export default class ProfileScreen extends Component {
               { isEditing ?
                 <View style={styles.inputContainer}>
 
-                  <View style={{width: '100%', marginTop: Dimensions.get('window').height * 0.02, marginBottom: Dimensions.get('window').height * 0.03,}}>
+                  <View style={{width: '100%', marginTop: (scrH - vButtonH) * 0.02, marginBottom: (scrH - vButtonH) * 0.03,}}>
                     
                   { isIos ?
 
@@ -1005,7 +1006,7 @@ export default class ProfileScreen extends Component {
                 </TouchableOpacity>
 
 
-                  <View style={{width: '100%', marginTop: Dimensions.get('window').height * 0.05, marginBottom: Dimensions.get('window').height * 0.03,}}>
+                  <View style={{width: '100%', marginTop: (scrH - vButtonH) * 0.05, marginBottom: (scrH - vButtonH) * 0.03,}}>
                   
                     {/* <Image source={{uri: profileData.avatarFullUrl }} style={} resizeMode="cover" />  */}
 
@@ -1139,7 +1140,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     // marginVertical: Dimensions.get('window').height * 0.05,
-    marginHorizontal: Dimensions.get('window').width * 0.05,
+    marginHorizontal: scrW * 0.05,
     flexDirection: "column",
     // justifyContent: 'flex-start'
   },  
@@ -1271,7 +1272,7 @@ const styles = StyleSheet.create({
   },
 
   videoTitleTitle: {
-    marginTop: Dimensions.get('window').height * 0.03,
+    marginTop: (scrH - vButtonH) * 0.03,
     color: 'gray',
     fontSize: 15,
     //fontWeight: 'bold',
@@ -1284,11 +1285,11 @@ const styles = StyleSheet.create({
   // },
   pickImage: {
     alignItems: "center",
-    marginVertical: Dimensions.get('window').height * 0.02,
+    marginVertical: (scrH - vButtonH) * 0.02,
   },
   showImage: {
     // marginVertical: Dimensions.get('window').height * 0.05, 
-    height: Dimensions.get('window').height * 0.35,
+    height: (scrH - vButtonH) * 0.35,
     alignItems: "center",
   },
   postButton: {
@@ -1334,10 +1335,10 @@ const styles = StyleSheet.create({
     // flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',  
-    marginVertical: Dimensions.get('window').height * 0.3,     
-    marginHorizontal: Dimensions.get('window').width * 0.1,
-    height: Dimensions.get('window').height * 0.4,
-    width: Dimensions.get('window').width * 0.8,
+    marginVertical: (scrH - vButtonH) * 0.3,     
+    marginHorizontal: scrW * 0.1,
+    height: (scrH - vButtonH) * 0.4,
+    width: scrW * 0.8,
     backgroundColor: '#ffa500', 
     borderRadius: 10,
     opacity: 1.0,

@@ -18,7 +18,15 @@ import ThreeAxisSensor from 'expo-sensors/build/ThreeAxisSensor';
 import {LB_PER_KG} from '../shared/Consts';
 
 import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
+// import { scrW, scrH, winW, winH } from '../App.js'; // get screen size & window size from App.js
 
+export const scrW = Dimensions.get('screen').width;
+export const scrH = Dimensions.get('screen').height;
+export const winW = Dimensions.get('window').width;
+export const winH = Dimensions.get('window').height;
+export const sBarH = StatusBar.currentHeight;
+export const vButtonH = Dimensions.get('screen').height - Math.max(Dimensions.get('window').width, Dimensions.get('window').height);
+console.log('scrW, scrH, winW, winH, sBarH, vButtonH: ', scrW, scrH, winW, winH, sBarH, vButtonH );
 
 
 var post_num = 0; // to control when to show Adds in FlatList 20200623
@@ -1112,7 +1120,7 @@ export default class DashboardScreen extends Component {
             <Text>Loading....</Text>
           </View>
         :
-          <SafeAreaView style={{ position: 'absolute', top: 0, height: Dimensions.get('window').height - 50 - 50, backgroundColor: '#DCDCDC' }}>  
+          <SafeAreaView style={{ position: 'absolute', top: 0, height: scrH - 50 - 50, backgroundColor: '#DCDCDC' }}>  
         {/* StatusBar.currentHeight */}
 
             <FlatList
@@ -1193,7 +1201,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#DCDCDC',
-    // width: Dimensions.get('window').width,
+    width: scrW,
   },
   // scrollview: {
   //   width: '100%',
@@ -1233,7 +1241,7 @@ const styles = StyleSheet.create({
     // bottom: 50,
   },
   feedItem: {
-      width: Dimensions.get('window').width * 0.95,
+      width: scrW * 0.95,
       backgroundColor: "#FFF",
       borderRadius: 5, // 10
       padding: 8, //8
@@ -1266,7 +1274,7 @@ const styles = StyleSheet.create({
   textContents: {
       flexDirection: "column", 
       flex: 2,
-      width: Dimensions.get('window').width * 0.4,//0.52 //160,
+      width: scrW * 0.4,//0.52 //160,
       // backgroundColor: 'green',
       marginRight: 3,
       fontSize: 16,
@@ -1302,16 +1310,16 @@ const styles = StyleSheet.create({
 
   },
   postImage: {
-    width: Dimensions.get('window').width * 0.33 * (225/150), //150,
-    height: Dimensions.get('window').width * 0.33, //225,
+    width: scrW * 0.33 * (225/150), //150,
+    height: scrW * 0.33, //225,
     // width: 200,
     borderRadius: 5,
     marginVertical: 5,
     right: 0,
   },
   ads:{
-    width: Dimensions.get('window').width * 0.95,
-    height: 270,
+    width: scrW * 0.95,
+    height: 280,
     backgroundColor: "#FFF",
     borderRadius: 5, // 10
     flex: 1,
@@ -1323,7 +1331,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1, // iOS
     shadowRadius: 2, // iOS   
     elevation: 2, // Android
-    marginHorizontal: 3,
+    marginHorizontal: 2,
   },
 
 
@@ -1331,10 +1339,10 @@ const styles = StyleSheet.create({
     // flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',  
-    marginVertical: Dimensions.get('window').height * 0.025,     
-    marginHorizontal: Dimensions.get('window').width * 0.05,
-    height: Dimensions.get('window').height * 0.95,
-    width: Dimensions.get('window').width * 0.9,
+    marginVertical: scrH * 0.025,     
+    marginHorizontal: scrW * 0.05,
+    height: scrH * 0.95,
+    width: scrW * 0.9,
     backgroundColor: 'black', //'#ffa500', 
     borderRadius: 10,
     opacity: 0.8,
@@ -1359,7 +1367,7 @@ const styles = StyleSheet.create({
     marginTop: '3%',
   },    
   itemTitle:{
-    marginTop: 7, //Dimensions.get('window').height * 0.01,
+    marginTop: 7, //winH * 0.01,
     color: '#ffa500',
     fontSize: 15,
     width: '80%',
@@ -1395,7 +1403,7 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   picker: {
-    // height: Dimensions.get('window').height * 0.7, 
+    // height: winH * 0.7, 
     // width: 200, 
     backgroundColor: 'lightgray',
     borderWidth: 1, 

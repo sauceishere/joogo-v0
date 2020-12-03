@@ -16,6 +16,8 @@ import moment from 'moment'; // https://momentjs.com/docs/
 // import {dbSQLite, dbName} from './DashboardScreen';
 import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
 import { AdMobBanner } from 'expo-ads-admob'; 
+import { scrW, scrH, winW, winH, sBarH, vButtonH } from './DashboardScreen'; // get screen size & window size from DashboardScreen.js
+
 
 // export default function App() {
 export default class Stats extends Component {
@@ -362,7 +364,7 @@ export default class Stats extends Component {
                     </View>
                 :
                     
-                    <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', alignItems: 'center', marginVertical: Dimensions.get('window').height * 0.02, paddingHorizontal: Dimensions.get('window').height * 0.01}} >
+                    <View style={{width: '100%', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-around', alignItems: 'center', marginVertical: (scrH - vButtonH) * 0.02, paddingHorizontal: (scrH - vButtonH) * 0.01}} >
                         <View style={styles.tileItem}>
                             <Ionicons name='ios-flame' size={22} style={styles.tileItemIcon}/>
                             <Text style={styles.tileItemField}> {scoreTtl} </Text>    
@@ -434,8 +436,8 @@ const styles = StyleSheet.create({
     tileItem: {
         // borderColor: 'red',
         // borderWidth: 2,
-        width: Dimensions.get('window').width * 0.3,
-        height: Dimensions.get('window').width * 0.3,
+        width: scrW * 0.3,
+        height: scrW * 0.3,
         // flex: 1, 
         flexDirection: 'column',
         justifyContent: 'space-around',
@@ -481,9 +483,9 @@ const styles = StyleSheet.create({
     },
     chartArea: {
         // backgroundColor: '#DCDCDC',
-        height: Dimensions.get('screen').width ,
+        height: scrW ,
         // height: '100%',
-        width: Dimensions.get('screen').width * 0.98,
+        width: scrW * 0.98,
     },
     loadingIndicator: {
         // position: 'absolute',

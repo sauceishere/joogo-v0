@@ -1,6 +1,6 @@
 // import * as React from 'react';
 import React from 'react';
-import {Platform} from 'react-native';
+import {Platform, Dimensions} from 'react-native';
 // import { createStackNavigator } from 'react-navigation-stack';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';  // https://www.youtube.com/watch?v=ZcaQJoXY-3Q https://github.com/nathvarun/Expo-Google-Login-Firebase
 import LoginScreen from './components/LoginScreen';
@@ -13,6 +13,8 @@ import Stack from './routes/homeStack';
 firebase.initializeApp(firebaseConfig);
 
 console.log('++++++++++++++++++++++++++++++++++++++++++ Platform.OS: ', Platform.OS);
+
+
 
 // Distribute page by homeStack.js
 const AppSwitchNavigator = createSwitchNavigator({  

@@ -9,8 +9,7 @@ import { convertCompilerOptionsFromJson } from 'typescript';
 import * as SQLite from 'expo-sqlite';
 import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
 import { AdMobBanner } from 'expo-ads-admob'; 
-
-
+import { scrW, scrH, winW, winH, sBarH, vButtonH } from './DashboardScreen'; // get screen size & window size from DashboardScreen.js
 
 // const str_pad_left = function (string,pad,length) { // convert from sec to min:sec // https://stackoverflow.com/questions/3733227/javascript-seconds-to-minutes-and-seconds
 //     return (new Array(length+1).join(pad)+string).slice(-length);
@@ -311,7 +310,7 @@ class ExerciseHistory extends Component {
                     <View style={{width: '100%',  flexDirection: 'column', flexWrap: 'nowrap' }}>
 
                         {/* <SafeAreaView style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.01, flex:1 }}>  */}
-                        <SafeAreaView style={{ marginTop: Dimensions.get('screen').height * 0.01, height: Dimensions.get('window').height - (Dimensions.get('screen').height - Dimensions.get('window').height) - 60, }}>
+                        <SafeAreaView style={{ marginTop: (scrH - vButtonH) * 0.01, height: scrH - vButtonH - vButtonH - 60, }}>
                             <FlatList
                                 style={styles.feed}
                                 data={this.state.postsExer}
@@ -399,8 +398,8 @@ const styles = StyleSheet.create({
     tileItem: {
         // borderColor: 'red',
         // borderWidth: 2,
-        width: Dimensions.get('window').width * 0.3,
-        height: Dimensions.get('window').width * 0.3,
+        width: scrW * 0.3,
+        height: scrW * 0.3,
         // flex: 1, 
         flexDirection: 'column',
         justifyContent: 'space-around',
@@ -536,8 +535,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffa500',
     },      
     postImage: {
-        width: Dimensions.get('window').width * 0.3 * (225/150), //150,
-        height: Dimensions.get('window').width * 0.3, //225,
+        width: scrW * 0.3 * (225/150), //150,
+        height: scrW * 0.3, //225,
         // width: 200,
         borderRadius: 5,
         marginVertical: 5,
