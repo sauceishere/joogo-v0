@@ -73,12 +73,12 @@ export default class Leaderboard extends Component {
 
                     if( response["code"] == 'ok'){
                         console.log('---------------- ok');
-                        console.log('_loadLeaderboard response.detail: ', response.detail );
+                        // console.log('_loadLeaderboard response.detail: ', response.detail );
 
                         // to control when to display 'ad'. 20200623
                         var i;
                         for (i = 0; i < response.detail.data.length; i++) {
-                            console.log('this.post_num: ', this.post_num);
+                            // console.log('this.post_num: ', this.post_num);
                             response.detail.data[i]['rank'] = this.post_num;  // assign rank
                             this.post_num++; // increment
                         }

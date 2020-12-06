@@ -6,7 +6,7 @@ import { createAppContainer,  } from 'react-navigation';
 
 import Header from '../shared/Header';
 
-import DashboardScreen from '../components/DashboardScreen';
+import DashboardScreen from '../components/DashboardScreen1016';
 import Exercise from '../components/Exercise';
 import ProfileScreen from "../components/ProfileScreen";
 import PostScreen from "../components/PostScreen";

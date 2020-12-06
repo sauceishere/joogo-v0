@@ -29,7 +29,7 @@ import {LB_PER_KG} from '../shared/Consts';
 import { NonMaxSuppressionV5 } from '@tensorflow/tfjs';
 import { isNonNullExpression } from 'typescript';
 import { greaterThan } from 'react-native-reanimated';
-import { scrW, scrH, winW, winH, sBarH, vButtonH } from './DashboardScreen'; // get screen size & window size from DashboardScreen.js
+import { scrW, scrH, winW, winH, sBarH, vButtonH } from './DashboardScreen1016'; // get screen size & window size from DashboardScreen.js
 import YoutubePlayer from "react-native-youtube-iframe"; // 20201202
 
 
@@ -122,6 +122,7 @@ export default class Live extends Component {
       vidStatus: null, 
       // flagYTstarted: false, // to control start of initial posture 20201127
       isScanningIniPos: false, // to manipulate YouTube screen size 20201201
+      isFreeMode: false, // to NOT to show YoutubePlayer 20201206
     }
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);  
     // this._handlePlayAndPause = this._handlePlayAndPause.bind(this);
@@ -579,7 +580,7 @@ export default class Live extends Component {
 
 
   async componentDidMount() {
-    console.log('------------------- componentDidMount Live started 121');
+    console.log('------------------- componentDidMount Live1016 started 0');
     
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE); // to landscape
     // console.log( 'ScreenOrientation.ScreenOrientationInfo: ', ScreenOrientation.ScreenOrientationInfo(orientation) );
@@ -595,11 +596,12 @@ export default class Live extends Component {
     // console.log('this.model: ', this.model );
     // console.log('screen width, height: ', Dimensions.get('screen').width, Dimensions.get('screen').height);
     // console.log('window width, height: ', Dimensions.get('window').width, winH);
-    console.log('inputTensorWidth, inputTensorHeight: ', this.inputTensorWidth, this.inputTensorHeight );
-    console.log('textureDims.width .height: ', this.textureDims.width, this.textureDims.height );    
+    // console.log('inputTensorWidth, inputTensorHeight: ', this.inputTensorWidth, this.inputTensorHeight );
+    // console.log('textureDims.width .height: ', this.textureDims.width, this.textureDims.height );    
     // console.log('LB_PER_KG: ', LB_PER_KG);
     // console.log('this.state.vidViewLogTemp: ', this.state.vidViewLogTemp);
     // console.log('this.props.navigation.getParam(model2): ', this.props.navigation.getParam('model2') );
+    console.log('componentDidMount post: ', this.props.navigation.getParam('post'));
 
 
 
@@ -2148,7 +2150,7 @@ export default class Live extends Component {
     console.log('----------------- render --------------------');
     var time1 = Date.now() / 1000; 
 
-    const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, scoreNow, vidStartAt, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon, octopusLoc, outNTAFlag, outAccelFlag, missingPos, outOfIniPos, iP_f, iP_lw, iP_rw, iP_la, iP_ra, showStepNotice, showLiveTipModal, liveTipImg, vidFullUrl, vidPlayAt, vidEndAt, vidPlaying, isScanningIniPos, vidStatus } = this.state;
+    const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, scoreNow, vidStartAt, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon, octopusLoc, outNTAFlag, outAccelFlag, missingPos, outOfIniPos, iP_f, iP_lw, iP_rw, iP_la, iP_ra, showStepNotice, showLiveTipModal, liveTipImg, vidFullUrl, vidPlayAt, vidEndAt, vidPlaying, isScanningIniPos, vidStatus, isFreeMode } = this.state;
 
     if (shouldPlay == true) { // increment only shouldPlay=true. this means not incremented whe video is paused.
       this.vidState.vidPlayedSum = this.vidState.vidPlayedSum + (Date.now()/1000 - this.vidState.loopStartAt); // add increment time
@@ -2170,7 +2172,7 @@ export default class Live extends Component {
       this.showPrevButton = true;
       this.showNextButton = true;
     }
-    console.log(' this.showPrevButton, this.showNextButton: ', this.showPrevButton, this.showNextButton);
+    // console.log(' this.showPrevButton, this.showNextButton: ', this.showPrevButton, this.showNextButton);
 
     // if (liveTipImg == 1) {
     //   this.liveTipImgName = '../assets/live_tip1.png';
@@ -2181,9 +2183,14 @@ export default class Live extends Component {
     // } else if (liveTipImg == 4) {
     //   this.liveTipImgName = '../assets/live_tip4.png';
     // }
-    console.log('showLiveTipModal, liveTipImg: ', showLiveTipModal, liveTipImg );
+    // console.log('showLiveTipModal, liveTipImg: ', showLiveTipModal, liveTipImg );
 
-    console.log('vidStatus: ', vidStatus);
+    // console.log('vidStatus: ', vidStatus);
+
+    if ( this.props.navigation.getParam('post')['URL'] == "FREE" ) {
+      this.setState( {isFreeMode: true}); // to NOT to show YoutubePlayer 20201206
+    }
+    
 
 
 // ////////// to check if mobile devices is fixed & no move by Accelerometer
@@ -2382,62 +2389,66 @@ export default class Live extends Component {
                           />
                         </View>   
 
-                        <View style={ [styles.trainerVideoContainer, isScanningIniPos ? { height: scrW * 0.3, width: (scrH - vButtonH) * 0.3, position: 'absolute', bottom: scrW * 0.05, right: (scrH - vButtonH) * 0.02 } : { height: scrW, width: (scrH - vButtonH), } ] }>
-                        {/* <View style={ [styles.trainerVideoContainer, { height: Dimensions.get('screen').width, width: Dimensions.get('screen').height, }  ]}> */}
-                          {/* <WebView
-                            ref={r => (this.webviewRef = r)}
-                            // source={{ uri: this.state.vidFullUrl }}
-                            // style={ [styles.trainerVideo, isScanningIniPos ? { height: Dimensions.get('screen').width * 0.1, width: Dimensions.get('screen').height * 0.1 } : { height: Dimensions.get('screen').width, width: Dimensions.get('screen').height, } ] }
-                            style={ [styles.trainerVideo, { height: Dimensions.get('screen').width, width: Dimensions.get('screen').height, }  ] }
-                            // onNavigationStateChange={ this._vidAtInitial}
-                            onMessage={(event) => {
-                              console.log('got event from webview');
-                              if (vidPlayAt == 0 && vidEndAt == 0) { // to assign only once at the fisrt play
-                                this.setState({ vidPlayAt: JSON.parse(event.nativeEvent.data)["vidPlayAt"], vidPlaying: true, isScanningIniPos: true  });
-                                console.log('vidPlayAt: ', this.state.vidPlayAt );
-                              }
-                            //   if (vidEndAt == 0 && vidPlayAt != 0) { // to assign only once at the fisrt play
-                            //     this.setState({ vidEndAt: JSON.parse(event.nativeEvent.data)["vidEndAt"], vidPlaying: false  });
-                            //     console.log('endAt: ', this.state.vidEndAt );
-                            //     console.log('vidPlayedTime: ', this.state.vidPlayedTime );
-                
-                            //   }
-                            }}
-                            source={{ html: htmlContents }}                      
-                          />  */}
+
+
+                        { isFreeMode ?
+                          null
+                        :
+                          <View style={ [styles.trainerVideoContainer, isScanningIniPos ? { height: scrW * 0.3, width: (scrH - vButtonH) * 0.3, position: 'absolute', bottom: scrW * 0.05, right: (scrH - vButtonH) * 0.02 } : { height: scrW, width: (scrH - vButtonH), } ] }>
+                          {/* <View style={ [styles.trainerVideoContainer, { height: Dimensions.get('screen').width, width: Dimensions.get('screen').height, }  ]}> */}
+                            {/* <WebView
+                              ref={r => (this.webviewRef = r)}
+                              // source={{ uri: this.state.vidFullUrl }}
+                              // style={ [styles.trainerVideo, isScanningIniPos ? { height: Dimensions.get('screen').width * 0.1, width: Dimensions.get('screen').height * 0.1 } : { height: Dimensions.get('screen').width, width: Dimensions.get('screen').height, } ] }
+                              style={ [styles.trainerVideo, { height: Dimensions.get('screen').width, width: Dimensions.get('screen').height, }  ] }
+                              // onNavigationStateChange={ this._vidAtInitial}
+                              onMessage={(event) => {
+                                console.log('got event from webview');
+                                if (vidPlayAt == 0 && vidEndAt == 0) { // to assign only once at the fisrt play
+                                  this.setState({ vidPlayAt: JSON.parse(event.nativeEvent.data)["vidPlayAt"], vidPlaying: true, isScanningIniPos: true  });
+                                  console.log('vidPlayAt: ', this.state.vidPlayAt );
+                                }
+                              //   if (vidEndAt == 0 && vidPlayAt != 0) { // to assign only once at the fisrt play
+                              //     this.setState({ vidEndAt: JSON.parse(event.nativeEvent.data)["vidEndAt"], vidPlaying: false  });
+                              //     console.log('endAt: ', this.state.vidEndAt );
+                              //     console.log('vidPlayedTime: ', this.state.vidPlayedTime );
+                  
+                              //   }
+                              }}
+                              source={{ html: htmlContents }}                      
+                            />  */}
 
 
 
-                        
-                          <YoutubePlayer
-                            height={isScanningIniPos ? scrW * 0.3 : scrW} 
-                            width={isScanningIniPos ? (scrH - vButtonH) * 0.3: (scrH - vButtonH) }
-                            play={vidPlaying}
-                            videoId={vidFullUrl} //{"iee2TATGMyI"}
-                            // onChangeState={onStateChange}
-                            onChangeState = {
-                              (state) => {
-                                if (state === "playing") {
-                                  if (vidPlayAt == 0) { // for first click on play button
-                                    this.setState({ vidPlaying: true, vidStatus: state, vidPlayAt: Date.now() / 1000, isScanningIniPos: true });
+                          
+                            <YoutubePlayer
+                              height={isScanningIniPos ? scrW * 0.3 : scrW} 
+                              width={isScanningIniPos ? (scrH - vButtonH) * 0.3: (scrH - vButtonH) }
+                              play={vidPlaying}
+                              videoId={vidFullUrl} //{"iee2TATGMyI"}
+                              // onChangeState={onStateChange}
+                              onChangeState = {
+                                (state) => {
+                                  if (state === "playing") {
+                                    if (vidPlayAt == 0) { // for first click on play button
+                                      this.setState({ vidPlaying: true, vidStatus: state, vidPlayAt: Date.now() / 1000, isScanningIniPos: true });
+                                    } else {
+                                      this.setState({ vidPlaying: true, vidStatus: state });
+                                    }
+                                  } else if (state === "ended") {
+                                    this.setState({ vidPlaying: false, vidStatus: state, vidEndAt: Date.now() / 1000, });   
                                   } else {
-                                    this.setState({ vidPlaying: true, vidStatus: state });
+                                    this.setState({ vidPlaying: false, vidStatus: state }); 
                                   }
-                                } else if (state === "ended") {
-                                  this.setState({ vidPlaying: false, vidStatus: state, vidEndAt: Date.now() / 1000, });   
-                                } else {
-                                  this.setState({ vidPlaying: false, vidStatus: state }); 
                                 }
                               }
-                            }
-                          />
-                          {/* <Button title={vidPlaying ? "pause" : "play"} onPress={togglePlaying} /> */}
+                            />
+                            {/* <Button title={vidPlaying ? "pause" : "play"} onPress={togglePlaying} /> */}
 
 
+                          </View>
 
-
-
-                        </View>
+                        }
 
                   
 
