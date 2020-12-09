@@ -232,7 +232,7 @@ class ExerciseHistory extends Component {
             <View style={styles.feedItem}>
                 
                 {/* left pane */}
-                <View style={{  }}>
+                <View style={{ bottom: 0, backgroundColor: 'blue' }}>
                     <TouchableOpacity>
                         <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
                     </TouchableOpacity>
@@ -240,29 +240,12 @@ class ExerciseHistory extends Component {
     
                 {/* right pane */}   
                 <View style={{ flex: 2, flexDirection: "column", marginHorizontal: 3, }}> 
-    
-                    <View style={styles.textContents}>
-                        <Text style={styles.timestamp}>{moment.unix(post.TS).fromNow()}</Text> 
-                        <Text style={styles.title}>' 
-                            { ((post.VIDNAME).length > 40) ? 
-                                (((post.VIDNAME).substring(0, 40-3)) + '...') 
-                            : 
-                                post.VIDNAME 
-                            }
-                        '</Text>
 
-                        <Text style={styles.name}>
-                            { ((post.NNAME).length > 25) ? 
-                                    (((post.NNAME).substring(0, 25-3)) + '...') 
-                            : 
-                                post.NNAME 
-                            }
-                        </Text>
-                    </View>    
-    
+                <Text style={styles.timestamp}>{moment.unix(post.TS).fromNow()}</Text> 
+
                     <View style={styles.textMetadata}>
                         <View style={{flexDirection: "row", marginTop: 2, marginLeft: 3,}}>
-                            <Ionicons name='ios-flame' size={22} color="#73788B"/>
+                            <Ionicons name='ios-flame' size={20} color="#73788B"/>
                             <Text style={styles.points}> {post.SC} Calories</Text>
                         </View>
                         {/* <View style={{flexDirection: "column",}}>
@@ -271,7 +254,7 @@ class ExerciseHistory extends Component {
                         </View> */}
 
                         <View style={{flexDirection: "row", marginTop: 1, marginLeft: 2,}}>
-                            <Ionicons name='ios-time' size={20} color="#73788B"/>
+                            <Ionicons name='ios-time' size={18} color="#73788B"/>
                             {/* <Ionicons name='logo-youtube' size={17} color="#73788B"/> */}
                             <Text style={styles.views}> {post.PLAYSUM_} </Text>
                         </View>
@@ -279,7 +262,26 @@ class ExerciseHistory extends Component {
                             <View style={[styles.percentageBar, {width: post.PLAYPCT_PCT} ]}></View>
                             <View style={[styles.percentageBarBase, {width: Dimensions.get('window').width * 0.48} ]}></View>
                         </View> */}
-                    </View>  
+                    </View>     
+
+                    <View style={styles.textContents}>
+                        
+                        <Text style={styles.name}>
+                            { ((post.NNAME).length > 25) ? 
+                                    (((post.NNAME).substring(0, 25-3)) + '...') 
+                            : 
+                                post.NNAME 
+                            }
+                        </Text>                        
+                        <Text style={styles.title}>
+                            { ((post.VIDNAME).length > 40) ? 
+                                (((post.VIDNAME).substring(0, 40-3)) + '...') 
+                            : 
+                                post.VIDNAME 
+                            }
+                        </Text>
+                    </View>    
+
                     
                 </View>
                 
@@ -310,7 +312,7 @@ class ExerciseHistory extends Component {
                     <View style={{width: '100%',  flexDirection: 'column', flexWrap: 'nowrap' }}>
 
                         {/* <SafeAreaView style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.01, flex:1 }}>  */}
-                        <SafeAreaView style={{ marginTop: (scrH - vButtonH) * 0.01, height: scrH - vButtonH - vButtonH - 60, }}>
+                        <SafeAreaView style={{ marginTop: (scrH - vButtonH) * 0.01, height: scrH - vButtonH - 130, }}>
                             <FlatList
                                 style={styles.feed}
                                 data={this.state.postsExer}
@@ -318,8 +320,8 @@ class ExerciseHistory extends Component {
                                 keyExtractor={item => item.SENDID}
                                 showsVerticalScrollIndicator={false}
                                 key={item => item.SENDID} // https://stackoverflow.com/questions/45947921/react-native-cant-fix-flatlist-keys-warning
-                                // onRefresh={this._handleRefresh}
-                                // refreshing={this.state.refreshing}
+                                onRefresh={this._handleRefresh}
+                                refreshing={this.state.refreshing}
                                 onEndReached={this._handleLoadMore}
                                 onEndReachedThreshold={1}
                             >
@@ -331,7 +333,7 @@ class ExerciseHistory extends Component {
 
 
                 <View style={styles.ads}>
-                <AdMobBanner
+                    <AdMobBanner
                     bannerSize="smartBanner"
                     adUnitID = {adUnitID} //'ca-app-pub-9079750066587969/4230406044' // {this.state.adUnitID} // Banner ID ca-app-pub-9079750066587969/4230406044 // Test ID ca-app-pub-3940256099942544/6300978111
                     servePersonalizedAds // true or false
@@ -453,13 +455,14 @@ const styles = StyleSheet.create({
         padding: 8,
         flexDirection: "row",
         flex: 2,
-        marginVertical: 5,
+        marginVertical: 3,
         shadowColor: 'black', // iOS
         shadowOffset: { width: 3, height: 3 }, // iOS
         shadowOpacity: 0.1, // iOS
         shadowRadius: 2, // iOS   
         elevation: 2, // Android
         // justifyContent: 'space-between',
+        // bottom: 0,
     },    
 
     textContents: {
@@ -477,7 +480,7 @@ const styles = StyleSheet.create({
     },    
     title: {
         marginTop: 1,
-        fontSize: 14,
+        fontSize: 13,
         // fontWeight: 'bold',
         color: '#ffa500', //'#ffbf00' // "#838899"
         marginBottom: 1,
@@ -489,9 +492,9 @@ const styles = StyleSheet.create({
     //     marginRight: 12
     // },
     name: {
-        fontSize: 12,
-        fontWeight: "500",
-        color: '#C4C6CE', //'#454D65' 
+        fontSize: 13,
+        fontWeight: "bold",
+        color: '#454D65', //'#454D65' #C4C6CE
         marginBottom: 1,
     },
         
@@ -535,13 +538,14 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffa500',
     },      
     postImage: {
-        width: scrW * 0.3 * (225/150), //150,
-        height: scrW * 0.3, //225,
+        width: scrW * 0.25 * 1.77, //150,
+        height: scrW * 0.25, //225,
         // width: 200,
         borderRadius: 5,
-        marginVertical: 5,
+        // marginVertical: 5,
         left: 0,
         marginRight: 3,
+        // position: 'relative',
         // bottom: 0,
     },    
     loadingIndicator: {

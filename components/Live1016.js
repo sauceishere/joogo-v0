@@ -30,7 +30,7 @@ import { NonMaxSuppressionV5 } from '@tensorflow/tfjs';
 import { isNonNullExpression } from 'typescript';
 import { greaterThan } from 'react-native-reanimated';
 import { scrW, scrH, winW, winH, sBarH, vButtonH } from './DashboardScreen1016'; // get screen size & window size from DashboardScreen.js
-import YoutubePlayer from "react-native-youtube-iframe"; // 20201202
+import YoutubePlayer from "react-native-youtube-iframe"; //　https://lonelycpp.github.io/react-native-youtube-iframe/ 20201202
 
 
 
@@ -57,7 +57,7 @@ export default class Live extends Component {
       isPosenetLoaded: false, 
       cameraType: Camera.Constants.Type.front,
       modelName: 'posenet',
-      vidFullUrl: 'R1oCMW1gyOA', //'https://www.youtube.com/embed/R1oCMW1gyOA',// 'https://www.youtube.com/embed/llNFfJPyNvI?autoplay=1', //'https://www.youtube.com/watch?v=-wtIMTCHWuI', // 'https://www.youtube.com/embed/llNFfJPyNvI',  -wtIMTCHWuI // autoplay=1&showinfo=0&controls=1&fullscreen=1', //?mute=1&autoplay=1&showinfo=0&controls=1&fullscreen=1', // &mute=0&showinfo=1&controls=0&fullscreen=1//'https://www.youtube.com/watch?v=sDhqARXot8Y', // // get from Firebase Storage
+      vidFullUrl: this.props.navigation.getParam('post')['YTID'], //'R1oCMW1gyOA', //'https://www.youtube.com/embed/R1oCMW1gyOA',// 'https://www.youtube.com/embed/llNFfJPyNvI?autoplay=1', //'https://www.youtube.com/watch?v=-wtIMTCHWuI', // 'https://www.youtube.com/embed/llNFfJPyNvI',  -wtIMTCHWuI // autoplay=1&showinfo=0&controls=1&fullscreen=1', //?mute=1&autoplay=1&showinfo=0&controls=1&fullscreen=1', // &mute=0&showinfo=1&controls=0&fullscreen=1//'https://www.youtube.com/watch?v=sDhqARXot8Y', // // get from Firebase Storage
       vidLength: 10, //this.props.navigation.getParam('post')['LEN'], // length of video navigated from Dashboard.js
       // isVidMetaLoaded: false,
       // isWPartLoaded: false,
@@ -2187,8 +2187,8 @@ export default class Live extends Component {
 
     // console.log('vidStatus: ', vidStatus);
 
-    if ( this.props.navigation.getParam('post')['URL'] == "FREE" ) {
-      this.setState( {isFreeMode: true}); // to NOT to show YoutubePlayer 20201206
+    if ( this.props.navigation.getParam('post')['URL'] == "FREE" && isFreeMode == false) { // go into this block only one ttme.
+      this.setState( {isFreeMode: true, isScanningIniPos: true }); // to NOT to show YoutubePlayer and directly go to scan InitialPosture 20201206
     }
     
 
@@ -2423,21 +2423,24 @@ export default class Live extends Component {
                           
                             <YoutubePlayer
                               height={isScanningIniPos ? scrW * 0.3 : scrW} 
-                              width={isScanningIniPos ? (scrH - vButtonH) * 0.3: (scrH - vButtonH) }
+                              width={isScanningIniPos ? (scrH - vButtonH - vButtonH) * 0.3: (scrH - vButtonH - vButtonH) }
                               play={vidPlaying}
                               videoId={vidFullUrl} //{"iee2TATGMyI"}
                               // onChangeState={onStateChange}
                               onChangeState = {
                                 (state) => {
                                   if (state === "playing") {
+                                    console.log('vidStatus 0: ', state);
                                     if (vidPlayAt == 0) { // for first click on play button
                                       this.setState({ vidPlaying: true, vidStatus: state, vidPlayAt: Date.now() / 1000, isScanningIniPos: true });
                                     } else {
                                       this.setState({ vidPlaying: true, vidStatus: state });
                                     }
                                   } else if (state === "ended") {
+                                    console.log('vidStatus 1: ', state);
                                     this.setState({ vidPlaying: false, vidStatus: state, vidEndAt: Date.now() / 1000, });   
                                   } else {
+                                    console.log('vidStatus 2: ', state);
                                     this.setState({ vidPlaying: false, vidStatus: state }); 
                                   }
                                 }
@@ -2829,6 +2832,7 @@ const styles = StyleSheet.create({
     // borderRadius: 20,
     // left: 20,
     // padding: 'auto',
+    backgroundColor: 'black',
   },
   trainerVideo: {
     //// flex: 0, //1

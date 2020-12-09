@@ -782,7 +782,12 @@ export default class DashboardScreen extends Component {
           } else { // wunit = 'lb'
             this.CAL = ( parseFloat(post.METS_COMPUTED) * (wval/LB_PER_KG) * (post.LEN / 60 / 60) ).toFixed(); 
           }
-          this.CAL_ITEM = calorielist[this.CAL]['item'].replace('\\u00a0', '');  // remove '\u00a0'
+
+          if ( this.CAL < 800) {
+            this.CAL_ITEM = calorielist[this.CAL]['item'].replace('\\u00a0', '');  // remove '\u00a0'
+          } else {
+            this.CAL_ITEM = 'more than Kebab';
+          }
           console.log( 'this.CAL, item: ', this.CAL, this.CAL_ITEM  );
 
 
@@ -854,20 +859,10 @@ export default class DashboardScreen extends Component {
               <View style={styles.feedItem}>
                       
                 {/* upper row */}
-                <View style={{ flex: 2, flexDirection: "row", left: 5}}>
-                    {/* <View style={{ }}> 
-                        <Image source={{uri: post.avatarFullUrl}} style={styles.avatar} resizeMode="cover"/>
-                    </View>  */}
-
-                    <View style={{flexDirection: "column"}}>
-                        <Text style={styles.name}>
-                        { ((post.NNAME).length > 40) ? 
-                          (((post.NNAME).substring(0, 40-3)) + '...') 
-                        : 
-                          post.NNAME 
-                        }
-                      </Text>
-                        {/* <Text style={styles.timestamp}>{moment.unix(post.TS).fromNow()}</Text> */}
+                <View style={{ flex: 2, flexDirection: "row", left: 0}}>
+                    <View style={{flexDirection: "row",  marginVertical: 0, marginLeft: 3,}}>
+                      <Ionicons name='ios-flame' size={19} color="#73788B"/>
+                      <Text style={styles.points}> {this.CAL} Calories | { (this.CAL_ITEM).length > 20 ? (((this.CAL_ITEM).substring(0,20-3)) + '...') : this.CAL_ITEM } </Text>
                     </View>
                 </View>
 
@@ -876,26 +871,32 @@ export default class DashboardScreen extends Component {
 
                   {/* bottom left pane */}
                   <View style={styles.textContents}>
-                    <Text style={styles.title}> '
+
+                    <View style={{flexDirection: "row", marginBottom: 0.7, marginLeft: 1,}}>
+                        <Ionicons name='ios-time' size={18} color="#73788B"/>
+                        <Text style={styles.length}> {this.LEN} </Text>
+                    </View>
+
+                    <View style={{flexDirection: "column"}}>
+                        <Text style={styles.name}>
+                        { ((post.NNAME).length > 20) ? 
+                          (((post.NNAME).substring(0, 20-3)) + '...') 
+                        : 
+                          post.NNAME 
+                        }
+                      </Text>
+                        {/* <Text style={styles.timestamp}>{moment.unix(post.TS).fromNow()}</Text> */}
+                    </View>
+
+                    <Text style={styles.title}>
                       { ((post.TITLE).length > 55) ? 
                         (((post.TITLE).substring(0, 55-3)) + '...') 
                       : 
                         post.TITLE 
                       }
-                    ' </Text>
+                    </Text>
 
                     <View style={styles.textMetadata}>
-
-                      <View style={{flexDirection: "row", marginVertical: 0.7, marginLeft: 3,}}>
-                          <Ionicons name='ios-flame' size={18} color="#73788B"/>
-                          <Text style={styles.points}> {this.CAL} Calories</Text>
-                          {/* <Text style={styles.points}> {this.CAL_ITEM} </Text> */}
-                      </View>
-
-                      <View style={{flexDirection: "row", marginVertical: 0.7, marginLeft: 1,}}>
-                          <Ionicons name='ios-time' size={18} color="#73788B"/>
-                          <Text style={styles.length}> {this.LEN} </Text>
-                      </View>
 
                       {/* <View style={{flexDirection: "row", marginVertical: 0.7, marginLeft: 2,}}>
                           <Ionicons name='ios-body' size={18} color="#73788B"/>
@@ -958,88 +959,84 @@ export default class DashboardScreen extends Component {
             <View style={styles.feedItem}>
                 
                 {/* upper row */}
-                <View style={{ flex: 2, flexDirection: "row", left: 10}}>
-                    {/* <View style={{ }}> 
-                        <Image source={{uri: post.avatarFullUrl}} style={styles.avatar} resizeMode="cover"/>
-                    </View>  */}
-  
+                <View style={{ flex: 2, flexDirection: "row", left: 0}}>
+                    <View style={{flexDirection: "row",  marginVertical: 0, marginLeft: 3,}}>
+                      <Ionicons name='ios-flame' size={19} color="#73788B"/>
+                      <Text style={styles.points}> {this.CAL} Calories | { (this.CAL_ITEM).length > 20 ? (((this.CAL_ITEM).substring(0,20-3)) + '...') : this.CAL_ITEM } </Text>
+                    </View>
+                </View>
+
+                {/* bottom row */}    
+                <View style={{ flex: 2, flexDirection: "row" }}> 
+
+                  {/* bottom left pane */}
+                  <View style={styles.textContents}>
+
+                    <View style={{flexDirection: "row", marginBottom: 0.7, marginLeft: 1,}}>
+                        <Ionicons name='ios-time' size={18} color="#73788B"/>
+                        <Text style={styles.length}> {this.LEN} </Text>
+                    </View>
+
                     <View style={{flexDirection: "column"}}>
-                      <Text style={styles.name}>
-                        { ((post.NNAME).length > 40) ? 
-                          (((post.NNAME).substring(0, 40-3)) + '...') 
+                        <Text style={styles.name}>
+                        { ((post.NNAME).length > 20) ? 
+                          (((post.NNAME).substring(0, 20-3)) + '...') 
                         : 
                           post.NNAME 
                         }
                       </Text>
-                        {/* <Text style={styles.timestamp}>{moment.unix(post.TS).fromNow()}</Text>  */}
+                        {/* <Text style={styles.timestamp}>{moment.unix(post.TS).fromNow()}</Text> */}
                     </View>
+
+                    <Text style={styles.title}> 
+                      { ((post.TITLE).length > 55) ? 
+                        (((post.TITLE).substring(0, 55-3)) + '...') 
+                      : 
+                        post.TITLE 
+                      }
+                    </Text>
+
+                    <View style={styles.textMetadata}>
+
+                      {/* <View style={{flexDirection: "row", marginVertical: 0.7, marginLeft: 2,}}>
+                          <Ionicons name='ios-body' size={18} color="#73788B"/>
+                          <Text style={styles.length}> {this.INTENSITY} </Text>
+                      </View> */}
+
+                      {/* <View style={{flexDirection: "row", marginVertical: 3}}>
+                          <MaterialIcons name='center-focus-strong' size={20} color="#73788B"/> 
+                          <Text style={styles.tags}> 
+                              {String(post.TAG).replace(',', ', ')}
+                          </Text>
+                      </View> */}
+
+                      {/* <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
+                          <Ionicons name='ios-eye' size={20} color="#73788B"/>
+                          <Text style={styles.views}> {this.VIEW} views</Text>
+                      </View> */}
+
+                      {/* <View style={{flexDirection: "row", marginVertical: 2, marginLeft: 2,}}>
+                          <Ionicons name='ios-heart' size={20}/> 
+                          <Text style={styles.likes}>  {post.likes} </Text>
+                      </View> */}
+
+                      {/* <View style={{ flexDirection: "row", position:'absolute', bottom: 5 }}>
+                          <Ionicons name="ios-heart-empty" size={28} color="#73788B" style={{ marginRight: 16 }} />
+                          <Ionicons name="ios-chatboxes" size={28} color="#73788B" />
+                      </View> */}
+                    </View>  
+
+                  </View>
+                  
+                  {/* bottom right pane */}
+                  <View style={{ }}>
+                    <TouchableOpacity onPress={ () => this.props.navigation.push('Live1016', {post, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit, model2, adUnitID} ) } >
+                        <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
+                    </TouchableOpacity>
+                  </View>
+
                 </View>
-  
-                {/* bottom row */}    
-                <View style={{ flex: 2, flexDirection: "row" }}> 
-  
-                    {/* bottom left pane */}
-                    <View style={styles.textContents}>
-                      <Text style={styles.title}> '
-                        { ((post.TITLE).length > 55) ? 
-                          (((post.TITLE).substring(0, 55-3)) + '...') 
-                        : 
-                          post.TITLE 
-                        }
-                      ' </Text>
-
-                      <View style={styles.textMetadata}>
-
-                        <View style={{flexDirection: "row", marginVertical: 0.7, marginLeft: 3,}}>
-                            <Ionicons name='ios-flame' size={18} color="#73788B"/>
-                            <Text style={styles.points}> {this.CAL} Calories</Text>
-                            {/* <Text style={styles.points}> {this.CAL_ITEM} </Text> */}
-                        </View>
-
-                        <View style={{flexDirection: "row", marginVertical: 0.7, marginLeft: 1,}}>
-                            <Ionicons name='ios-time' size={18} color="#73788B"/>
-                            <Text style={styles.length}> {this.LEN} </Text>
-                        </View>
-
-                        {/* <View style={{flexDirection: "row", marginVertical: 0.7, marginLeft: 2,}}>
-                            <Ionicons name='ios-body' size={18} color="#73788B"/>
-                            <Text style={styles.length}> {this.INTENSITY} </Text>
-                        </View> */}
-
-                        {/* <View style={{flexDirection: "row", marginVertical: 3}}>
-                            <MaterialIcons name='center-focus-strong' size={20} color="#73788B"/> 
-                            <Text style={styles.tags}> 
-                                {String(post.TAG).replace(',', ', ')}
-                            </Text>
-                        </View> */}
-
-                        {/* <View style={{flexDirection: "row", marginVertical: 3, marginLeft: 2,}}>
-                            <Ionicons name='ios-eye' size={20} color="#73788B"/>
-                            <Text style={styles.views}> {this.VIEW} views</Text>
-                        </View> */}
-
-                        {/* <View style={{flexDirection: "row", marginVertical: 2, marginLeft: 2,}}>
-                            <Ionicons name='ios-heart' size={20}/> 
-                            <Text style={styles.likes}>  {post.likes} </Text>
-                        </View> */}
-
-                        {/* <View style={{ flexDirection: "row", position:'absolute', bottom: 5 }}>
-                            <Ionicons name="ios-heart-empty" size={28} color="#73788B" style={{ marginRight: 16 }} />
-                            <Ionicons name="ios-chatboxes" size={28} color="#73788B" />
-                        </View> */}
-                      </View>  
-  
-                    </View>
-                    
-  
-                    {/* bottom right pane */}
-                    <View style={{ }}>
-                      <TouchableOpacity onPress={ () => this.props.navigation.push('Live1016', { post, const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit, model2, adUnitID} ) } >
-                          <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
-                      </TouchableOpacity>
-                    </View>
-  
-                </View>
+                     
                   
             </View>
           );
@@ -1057,6 +1054,8 @@ export default class DashboardScreen extends Component {
   bannerError() {
     console.log("Error AdMob banner");
   }
+
+
 
 
   render() {
@@ -1128,7 +1127,7 @@ export default class DashboardScreen extends Component {
             <Text>Loading....</Text>
           </View>
         :
-          <SafeAreaView style={{ position: 'absolute', top: 0, height: scrH - 50 - 50, backgroundColor: '#DCDCDC' }}>  
+          <SafeAreaView style={{ position: 'absolute', top: 0, height: scrH - vButtonH - 110, backgroundColor: '#DCDCDC' }}>  
         {/* StatusBar.currentHeight */}
 
             <FlatList
@@ -1144,7 +1143,7 @@ export default class DashboardScreen extends Component {
               onRefresh={this._handleRefresh}
               refreshing={this.state.refreshing}
               onEndReached={this._handleLoadMore}
-              onEndReachedThreshold={0}
+              onEndReachedThreshold={1}
             >
             </FlatList>
 
@@ -1159,32 +1158,32 @@ export default class DashboardScreen extends Component {
           <View style={styles.footerContainer}>
             {/* https://docs.expo.io/versions/latest/sdk/linear-gradient/ */}
             <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('Profile', { nname, wval, wunit, hval, hunit, nat, byr, gdr, bt0, bt1, ts, llogin, lupdate } ) } >
-              <Ionicons name='ios-person' size={26} color="white" />  
+              <Ionicons name='ios-person' size={24} color="white" />  
               <Text style={styles.footerContainerText}>Profile</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('History', {adUnitID}) } >                     
-              <FontAwesome5 name='history' size={24} color="white" />
+              <FontAwesome5 name='history' size={22} color="white" />
               <Text style={styles.footerContainerText}>History</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('Stats', { const_exer, adUnitID} ) }> 
-              <Ionicons name='ios-stats' size={26} color="white" />
+              <Ionicons name='ios-stats' size={24} color="white" />
               <Text style={styles.footerContainerText}>Stats</Text>
             </TouchableOpacity>              
 
             <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('Leaderboard', {adUnitID}) }>            
               {/* <Ionicons name='ios-medal' size={26} color="white" /> */}
-              <FontAwesome5 name="medal" size={23} color="white" />
+              <FontAwesome5 name="medal" size={21} color="white" />
               {/* <MaterialIcons name='military_tech' size={26} color="white" /> */}
               {/* <Image style={{ width: 26, height: 26 }} source={require('../assets/leaderboard_icon.png')}/> */}
               <Text style={styles.footerContainerText}>Leaderboard</Text>
             </TouchableOpacity>  
 
-            <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('Live1016', { const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit, model2, adUnitID, post } ) }>            
+            {/* <TouchableOpacity style={styles.footerContainerButton} onPress={ () => this.props.navigation.push('Live1016', { const_exer, scaler_scale, scaler_mean, model, vidViewLogTemp, wval, wunit, model2, adUnitID, post } ) }>            
               <Ionicons name='logo-youtube' size={28} color="white" />
-              <Text style={styles.footerContainerText}>1.0.16</Text>
-            </TouchableOpacity>  
+              <Text style={styles.footerContainerText}>Live1016</Text>
+            </TouchableOpacity>   */}
 
             {/* <Ionicons name="ios-add-circle-outline" size={28} color="white" style={styles.PostIcon} onPress={ () => this.props.navigation.push('Post') }/> */}
 
@@ -1252,7 +1251,7 @@ const styles = StyleSheet.create({
       width: scrW * 0.95,
       backgroundColor: "#FFF",
       borderRadius: 5, // 10
-      padding: 8, //8
+      padding: 7, //8
       flexDirection: "column",
       flex: 2,
       marginVertical: 5,
@@ -1270,9 +1269,11 @@ const styles = StyleSheet.create({
       marginRight: 12
   },
   name: {
-      fontSize: 14,
+      fontSize: 13,
       fontWeight: "bold", // 500
-      color: '#454D65' 
+      color: '#454D65',
+      marginTop: 3,
+      marginBottom: 3,
   },
   timestamp: {
       fontSize: 11,
@@ -1282,23 +1283,24 @@ const styles = StyleSheet.create({
   textContents: {
       flexDirection: "column", 
       flex: 2,
-      width: scrW * 0.4,//0.52 //160,
+      width: scrW * 0.35,//0.52 //160,
       // backgroundColor: 'green',
       marginRight: 3,
-      fontSize: 16,
+      // fontSize: 16,
   },
   title: {
-      marginTop: 6,
-      fontSize: 15,
+      marginTop: 2,
+      fontSize: 13,
       // fontWeight: 'bold',
       color: '#ffa500', //'#ffbf00' // "#838899"
-      marginBottom: 2,
-
+      marginBottom: 0,
   },
   textMetadata: {
       position: 'absolute',
-      bottom: 1,
-      fontSize: 11,
+      bottom: 0,
+      // fontSize: 8,
+      width: scrW * 0.35,
+      // backgroundColor: 'pink',
   },
   length:{
       // fontWeight: 'bold',
@@ -1307,9 +1309,10 @@ const styles = StyleSheet.create({
   points:{
       // fontWeight: 'bold',
       marginLeft: 6,
+      // backgroundColor: 'blue',
   },
   tags:{
-      marginLeft: 6,
+    marginLeft: 6,
   },
   views:{
     marginLeft: 4,
@@ -1318,11 +1321,11 @@ const styles = StyleSheet.create({
 
   },
   postImage: {
-    width: scrW * 0.33 * (225/150), //150,
-    height: scrW * 0.33, //225,
+    width: scrW * 0.3 * 1.77, //150,
+    height: scrW * 0.3, //225,
     // width: 200,
     borderRadius: 5,
-    marginVertical: 5,
+    marginVertical: 3,
     right: 0,
   },
   ads:{
