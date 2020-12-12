@@ -231,58 +231,66 @@ class ExerciseHistory extends Component {
         return (
             <View style={styles.feedItem}>
                 
-                {/* left pane */}
-                <View style={{ bottom: 0, backgroundColor: 'blue' }}>
-                    <TouchableOpacity>
-                        <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
-                    </TouchableOpacity>
+                {/* upper */}
+                <View>
+                    <Text style={styles.timestamp}>{moment.unix(post.TS).fromNow()}</Text> 
                 </View>
-    
-                {/* right pane */}   
-                <View style={{ flex: 2, flexDirection: "column", marginHorizontal: 3, }}> 
 
-                <Text style={styles.timestamp}>{moment.unix(post.TS).fromNow()}</Text> 
+                {/* bottom */}
+                <View style={{ flex: 2, flexDirection: "row", marginHorizontal: 3, }}>
 
-                    <View style={styles.textMetadata}>
-                        <View style={{flexDirection: "row", marginTop: 2, marginLeft: 3,}}>
-                            <Ionicons name='ios-flame' size={20} color="#73788B"/>
-                            <Text style={styles.points}> {post.SC} Calories</Text>
-                        </View>
-                        {/* <View style={{flexDirection: "column",}}>
-                            <View style={[styles.percentageBar, {width: post.SC_PCT} ]}></View>
-                            <View style={[styles.percentageBarBase, {width: Dimensions.get('window').width * 0.48} ]}></View>  
-                        </View> */}
+                    {/* left pane */}
+                    <View style={{ bottom: 0, paddingBottom: 7 }}>
+                        <TouchableOpacity>
+                            <Image source={{uri: post.TNURL }} style={styles.postImage} resizeMode="cover" />   
+                        </TouchableOpacity>
+                    </View>
+        
+                    {/* right pane */}   
+                    <View style={{ flex: 2, flexDirection: "column", marginHorizontal: 3, }}> 
 
-                        <View style={{flexDirection: "row", marginTop: 1, marginLeft: 2,}}>
-                            <Ionicons name='ios-time' size={18} color="#73788B"/>
-                            {/* <Ionicons name='logo-youtube' size={17} color="#73788B"/> */}
-                            <Text style={styles.views}> {post.PLAYSUM_} </Text>
-                        </View>
-                        {/* <View style={{flexDirection: "column",}}>
-                            <View style={[styles.percentageBar, {width: post.PLAYPCT_PCT} ]}></View>
-                            <View style={[styles.percentageBarBase, {width: Dimensions.get('window').width * 0.48} ]}></View>
-                        </View> */}
-                    </View>     
+                        <View style={styles.textMetadata}>
+                            <View style={{flexDirection: "row", marginTop: 2, marginLeft: 3,}}>
+                                <Ionicons name='ios-flame' size={20} color="#73788B"/>
+                                <Text style={styles.points}> {post.SC} Calories</Text>
+                            </View>
+                            {/* <View style={{flexDirection: "column",}}>
+                                <View style={[styles.percentageBar, {width: post.SC_PCT} ]}></View>
+                                <View style={[styles.percentageBarBase, {width: Dimensions.get('window').width * 0.48} ]}></View>  
+                            </View> */}
 
-                    <View style={styles.textContents}>
+                            <View style={{flexDirection: "row", marginTop: 1, marginLeft: 2,}}>
+                                <Ionicons name='ios-time' size={18} color="#73788B"/>
+                                {/* <Ionicons name='logo-youtube' size={17} color="#73788B"/> */}
+                                <Text style={styles.views}> {post.PLAYSUM_} </Text>
+                            </View>
+                            {/* <View style={{flexDirection: "column",}}>
+                                <View style={[styles.percentageBar, {width: post.PLAYPCT_PCT} ]}></View>
+                                <View style={[styles.percentageBarBase, {width: Dimensions.get('window').width * 0.48} ]}></View>
+                            </View> */}
+                        </View>     
+
+                        <View style={styles.textContents}>
+                            
+                            <Text style={styles.name}>
+                                { ((post.NNAME).length > 25) ? 
+                                        (((post.NNAME).substring(0, 25-3)) + '...') 
+                                : 
+                                    post.NNAME 
+                                }
+                            </Text>                        
+                            <Text style={styles.title}>
+                                { ((post.VIDNAME).length > 40) ? 
+                                    (((post.VIDNAME).substring(0, 40-3)) + '...') 
+                                : 
+                                    post.VIDNAME 
+                                }
+                            </Text>
+                        </View>    
+
                         
-                        <Text style={styles.name}>
-                            { ((post.NNAME).length > 25) ? 
-                                    (((post.NNAME).substring(0, 25-3)) + '...') 
-                            : 
-                                post.NNAME 
-                            }
-                        </Text>                        
-                        <Text style={styles.title}>
-                            { ((post.VIDNAME).length > 40) ? 
-                                (((post.VIDNAME).substring(0, 40-3)) + '...') 
-                            : 
-                                post.VIDNAME 
-                            }
-                        </Text>
-                    </View>    
+                    </View>
 
-                    
                 </View>
                 
             </View>
@@ -453,7 +461,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#FFF",
         borderRadius: 5, // 10
         padding: 8,
-        flexDirection: "row",
+        flexDirection: "column",
         flex: 2,
         marginVertical: 3,
         shadowColor: 'black', // iOS

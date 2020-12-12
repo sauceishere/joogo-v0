@@ -147,10 +147,10 @@ export default class Live extends Component {
   
   // // this below is action for warning 20201117 "[Unhandled promise rejection: Error: When using targetShape.depth=3, targetShape.width must be a multiple of 4. Alternatively do not call detectGLCapabilities()]" 
   // https://techacademy.jp/magazine/35944
-  // inputTensorWidth = ( Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ) - ( Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
-  // inputTensorHeight = ( winH * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ) - ( winH * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //{winH} / 3; // 200
-  inputTensorWidth = ( (scrH - vButtonH) * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ) - ( scrW * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
-  inputTensorHeight = ( (scrH - vButtonH) * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ) - ( (scrH - vButtonH) * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //{winH} / 3; // 200
+  inputTensorWidth = ( Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ) - ( Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
+  inputTensorHeight = ( Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ) - ( Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //{winH} / 3; // 200
+//   inputTensorWidth = ( (scrH - vButtonH) * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ) - ( scrW * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
+//   inputTensorHeight = ( (scrH - vButtonH) * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ) - ( (scrH - vButtonH) * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //{winH} / 3; // 200
 
 
 
@@ -1285,7 +1285,7 @@ export default class Live extends Component {
               mdCumTtlNow = 18; // force NOT to go too high, because it is impossible. 20201001
               console.log('xxxxxxxxxx METS is too large. Forcing METS to 18');
             } else {
-              mdCumTtlNow = mdCumTtlNow * this.model2.coef + this.model2.intercept; // final adjust model 20201001
+                Math.max( mdCumTtlNow = mdCumTtlNow * this.model2.coef + this.model2.intercept - 1.3, 0); // final adjust model 20201001
             };
 
             if ( this.state.outNTAFlag === true || this.state.outAccelFlag === true) { // if user is too close to camera OR camera is not fixed. 
@@ -2496,38 +2496,38 @@ export default class Live extends Component {
                         <View style={[styles.upperLayerContainer, {
                           backgroundColor: this.ULBColor.top,
                           top: 0,
-                          width: {scrH} - {vButtonH},
-                          height: {scrW} * 0.03,
+                          width: scrH - vButtonH,
+                          height: scrW * 0.03,
                           }
                           ]}>
                         </View>
                         <View style={[styles.upperLayerContainer, {
                           backgroundColor: this.ULBColor.bottom,
                           bottom: 0,
-                          width: {scrH} - {vButtonH},
-                          height: {scrW} * 0.03,
+                          width: scrH - vButtonH,
+                          height: scrW * 0.03,
                           }
                           ]}>
                         </View>
                         <View style={[styles.upperLayerContainer, {
                           backgroundColor: this.ULBColor.left,
                           left: 0,
-                          width: {scrW} * 0.03,
-                          height: {scrW},
+                          width: scrW * 0.03,
+                          height: scrW,
                           }
                           ]}>
                         </View>  
                         <View style={[styles.upperLayerContainer, {
                           backgroundColor: this.ULBColor.right,
                           right: 0,
-                          width: {scrW} * 0.03,
-                          height: {scrW},
+                          width: scrW * 0.03,
+                          height: scrW,
                           }
                           ]}>
                         </View>  
 
-                        <View style={[styles.progressBar, {width: ( {scrH} - {vButtonH} ) * 0.4} ]}>
-                        </View>
+                        {/* <View style={[styles.progressBar, {width: ( scrH - vButtonH ) * 0.4} ]}>
+                        </View> */}
 
                       </View>                                          
                     }
@@ -2905,8 +2905,8 @@ const styles = StyleSheet.create({
     // backgroundColor: 'white',
     // zIndex: 201, // removed 20200531
     position: 'absolute',
-    top: scrW * 0.07, // when Landscape
-    right: (scrH - vButtonH) * 0.12, // when Landscape
+    top: scrW * 0.04, // when Landscape
+    right: (scrH - vButtonH) * 0.06, // when Landscape
     height: scrW * 0.24, // when Landscape
     width: (scrH - vButtonH) * 0.26, // when Landscape
     // top: Dimensions.get('window').width * 0.08, // when Portrait
