@@ -88,7 +88,7 @@ export default class Live extends Component {
       flagAccelerometerIsAvailable: false,
       accelerometerData: { x: 0, y: 0, z: 0 },
       flagShowGoBackIcon: true, // to contrl hide and unhide goBackIcon
-      progressBarWidth: 0, // initial at zero
+      // progressBarWidth: 0, // initial at zero
       // flagLoopUpdateScore: false, // to control if the first loop to updateScore. 20200812
       // mdCumPrev: null, // keep Previous mdCum to compare with the latest mdCum. 20200813
       // octopusLoc: { // Location of Octopus Image
@@ -2427,9 +2427,10 @@ export default class Live extends Component {
                             <YoutubePlayer
                               height={isScanningIniPos ? scrW * 0.3 : scrW} 
                               width={isScanningIniPos ? (scrH - vButtonH - vButtonH) * 0.3: (scrH - vButtonH - vButtonH) }
-                              play={vidPlaying}
+                              play={true}
                               videoId={vidFullUrl} //{"iee2TATGMyI"}
                               // onChangeState={onStateChange}
+                              forceAndroidAutoplay={true} 
                               onChangeState = {
                                 (state) => {
                                   if (state === "playing") {
@@ -3100,8 +3101,8 @@ const styles = StyleSheet.create({
     // flex: 1,
     position: 'absolute',
     left: 0,
-    height: scrH * 0.04,
-    bottom: scrH * 0.03,
+    height: scrW * 0.04,
+    bottom: scrW * 0.04,
     backgroundColor: 'orange',
   },
 

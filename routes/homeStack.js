@@ -83,7 +83,7 @@ const screens = {
         // // header: props => <GradientHeader/>,
         headerStyle: {
           backgroundColor: '#ffa500', //#ffbf00
-          height: stackHeaderHeight,
+          // height: stackHeaderHeight,
           // position: 'absolute',
           // top: 0,
           // left: 0,
@@ -131,7 +131,7 @@ const screens = {
         // // header: props => <GradientHeader/>,
         headerStyle: {
           backgroundColor: '#ffa500',
-          height: stackHeaderHeight,
+          // height: stackHeaderHeight,
           // position: 'absolute',
           // top: 0,
           // left: 0,
@@ -158,7 +158,7 @@ const screens = {
         // // header: props => <GradientHeader/>,
         headerStyle: {
           backgroundColor: '#ffa500',
-          height: stackHeaderHeight,
+          // height: stackHeaderHeight,
           // position: 'absolute',
           // top: 0,
           // left: 0,
@@ -207,7 +207,7 @@ const screens = {
         headerShown: false,
         headerStyle: {
         //   backgroundColor: '#ffa500',
-          height: stackHeaderHeight,
+          // height: stackHeaderHeight,
           // position: 'absolute',
           // top: 0,
           // left: 0,
@@ -230,7 +230,7 @@ const screens = {
         // headerShown: false,
         headerStyle: {
           backgroundColor: '#ffa500',
-          height: stackHeaderHeight,
+          // height: stackHeaderHeight,
           // position: 'absolute',
           // top: 0,
           // left: 0,
