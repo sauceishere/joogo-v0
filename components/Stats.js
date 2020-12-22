@@ -17,7 +17,7 @@ import moment from 'moment'; // https://momentjs.com/docs/
 import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
 import { AdMobBanner } from 'expo-ads-admob'; 
 import { scrW, scrH, winW, winH, sBarH, vButtonH } from './DashboardScreen'; // get screen size & window size from DashboardScreen.js
-
+import * as FacebookAds from 'expo-ads-facebook'; // https://docs.expo.io/versions/latest/sdk/facebook-ads/
 
 // export default function App() {
 export default class Stats extends Component {
@@ -403,10 +403,17 @@ export default class Stats extends Component {
 
                 <View style={styles.ads}>
                     <AdMobBanner
-                    bannerSize="smartBanner"
+                    bannerSize="largeBanner"
                     adUnitID = {adUnitID} //'ca-app-pub-9079750066587969/4230406044' // {this.state.adUnitID} // Banner ID ca-app-pub-9079750066587969/4230406044 // Test ID ca-app-pub-3940256099942544/6300978111
                     servePersonalizedAds // true or false
                     onDidFailToReceiveAdWithError={(error) => console.log('AdMob error: ', error)} />
+
+                    {/* <FacebookAds.BannerAd
+                    placementId="DEMO_AD_TYPE#261513588602407_396181171802314" // DEMO_AD_TYPE#261513588602407_396181171802314
+                    type="standard"
+                    onPress={() => console.log('click')}
+                    onError={error => console.log('error', error)}
+                    /> */}
                 </View>
 
 

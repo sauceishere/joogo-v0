@@ -31,6 +31,8 @@
       "bundleIdentifier": "io.joogo.joogofit",
       "buildNumber": "1.0.16"
     },
+    "facebookAppId": "815900658972509",
+    "facebookDisplayName": "Expo APIs",
     "android": {
       "versionCode": 25,
       "package": "io.joogofit",
@@ -44,6 +46,7 @@
       "permissions": [
         "CAMERA"
       ]
-    }
+    } 
   }
 }
+

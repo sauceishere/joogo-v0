@@ -26,7 +26,7 @@ export const winW = Dimensions.get('window').width;
 export const winH = Dimensions.get('window').height;
 export const sBarH = StatusBar.currentHeight;
 export const vButtonH = Dimensions.get('screen').height - Math.max(Dimensions.get('window').width, Dimensions.get('window').height);
-console.log('scrW, scrH, winW, winH, sBarH, vButtonH: ', scrW, scrH, winW, winH, sBarH, vButtonH );
+// console.log('scrW, scrH, winW, winH, sBarH, vButtonH: ', scrW, scrH, winW, winH, sBarH, vButtonH );
 
 
 var post_num = 0; // to control when to show Adds in FlatList 20200623

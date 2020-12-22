@@ -21,6 +21,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { MaterialIcons } from '@expo/vector-icons';
 
 
+const stackHeaderHeight = 80; // height of header 20201220
+
 const screens = {
 
   Home: {
@@ -36,6 +38,7 @@ const screens = {
         // header: props => <GradientHeader/>,
         headerStyle: {
           backgroundColor: '#ffa500',
+          height: stackHeaderHeight,
           // position: 'absolute',
           // top: 0,
           // left: 0,
@@ -57,13 +60,14 @@ const screens = {
         // headerTitleAlign: 'center',
         // header: props => <GradientHeader/>,
         headerShown: false,
-        // headerStyle: {
+        headerStyle: {
+          // height: 80,
         //   backgroundColor: 'transparent',
         //   position: 'absolute',
         //   top: 0,
         //   left: 0,
         //   right: 0,
-        // },   
+        },   
       }
     },   
   },
@@ -79,6 +83,7 @@ const screens = {
         // // header: props => <GradientHeader/>,
         headerStyle: {
           backgroundColor: '#ffa500', //#ffbf00
+          height: stackHeaderHeight,
           // position: 'absolute',
           // top: 0,
           // left: 0,
@@ -105,6 +110,7 @@ const screens = {
         // // header: props => <GradientHeader/>,
         headerStyle: {
           backgroundColor: '#ffa500',
+          // height: 80,
           // position: 'absolute',
           // top: 0,
           // left: 0,
@@ -125,6 +131,7 @@ const screens = {
         // // header: props => <GradientHeader/>,
         headerStyle: {
           backgroundColor: '#ffa500',
+          height: stackHeaderHeight,
           // position: 'absolute',
           // top: 0,
           // left: 0,
@@ -151,6 +158,7 @@ const screens = {
         // // header: props => <GradientHeader/>,
         headerStyle: {
           backgroundColor: '#ffa500',
+          height: stackHeaderHeight,
           // position: 'absolute',
           // top: 0,
           // left: 0,
@@ -197,13 +205,14 @@ const screens = {
         // headerTitleAlign: 'center',
         // // header: props => <GradientHeader/>,
         headerShown: false,
-        // headerStyle: {
+        headerStyle: {
         //   backgroundColor: '#ffa500',
+          height: stackHeaderHeight,
           // position: 'absolute',
           // top: 0,
           // left: 0,
           // right: 0,
-        // },     
+        },     
       }
     }, 
   },  
@@ -221,6 +230,7 @@ const screens = {
         // headerShown: false,
         headerStyle: {
           backgroundColor: '#ffa500',
+          height: stackHeaderHeight,
           // position: 'absolute',
           // top: 0,
           // left: 0,

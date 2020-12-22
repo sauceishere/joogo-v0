@@ -320,7 +320,9 @@ class ExerciseHistory extends Component {
                     <View style={{width: '100%',  flexDirection: 'column', flexWrap: 'nowrap' }}>
 
                         {/* <SafeAreaView style={{alignSelf: "stretch", marginTop: Dimensions.get('window').height * 0.01, flex:1 }}>  */}
-                        <SafeAreaView style={{ marginTop: (scrH - vButtonH) * 0.01, height: scrH - vButtonH - 130, }}>
+                        {/* <SafeAreaView style={{ marginTop: (scrH - vButtonH) * 0.01, height: scrH - vButtonH - 120, }}> */}
+                        {/* <SafeAreaView style={{ marginTop: 5, height: scrH - vButtonH - sBarH - 80, }}>     */}
+                        <SafeAreaView style={{ marginTop: 5, marginBottom: 5, height: winH - vButtonH - 50 }}> 
                             <FlatList
                                 style={styles.feed}
                                 data={this.state.postsExer}

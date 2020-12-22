@@ -9,7 +9,7 @@ import { convertCompilerOptionsFromJson } from 'typescript';
 import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
 import { AdMobBanner } from 'expo-ads-admob'; 
 import { scrW, scrH, winW, winH, sBarH, vButtonH } from './DashboardScreen'; // get screen size & window size from DashboardScreen.js
-console.log('scrW, scrH, winW, winH, sBarH, vButtonH: ', scrW, scrH, winW, winH, sBarH, vButtonH );
+// console.log('scrW, scrH, winW, winH, sBarH, vButtonH: ', scrW, scrH, winW, winH, sBarH, vButtonH );
 
 const str_pad_left = function (string,pad,length) { // convert from sec to min:sec // https://stackoverflow.com/questions/3733227/javascript-seconds-to-minutes-and-seconds
     return (new Array(length+1).join(pad)+string).slice(-length);
@@ -217,7 +217,7 @@ export default class Leaderboard extends Component {
                         <Text>Loading....</Text>
                     </View>
                 : 
-                    <View style={{width: '100%', flexDirection: 'column', flexWrap: 'nowrap', }}>
+                    <View style={{width: '100%', height: winH - vButtonH - 50, flexDirection: 'column', flexWrap: 'nowrap'}}>
 
                         <View style={{width: '100%', flex: 1, marginTop: (scrH - vButtonH) * 0.02, }}>
                             <Text style={styles.pageTitle}>Top Calorie Burners' Weekly Average</Text>    
@@ -248,7 +248,7 @@ export default class Leaderboard extends Component {
 
                         <View style={{alignSelf: "stretch", marginTop: (scrH - vButtonH) * 0.03, paddingHorizontal: scrW * 0.03}}> 
                             <Text style={styles.pageTitle}>Burned Calorie Ranking</Text> 
-                            <SafeAreaView style={{ marginTop: (scrH - vButtonH) * 0.01, height: (scrH - vButtonH) * 0.5 }}>
+                            <SafeAreaView style={{ marginTop: 5, marginBottom: 5, }}>
                             <FlatList
                                 style={styles.feed}
                                 data={this.state.posts}

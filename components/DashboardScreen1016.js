@@ -21,13 +21,15 @@ import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.ex
 // import { scrW, scrH, winW, winH } from '../App.js'; // get screen size & window size from App.js
 import { calorielist } from '../assets/masters/calorielist'; // countrylist master
 
+import * as FacebookAds from 'expo-ads-facebook'; // https://docs.expo.io/versions/latest/sdk/facebook-ads/
+
 export const scrW = Dimensions.get('screen').width;
 export const scrH = Dimensions.get('screen').height;
 export const winW = Dimensions.get('window').width;
 export const winH = Dimensions.get('window').height;
 export const sBarH = StatusBar.currentHeight;
 export const vButtonH = Dimensions.get('screen').height - Math.max(Dimensions.get('window').width, Dimensions.get('window').height);
-console.log('scrW, scrH, winW, winH, sBarH, vButtonH: ', scrW, scrH, winW, winH, sBarH, vButtonH );
+console.log('--- scrW, scrH, winW, winH, sBarH, vButtonH: ', scrW, scrH, winW, winH, sBarH, vButtonH );
 
 
 var post_num = 0; // to control when to show Adds in FlatList 20200623
@@ -55,7 +57,7 @@ export default class DashboardScreen extends Component {
         flagMastersLoaded: false, // becomes true when wpart & const_exer downloaded from firebase 20200606.
         // wpart: null, // will be assigned after downloaded from Firebase. 20200606
         const_exer: null, // will be assigned after downloaded from Firebase. 20200606
-        adUnitID: null, // get adUnitID form Firebase 20200625
+        adUnitID: null, // Banner ID ca-app-pub-9079750066587969/4230406044 // Test ID ca-app-pub-3940256099942544/6300978111 // get adUnitID form Firebase 20200625
         // mets_per_part: null, //20200804
         scaler_scale: null,
         scaler_mean: null,
@@ -74,7 +76,7 @@ export default class DashboardScreen extends Component {
         llogin: null,
         lupdate: null,
         // fillingNow: true, // control modal    
-        vidViewLog: null,    
+        vidViewLog: 'vidViewLog_' + firebase.auth().currentUser.uid,
         model2: null,
         // dbName: 'db_' + firebase.auth().currentUser.uid,
         // dbSQLite: null,
@@ -356,17 +358,18 @@ export default class DashboardScreen extends Component {
 
   async componentDidMount() {
     console.log('------------- componentDidMount Dashboard1016 started 0');
+    // console.log('adUnitID: ', this.state.adUnitID);
 
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
 
     if (this.state.doneComponentDidMount == false) { // if variable is null. this if to prevent repeated loop.
       // console.log('this.state.vidFullUrl started ');
-      this.setState({
-        isLoading: true,
-        // vidViewLogTemp: 'vidViewLogTemp_' + firebase.auth().currentUser.uid,
-        vidViewLog: 'vidViewLog_' + firebase.auth().currentUser.uid,
-        // dbSQLite: dbSQLite,
-      });
+      // this.setState({
+      //   isLoading: true,
+      //   // vidViewLogTemp: 'vidViewLogTemp_' + firebase.auth().currentUser.uid,
+      //   vidViewLog: 'vidViewLog_' + firebase.auth().currentUser.uid,
+      //   // dbSQLite: dbSQLite,
+      // });
   
 
 
@@ -558,7 +561,7 @@ export default class DashboardScreen extends Component {
 
 
   _makeRemoteRequest = async () => {
-    // console.log('------------- _makeRemoteRequest');
+    console.log('------------- _makeRemoteRequest');
     const { page, flagMastersLoaded } = this.state;
 
     const _loadDashboardFlatlist = (idTokenCopied) => {
@@ -589,7 +592,7 @@ export default class DashboardScreen extends Component {
             var i;
             for (i = 0; i < response.detail.vidMetas.length; i++) {
               console.log('post_num: ', post_num);
-              if ( post_num % 3 == 0){
+              if ( post_num % 5 == 0){
                 response.detail.vidMetas[i]['ad'] = 'yes';
                 // console.log('i: ', response.detail.vidMetas[i]);
               } else {
@@ -638,7 +641,6 @@ export default class DashboardScreen extends Component {
               post_num++; // increment
             }
 
-
             this.setState({
               posts: page === 1 ? response.detail.vidMetas  : [ ...this.state.posts, ...response.detail.vidMetas ],
               // error: response.error || null,
@@ -684,8 +686,7 @@ export default class DashboardScreen extends Component {
         page: 1,
         refreshing: true,
         // oldestVidTs: Date.now() / 1000,
-        isLoading: true,
-      },
+        isLoading: true, },
       () => {
         this._makeRemoteRequest();
       }
@@ -696,9 +697,11 @@ export default class DashboardScreen extends Component {
   _handleLoadMore = async () => {
     console.log('------------- _handleLoadMore this.largestMETS: ', this.largestMETS);
     // num_post = 0; // reset
-    this.setState({ page: this.state.page + 1 }, () => {
+    this.setState({ page: this.state.page + 1 }, 
+      () => {
       this._makeRemoteRequest();
-    });
+      }
+    );
   };
 
 
@@ -740,7 +743,7 @@ export default class DashboardScreen extends Component {
 
 
   renderPost = post => {
-      const {  const_exer, wval, wunit, scaler_scale, scaler_mean, model, vidViewLogTemp, adUnitID, model2} = this.state;
+      const { const_exer, wval, wunit, scaler_scale, scaler_mean, model, vidViewLogTemp, adUnitID, model2 } = this.state;
       // num_post++; // increment var num_post
       console.log('====== post ====== post_num:' , post_num);
 
@@ -788,7 +791,7 @@ export default class DashboardScreen extends Component {
           } else {
             this.CAL_ITEM = 'more than Kebab';
           }
-          console.log( 'this.CAL, item: ', this.CAL, this.CAL_ITEM  );
+          // console.log( 'this.CAL, item: ', this.CAL, this.CAL_ITEM  );
 
 
           if (post.METS_COMPUTED > 10) {
@@ -840,7 +843,7 @@ export default class DashboardScreen extends Component {
           // })        
         
 
-          console.log('------------- renderPost: ' , post_num, post.ID, post.URL ); // , post.METS_COMPUTED, post.LEN, 
+          console.log('------------- renderPost: ' , post_num, post.TITLE ); // post.ID, post.URL, post.METS_COMPUTED, post.LEN, 
       
           
 
@@ -862,9 +865,10 @@ export default class DashboardScreen extends Component {
                 <View style={{ flex: 2, flexDirection: "row", left: 0}}>
                     <View style={{flexDirection: "row",  marginVertical: 0, marginLeft: 3,}}>
                       <Ionicons name='ios-flame' size={19} color="#73788B"/>
-                      <Text style={styles.points}> {this.CAL} Calories | { (this.CAL_ITEM).length > 20 ? (((this.CAL_ITEM).substring(0,20-3)) + '...') : this.CAL_ITEM } </Text>
+                      <Text style={styles.calories}> {this.CAL} Calories </Text><Text style={styles.calItem}>| { (this.CAL_ITEM).length > 25 ? (((this.CAL_ITEM).substring(0, 25 - 3)) + '...') : this.CAL_ITEM } </Text>
                     </View>
                 </View>
+
 
                 {/* bottom row */}    
                 <View style={{ flex: 2, flexDirection: "row" }}> 
@@ -962,7 +966,7 @@ export default class DashboardScreen extends Component {
                 <View style={{ flex: 2, flexDirection: "row", left: 0}}>
                     <View style={{flexDirection: "row",  marginVertical: 0, marginLeft: 3,}}>
                       <Ionicons name='ios-flame' size={19} color="#73788B"/>
-                      <Text style={styles.points}> {this.CAL} Calories | { (this.CAL_ITEM).length > 20 ? (((this.CAL_ITEM).substring(0,20-3)) + '...') : this.CAL_ITEM } </Text>
+                      <Text style={styles.calories}> {this.CAL} Calories </Text><Text style={styles.calItem}>| { (this.CAL_ITEM).length > 25 ? (((this.CAL_ITEM).substring(0, 25 - 3)) + '...') : this.CAL_ITEM } </Text>
                     </View>
                 </View>
 
@@ -1303,13 +1307,16 @@ const styles = StyleSheet.create({
       // backgroundColor: 'pink',
   },
   length:{
-      // fontWeight: 'bold',
-      marginLeft: 4,
+    // fontWeight: 'bold',
+    marginLeft: 4,
   },    
-  points:{
-      // fontWeight: 'bold',
-      marginLeft: 6,
-      // backgroundColor: 'blue',
+  calories:{
+    fontWeight: 'bold',
+    marginLeft: 6,
+    // backgroundColor: 'blue',
+  },
+  calItem: {
+
   },
   tags:{
     marginLeft: 6,

@@ -116,7 +116,9 @@ export default class Live extends Component {
       // liveTipImgName: '../assets/live_tip1.png'
       // showPrevButton: false, // left < button 20201106
       // showNextButton: true, // right > button 20201106
+      vidStartAt: 0,
       vidPlayAt: 0,
+      vidPauseAt: 0,
       vidEndAt: 0,
       vidPlaying: false,
       vidStatus: null, 
@@ -1285,7 +1287,7 @@ export default class Live extends Component {
               mdCumTtlNow = 18; // force NOT to go too high, because it is impossible. 20201001
               console.log('xxxxxxxxxx METS is too large. Forcing METS to 18');
             } else {
-                Math.max( mdCumTtlNow = mdCumTtlNow * this.model2.coef + this.model2.intercept - 1.3, 0); // final adjust model 20201001
+                Math.max( mdCumTtlNow = mdCumTtlNow * this.model2.coef + this.model2.intercept, 0); // final adjust model 20201001
             };
 
             if ( this.state.outNTAFlag === true || this.state.outAccelFlag === true) { // if user is too close to camera OR camera is not fixed. 
@@ -2150,17 +2152,18 @@ export default class Live extends Component {
     console.log('----------------- render --------------------');
     var time1 = Date.now() / 1000; 
 
-    const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, scoreNow, vidStartAt, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon, octopusLoc, outNTAFlag, outAccelFlag, missingPos, outOfIniPos, iP_f, iP_lw, iP_rw, iP_la, iP_ra, showStepNotice, showLiveTipModal, liveTipImg, vidFullUrl, vidPlayAt, vidEndAt, vidPlaying, isScanningIniPos, vidStatus, isFreeMode } = this.state;
+    const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, scoreNow, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon, octopusLoc, outNTAFlag, outAccelFlag, missingPos, outOfIniPos, iP_f, iP_lw, iP_rw, iP_la, iP_ra, showStepNotice, showLiveTipModal, liveTipImg, vidFullUrl, vidStartAt, vidPlayAt, vidEndAt, vidPlaying, isScanningIniPos, vidStatus, isFreeMode, vidPauseAt } = this.state;
 
-    if (shouldPlay == true) { // increment only shouldPlay=true. this means not incremented whe video is paused.
+    if (vidStatus === "playing") {
+    // if (shouldPlay == true) { // increment only shouldPlay=true. this means not incremented whe video is paused.
       this.vidState.vidPlayedSum = this.vidState.vidPlayedSum + (Date.now()/1000 - this.vidState.loopStartAt); // add increment time
     }
     console.log( '-- Interval: ', (Date.now()/1000 - this.vidState.loopStartAt).toFixed(2)  ); // this does not have any meaning, just to show how fast code runs.
     this.vidState.loopStartAt = Date.now()/1000;
 
-    // console.log('time1a: ', Date.now() / 1000 - time1);
+    console.log('vidPlayedSum / LEN, %: ', this.vidState.vidPlayedSum, this.props.navigation.getParam('post')['LEN'], (this.vidState.vidPlayedSum / this.props.navigation.getParam('post')['LEN'] * 100) );
 
-    console.log('iP_f, iP_lw, iP_rw, iP_la, iP_ra: ', iP_f, iP_lw, iP_rw, iP_la, iP_ra);
+    // console.log('iP_f, iP_lw, iP_rw, iP_la, iP_ra: ', iP_f, iP_lw, iP_rw, iP_la, iP_ra);
 
     if (liveTipImg == 1) {
       this.showPrevButton = false; // no show left
@@ -2430,17 +2433,20 @@ export default class Live extends Component {
                               onChangeState = {
                                 (state) => {
                                   if (state === "playing") {
-                                    console.log('vidStatus 0: ', state);
+                                    console.log('vidStatus: ', state);
                                     if (vidPlayAt == 0) { // for first click on play button
-                                      this.setState({ vidPlaying: true, vidStatus: state, vidPlayAt: Date.now() / 1000, isScanningIniPos: true });
-                                    } else {
-                                      this.setState({ vidPlaying: true, vidStatus: state });
+                                      this.setState({ vidPlaying: true, vidStatus: state, vidStartAt: Date.now() / 1000, vidPlayAt: Date.now() / 1000, isScanningIniPos: true });
+                                    } else { 
+                                      this.setState({ vidPlaying: true, vidStatus: state, vidPlayAt: Date.now() / 1000 });
                                     }
+                                  } else if (state === "paused") {
+                                    console.log('vidStatus: ', state);
+                                    this.setState({ vidPlaying: false, vidStatus: state, vidPauseAt: Date.now() / 1000, });    
                                   } else if (state === "ended") {
-                                    console.log('vidStatus 1: ', state);
+                                    console.log('vidStatus: ', state);
                                     this.setState({ vidPlaying: false, vidStatus: state, vidEndAt: Date.now() / 1000, });   
                                   } else {
-                                    console.log('vidStatus 2: ', state);
+                                    console.log('vidStatus: ', state);
                                     this.setState({ vidPlaying: false, vidStatus: state }); 
                                   }
                                 }
@@ -2526,8 +2532,8 @@ export default class Live extends Component {
                           ]}>
                         </View>  
 
-                        {/* <View style={[styles.progressBar, {width: ( scrH - vButtonH ) * 0.4} ]}>
-                        </View> */}
+                        <View style={[styles.progressBar, {width: ( scrH - vButtonH ) * (this.vidState.vidPlayedSum / this.props.navigation.getParam('post')['LEN']) } ]}>
+                        </View>
 
                       </View>                                          
                     }

@@ -1067,7 +1067,11 @@ export default class ProfileScreen extends Component {
                       <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold',}}> Edit </Text>
                     </TouchableOpacity>   
 
+
+  
+
                   </View>
+
 
 
                 </View>        
