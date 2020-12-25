@@ -38,7 +38,7 @@ const screens = {
         // header: props => <GradientHeader/>,
         headerStyle: {
           backgroundColor: '#ffa500',
-          height: stackHeaderHeight,
+          // height: stackHeaderHeight,
           // position: 'absolute',
           // top: 0,
           // left: 0,
