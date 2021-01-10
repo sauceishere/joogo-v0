@@ -6,7 +6,7 @@
       "ios",
       "android"
     ],
-    "version": "1.0.17",
+    "version": "1.0.18",
     "orientation": "portrait",
     "icon": "./assets/icon1024x1024.png",
     "splash": {
@@ -29,12 +29,12 @@
         }
       },
       "bundleIdentifier": "io.joogo.joogofit",
-      "buildNumber": "1.0.17"
+      "buildNumber": "1.0.18"
     },
     "facebookAppId": "815900658972509",
     "facebookDisplayName": "Expo APIs",
     "android": {
-      "versionCode": 26,
+      "versionCode": 27,
       "package": "io.joogofit",
       "config": {
         "googleMobileAdsAppId": "ca-app-pub-9079750066587969~3344414378",

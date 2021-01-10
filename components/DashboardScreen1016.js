@@ -251,7 +251,7 @@ export default class DashboardScreen extends Component {
               const _sendSingleVidViewLog = (idTokenCopied) => {
                 console.log('----- Dashboard _sendSingleVidViewLog.');
                 // console.log('----- _getUserProfile idTokenCopied: ', idTokenCopied);
-                fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/sendSingleVidViewLog-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+                fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/sendSingleVidViewLog2-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
                   method: 'POST',
                   headers: {
                     // 'Accept': 'application/json', 
@@ -293,6 +293,8 @@ export default class DashboardScreen extends Component {
                     // numFrameVidEnd: JSON.parse(localFileContents)["numFrameVidEnd"], 
                     wval: JSON.parse(localFileContents)["wval"],
                     wunit: JSON.parse(localFileContents)["wunit"], 
+                    VideoQuality: JSON.parse(localFileContents)["VideoQuality"], // added on 20210110 // this is array
+                    CameraStatus: JSON.parse(localFileContents)["CameraStatus"], // added on 20210110 // this is array
                   })
                 }).then( result => result.json() )
                   .then( response => { 
@@ -577,7 +579,7 @@ export default class DashboardScreen extends Component {
         // mode: "no-cors", // no-cors, cors, *same-origin
         body: JSON.stringify({
           id_token: idTokenCopied,
-          largestMETS: this.largestMETS + 0.0001,    
+          largestMETS: this.largestMETS + 0.000001,    
           flagMastersLoaded: flagMastersLoaded,
         })
       }).then( result => result.json() )
@@ -795,11 +797,11 @@ export default class DashboardScreen extends Component {
 
 
           if (post.METS_COMPUTED > 10) {
-            this.INTENSITY = 'High Intensity';
+            this.INTENSITY = 'High';
           } else if (post.METS_COMPUTED > 6) {
-            this.INTENSITY = 'Medium Intensity';
+            this.INTENSITY = 'Medium';
           } else {
-            this.INTENSITY = 'Low Intensity';
+            this.INTENSITY = 'Low';
           }
 
           //// This is to display Free mode
@@ -808,11 +810,11 @@ export default class DashboardScreen extends Component {
             this.CAL = 'Unlimited';
             this.CAL_ITEM = ' ';
             this.LEN = 'Unlimited Time';
-            this.INTENSITY = 'Your Own Intensity';
+            this.INTENSITY = 'Your Own';
           }
           
-          if ( post.METS_COMPUTED > this.largestMETS) { // Assign to control next video to be fetched by _loadDashboardFlatlist 20200902
-            this.largestMETS = post.METS_COMPUTED;
+          if ( post.METS_by_LEN > this.largestMETS) { // Assign to control next video to be fetched by _loadDashboardFlatlist 20200902
+            this.largestMETS = post.METS_by_LEN;
           } 
 
           // post.TNURL = 'https://firebasestorage.googleapis.com/v0/b/joogo-v0.appspot.com/o/tn%2F' + post.VIDID + '?alt=media' // URL for Thumbsnail photo 20200528         
@@ -864,8 +866,8 @@ export default class DashboardScreen extends Component {
                 {/* upper row */}
                 <View style={{ flex: 2, flexDirection: "row", left: 0}}>
                     <View style={{flexDirection: "row",  marginVertical: 0, marginLeft: 3,}}>
-                      <Ionicons name='ios-flame' size={19} color="#73788B"/>
-                      <Text style={styles.calories}> {this.CAL} Calories </Text><Text style={styles.calItem}>| { (this.CAL_ITEM).length > 25 ? (((this.CAL_ITEM).substring(0, 25 - 3)) + '...') : this.CAL_ITEM } </Text>
+                      <Ionicons name='ios-flame' size={20} color="#73788B"/>
+                      <Text style={styles.calories}> {this.CAL} Calories </Text><Text style={styles.calItem}>| { (this.CAL_ITEM).length > 30 ? (((this.CAL_ITEM).substring(0, 30 - 3)) + '...') : this.CAL_ITEM } </Text>
                     </View>
                 </View>
 
@@ -881,6 +883,11 @@ export default class DashboardScreen extends Component {
                         <Text style={styles.length}> {this.LEN} </Text>
                     </View>
 
+                    <View style={{flexDirection: "row", marginBottom: 0.7, marginLeft: 1,}}>
+                        <Ionicons name="md-fitness" size={17} color="#73788B" />
+                        <Text style={styles.intensity}> {this.INTENSITY} </Text>
+                    </View>
+                    
                     <View style={{flexDirection: "column"}}>
                         <Text style={styles.name}>
                         { ((post.NNAME).length > 20) ? 
@@ -965,8 +972,8 @@ export default class DashboardScreen extends Component {
                 {/* upper row */}
                 <View style={{ flex: 2, flexDirection: "row", left: 0}}>
                     <View style={{flexDirection: "row",  marginVertical: 0, marginLeft: 3,}}>
-                      <Ionicons name='ios-flame' size={19} color="#73788B"/>
-                      <Text style={styles.calories}> {this.CAL} Calories </Text><Text style={styles.calItem}>| { (this.CAL_ITEM).length > 25 ? (((this.CAL_ITEM).substring(0, 25 - 3)) + '...') : this.CAL_ITEM } </Text>
+                      <Ionicons name='ios-flame' size={20} color="#73788B"/>
+                      <Text style={styles.calories}> {this.CAL} Calories </Text><Text style={styles.calItem}>| { (this.CAL_ITEM).length > 30 ? (((this.CAL_ITEM).substring(0, 30 - 3)) + '...') : this.CAL_ITEM } </Text>
                     </View>
                 </View>
 
@@ -979,6 +986,12 @@ export default class DashboardScreen extends Component {
                     <View style={{flexDirection: "row", marginBottom: 0.7, marginLeft: 1,}}>
                         <Ionicons name='ios-time' size={18} color="#73788B"/>
                         <Text style={styles.length}> {this.LEN} </Text>
+                    </View>
+
+                    <View style={{flexDirection: "row", marginBottom: 0.7, marginLeft: 1,}}>
+                        {/* <FontAwesome5 name="heartbeat" size={15} color="#73788B" /> */}
+                        <Ionicons name="md-fitness" size={17} color="#73788B" />
+                        <Text style={styles.intensity}> {this.INTENSITY} </Text>
                     </View>
 
                     <View style={{flexDirection: "column"}}>
@@ -1310,6 +1323,9 @@ const styles = StyleSheet.create({
     // fontWeight: 'bold',
     marginLeft: 4,
   },    
+  intensity: {
+    marginLeft: 5,
+  },
   calories:{
     fontWeight: 'bold',
     marginLeft: 6,

@@ -125,6 +125,8 @@ export default class Live extends Component {
       // flagYTstarted: false, // to control start of initial posture 20201127
       isScanningIniPos: false, // to manipulate YouTube screen size 20201201
       isFreeMode: false, // to NOT to show YoutubePlayer 20201206
+      VideoQuality: null,
+      CameraStatus: null,
     }
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);  
     // this._handlePlayAndPause = this._handlePlayAndPause.bind(this);
@@ -192,6 +194,7 @@ export default class Live extends Component {
     numFrameVidStart: 0, // this.vidState.renderPoseTimes as frame number when video start
     numFrameAllPosOk: 0, // this.vidState.renderPoseTimes as frame number when All position confirmed
     numFrameVidEnd: 0, // this.vidState.renderPoseTimes as frame number when video end
+    landedAt: 0,
   } 
 
   camState = {
@@ -567,6 +570,10 @@ export default class Live extends Component {
 
     this.vidState.vidEndAt = Date.now()/1000;
 
+    if ( this.vidState.vidPlayedSum == 0 ) { // if Free Mode, vidPlayedSum should be 0, so intentionally assign vidPlayedSum. 20210102
+      this.vidState.vidPlayedSum = this.vidState.vidEndAt - this.vidState.landedAt;
+    }
+
     // ScreenOrientation.unlockAsync(); // back to portrait
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT); // back to portrait
 
@@ -606,6 +613,7 @@ export default class Live extends Component {
     console.log('componentDidMount post: ', this.props.navigation.getParam('post'));
 
 
+    this.vidState.landedAt = Date.now()/1000; // record landed time for Free mode 20210102
 
     if (this.state.wunit == 'kg') {
       this.WEIGHT_KG = this.state.wval;
@@ -620,7 +628,7 @@ export default class Live extends Component {
 
     // const ratios = await Camera.getSupportedRatiosAsync();
     // console.log('ratios: ', Camera.getSupportedRatiosAsync());
-    // const sizes = await ?Camera.getAvailablePictureSizesAsync(ratio);
+    // const sizes = await Camera.getAvailablePictureSizesAsync(ratio);
     // console.log('sizes: ', sizes);
 
 
@@ -637,14 +645,43 @@ export default class Live extends Component {
       // });;
 
 
-      const { status } = await Permissions.askAsync(Permissions.CAMERA);
-      // const { status } = await Permissions.askAsync(Permissions.CAMERA).then( () => {
+      // const cameraStatus = await Permissions.askAsync(Permissions.CAMERA);
+      // console.log('cameraStatus: ', cameraStatus);
+
+      // const { status } = await Permissions.askAsync(Permissions.CAMERA);
+      // console.log('status0: ', status);
+      // const { cameraStatus } = await Permissions.askAsync(Permissions.CAMERA).then( () => {
       //   console.log('--------- Permissions.CAMERA done');
-      //   this.setState({ hasCameraPermission: status === 'granted', });
+      //   // this.setState({ hasCameraPermission: cameraStatus === 'granted', });
       // }).catch( error =>{
       //   console.log('Permissions.CAMERA error: ', error);
       //   alert('Permissions.CAMERA error: ', error);
       // });
+
+
+
+      // const { status } = await Camera.requestPermissionsAsync().then( () => {
+      //     console.log('status: ', status);
+      //   }).catch( error => {
+      //     console.log('requestPermissionsAsync ERROR: ', status);
+      //     alert('Please permit to use Camera for JooGO Fit', error);
+      //   }
+      // );
+
+      const { status } = await Camera.requestPermissionsAsync();
+      console.log('status: ', status);
+
+      const CameraStatus = await Camera.requestPermissionsAsync();
+      console.log('CameraStatus: ', CameraStatus);
+
+      if ( status === 'granted' ) {
+        console.log('CAMERA granted');
+        // const onCameraReady = await Camera.getPermissionsAsync();
+        // console.log('getPermissionsAsync: ', onCameraReady );
+      } else {
+        console.log('Please allow JooGO Fit App to use Camera. CAMERA NOT granted');
+        alert('Please allow JooGO Fit App to use Camera');
+      }
 
 
       // await Camera.getAvailablePictureSizesAsync().then( ratio => { // https://docs.expo.io/versions/v37.0.0/sdk/camera/#getavailablepicturesizesasync 20200531
@@ -654,7 +691,18 @@ export default class Live extends Component {
       //   alert("Error getAvailablePictureSizesAsync:", error);
       // });  
       // console.log('cameraPicSize: ', cameraPicSize);
-      console.log('Camera.Constants.VideoQuality: ', Camera.Constants.VideoQuality); 
+      // console.log('Camera.Constants.VideoQuality: ', Camera.Constants.VideoQuality); 
+
+
+      // await Camera.onCameraReady().then( ratio => { 
+      //     console.log('ratio: ', ratio);
+      //   }).catch(function(error) {
+      //     console.log("Error onCameraReady:", error);
+      //     alert("Error onCameraReady:", error);
+      //   });  
+
+      // console.log('Camera.Constants.onCameraReady: ', Camera.Constants.onCameraReady); 
+      // console.log('Camera.Constants.onMountError: ', Camera.Constants.onMountError); 
 
 
       console.log('--------- loading posenetModel now...');
@@ -702,14 +750,19 @@ export default class Live extends Component {
           posenetModel,  
           isPosenetLoaded: true,
           isReadyToCD: true,
+          VideoQuality: Camera.Constants.VideoQuality,
+          CameraStatus: CameraStatus,
         });
       };
 
+      console.log('this.state.hasCameraPermission: ', this.state.hasCameraPermission);
+      console.log('this.state.VideoQuality: ', this.state.VideoQuality);
+      console.log('this.state.CameraStatus: ', this.state.CameraStatus);
 
     } catch (err) {
       // this.directories = []; // create empty array,
       console.log('posenetModel or Firestorage or FireStorage loading error: ', err);
-      alert('posenetModel or Firestorage or FireStorage  loading error: ', err);
+      alert('Model loading error: ', err);
     }
 
     // console.log('========== this.state.vidLength: ', this.state.vidLength);     
@@ -796,7 +849,7 @@ export default class Live extends Component {
             console.log('----- _sendSingleVidViewLog Exercise.js .');
             // console.log('----- _getUserProfile idTokenCopied: ', idTokenCopied);
             // console.log('JSON.parse(localFileContents)["identifiedBparts"]: ', JSON.parse(localFileContents)["identifiedBparts"]);
-            fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/sendSingleVidViewLog-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+            fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/sendSingleVidViewLog2-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
               method: 'POST',
               headers: {
                 // 'Accept': 'application/json', 
@@ -837,7 +890,10 @@ export default class Live extends Component {
                 // numFrameAllPosOk: JSON.parse(localFileContents)["numFrameAllPosOk"],
                 // numFrameVidEnd: JSON.parse(localFileContents)["numFrameVidEnd"], 
                 wval: JSON.parse(localFileContents)["wval"],
-                wunit: JSON.parse(localFileContents)["wunit"],                     
+                wunit: JSON.parse(localFileContents)["wunit"],  
+                VideoQuality: JSON.parse(localFileContents)["VideoQuality"], // added on 20210110 // this is array
+                CameraStatus: JSON.parse(localFileContents)["CameraStatus"], // added on 20210110 // this is array
+
               })
             }).then( result => result.json() )
               .then( response => { 
@@ -936,7 +992,12 @@ export default class Live extends Component {
     // jsonContents['numFrameVidEnd'] = this.vidState.numFrameVidEnd; 
 
     jsonContents['wval'] = this.state.wval;
-    jsonContents['wunit'] = this.state.wunit;    
+    jsonContents['wunit'] = this.state.wunit;  
+    
+    jsonContents['VideoQuality'] = this.state.VideoQuality, 
+    jsonContents['CameraStatus'] = this.state.CameraStatus,
+    // jsonContents['VideoQuality'] = JSON.stringify( this.state.VideoQuality ), 
+    // jsonContents['CameraStatus'] = JSON.stringify( this.state.CameraStatus ),
 
     jsonContents = JSON.stringify(jsonContents); // convert to string for saving file
     console.log('jsonContents: ', jsonContents);
