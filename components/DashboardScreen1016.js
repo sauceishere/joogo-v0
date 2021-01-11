@@ -23,6 +23,7 @@ import { calorielist } from '../assets/masters/calorielist'; // countrylist mast
 
 import * as FacebookAds from 'expo-ads-facebook'; // https://docs.expo.io/versions/latest/sdk/facebook-ads/
 
+
 export const scrW = Dimensions.get('screen').width;
 export const scrH = Dimensions.get('screen').height;
 export const winW = Dimensions.get('window').width;
@@ -251,7 +252,7 @@ export default class DashboardScreen extends Component {
               const _sendSingleVidViewLog = (idTokenCopied) => {
                 console.log('----- Dashboard _sendSingleVidViewLog.');
                 // console.log('----- _getUserProfile idTokenCopied: ', idTokenCopied);
-                fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/sendSingleVidViewLog2-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+                fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/sendSingleVidViewLog1019-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
                   method: 'POST',
                   headers: {
                     // 'Accept': 'application/json', 
@@ -295,6 +296,23 @@ export default class DashboardScreen extends Component {
                     wunit: JSON.parse(localFileContents)["wunit"], 
                     VideoQuality: JSON.parse(localFileContents)["VideoQuality"], // added on 20210110 // this is array
                     CameraStatus: JSON.parse(localFileContents)["CameraStatus"], // added on 20210110 // this is array
+
+                    landAt: JSON.parse(localFileContents)["landAt"], // added on 20210111
+                    pressSkipAt: JSON.parse(localFileContents)["pressSkipAt"], // added on 20210111
+                    AllPosOkAt: JSON.parse(localFileContents)["AllPosOkAt"], // added on 20210111
+                    vidPlayAt: JSON.parse(localFileContents)["vidPlayAt"], // added on 20210111
+                    vidPauseAt: JSON.parse(localFileContents)["vidPauseAt"], // added on 20210111
+                    leaveAt: JSON.parse(localFileContents)["leaveAt"], // added on 20210111
+                    isFreeMode: JSON.parse(localFileContents)["isFreeMode"], // added on 20210111
+    
+                    iP_f: JSON.parse(localFileContents)["iP_f"], // added on 20210111
+                    iP_lw: JSON.parse(localFileContents)["iP_lw"], // added on 20210111
+                    iP_rw: JSON.parse(localFileContents)["iP_rw"], // added on 20210111
+                    iP_la: JSON.parse(localFileContents)["iP_la"], // added on 20210111
+                    iP_ra: JSON.parse(localFileContents)["iP_ra"], // added on 20210111 
+
+                    appVer: JSON.parse(localFileContents)["appVer"], // added on 20210111
+
                   })
                 }).then( result => result.json() )
                   .then( response => { 
@@ -315,12 +333,29 @@ export default class DashboardScreen extends Component {
                     } else { // response[code] is Error
                       // deactivateKeepAwake();
                       console.log('Received response[code] = error from functions.');
-                      alert('Received response[code] = error from functions. Please log-in again.');
+                      // alert('Received response[code] = error from functions. Please log-in again.');
+
+                      //// Delete records to avoid error 20210111
+                      FileSystem.deleteAsync( this.curDir  + this.state.vidViewLogTemp + '/' + Localfile).then( () => {
+                        console.log('SINGLE Localfile Uploaded & Deleted 1: ', Localfile );
+                      }).catch( error => {
+                        console.log('FileSystem.deleteAsync error: ', error);
+                      })
+
                     }
                 }).catch( error => {
                   // deactivateKeepAwake();
                   console.log('Error Dashboard _sendSingleVidViewLog-py: ', error);
                   // alert('Error response from _sendSingleVidViewLog, Please log-in again.');
+
+                  //// Delete records to avoid error 20210111
+                  FileSystem.deleteAsync( this.curDir  + this.state.vidViewLogTemp + '/' + Localfile).then( () => {
+                    console.log('SINGLE Localfile Uploaded & Deleted 2: ', Localfile );
+                  }).catch( error => {
+                    console.log('FileSystem.deleteAsync error: ', error);
+                  })
+
+
                 });
               }         
 

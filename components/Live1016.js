@@ -31,8 +31,10 @@ import { isNonNullExpression } from 'typescript';
 import { greaterThan } from 'react-native-reanimated';
 import { scrW, scrH, winW, winH, sBarH, vButtonH } from './DashboardScreen1016'; // get screen size & window size from DashboardScreen.js
 import YoutubePlayer from "react-native-youtube-iframe"; //　https://lonelycpp.github.io/react-native-youtube-iframe/ 20201202
+import * as Device from 'expo-device'; // to get device info to figure out error rootcause 20210110
 
 
+const appVer = "1.0.19"
 
 const TensorCamera = cameraWithTensors(Camera); // https://js.tensorflow.org/api_react_native/latest/#cameraWithTensors
 
@@ -127,6 +129,9 @@ export default class Live extends Component {
       isFreeMode: false, // to NOT to show YoutubePlayer 20201206
       VideoQuality: null,
       CameraStatus: null,
+      pressSkipAt: 0, // to rootcausing where users face error. 20210111
+      AllPosOkAt: 0, // to rootcausing where users face error. 20210111
+
     }
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);  
     // this._handlePlayAndPause = this._handlePlayAndPause.bind(this);
@@ -194,7 +199,8 @@ export default class Live extends Component {
     numFrameVidStart: 0, // this.vidState.renderPoseTimes as frame number when video start
     numFrameAllPosOk: 0, // this.vidState.renderPoseTimes as frame number when All position confirmed
     numFrameVidEnd: 0, // this.vidState.renderPoseTimes as frame number when video end
-    landedAt: 0,
+    landAt: 0, // land at page at
+    leaveAt: 0, // leave page at
   } 
 
   camState = {
@@ -568,10 +574,10 @@ export default class Live extends Component {
       cancelAnimationFrame(this.rafId);
     }
 
-    this.vidState.vidEndAt = Date.now()/1000;
+    this.vidState.leaveAt = Date.now()/1000; // 
 
     if ( this.vidState.vidPlayedSum == 0 ) { // if Free Mode, vidPlayedSum should be 0, so intentionally assign vidPlayedSum. 20210102
-      this.vidState.vidPlayedSum = this.vidState.vidEndAt - this.vidState.landedAt;
+      this.vidState.vidPlayedSum = this.vidState.vidEndAt - this.vidState.landAt;
     }
 
     // ScreenOrientation.unlockAsync(); // back to portrait
@@ -611,9 +617,22 @@ export default class Live extends Component {
     // console.log('this.state.vidViewLogTemp: ', this.state.vidViewLogTemp);
     // console.log('this.props.navigation.getParam(model2): ', this.props.navigation.getParam('model2') );
     console.log('componentDidMount post: ', this.props.navigation.getParam('post'));
+    console.log('Device.brand: ', Device.brand);
+    console.log('Device.manufacturer: ', Device.manufacturer);
+    console.log('Device.modelName: ', Device.modelName);
+    console.log('Device.productName: ', Device.productName);
+    console.log('Device.deviceYearClass: ', Device.deviceYearClass);
+    console.log('Device.totalMemory: ', Device.totalMemory); 
+    console.log('Device.osVersion: ', Device.osVersion);
+    console.log('Device.platformApiLevel: ', Device.platformApiLevel);
+    const deviceType= await Device.getDeviceTypeAsync();
+    console.log('deviceType: ', deviceType);
+    const maxMemory = await Device.getMaxMemoryAsync(); 
+    console.log('maxMemory: ', maxMemory);
+    const platformFeatures= await Device.getPlatformFeaturesAsync();
+    console.log('platformFeatures: ', platformFeatures);        
 
-
-    this.vidState.landedAt = Date.now()/1000; // record landed time for Free mode 20210102
+    this.vidState.landAt = Date.now()/1000; // record landed time for Free mode 20210102
 
     if (this.state.wunit == 'kg') {
       this.WEIGHT_KG = this.state.wval;
@@ -849,7 +868,7 @@ export default class Live extends Component {
             console.log('----- _sendSingleVidViewLog Exercise.js .');
             // console.log('----- _getUserProfile idTokenCopied: ', idTokenCopied);
             // console.log('JSON.parse(localFileContents)["identifiedBparts"]: ', JSON.parse(localFileContents)["identifiedBparts"]);
-            fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/sendSingleVidViewLog2-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+            fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/sendSingleVidViewLog1019-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
               method: 'POST',
               headers: {
                 // 'Accept': 'application/json', 
@@ -894,6 +913,23 @@ export default class Live extends Component {
                 VideoQuality: JSON.parse(localFileContents)["VideoQuality"], // added on 20210110 // this is array
                 CameraStatus: JSON.parse(localFileContents)["CameraStatus"], // added on 20210110 // this is array
 
+                landAt: JSON.parse(localFileContents)["landAt"], // added on 20210111
+                pressSkipAt: JSON.parse(localFileContents)["pressSkipAt"], // added on 20210111
+                AllPosOkAt: JSON.parse(localFileContents)["AllPosOkAt"], // added on 20210111
+                vidPlayAt: JSON.parse(localFileContents)["vidPlayAt"], // added on 20210111
+                vidPauseAt: JSON.parse(localFileContents)["vidPauseAt"], // added on 20210111
+                leaveAt: JSON.parse(localFileContents)["leaveAt"], // added on 20210111
+                isFreeMode: JSON.parse(localFileContents)["isFreeMode"], // added on 20210111
+
+                iP_f: JSON.parse(localFileContents)["iP_f"], // added on 20210111
+                iP_lw: JSON.parse(localFileContents)["iP_lw"], // added on 20210111
+                iP_rw: JSON.parse(localFileContents)["iP_rw"], // added on 20210111
+                iP_la: JSON.parse(localFileContents)["iP_la"], // added on 20210111
+                iP_ra: JSON.parse(localFileContents)["iP_ra"], // added on 20210111  
+                
+                appVer: JSON.parse(localFileContents)["appVer"], // added on 20210111  
+                
+
               })
             }).then( result => result.json() )
               .then( response => { 
@@ -910,12 +946,27 @@ export default class Live extends Component {
                     
                 } else { // response[code] is Error      
                   console.log('Received response[code] = error from functions.');
-                  alert('Received response[code] = error from functions. Please log-in again.');
+                  // alert('Received response[code] = error from functions. Please log-in again.');
+                  
+                  //// Delete records to avoid error 20210111
+                  FileSystem.deleteAsync( this.curDir  + this.state.vidViewLogTemp + '/' + Localfile).then( () => {
+                    console.log('SINGLE Localfile Uploaded & Deleted 1: ', Localfile );
+                  }).catch( error => {
+                    console.log('FileSystem.deleteAsync error: ', error);
+                  })
+                  
                 }
-               
             }).catch( error => {
               console.log('Error _sendSingleVidViewLog-py: ', error);
-              alert('Error response from _sendSingleVidViewLog, Please log-in again.');
+              // alert('Error response from _sendSingleVidViewLog, Please log-in again.');
+
+              //// Delete records to avoid error 20210111
+              FileSystem.deleteAsync( this.curDir  + this.state.vidViewLogTemp + '/' + Localfile).then( () => {
+                console.log('SINGLE Localfile Uploaded & Deleted 2: ', Localfile );
+              }).catch( error => {
+                console.log('FileSystem.deleteAsync error: ', error);
+              })
+
             });
           }         
 
@@ -959,8 +1010,8 @@ export default class Live extends Component {
     jsonContents["vidId"] = vidId;
     jsonContents["viewId"] = viewId;
     jsonContents["uid"] = firebase.auth().currentUser.uid;
-    jsonContents["startAt"] = this.vidState.vidStartAt;
-    jsonContents["endAt"] = this.vidState.vidEndAt;
+    jsonContents["startAt"] = this.state.vidStartAt; // changed from 'this.vidState.vidStartAt' to 'this.state.vidStartAt' 20210111
+    jsonContents["endAt"] = this.state.vidEndAt; // changed from 'this.vidState.vidEndAt' to 'this.state.vidEndAt' 20210111
     jsonContents["nTa"] = this.state.noseToAnkle;
     jsonContents["pt"] = this.state.mdCumTtlNow; // METS
     jsonContents["score"] = this.state.scoreNow; // Calorie
@@ -985,7 +1036,7 @@ export default class Live extends Component {
     jsonContents['winWidth'] = this.camState.windowWidth;
     jsonContents['texDimsWidth'] = this.textureDims.width;
     jsonContents['texDimsHeight'] = this.textureDims.height;
-
+    
     // jsonContents['outNTAcnt'] = this.outNTA.cnt;
     // jsonContents['numFrameVidStart'] = this.vidState.numFrameVidStart;
     // jsonContents['numFrameAllPosOk'] = this.vidState.numFrameAllPosOk;
@@ -994,10 +1045,26 @@ export default class Live extends Component {
     jsonContents['wval'] = this.state.wval;
     jsonContents['wunit'] = this.state.wunit;  
     
-    jsonContents['VideoQuality'] = this.state.VideoQuality, 
-    jsonContents['CameraStatus'] = this.state.CameraStatus,
-    // jsonContents['VideoQuality'] = JSON.stringify( this.state.VideoQuality ), 
-    // jsonContents['CameraStatus'] = JSON.stringify( this.state.CameraStatus ),
+    jsonContents['VideoQuality'] = this.state.VideoQuality, // 20010110
+    jsonContents['CameraStatus'] = this.state.CameraStatus, // 20010110
+    jsonContents['landAt'] = this.vidState.landAt; // 20010111
+    jsonContents['pressSkipAt'] = this.state.pressSkipAt; // 20010111
+    jsonContents['AllPosOkAt'] = this.state.AllPosOkAt; // 20010111
+    jsonContents['vidPlayAt'] = this.state.vidPlayAt; // 20010111
+    jsonContents['vidPauseAt'] = this.state.vidPauseAt; // 20010111
+    jsonContents['leaveAt'] = this.vidState.leaveAt; // 20010111
+    jsonContents['isFreeMode'] = this.state.isFreeMode; // 20010111
+
+    jsonContents['iP_f'] = this.state.iP_f; // 20010111
+    jsonContents['iP_lw'] = this.state.iP_lw; // 20010111
+    jsonContents['iP_rw'] = this.state.iP_rw; // 20010111
+    jsonContents['iP_la'] = this.state.iP_la; // 20010111
+    jsonContents['iP_ra'] = this.state.iP_ra; // 20010111
+
+    jsonContents['appVer'] = appVer; // 20010111
+    
+
+
 
     jsonContents = JSON.stringify(jsonContents); // convert to string for saving file
     console.log('jsonContents: ', jsonContents);
@@ -1098,7 +1165,7 @@ export default class Live extends Component {
 
   _pressSkip = async() => {
     console.log('---------- _pressSkip');
-    this.setState({showLiveTipModal: false, liveTipImg: 0}); // remove modal & reset image to 0
+    this.setState({showLiveTipModal: false, liveTipImg: 0, pressSkipAt: Date.now() / 1000}); // remove modal & reset image to 0
   };  
 
 
@@ -2011,7 +2078,7 @@ export default class Live extends Component {
                   // hide webCam, initialPosture.png & start countdown 
                   if (flagAllPosOk == false && this.cntIniPos > this.cntIniPosCriteria ) { // flag to control going through one time 
                     //flagAllPosOk = 1; // flag to confirm all the positions are within camera range
-                    this.setState({ flagAllPosOk: true });
+                    this.setState({ flagAllPosOk: true, AllPosOkAt: Date.now() / 1000 });
                     console.log('oooooooooooooooooooooooooooooooooooooooooo All the positions confirmed ooooooooooooooooooooooooooooooooooooooooooooo ');
                     
                     this.vidState.numFrameAllPosOk = this.vidState.renderPoseTimes; // for record to Firestore vidViewLog. 20200524
