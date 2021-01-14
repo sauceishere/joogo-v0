@@ -34,7 +34,7 @@ import YoutubePlayer from "react-native-youtube-iframe"; //　https://lonelycpp.
 import * as Device from 'expo-device'; // to get device info to figure out error rootcause 20210110
 
 
-const appVer = "1.0.19"
+const appVer = "1.0.21"
 
 const TensorCamera = cameraWithTensors(Camera); // https://js.tensorflow.org/api_react_native/latest/#cameraWithTensors
 
@@ -486,6 +486,14 @@ export default class Live extends Component {
     la: false,
     ra: false,
   } // to control whether display red circle on initialPosture 20201102
+
+  flagIp_log = {
+    f: false,
+    lw: false,
+    rw: false,
+    la: false,
+    ra: false,
+  } // this is to know user's camera function status and send as vidViewLog to Firestore 20210113
   startPosingTiming = 0; // to control showStepNotice 20201104
 
   // liveTipImgName = '../assets/live_tip1.png';
@@ -499,6 +507,19 @@ export default class Live extends Component {
     top: this.props.navigation.getParam('const_exer')['frameOutBoundary']['top'],
     left: this.props.navigation.getParam('const_exer')['frameOutBoundary']['left'],
     bottom: this.props.navigation.getParam('const_exer')['frameOutBoundary']['bottom'],
+  }
+
+  device = {
+    br: 0,
+    manu: 0,
+    mod: 0,
+    pro: 0, 
+    yr: 0,
+    ttlMem: 0, 
+    osVer: 0,
+    Api: 0,
+    devType: 0, 
+    maxMem: 0, 
   }
 
 
@@ -577,7 +598,7 @@ export default class Live extends Component {
     this.vidState.leaveAt = Date.now()/1000; // 
 
     if ( this.vidState.vidPlayedSum == 0 ) { // if Free Mode, vidPlayedSum should be 0, so intentionally assign vidPlayedSum. 20210102
-      this.vidState.vidPlayedSum = this.vidState.vidEndAt - this.vidState.landAt;
+      this.vidState.vidPlayedSum = this.vidState.leaveAt - this.vidState.landAt;
     }
 
     // ScreenOrientation.unlockAsync(); // back to portrait
@@ -596,6 +617,8 @@ export default class Live extends Component {
 
   async componentDidMount() {
     console.log('------------------- componentDidMount Live1016 started 0');
+
+    this.vidState.landAt = Date.now()/1000; // record landed time for Free mode 20210102
     
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE); // to landscape
     // console.log( 'ScreenOrientation.ScreenOrientationInfo: ', ScreenOrientation.ScreenOrientationInfo(orientation) );
@@ -617,22 +640,40 @@ export default class Live extends Component {
     // console.log('this.state.vidViewLogTemp: ', this.state.vidViewLogTemp);
     // console.log('this.props.navigation.getParam(model2): ', this.props.navigation.getParam('model2') );
     console.log('componentDidMount post: ', this.props.navigation.getParam('post'));
-    console.log('Device.brand: ', Device.brand);
-    console.log('Device.manufacturer: ', Device.manufacturer);
-    console.log('Device.modelName: ', Device.modelName);
-    console.log('Device.productName: ', Device.productName);
-    console.log('Device.deviceYearClass: ', Device.deviceYearClass);
-    console.log('Device.totalMemory: ', Device.totalMemory); 
-    console.log('Device.osVersion: ', Device.osVersion);
-    console.log('Device.platformApiLevel: ', Device.platformApiLevel);
-    const deviceType= await Device.getDeviceTypeAsync();
-    console.log('deviceType: ', deviceType);
-    const maxMemory = await Device.getMaxMemoryAsync(); 
-    console.log('maxMemory: ', maxMemory);
-    const platformFeatures= await Device.getPlatformFeaturesAsync();
-    console.log('platformFeatures: ', platformFeatures);        
+    
+    try {
+      this.device.br = Device.brand;
+      this.device.manu = Device.manufacturer;
+      this.device.mod = Device.modelName;
+      this.device.pro = Device.productName;
+      this.device.yr = Device.deviceYearClass;
+      this.device.ttlMem = Device.totalMemory;
+      this.device.osVer = Device.osVersion;
+      this.device.Api = Device.platformApiLevel;
+      this.device.devType = await Device.getDeviceTypeAsync();
+      this.device.maxMem = await Device.getMaxMemoryAsync(); 
+    
+      // console.log('Device.brand: ', Device.brand);
+      // console.log('Device.manufacturer: ', Device.manufacturer);
+      // console.log('Device.modelName: ', Device.modelName);
+      // console.log('Device.productName: ', Device.productName);
+      // console.log('Device.deviceYearClass: ', Device.deviceYearClass);
+      // console.log('Device.totalMemory: ', Device.totalMemory); 
+      // console.log('Device.osVersion: ', Device.osVersion);
+      // console.log('Device.platformApiLevel: ', Device.platformApiLevel);
+      // const deviceType= await Device.getDeviceTypeAsync();
+      // console.log('deviceType: ', deviceType);
+      // const maxMemory = await Device.getMaxMemoryAsync(); 
+      // console.log('maxMemory: ', maxMemory);
+      // const platformFeatures= await Device.getPlatformFeaturesAsync();
+      // console.log('platformFeatures: ', platformFeatures);        
 
-    this.vidState.landAt = Date.now()/1000; // record landed time for Free mode 20210102
+    } catch (err) {
+      console.log('Device info error: ', err);
+    }
+    
+    console.log( 'this.device: ', this.device);
+
 
     if (this.state.wunit == 'kg') {
       this.WEIGHT_KG = this.state.wval;
@@ -868,7 +909,7 @@ export default class Live extends Component {
             console.log('----- _sendSingleVidViewLog Exercise.js .');
             // console.log('----- _getUserProfile idTokenCopied: ', idTokenCopied);
             // console.log('JSON.parse(localFileContents)["identifiedBparts"]: ', JSON.parse(localFileContents)["identifiedBparts"]);
-            fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/sendSingleVidViewLog1019-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+            fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/sendSingleVidViewLog1020-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
               method: 'POST',
               headers: {
                 // 'Accept': 'application/json', 
@@ -928,6 +969,8 @@ export default class Live extends Component {
                 iP_ra: JSON.parse(localFileContents)["iP_ra"], // added on 20210111  
                 
                 appVer: JSON.parse(localFileContents)["appVer"], // added on 20210111  
+
+                device: JSON.parse(localFileContents)["device"], // added on 20210112 // this is array 
                 
 
               })
@@ -1055,13 +1098,15 @@ export default class Live extends Component {
     jsonContents['leaveAt'] = this.vidState.leaveAt; // 20010111
     jsonContents['isFreeMode'] = this.state.isFreeMode; // 20010111
 
-    jsonContents['iP_f'] = this.state.iP_f; // 20010111
-    jsonContents['iP_lw'] = this.state.iP_lw; // 20010111
-    jsonContents['iP_rw'] = this.state.iP_rw; // 20010111
-    jsonContents['iP_la'] = this.state.iP_la; // 20010111
-    jsonContents['iP_ra'] = this.state.iP_ra; // 20010111
+    jsonContents['iP_f'] = this.flagIp_log.f; // 20010111
+    jsonContents['iP_lw'] = this.flagIp_log.lw; // 20010111
+    jsonContents['iP_rw'] = this.flagIp_log.rw; // 20010111
+    jsonContents['iP_la'] = this.flagIp_log.la; // 20010111
+    jsonContents['iP_ra'] = this.flagIp_log.ra; // 20010111
 
     jsonContents['appVer'] = appVer; // 20010111
+
+    jsonContents['device'] = this.device; // 20210112
     
 
 
@@ -2001,6 +2046,23 @@ export default class Live extends Component {
 
                 this.setState({ iP_f: this.flagIp.f, iP_lw: this.flagIp.lw, iP_rw: this.flagIp.rw, iP_la: this.flagIp.la, iP_ra: this.flagIp.ra  });
                  
+
+                //// this is to know user's camera function status and send as vidViewLog to Firestore 20210113
+                if (this.flagIp.f == true) {
+                  this.flagIp_log.f = true;
+                }
+                if (this.flagIp.lw == true) {
+                  this.flagIp_log.lw = true;
+                }
+                if (this.flagIp.rw == true) {
+                  this.flagIp_log.rw = true;
+                }
+                if (this.flagIp.la == true) {
+                  this.flagIp_log.la = true;
+                }
+                if (this.flagIp.ra == true) {
+                  this.flagIp_log.ra = true;
+                }
 
               };
 

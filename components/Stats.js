@@ -46,8 +46,8 @@ export default class Stats extends Component {
         // const { dbName, } = this.state;
         console.log('------------- componentDidMount Stats started');
         ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
-        console.log('this.state.StatsDataLoadedAt: ', this.state.StatsDataLoadedAt);
-        console.log('this.state.lastPlayEnded: ', this.state.lastPlayEnded);
+        // console.log('this.state.StatsDataLoadedAt: ', this.state.StatsDataLoadedAt);
+        // console.log('this.state.lastPlayEnded: ', this.state.lastPlayEnded);
         const ts = Date.now() / 1000;
 
         // if ( !this.state.StatsDataLoadedAt || this.state.StatsDataLoadedAt < this.state.lastPlayEnded ) { // to laod data again if never loaded OR last load datetime is earlier than last played datetime. 
@@ -70,7 +70,7 @@ export default class Stats extends Component {
                     })
                 }).then( result => result.json() )
                     .then( response => { 
-                    // console.log('------------------ _getStats response: ', response);
+                    console.log('------------------ _getStats response: ', response);
         
                         if( response["code"] == 'ok'){
                             console.log('---------------- ok');

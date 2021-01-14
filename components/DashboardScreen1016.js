@@ -252,7 +252,7 @@ export default class DashboardScreen extends Component {
               const _sendSingleVidViewLog = (idTokenCopied) => {
                 console.log('----- Dashboard _sendSingleVidViewLog.');
                 // console.log('----- _getUserProfile idTokenCopied: ', idTokenCopied);
-                fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/sendSingleVidViewLog1019-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+                fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/sendSingleVidViewLog1020-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
                   method: 'POST',
                   headers: {
                     // 'Accept': 'application/json', 
@@ -312,6 +312,8 @@ export default class DashboardScreen extends Component {
                     iP_ra: JSON.parse(localFileContents)["iP_ra"], // added on 20210111 
 
                     appVer: JSON.parse(localFileContents)["appVer"], // added on 20210111
+
+                    device: JSON.parse(localFileContents)["device"], // added on 20210112 // this is array 
 
                   })
                 }).then( result => result.json() )
