@@ -252,7 +252,7 @@ export default class DashboardScreen extends Component {
               const _sendSingleVidViewLog = (idTokenCopied) => {
                 console.log('----- Dashboard _sendSingleVidViewLog.');
                 // console.log('----- _getUserProfile idTokenCopied: ', idTokenCopied);
-                fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/sendSingleVidViewLog1020-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+                fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/sendSingleVidViewLog1023-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
                   method: 'POST',
                   headers: {
                     // 'Accept': 'application/json', 
@@ -314,6 +314,15 @@ export default class DashboardScreen extends Component {
                     appVer: JSON.parse(localFileContents)["appVer"], // added on 20210111
 
                     device: JSON.parse(localFileContents)["device"], // added on 20210112 // this is array 
+
+                    tfAt: JSON.parse(localFileContents)["tfAt"], // added on 20210116 // v1.0.22
+                    pnet: JSON.parse(localFileContents)["pnet"], // added on 20210116 // v1.0.22  
+                    pnetAt: JSON.parse(localFileContents)["pnetAt"], // added on 20210116 // v1.0.22                   
+
+                    rpTimes: JSON.parse(localFileContents)["rpTimes"], // 20210120 // v1.0.23
+                    looptimes: JSON.parse(localFileContents)["looptimes"], // 20210120 // v1.0.23
+                    pose: JSON.parse(localFileContents)["pose"], // 20210120 // v1.0.23
+                    iniPosStartAt: JSON.parse(localFileContents)["iniPosStartAt"], // 20210121// v1.0.23
 
                   })
                 }).then( result => result.json() )

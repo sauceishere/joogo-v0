@@ -11,7 +11,7 @@ import { Camera } from 'expo-camera';
 import { cameraWithTensors } from '@tensorflow/tfjs-react-native'; // https://js.tensorflow.org/api_react_native/latest/#cameraWithTensors
 // https://www.npmjs.com/package/@tensorflow/tfjs-react-native
 import * as tf from '@tensorflow/tfjs';
-import * as posenet from '@tensorflow-models/posenet';
+import * as posenet from '@tensorflow-models/posenet'; // https://github.com/tensorflow/tfjs/blob/master/tfjs-react-native/integration_rn59/components/webcam/realtime_demo.tsx#L240
 import * as Permissions from 'expo-permissions';
 // import MediaMeta from 'react-native-media-meta'; // https://github.com/mybigday/react-native-media-meta
 import * as FileSystem from 'expo-file-system'; // https://docs.expo.io/versions/latest/sdk/filesystem/
@@ -34,7 +34,7 @@ import YoutubePlayer from "react-native-youtube-iframe"; //　https://lonelycpp.
 import * as Device from 'expo-device'; // to get device info to figure out error rootcause 20210110
 
 
-const appVer = "1.0.21"
+const appVer = "1.0.23"
 
 const TensorCamera = cameraWithTensors(Camera); // https://js.tensorflow.org/api_react_native/latest/#cameraWithTensors
 
@@ -131,7 +131,8 @@ export default class Live extends Component {
       CameraStatus: null,
       pressSkipAt: 0, // to rootcausing where users face error. 20210111
       AllPosOkAt: 0, // to rootcausing where users face error. 20210111
-
+      pose: null,
+      iniPosStartAt: 0, // 20210121 //v1.0.23
     }
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);  
     // this._handlePlayAndPause = this._handlePlayAndPause.bind(this);
@@ -522,6 +523,9 @@ export default class Live extends Component {
     maxMem: 0, 
   }
 
+  tfAt = 0; // if tensorflow.js ready 20210116
+  pnetAt = 0; // if posenet loaded At 20210116
+  pnet = 0; // if posenet loaded 20210116
 
 
   _subscribeToAccelerometer = () => {
@@ -665,8 +669,8 @@ export default class Live extends Component {
       // console.log('deviceType: ', deviceType);
       // const maxMemory = await Device.getMaxMemoryAsync(); 
       // console.log('maxMemory: ', maxMemory);
-      // const platformFeatures= await Device.getPlatformFeaturesAsync();
-      // console.log('platformFeatures: ', platformFeatures);        
+      const platformFeatures= await Device.getPlatformFeaturesAsync();
+      console.log('platformFeatures: ', platformFeatures);        
 
     } catch (err) {
       console.log('Device info error: ', err);
@@ -695,14 +699,15 @@ export default class Live extends Component {
     try {
 
       // Wait for tf to be ready.
-      await tf.ready()
-      // tf.ready().then(() => {
+      await tf.ready();
+      this.tfAt = Date.now()/1000;
+      // await tf.ready().then(() => {
       //   console.log('--------- tf.ready');
-      //   this.setState({ isTfReady: true });
+      //   // this.setState({ isTfReady: true });
       // }).catch( error =>{
       //   console.log('tf.ready error: ', error);
       //   alert('tf.ready error: ', error);
-      // });;
+      // });
 
 
       // const cameraStatus = await Permissions.askAsync(Permissions.CAMERA);
@@ -728,19 +733,19 @@ export default class Live extends Component {
       //   }
       // );
 
-      const { status } = await Camera.requestPermissionsAsync();
-      console.log('status: ', status);
+      // const { status } = await Camera.requestPermissionsAsync();
+      // console.log('status: ', status);
 
       const CameraStatus = await Camera.requestPermissionsAsync();
       console.log('CameraStatus: ', CameraStatus);
 
-      if ( status === 'granted' ) {
+      if ( CameraStatus.status === 'granted' ) {
         console.log('CAMERA granted');
         // const onCameraReady = await Camera.getPermissionsAsync();
         // console.log('getPermissionsAsync: ', onCameraReady );
       } else {
-        console.log('Please allow JooGO Fit App to use Camera. CAMERA NOT granted');
-        alert('Please allow JooGO Fit App to use Camera');
+        console.log('Please allow to use Camera. CAMERA NOT granted');
+        alert('Please allow to use Camera');
       }
 
 
@@ -774,6 +779,14 @@ export default class Live extends Component {
         quantBytes: this.props.navigation.getParam('const_exer')['posenetModel']['quantBytes'] // 2 small is faster
       });
       console.log('--------- posenetModel loaded');
+      
+      this.pnetAt = Date.now()/1000;
+      try {
+        this.pnet = posenetModel.baseModel.model.artifacts.convertedBy; 
+        console.log('posenet: ', posenetModel.baseModel.model.artifacts.convertedBy)
+      } catch (err) {
+        console.log('Error getting posenetModel.baseModel.model.artifacts.convertedBy');
+      }
 
 
       // get trainerVideo full URL from Firebase storage 2020315
@@ -805,7 +818,8 @@ export default class Live extends Component {
       if (this.state.isReadyToCD == false) {
         this.setState({
           isTfReady: true,
-          hasCameraPermission: status === 'granted',
+          // hasCameraPermission: status === 'granted',
+          hasCameraPermission: CameraStatus.status,  
           isLoadingPosenet: false, // load posenet model
           posenetModel,  
           isPosenetLoaded: true,
@@ -818,6 +832,8 @@ export default class Live extends Component {
       console.log('this.state.hasCameraPermission: ', this.state.hasCameraPermission);
       console.log('this.state.VideoQuality: ', this.state.VideoQuality);
       console.log('this.state.CameraStatus: ', this.state.CameraStatus);
+      // console.log('this.state.posenetModel: ', this.state.posenetModel.baseModel.model.artifacts.convertedBy);
+      // console.log('this.state.posenetModel: ', this.state.posenetModel);
 
     } catch (err) {
       // this.directories = []; // create empty array,
@@ -909,7 +925,7 @@ export default class Live extends Component {
             console.log('----- _sendSingleVidViewLog Exercise.js .');
             // console.log('----- _getUserProfile idTokenCopied: ', idTokenCopied);
             // console.log('JSON.parse(localFileContents)["identifiedBparts"]: ', JSON.parse(localFileContents)["identifiedBparts"]);
-            fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/sendSingleVidViewLog1020-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
+            fetch('https://asia-northeast1-joogo-v0.cloudfunctions.net/sendSingleVidViewLog1023-py', { // https://developer.mozilla.org/ja/docs/Web/API/Fetch_API/Using_Fetch
               method: 'POST',
               headers: {
                 // 'Accept': 'application/json', 
@@ -972,7 +988,15 @@ export default class Live extends Component {
 
                 device: JSON.parse(localFileContents)["device"], // added on 20210112 // this is array 
                 
+                tfAt: JSON.parse(localFileContents)["tfAt"], // added on 20210116 // v1.0.22
+                pnet: JSON.parse(localFileContents)["pnet"], // added on 20210116 // v1.0.22  
+                pnetAt: JSON.parse(localFileContents)["pnetAt"], // added on 20210116 // v1.0.22  
 
+                rpTimes: JSON.parse(localFileContents)["rpTimes"], // 20210120 // v1.0.23
+                looptimes: JSON.parse(localFileContents)["looptimes"], // 20210120 // v1.0.23
+                pose: JSON.parse(localFileContents)["pose"], // 20210120 // v1.0.23
+                iniPosStartAt: JSON.parse(localFileContents)["iniPosStartAt"], // 20210121// v1.0.23
+              
               })
             }).then( result => result.json() )
               .then( response => { 
@@ -1107,9 +1131,17 @@ export default class Live extends Component {
     jsonContents['appVer'] = appVer; // 20010111
 
     jsonContents['device'] = this.device; // 20210112
+
+    jsonContents['tfAt'] = this.tfAt; // 20210116
+    jsonContents['pnet'] = this.pnet; // 20210116
+    jsonContents['pnetAt'] = this.pnetAt; // 20210116
+
+    jsonContents['rpTimes'] = this.vidState.renderPoseTimes; // 20210120 // v1.0.23
+    jsonContents['looptimes'] = this.vidState.LOOPTIMES; // 20210120 // v1.0.23
+    jsonContents['pose'] = this.state.pose; // 20210120 // v1.0.23
+    jsonContents['iniPosStartAt'] = this.state.iniPosStartAt; // 20210121// v1.0.23
     
-
-
+    
 
     jsonContents = JSON.stringify(jsonContents); // convert to string for saving file
     console.log('jsonContents: ', jsonContents);
@@ -2381,7 +2413,7 @@ export default class Live extends Component {
     // console.log('vidStatus: ', vidStatus);
 
     if ( this.props.navigation.getParam('post')['URL'] == "FREE" && isFreeMode == false) { // go into this block only one ttme.
-      this.setState( {isFreeMode: true, isScanningIniPos: true }); // to NOT to show YoutubePlayer and directly go to scan InitialPosture 20201206
+      this.setState( {isFreeMode: true, isScanningIniPos: true, iniPosStartAt: Date.now() / 1000 }); // to NOT to show YoutubePlayer and directly go to scan InitialPosture 20201206
     }
     
 
@@ -2626,7 +2658,7 @@ export default class Live extends Component {
                                   if (state === "playing") {
                                     console.log('vidStatus: ', state);
                                     if (vidPlayAt == 0) { // for first click on play button
-                                      this.setState({ vidPlaying: true, vidStatus: state, vidStartAt: Date.now() / 1000, vidPlayAt: Date.now() / 1000, isScanningIniPos: true });
+                                      this.setState({ vidPlaying: true, vidStatus: state, vidStartAt: Date.now() / 1000, vidPlayAt: Date.now() / 1000, isScanningIniPos: true, iniPosStartAt: Date.now() / 1000, });
                                     } else { 
                                       this.setState({ vidPlaying: true, vidStatus: state, vidPlayAt: Date.now() / 1000 });
                                     }
