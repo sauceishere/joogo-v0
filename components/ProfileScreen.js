@@ -22,8 +22,8 @@ import {LB_PER_KG} from '../shared/Consts';
 // export const LB_PER_KG = 2.205; // pounds devided by kilograms
 import * as ScreenOrientation from 'expo-screen-orientation'; // https://docs.expo.io/versions/latest/sdk/screen-orientation/#screenorientationlockasyncorientationlock
 import { AdMobBanner } from 'expo-ads-admob'; 
-import { scrW, scrH, winW, winH, sBarH, vButtonH } from './DashboardScreen'; // get screen size & window size from DashboardScreen.js
-
+import { scrW, scrH, winW, winH, sBarH, vButtonH } from './DashboardScreen1016'; // get screen size & window size from DashboardScreen.js
+import { expo } from '../app.json';
 
 export default class ProfileScreen extends Component {
   constructor(props) {
@@ -1061,6 +1061,11 @@ export default class ProfileScreen extends Component {
                     <View style={styles.tableRow}>
                       <Text style={styles.itemTitle}>Last Update</Text>
                       <Text style={styles.itemField00}>{moment.unix(lupdate).fromNow()}</Text>
+                    </View>
+
+                    <View style={styles.tableRow}>
+                      <Text style={styles.itemTitle}>App Version</Text>
+                      <Text style={styles.itemField00}> {expo['version']} </Text>
                     </View>
 
                     <TouchableOpacity onPress={ this._pressEdit} style={styles.postButton} >

@@ -32,9 +32,8 @@ import { greaterThan } from 'react-native-reanimated';
 import { scrW, scrH, winW, winH, sBarH, vButtonH } from './DashboardScreen1016'; // get screen size & window size from DashboardScreen.js
 import YoutubePlayer from "react-native-youtube-iframe"; //　https://lonelycpp.github.io/react-native-youtube-iframe/ 20201202
 import * as Device from 'expo-device'; // to get device info to figure out error rootcause 20210110
+import { expo } from '../app.json';
 
-
-const appVer = "1.0.23"
 
 const TensorCamera = cameraWithTensors(Camera); // https://js.tensorflow.org/api_react_native/latest/#cameraWithTensors
 
@@ -133,6 +132,8 @@ export default class Live extends Component {
       AllPosOkAt: 0, // to rootcausing where users face error. 20210111
       pose: null,
       iniPosStartAt: 0, // 20210121 //v1.0.23
+      outBottomFlag: false,  // 20210124 to tell users to 'Step Back' // v1.0.24
+      poseSnapshot: null, //// to get users' pose every X seconds 20210124 // v1.0.24
     }
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);  
     // this._handlePlayAndPause = this._handlePlayAndPause.bind(this);
@@ -152,15 +153,12 @@ export default class Live extends Component {
   viewId = uuidv4();
 
   // resize Width & Height, Smaller is faster
-  // inputTensorWidth = Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
-  // inputTensorHeight = {{winH}} * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //{winH} / 3; // 200
-  
   // // this below is action for warning 20201117 "[Unhandled promise rejection: Error: When using targetShape.depth=3, targetShape.width must be a multiple of 4. Alternatively do not call detectGLCapabilities()]" 
   // https://techacademy.jp/magazine/35944
-  inputTensorWidth = ( Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ) - ( Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
-  inputTensorHeight = ( Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ) - ( Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //{winH} / 3; // 200
-//   inputTensorWidth = ( (scrH - vButtonH) * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ) - ( scrW * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
-//   inputTensorHeight = ( (scrH - vButtonH) * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ) - ( (scrH - vButtonH) * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //{winH} / 3; // 200
+  // inputTensorWidth = ( Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ) - ( Dimensions.get('window').width * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
+  // inputTensorHeight = ( Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ) - ( Dimensions.get('window').height * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //{winH} / 3; // 200
+  inputTensorWidth = ( winH * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] ) - ( winH * this.props.navigation.getParam('const_exer')['inputTensorRatio']['width'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['width']; //200; // 250; // 200; // 152; //Dimensions.get('window').width / 3; // 152  
+  inputTensorHeight = ( winW * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] ) - ( winW * this.props.navigation.getParam('const_exer')['inputTensorRatio']['height'] % 4) ; // this.props.navigation.getParam('const_exer')['inputTensor']['height']; //399; // 250; // 299; //200; //{winH} / 3; // 200
 
 
 
@@ -235,8 +233,8 @@ export default class Live extends Component {
     x10Max: this.inputTensorWidth * 5/5, // rightWrist   
     y10Min: this.inputTensorHeight * 1/4, // rightWrist
     y10Max: this.inputTensorHeight * 3/4, // rightWrist 
-    xBothAnkleMin: this.inputTensorWidth * 1/5, 
-    xBothAnkleMax: this.inputTensorWidth * 4/5,                           
+    xBothAnkleMin: this.inputTensorWidth * 2/5,  // changed from 1/5 on 20210126
+    xBothAnkleMax: this.inputTensorWidth * 3/5,  // changed from 4/5 on 20210126                         
     yBothAnkleMin: this.inputTensorHeight * 3/4, 
     yBothAnkleMax: this.inputTensorHeight * 4/4,       
     NoseToAnkleMin: this.inputTensorHeight * 1.5/4, // y distance between nose to ankle should be more than this  
@@ -527,6 +525,12 @@ export default class Live extends Component {
   pnetAt = 0; // if posenet loaded At 20210116
   pnet = 0; // if posenet loaded 20210116
 
+  // poseRecords = { //// to get users' pose every X seconds 20210124 // v1.0.24
+  //   pose0: { nose: {score: 0, x: 0, y: 0}, lw: {score: 0, x: 0, y: 0}, rw: {score: 0, x: 0, y: 0}, la: {score: 0, x: 0, y: 0}, ra: {score: 0, x: 0, y: 0} },
+  //   pose1: { nose: {score: 0, x: 0, y: 0}, lw: {score: 0, x: 0, y: 0}, rw: {score: 0, x: 0, y: 0}, la: {score: 0, x: 0, y: 0}, ra: {score: 0, x: 0, y: 0} },
+  //   pose2: { nose: {score: 0, x: 0, y: 0}, lw: {score: 0, x: 0, y: 0}, rw: {score: 0, x: 0, y: 0}, la: {score: 0, x: 0, y: 0}, ra: {score: 0, x: 0, y: 0} }
+  // }
+
 
   _subscribeToAccelerometer = () => {
     console.log('_subscribeToAccelerometer --------- ');
@@ -580,7 +584,7 @@ export default class Live extends Component {
       // const flipHorizontal = true; // false : true;
       const pose = await this.state.posenetModel.estimateSinglePose( nextImageTensor, { flipHorizontal }); // predict
       tf.dispose(nextImageTensor); 
-      this.setState({ pose }); // assign pose to state, and run rendor
+      this.setState({ pose }); // assign pose to state, and kick rendor
       requestAnimationFrame(loop);
       // console.log('---------- end of loop');
     }
@@ -670,7 +674,7 @@ export default class Live extends Component {
       // const maxMemory = await Device.getMaxMemoryAsync(); 
       // console.log('maxMemory: ', maxMemory);
       const platformFeatures= await Device.getPlatformFeaturesAsync();
-      console.log('platformFeatures: ', platformFeatures);        
+      // console.log('platformFeatures: ', platformFeatures);        
 
     } catch (err) {
       console.log('Device info error: ', err);
@@ -745,7 +749,7 @@ export default class Live extends Component {
         // console.log('getPermissionsAsync: ', onCameraReady );
       } else {
         console.log('Please allow to use Camera. CAMERA NOT granted');
-        alert('Please allow to use Camera');
+        alert('Please allow to use Camera. We are NOT recording.');
       }
 
 
@@ -771,14 +775,15 @@ export default class Live extends Component {
 
 
       console.log('--------- loading posenetModel now...');
-      const posenetModel =  await posenet.load({ // https://github.com/tensorflow/tfjs-models/tree/master/posenet
-        architecture: 'MobileNetV1',
+      const posenetModel =  await posenet.load({ // https://github.com/tensorflow/tfjs-models/tree/master/posenet#usage
+        architecture: this.props.navigation.getParam('const_exer')['posenetModel']['architecture'], //'MobileNetV1', // 'ResNet50'
         outputStride: this.props.navigation.getParam('const_exer')['posenetModel']['outputStride'], // 16 larger is faster but no json file for 32. 
         inputResolution: { width: this.inputTensorWidth, height: this.inputTensorHeight },
         multiplier: this.props.navigation.getParam('const_exer')['posenetModel']['multiplier'], // 0.75 smaller is faster
         quantBytes: this.props.navigation.getParam('const_exer')['posenetModel']['quantBytes'] // 2 small is faster
       });
       console.log('--------- posenetModel loaded');
+
       
       this.pnetAt = Date.now()/1000;
       try {
@@ -1095,14 +1100,14 @@ export default class Live extends Component {
     // jsonContents['frameOutCntCum'] = this.frameOutCntCumObj.push(this.frameOutCntCum) ; // this is a Dictionary
     jsonContents['identifiedBparts'] = this.identifiedBPartsAll; // this is an Array
   
-    jsonContents['iTWidth'] = this.inputTensorWidth; 
-    jsonContents['iTHeight'] = this.inputTensorHeight;
-    jsonContents['scHeight'] = this.camState.screenHeight;
-    jsonContents['scWidth'] = this.camState.screenWidth;
-    jsonContents['winHeight'] = this.camState.windowHeight;
-    jsonContents['winWidth'] = this.camState.windowWidth;
-    jsonContents['texDimsWidth'] = this.textureDims.width;
-    jsonContents['texDimsHeight'] = this.textureDims.height;
+    jsonContents['iTWidth'] = Math.round( this.inputTensorWidth ); 
+    jsonContents['iTHeight'] = Math.round( this.inputTensorHeight );
+    jsonContents['scHeight'] = Math.round( this.camState.screenHeight );
+    jsonContents['scWidth'] = Math.round( this.camState.screenWidth );
+    jsonContents['winHeight'] = Math.round( this.camState.windowHeight );
+    jsonContents['winWidth'] = Math.round( this.camState.windowWidth );
+    jsonContents['texDimsWidth'] = Math.round( this.textureDims.width );
+    jsonContents['texDimsHeight'] = Math.round( this.textureDims.height );
     
     // jsonContents['outNTAcnt'] = this.outNTA.cnt;
     // jsonContents['numFrameVidStart'] = this.vidState.numFrameVidStart;
@@ -1128,7 +1133,7 @@ export default class Live extends Component {
     jsonContents['iP_la'] = this.flagIp_log.la; // 20010111
     jsonContents['iP_ra'] = this.flagIp_log.ra; // 20010111
 
-    jsonContents['appVer'] = appVer; // 20010111
+    jsonContents['appVer'] = expo['version'] ; // 20010111
 
     jsonContents['device'] = this.device; // 20210112
 
@@ -1138,7 +1143,7 @@ export default class Live extends Component {
 
     jsonContents['rpTimes'] = this.vidState.renderPoseTimes; // 20210120 // v1.0.23
     jsonContents['looptimes'] = this.vidState.LOOPTIMES; // 20210120 // v1.0.23
-    jsonContents['pose'] = this.state.pose; // 20210120 // v1.0.23
+    jsonContents['pose'] = this.state.poseSnapshot; // v1.0.24 // this.state.pose; // 20210120 // v1.0.23
     jsonContents['iniPosStartAt'] = this.state.iniPosStartAt; // 20210121// v1.0.23
     
     
@@ -1305,7 +1310,7 @@ export default class Live extends Component {
         var _updateScore = setInterval( () => {
 
           var secFromStart = parseInt( Date.now() / 1000 - this.vidState.vidStartAt);
-          console.log('================================== cntLoop: ', this.cntLoopUpdateScore, ' | sec: ', secFromStart, this.vidState.vidPlayedSum.toFixed(3) );
+          console.log('================================== cntLoop: ', this.cntLoopUpdateScore, ' | sec: ', secFromStart );
           // console.log('--- this.pos: ', this.pos);
 
           var NTAForScore = noseToAnkle * this.coefNTA; // 20200614
@@ -1320,32 +1325,32 @@ export default class Live extends Component {
             // var mdCumTtlBeforeModel2 = 0; // validation purpose nly 20201025
             this.scorePrev = 0; // initial assign
             var scoreNow = 0.0;  // initial assign
-            console.log('--- this.scorePrev: ', this.scorePrev.toFixed(3));
-            console.log('--- scoreNow: ', scoreNow.toFixed(3));
+            console.log('--- this.scorePrev: ', this.scorePrev.toFixed(2));
+            console.log('--- scoreNow: ', scoreNow.toFixed(2));
             
             // this.mdCumA = this.mdCum; // update mdCumA
-            this.mdCumA.x5 = this.mdCum.x5.toFixed(3); // update mdCum
-            this.mdCumA.x6 = this.mdCum.x6.toFixed(3); // update mdCum
-            this.mdCumA.x7 = this.mdCum.x7.toFixed(3); // update mdCum
-            this.mdCumA.x8 = this.mdCum.x8.toFixed(3); // update mdCum
-            this.mdCumA.x9 = this.mdCum.x9.toFixed(3); // update mdCum
-            this.mdCumA.x10 = this.mdCum.x10.toFixed(3); // update mdCum
-            this.mdCumA.x11 = this.mdCum.x11.toFixed(3); // update mdCum
-            this.mdCumA.x12 = this.mdCum.x12.toFixed(3); // update mdCum
-            this.mdCumA.x13 = this.mdCum.x13.toFixed(3); // update mdCum
-            this.mdCumA.x14 = this.mdCum.x14.toFixed(3); // update mdCum
-            this.mdCumA.x15 = this.mdCum.x15.toFixed(3); // update mdCum
-            this.mdCumA.y5 = this.mdCum.y5.toFixed(3); // update mdCum
-            this.mdCumA.y6 = this.mdCum.y6.toFixed(3); // update mdCum
-            this.mdCumA.y7 = this.mdCum.y7.toFixed(3); // update mdCum
-            this.mdCumA.y8 = this.mdCum.y8.toFixed(3); // update mdCum
-            this.mdCumA.y9 = this.mdCum.y9.toFixed(3); // update mdCum
-            this.mdCumA.y10 = this.mdCum.y10.toFixed(3); // update mdCum
-            this.mdCumA.y11 = this.mdCum.y11.toFixed(3); // update mdCum
-            this.mdCumA.y12 = this.mdCum.y12.toFixed(3); // update mdCum
-            this.mdCumA.y13 = this.mdCum.y13.toFixed(3); // update mdCum
-            this.mdCumA.y14 = this.mdCum.y14.toFixed(3); // update mdCum
-            this.mdCumA.y15 = this.mdCum.x15.toFixed(3); // update mdCum           
+            this.mdCumA.x5 = this.mdCum.x5.toFixed(); // update mdCum
+            this.mdCumA.x6 = this.mdCum.x6.toFixed(); // update mdCum
+            this.mdCumA.x7 = this.mdCum.x7.toFixed(); // update mdCum
+            this.mdCumA.x8 = this.mdCum.x8.toFixed(); // update mdCum
+            this.mdCumA.x9 = this.mdCum.x9.toFixed(); // update mdCum
+            this.mdCumA.x10 = this.mdCum.x10.toFixed(); // update mdCum
+            this.mdCumA.x11 = this.mdCum.x11.toFixed(); // update mdCum
+            this.mdCumA.x12 = this.mdCum.x12.toFixed(); // update mdCum
+            this.mdCumA.x13 = this.mdCum.x13.toFixed(); // update mdCum
+            this.mdCumA.x14 = this.mdCum.x14.toFixed(); // update mdCum
+            this.mdCumA.x15 = this.mdCum.x15.toFixed(); // update mdCum
+            this.mdCumA.y5 = this.mdCum.y5.toFixed(); // update mdCum
+            this.mdCumA.y6 = this.mdCum.y6.toFixed(); // update mdCum
+            this.mdCumA.y7 = this.mdCum.y7.toFixed(); // update mdCum
+            this.mdCumA.y8 = this.mdCum.y8.toFixed(); // update mdCum
+            this.mdCumA.y9 = this.mdCum.y9.toFixed(); // update mdCum
+            this.mdCumA.y10 = this.mdCum.y10.toFixed(); // update mdCum
+            this.mdCumA.y11 = this.mdCum.y11.toFixed(); // update mdCum
+            this.mdCumA.y12 = this.mdCum.y12.toFixed(); // update mdCum
+            this.mdCumA.y13 = this.mdCum.y13.toFixed(); // update mdCum
+            this.mdCumA.y14 = this.mdCum.y14.toFixed(); // update mdCum
+            this.mdCumA.y15 = this.mdCum.x15.toFixed(); // update mdCum           
           
             // console.log('0 this.mdCum.x10, y13, y15: ', this.mdCum.x10, this.mdCum.y13, this.mdCum.y15 );
             // console.log('0 this.mdCumA.x10, y13, y15: ', this.mdCumA.x10, this.mdCumA.y13, this.mdCumA.y15 );
@@ -1362,28 +1367,28 @@ export default class Live extends Component {
               // console.log('this.mdCumA: ', this.mdCumA);
               // console.log('this.mdCumB: ', this.mdCumB);
               // this.mdCumB = this.mdCum; //update mdCumB
-              this.mdCumB.x5 = this.mdCum.x5.toFixed(3); // update mdCum
-              this.mdCumB.x6 = this.mdCum.x6.toFixed(3); // update mdCum
-              this.mdCumB.x7 = this.mdCum.x7.toFixed(3); // update mdCum
-              this.mdCumB.x8 = this.mdCum.x8.toFixed(3); // update mdCum
-              this.mdCumB.x9 = this.mdCum.x9.toFixed(3); // update mdCum
-              this.mdCumB.x10 = this.mdCum.x10.toFixed(3); // update mdCum
-              this.mdCumB.x11 = this.mdCum.x11.toFixed(3); // update mdCum
-              this.mdCumB.x12 = this.mdCum.x12.toFixed(3); // update mdCum
-              this.mdCumB.x13 = this.mdCum.x13.toFixed(3); // update mdCum
-              this.mdCumB.x14 = this.mdCum.x14.toFixed(3); // update mdCum
-              this.mdCumB.x15 = this.mdCum.x15.toFixed(3); // update mdCum
-              this.mdCumB.y5 = this.mdCum.y5.toFixed(3); // update mdCum
-              this.mdCumB.y6 = this.mdCum.y6.toFixed(3); // update mdCum
-              this.mdCumB.y7 = this.mdCum.y7.toFixed(3); // update mdCum
-              this.mdCumB.y8 = this.mdCum.y8.toFixed(3); // update mdCum
-              this.mdCumB.y9 = this.mdCum.y9.toFixed(3); // update mdCum
-              this.mdCumB.y10 = this.mdCum.y10.toFixed(3); // update mdCum
-              this.mdCumB.y11 = this.mdCum.y11.toFixed(3); // update mdCum
-              this.mdCumB.y12 = this.mdCum.y12.toFixed(3); // update mdCum
-              this.mdCumB.y13 = this.mdCum.y13.toFixed(3); // update mdCum
-              this.mdCumB.y14 = this.mdCum.y14.toFixed(3); // update mdCum
-              this.mdCumB.y15 = this.mdCum.y15.toFixed(3); // update mdCum     
+              this.mdCumB.x5 = this.mdCum.x5.toFixed(); // update mdCum
+              this.mdCumB.x6 = this.mdCum.x6.toFixed(); // update mdCum
+              this.mdCumB.x7 = this.mdCum.x7.toFixed(); // update mdCum
+              this.mdCumB.x8 = this.mdCum.x8.toFixed(); // update mdCum
+              this.mdCumB.x9 = this.mdCum.x9.toFixed(); // update mdCum
+              this.mdCumB.x10 = this.mdCum.x10.toFixed(); // update mdCum
+              this.mdCumB.x11 = this.mdCum.x11.toFixed(); // update mdCum
+              this.mdCumB.x12 = this.mdCum.x12.toFixed(); // update mdCum
+              this.mdCumB.x13 = this.mdCum.x13.toFixed(); // update mdCum
+              this.mdCumB.x14 = this.mdCum.x14.toFixed(); // update mdCum
+              this.mdCumB.x15 = this.mdCum.x15.toFixed(); // update mdCum
+              this.mdCumB.y5 = this.mdCum.y5.toFixed(); // update mdCum
+              this.mdCumB.y6 = this.mdCum.y6.toFixed(); // update mdCum
+              this.mdCumB.y7 = this.mdCum.y7.toFixed(); // update mdCum
+              this.mdCumB.y8 = this.mdCum.y8.toFixed(); // update mdCum
+              this.mdCumB.y9 = this.mdCum.y9.toFixed(); // update mdCum
+              this.mdCumB.y10 = this.mdCum.y10.toFixed(); // update mdCum
+              this.mdCumB.y11 = this.mdCum.y11.toFixed(); // update mdCum
+              this.mdCumB.y12 = this.mdCum.y12.toFixed(); // update mdCum
+              this.mdCumB.y13 = this.mdCum.y13.toFixed(); // update mdCum
+              this.mdCumB.y14 = this.mdCum.y14.toFixed(); // update mdCum
+              this.mdCumB.y15 = this.mdCum.y15.toFixed(); // update mdCum     
               // console.log('--- this.mdCumB: ', this.mdCumB);  
 
 
@@ -1410,7 +1415,8 @@ export default class Live extends Component {
               // }              
               
               mdCumTtlNow = 
-                ( ( ( ( (this.mdCumB.y10 - this.mdCumA.y10) + (this.mdCumB.y12 - this.mdCumA.y12) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_hip ) / this.scaler_scale.y_hip * this.model.y_hip ) + 
+                // ( ( ( ( (this.mdCumB.y10 - this.mdCumA.y10) + (this.mdCumB.y12 - this.mdCumA.y12) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_hip ) / this.scaler_scale.y_hip * this.model.y_hip ) + 
+                ( ( ( ( Math.abs( (this.mdCumB.y11 - this.mdCumA.y11) + (this.mdCumB.y12 - this.mdCumA.y12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_hip ) / this.scaler_scale.y_hip * this.model.y_hip ) +
 
                 ( ( ( ( Math.abs( (this.mdCumB.x5 - this.mdCumB.x11) - (this.mdCumA.x5 - this.mdCumA.x11) ) + Math.abs( (this.mdCumB.x6 - this.mdCumB.x12) - (this.mdCumA.x6 - this.mdCumA.x12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_sho ) / this.scaler_scale.x_sho * this.model.x_sho ) + 
                 ( ( ( ( Math.abs( (this.mdCumB.x7 - this.mdCumB.x5) - (this.mdCumA.x7 - this.mdCumA.x5) ) + Math.abs( (this.mdCumB.x8 - this.mdCumB.x6) - (this.mdCumA.x8 - this.mdCumA.x6) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_elb ) / this.scaler_scale.x_elb * this.model.x_elb ) + 
@@ -1435,32 +1441,33 @@ export default class Live extends Component {
               // console.log('this.mdCumA: ', this.mdCumA);
               // console.log('this.mdCumB: ', this.mdCumB);
               // this.mdCumA = this.mdCum; // update mdCumA
-              this.mdCumA.x5 = this.mdCum.x5.toFixed(3); // update mdCum
-              this.mdCumA.x6 = this.mdCum.x6.toFixed(3); // update mdCum
-              this.mdCumA.x7 = this.mdCum.x7.toFixed(3); // update mdCum
-              this.mdCumA.x8 = this.mdCum.x8.toFixed(3); // update mdCum
-              this.mdCumA.x9 = this.mdCum.x9.toFixed(3); // update mdCum
-              this.mdCumA.x10 = this.mdCum.x10.toFixed(3); // update mdCum
-              this.mdCumA.x11 = this.mdCum.x11.toFixed(3); // update mdCum
-              this.mdCumA.x12 = this.mdCum.x12.toFixed(3); // update mdCum
-              this.mdCumA.x13 = this.mdCum.x13.toFixed(3); // update mdCum
-              this.mdCumA.x14 = this.mdCum.x14.toFixed(3); // update mdCum
-              this.mdCumA.x15 = this.mdCum.x15.toFixed(3); // update mdCum
-              this.mdCumA.y5 = this.mdCum.y5.toFixed(3); // update mdCum
-              this.mdCumA.y6 = this.mdCum.y6.toFixed(3); // update mdCum
-              this.mdCumA.y7 = this.mdCum.y7.toFixed(3); // update mdCum
-              this.mdCumA.y8 = this.mdCum.y8.toFixed(3); // update mdCum
-              this.mdCumA.y9 = this.mdCum.y9.toFixed(3) // update mdCum
-              this.mdCumA.y10 = this.mdCum.y10.toFixed(3); // update mdCum
-              this.mdCumA.y11 = this.mdCum.y11.toFixed(3); // update mdCum
-              this.mdCumA.y12 = this.mdCum.y12.toFixed(3); // update mdCum
-              this.mdCumA.y13 = this.mdCum.y13.toFixed(3); // update mdCum
-              this.mdCumA.y14 = this.mdCum.y14.toFixed(3); // update mdCum
-              this.mdCumA.y15 = this.mdCum.y15.toFixed(3); // update mdCum    
+              this.mdCumA.x5 = this.mdCum.x5.toFixed(); // update mdCum
+              this.mdCumA.x6 = this.mdCum.x6.toFixed(); // update mdCum
+              this.mdCumA.x7 = this.mdCum.x7.toFixed(); // update mdCum
+              this.mdCumA.x8 = this.mdCum.x8.toFixed(); // update mdCum
+              this.mdCumA.x9 = this.mdCum.x9.toFixed(); // update mdCum
+              this.mdCumA.x10 = this.mdCum.x10.toFixed(); // update mdCum
+              this.mdCumA.x11 = this.mdCum.x11.toFixed(); // update mdCum
+              this.mdCumA.x12 = this.mdCum.x12.toFixed(); // update mdCum
+              this.mdCumA.x13 = this.mdCum.x13.toFixed(); // update mdCum
+              this.mdCumA.x14 = this.mdCum.x14.toFixed(); // update mdCum
+              this.mdCumA.x15 = this.mdCum.x15.toFixed(); // update mdCum
+              this.mdCumA.y5 = this.mdCum.y5.toFixed(); // update mdCum
+              this.mdCumA.y6 = this.mdCum.y6.toFixed(); // update mdCum
+              this.mdCumA.y7 = this.mdCum.y7.toFixed(); // update mdCum
+              this.mdCumA.y8 = this.mdCum.y8.toFixed(); // update mdCum
+              this.mdCumA.y9 = this.mdCum.y9.toFixed() // update mdCum
+              this.mdCumA.y10 = this.mdCum.y10.toFixed(); // update mdCum
+              this.mdCumA.y11 = this.mdCum.y11.toFixed(); // update mdCum
+              this.mdCumA.y12 = this.mdCum.y12.toFixed(); // update mdCum
+              this.mdCumA.y13 = this.mdCum.y13.toFixed(); // update mdCum
+              this.mdCumA.y14 = this.mdCum.y14.toFixed(); // update mdCum
+              this.mdCumA.y15 = this.mdCum.y15.toFixed(); // update mdCum    
               // console.log('--- this.mdCumA: ', this.mdCumA);  
 
               mdCumTtlNow = 
-                ( ( ( ( (this.mdCumA.y10 - this.mdCumB.y10) + (this.mdCumA.y12 - this.mdCumB.y12) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_hip ) / this.scaler_scale.y_hip * this.model.y_hip ) + 
+                // ( ( ( ( (this.mdCumA.y10 - this.mdCumB.y10) + (this.mdCumA.y12 - this.mdCumB.y12) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_hip ) / this.scaler_scale.y_hip * this.model.y_hip ) + 
+                ( ( ( ( Math.abs( (this.mdCumA.y11 - this.mdCumB.y11) + (this.mdCumA.y12 - this.mdCumB.y12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.y_hip ) / this.scaler_scale.y_hip * this.model.y_hip ) + 
 
                 ( ( ( ( Math.abs( (this.mdCumA.x5 - this.mdCumA.x11) - (this.mdCumB.x5 - this.mdCumB.x11) ) + Math.abs( (this.mdCumA.x6 - this.mdCumA.x12) - (this.mdCumB.x6 - this.mdCumB.x12) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_sho ) / this.scaler_scale.x_sho * this.model.x_sho ) + 
                 ( ( ( ( Math.abs( (this.mdCumA.x7 - this.mdCumA.x5) - (this.mdCumB.x7 - this.mdCumB.x5) ) + Math.abs( (this.mdCumA.x8 - this.mdCumA.x6) - (this.mdCumB.x8 - this.mdCumB.x6) ) + 0.00001) / 2 / NTAForScore ) - this.scaler_mean.x_elb ) / this.scaler_scale.x_elb * this.model.x_elb ) + 
@@ -1496,7 +1503,7 @@ export default class Live extends Component {
             };
 
             if ( this.state.outNTAFlag === true || this.state.outAccelFlag === true) { // if user is too close to camera OR camera is not fixed. 
-              mdCumTtlNow = 0.000001; // then NOT to increment. making it not zero to avoid division error
+              mdCumTtlNow = 0.00000001; // then NOT to increment. making it not zero to avoid division error
               console.log('xxxxxxxxxx outNTAFlag. Forcing METS to 0.0000001');
             }
 
@@ -1505,8 +1512,8 @@ export default class Live extends Component {
 
             // console.log('--- CALORIE last time,  this.scorePrev: ', this.scorePrev.toFixed(3));
             scoreNow = this.scorePrev + ( mdCumTtlNow / 60 / 60 * this.WEIGHT_KG * 1.05 ); // Calculate calorie & increment. 
-            console.log('--- CALORIE accumlateive,     scoreNow: ', scoreNow.toFixed(3));
-            console.log('--- CALORIE this time, score this time: ', (scoreNow - this.scorePrev).toFixed(3));
+            console.log('--- CALORIE accumlative,     scoreNow: ', scoreNow.toFixed(2));
+            console.log('--- CALORIE this time, score this time: ', (scoreNow - this.scorePrev).toFixed(2));
             this.scorePrev = scoreNow; // duplicate to compare prev vs. current at the next loop. 20200810
 
             this.cntLoopUpdateScore++; // increment
@@ -1575,7 +1582,7 @@ export default class Live extends Component {
 
           // console.log('time0b: ', Date.now() / 1000 - time0);         
                 
-          this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(3), scoreNow: scoreNow.toFixed(1) });// this is what shows as score on top right.
+          this.setState({ mdCumTtlNow : mdCumTtlNow.toFixed(2), scoreNow: scoreNow.toFixed(1) });// this is what shows as score on top right.
           // this.mdCumAll.push( JSON.stringify({ 'sec': secFromStart, 'cntLoopUpdateScore': this.cntLoopUpdateScore, 'ts': Date.now()/1000, 'score': scoreNow.toFixed(3), 'playSum': this.vidState.vidPlayedSum.toFixed(2), 'pos': this.pos }) ); // append froms Start to End 
           this.mdCumAll = 0; // Dummy. To improve response speed 20201010
 
@@ -1990,7 +1997,86 @@ export default class Live extends Component {
 
             }
 
-            // console.log('time0f: ', Date.now() / 1000 - time0);         
+            
+            
+            //// to get users' pose every X seconds after pressSkipAt 20210124
+            try {
+
+              if ( this.state.poseSnapshot == null) {
+                  if ( Date.now() / 1000 - this.state.pressSkipAt > this.props.navigation.getParam('const_exer')['poseSnapshotTiming']['a']) {
+                    // snapshotJson = { //// to get users' pose every X seconds 20210124 // v1.0.24
+                    //   nose: {score: 0, x: 0, y: 0}, lw: {score: 0, x: 0, y: 0}, rw: {score: 0, x: 0, y: 0}, la: {score: 0, x: 0, y: 0}, ra: {score: 0, x: 0, y: 0}
+                    // }
+                    // snapshotJson.nose.score = parseFloat( this.state.pose['keypoint'][0]['score'] ).toFixed(2); // assign nose
+                    // snapshotJson.nose.x = parseInt( this.state.pose['keypoint'][0]['position']['x'] ).toFixed(0); // assign nose
+                    // snapshotJson.nose.y = parseInt( this.state.pose['keypoint'][0]['position']['y'] ).toFixed(0); // assign nose
+                    // snapshotJson.lw.score = parseFloat( this.state.pose['keypoint'][9]['score'] ).toFixed(2); // assign lw
+                    // snapshotJson.lw.x = parseInt( this.state.pose['keypoint'][9]['position']['x'] ).toFixed(0); // assign lw
+                    // snapshotJson.lw.y = parseInt( this.state.pose['keypoint'][9]['position']['y'] ).toFixed(0); // assign lw
+                    // snapshotJson.rw.score = parseFloat( this.state.pose['keypoint'][10]['score'] ).toFixed(2); // assign rw
+                    // snapshotJson.rw.x = parseInt( this.state.pose['keypoint'][10]['position']['x'] ).toFixed(0); // assign rw
+                    // snapshotJson.rw.y = parseInt( this.state.pose['keypoint'][10]['position']['y'] ).toFixed(0); // assign rw
+                    // snapshotJson.la.score = parseFloat( this.state.pose['keypoint'][15]['score'] ).toFixed(2); // assign la
+                    // snapshotJson.la.x = parseInt( this.state.pose['keypoint'][15]['position']['x'] ).toFixed(0); // assign la
+                    // snapshotJson.la.y = parseInt( this.state.pose['keypoint'][15]['position']['y'] ).toFixed(0); // assign la
+                    // snapshotJson.ra.score = parseFloat( this.state.pose['keypoint'][16]['score'] ).toFixed(2); // assign ra
+                    // snapshotJson.ra.x = parseInt( this.state.pose['keypoint'][16]['position']['x'] ).toFixed(0); // assign ra
+                    // snapshotJson.ra.y = parseInt( this.state.pose['keypoint'][16]['position']['y'] ).toFixed(0); // assign ra
+                    this.setState({ poseSnapshot: this.state.pose});
+                    console.log('pppppppppppp poseSnapshot done');
+                  }
+              };
+
+
+            //   // if ( this.poseRecords.pose2 == 0) {
+            //   //   if ( this.poseRecords.pose0 == 0 & Date.now() / 1000 - this.state.pressSkipAt > 4) {
+            //   //       this.poseRecords.pose0.nose.score = parseFloat( this.state.pose['keypoint'][0]['score'] ).toFixed(2); // assign nose
+            //   //       this.poseRecords.pose0.nose.x = parseInt( this.state.pose['keypoint'][0]['position']['x'] ).toFixed(0); // assign nose
+            //   //       this.poseRecords.pose0.nose.y = parseInt( this.state.pose['keypoint'][0]['position']['y'] ).toFixed(0); // assign nose
+            //   //       this.poseRecords.pose0.lw.score = parseFloat( this.state.pose['keypoint'][9]['score'] ).toFixed(2); // assign lw
+            //   //       this.poseRecords.pose0.lw.x = parseInt( this.state.pose['keypoint'][9]['position']['x'] ).toFixed(0); // assign lw
+            //   //       this.poseRecords.pose0.lw.y = parseInt( this.state.pose['keypoint'][9]['position']['y'] ).toFixed(0); // assign lw
+            //   //       this.poseRecords.pose0.rw.score = parseFloat( this.state.pose['keypoint'][10]['score'] ).toFixed(2); // assign rw
+            //   //       this.poseRecords.pose0.rw.x = parseInt( this.state.pose['keypoint'][10]['position']['x'] ).toFixed(0); // assign rw
+            //   //       this.poseRecords.pose0.rw.y = parseInt( this.state.pose['keypoint'][10]['position']['y'] ).toFixed(0); // assign rw
+            //   //       this.poseRecords.pose0.la.score = parseFloat( this.state.pose['keypoint'][15]['score'] ).toFixed(2); // assign la
+            //   //       this.poseRecords.pose0.la.x = parseInt( this.state.pose['keypoint'][15]['position']['x'] ).toFixed(0); // assign la
+            //   //       this.poseRecords.pose0.la.y = parseInt( this.state.pose['keypoint'][15]['position']['y'] ).toFixed(0); // assign la
+            //   //       this.poseRecords.pose0.ra.score = parseFloat( this.state.pose['keypoint'][16]['score'] ).toFixed(2); // assign ra
+            //   //       this.poseRecords.pose0.ra.x = parseInt( this.state.pose['keypoint'][16]['position']['x'] ).toFixed(0); // assign ra
+            //   //       this.poseRecords.pose0.ra.y = parseInt( this.state.pose['keypoint'][16]['position']['y'] ).toFixed(0); // assign ra
+            //   //     }
+            //   //   if ( this.poseRecords.pose1 == 0 & Date.now() / 1000 - this.state.pressSkipAt > 6) {
+            //   //       this.poseRecords.pose1.nose.score = parseFloat( this.state.pose['keypoint'][0]['score'] ).toFixed(2); // assign nose
+            //   //       this.poseRecords.pose1.nose.x = parseInt( this.state.pose['keypoint'][0]['position']['x'] ).toFixed(0); // assign nose
+            //   //       this.poseRecords.pose1.nose.y = parseInt( this.state.pose['keypoint'][0]['position']['y'] ).toFixed(0); // assign nose
+            //   //       this.poseRecords.pose1.lw.score = parseFloat( this.state.pose['keypoint'][9]['score'] ).toFixed(2); // assign lw
+            //   //       this.poseRecords.pose1.lw.x = parseInt( this.state.pose['keypoint'][9]['position']['x'] ).toFixed(0); // assign lw
+            //   //       this.poseRecords.pose1.lw.y = parseInt( this.state.pose['keypoint'][9]['position']['y'] ).toFixed(0); // assign lw
+            //   //       this.poseRecords.pose1.rw.score = parseFloat( this.state.pose['keypoint'][10]['score'] ).toFixed(2); // assign rw
+            //   //       this.poseRecords.pose1.rw.x = parseInt( this.state.pose['keypoint'][10]['position']['x'] ).toFixed(0); // assign rw
+            //   //       this.poseRecords.pose1.rw.y = parseInt( this.state.pose['keypoint'][10]['position']['y'] ).toFixed(0); // assign rw
+            //   //       this.poseRecords.pose1.la.score = parseFloat( this.state.pose['keypoint'][15]['score'] ).toFixed(2); // assign la
+            //   //       this.poseRecords.pose1.la.x = parseInt( this.state.pose['keypoint'][15]['position']['x'] ).toFixed(0); // assign la
+            //   //       this.poseRecords.pose1.la.y = parseInt( this.state.pose['keypoint'][15]['position']['y'] ).toFixed(0); // assign la
+            //   //       this.poseRecords.pose1.ra.score = parseFloat( this.state.pose['keypoint'][16]['score'] ).toFixed(2); // assign ra
+            //   //       this.poseRecords.pose1.ra.x = parseInt( this.state.pose['keypoint'][16]['position']['x'] ).toFixed(0); // assign ra
+            //   //       this.poseRecords.pose1.ra.y = parseInt( this.state.pose['keypoint'][16]['position']['y'] ).toFixed(0); // assign ra
+            //   //   }                  
+            //   // };
+
+            // //// to get users' pose at X seconds after pressSkipAt 20210124
+            // // if ( this.poseRecords.pose0 == 0) {
+            // //   if ( Date.now() / 1000 - this.state.pressSkipAt > 5) {
+            // //       this.poseRecords.pose0 = this.state.pose; // assign pose 
+            // //   }
+            // // };
+
+            } catch(err) { // closing try block
+              console.log('pppppppppppp poseSnapshot error: ', err);  
+            }              
+
+
 
   ////////// to check if all the positions are ready in camera  ////////////////////
 
@@ -2096,6 +2182,7 @@ export default class Live extends Component {
                   this.flagIp_log.ra = true;
                 }
 
+
               };
 
               this.updateMissingPosTiming = parseInt(Date.now() / 1000); // update updateMissingPosTiming 20201102
@@ -2137,16 +2224,6 @@ export default class Live extends Component {
                 // // to check initialPositions       
                 if (
                     noseToAnkle > this.initialPositions.NoseToAnkleMin &&
-                //     this.pos.x0 > this.initialPositions.x0Min && this.pos.x0 < this.initialPositions.x0Max &&
-                //     this.pos.y0 > this.initialPositions.y0Min && this.pos.y0 < this.initialPositions.y0Max &&
-                    // this.pos.x9 > this.initialPositions.x9Min && this.pos.x9 < this.initialPositions.x9Max &&
-                    // this.pos.y9 > this.initialPositions.y9Min && this.pos.y9 < this.initialPositions.y9Max &&
-                    // this.pos.x10 > this.initialPositions.x10Min && this.pos.x10 < this.initialPositions.x10Max &&
-                    // this.pos.y10 > this.initialPositions.y10Min && this.pos.y10 < this.initialPositions.y10Max &&
-                    // this.pos.x15 > this.initialPositions.xBothAnkleMin && this.pos.x15 < this.initialPositions.xBothAnkleMax &&
-                    // this.pos.y15 > this.initialPositions.yBothAnkleMin &&
-                    // this.pos.x16 > this.initialPositions.xBothAnkleMin && this.pos.x16 < this.initialPositions.xBothAnkleMax &&
-                    // this.pos.y16 > this.initialPositions.yBothAnkleMin 
 
                     posPerloop.x0 > this.initialPositions.x0Min && posPerloop.x0 < this.initialPositions.x0Max &&
                     posPerloop.y0 > this.initialPositions.y0Min && posPerloop.y0 < this.initialPositions.y0Max &&
@@ -2280,9 +2357,11 @@ export default class Live extends Component {
               this.ULBColor.bottom = 'red';
               console.log('RED RED RED RED RED vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv ');
               // this.setState({ ULBColorBottom: 'red' });
+              // this.setState({ outBottomFlag: true  }); // 20210124 to tell users to 'Step Back'
             } else if (this.frameOutCntPrev.bottom === this.frameOutCnt.bottom) {// compare with previous assignment
               this.ULBColor.bottom = 'transparent';
               // this.setState({ ULBColorBottom: 'transparent' });
+              // this.setState({ outBottomFlag: false  }); // 20210124 to tell users to 'Step Back'
               this.frameOutCnt.bottom = 0; // reset
             }
         }
@@ -2374,7 +2453,7 @@ export default class Live extends Component {
     console.log('----------------- render --------------------');
     var time1 = Date.now() / 1000; 
 
-    const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, scoreNow, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon, octopusLoc, outNTAFlag, outAccelFlag, missingPos, outOfIniPos, iP_f, iP_lw, iP_rw, iP_la, iP_ra, showStepNotice, showLiveTipModal, liveTipImg, vidFullUrl, vidStartAt, vidPlayAt, vidEndAt, vidPlaying, isScanningIniPos, vidStatus, isFreeMode, vidPauseAt } = this.state;
+    const { isPosenetLoaded, isReadyToCD, flagAllPosOk, flagCountdownFinished, shouldPlay, scoreNow, loopStartAt, countdownTxt, mdCumTtlNow, showModal, accelerometerData, flagShowGoBackIcon, octopusLoc, outNTAFlag, outAccelFlag, missingPos, outOfIniPos, iP_f, iP_lw, iP_rw, iP_la, iP_ra, showStepNotice, showLiveTipModal, liveTipImg, vidFullUrl, vidStartAt, vidPlayAt, vidEndAt, vidPlaying, isScanningIniPos, vidStatus, isFreeMode, vidPauseAt, outBottomFlag } = this.state;
 
     if (vidStatus === "playing") {
     // if (shouldPlay == true) { // increment only shouldPlay=true. this means not incremented whe video is paused.
@@ -2383,7 +2462,7 @@ export default class Live extends Component {
     console.log( '-- Interval: ', (Date.now()/1000 - this.vidState.loopStartAt).toFixed(2)  ); // this does not have any meaning, just to show how fast code runs.
     this.vidState.loopStartAt = Date.now()/1000;
 
-    console.log('vidPlayedSum / LEN, %: ', this.vidState.vidPlayedSum, this.props.navigation.getParam('post')['LEN'], (this.vidState.vidPlayedSum / this.props.navigation.getParam('post')['LEN'] * 100) );
+    console.log('vidPlayedSum / LEN =  : ', parseFloat( this.vidState.vidPlayedSum ).toFixed(1), ' / ', parseInt(this.props.navigation.getParam('post')['LEN']), ' = ', parseInt(this.vidState.vidPlayedSum / (this.props.navigation.getParam('post')['LEN'] + 0.00001) * 100), ' %' );
 
     // console.log('iP_f, iP_lw, iP_rw, iP_la, iP_ra: ', iP_f, iP_lw, iP_rw, iP_la, iP_ra);
 
@@ -2812,9 +2891,17 @@ export default class Live extends Component {
 
                     { flagAllPosOk ?
                       <View style={styles.attentionContainer}>
-                        { outNTAFlag ?
+                        {/* { outBottomFlag ?
                           <Text style={[styles.attentionText, {color: 'red'} ]}>
                             Step{"\n"}Back
+                          </Text>
+                        :
+                          null
+                        } */}
+
+                        { outNTAFlag ?
+                          <Text style={[styles.attentionText, {color: 'red'} ]}>
+                            Step{"\n"}back
                           </Text>
                         :
                           null
@@ -2822,11 +2909,12 @@ export default class Live extends Component {
 
                         { outAccelFlag ?
                           <Text style={[styles.attentionText, {color: 'red'} ]}>
-                            Fix{"\n"}Smartphone
+                            Fix{"\n"}smartphone
                           </Text>                    
                         :
                           null
                         }
+
                       </View>
                     :
                       <View>
@@ -2834,12 +2922,12 @@ export default class Live extends Component {
                           <View style={styles.attentionContainer}>
                             { showStepNotice ?
                               <Text style={styles.attentionText}>
-                                Move A Step{"\n"} 
-                                Ahead or Back
+                                Move a step{"\n"} 
+                                ahead or back
                               </Text>
                             :
                               <Text style={styles.attentionText}>
-                                Fit{"\n"}Your Body
+                                Fit{"\n"}your body
                               </Text>                 
                             }
 

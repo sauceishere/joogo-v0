@@ -23,6 +23,9 @@ import { calorielist } from '../assets/masters/calorielist'; // countrylist mast
 
 import * as FacebookAds from 'expo-ads-facebook'; // https://docs.expo.io/versions/latest/sdk/facebook-ads/
 
+import { expo } from '../app.json';
+console.log( "app.json expo.version:", expo['version'] );
+
 
 export const scrW = Dimensions.get('screen').width;
 export const scrH = Dimensions.get('screen').height;
