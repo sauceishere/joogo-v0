@@ -1,5 +1,5 @@
 export const firebaseConfig = {
-    apiKey: "AIzaSyAGiKYCNPWM65yvXVsb1gQExzTdtx6pOds",
+    apiKey: "",
     authDomain: "joogo-v0.firebaseapp.com",
     databaseURL: "https://joogo-v0.firebaseio.com",
     projectId: "joogo-v0",
